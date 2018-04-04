@@ -9,9 +9,12 @@ use Psr\Http\Message\ResponseInterface;
 use Slim\Flash\Messages;
 use Slim\Http\Request;
 use Slim\Http\Response;
+use Traits\LoggerAwareTrait;
 
 class Authenticate
 {
+    use LoggerAwareTrait;
+
     //@TODO: I don't like not having typehinting between these classes, because of slims additional features
     //in the request/response objects, but things like getUri seem like they should be standard.
     /**
@@ -201,8 +204,27 @@ class Authenticate
 
         if ($user && password_verify($post['password'], $user->getPassword())) {
             $this->user = $user;
+            $this->getLogger()->notice(
+                'Login Success',
+                [
+                    'subsystem' => 'authentication',
+                    'email' => $post['email_address'],
+                    'action' => 'login',
+                    'success' => true
+                ]
+            );
             return true;
         }
+
+        $this->getLogger()->notice(
+            'Login Failure',
+            [
+                'subsystem' => 'authentication',
+                'email' => $post['email_address'],
+                'action' => 'login',
+                'success' => false
+            ]
+        );
 
         return false;
     }
