@@ -1,0 +1,24 @@
+<?php
+/**
+ * @var \Entities\Organization[] $organizations
+ * @var string $baseUrl
+ */
+?>
+<?php foreach ($organizations as $organization): ?>
+    <?php /** @var \Entities\Organization $organization */ ?>
+    <tr>
+        <td><?= $organization->getUniqueId(); ?></td>
+        <td><?= str_repeat('—', $organization->getLvl()); ?> <?= $organization->getName(); ?></td>
+        <td><?= $organization->getProgramCount(); ?></td>
+        <td>
+            <a href="/organization/<?= $organization->getUniqueId(); ?>/webhooks"
+               title="Webhooks">
+                <i class="fa fa-exchange"></i>
+            </a>
+            <a href="/organization/view/<?= $organization->getUniqueId(); ?>"
+               title="Edit">
+                <i class="fa fa-edit"></i>
+            </a>
+        </td>
+    </tr>
+<?php endforeach; ?>

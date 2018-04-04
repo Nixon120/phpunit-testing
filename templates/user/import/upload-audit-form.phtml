@@ -1,0 +1,86 @@
+<?php
+/**
+ *
+ * @var \Services\Authentication\Authenticate $auth
+ * @var string $baseUrl
+ * @var string $formAction
+ * @var array $emails
+ */
+?>
+<!-- Content Header (Page header) -->
+<div class="header-content">
+    <h2><i class="fa fa-fw fa-gears"></i>Audit Users</h2>
+</div>
+
+<!-- Start body content -->
+<div class="body-content animated fadeIn">
+
+    <div class="row">
+        <div class="col-md-12">
+
+            <div class="message"></div>
+
+            <form id="userImportAuditForm" name="user-import-audit"
+                  action="<?=  $formAction; ?>"
+                  method="post">
+
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>Email</th>
+                        <th>Organization</th>
+                        <th>Role</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <?php foreach ($emails as $email) : ?>
+                        <tr>
+                            <td>
+                                <input value="<?= $email; ?>"
+                                       name="email_address[]"
+                                       class="form-control" data-validation="required"/>
+                            </td>
+                            <td>
+                                <select autocomplete="off"
+                                        name="organization[]"
+                                        data-offset="30"
+                                        data-unique-id="true"
+                                        data-min-characters="0"
+                                        class="form-control"
+                                        data-remote="/organization/list?method=json"
+                                        data-validation="required">
+                                    <?php if ($auth->getUser()->getOrganization() !== null): ?>
+                                        <option selected value="<?= $auth->getUser()->getOrganization()->getUniqueId(); ?>">
+                                            <?= $auth->getUser()->getOrganization()->getName(); ?>
+                                        </option>
+                                    <?php endif; ?>
+                                </select>
+                            </td>
+                            <td>
+                                <select autocomplete="off"
+                                        name="role[]"
+                                        class="form-control" data-validation="required">
+                                    <option value="reports">Reporting
+                                    </option>
+                                    <option value="configs">Configuration
+                                    </option>
+                                    <?php if ($auth->getUser()->getRole() === 'superadmin') : ?>
+                                        <option value="admin">Admin
+                                        </option>
+                                        <option value="superadmin">Super Admin
+                                        </option>
+                                    <?php endif; ?>
+                                </select>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table>
+
+                <button class="btn btn-success form-control">Import Users & Send Notifications</button>
+            </form>
+
+        </div>
+    </div>
+
+</div>

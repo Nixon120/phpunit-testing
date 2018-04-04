@@ -1,0 +1,44 @@
+<?php
+/**
+ * @var \Services\Authentication\Authenticate $auth
+ * @var string $baseUrl
+ * @var string $formAction
+ * @var \Entities\User $user
+ */
+?>
+<!-- Content Header (Page header) -->
+<div class="header-content">
+    <h2><i class="fa fa-fw fa-gears"></i>Import Users</h2>
+</div>
+
+<!-- Start body content -->
+<div class="body-content animated fadeIn">
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    Upload User Import File
+                    <a class="pull-right" href="/templates/user-import-template.xlsx" data-toggle="tooltip" data-original-title="Download template to upload users">
+                        <i class="fa fa-fw fa-download" ></i>
+                    </a>
+                </div>
+                <div class="panel-body">
+                    <div class="message"></div>
+                    <form name="user-import"
+                          enctype="multipart/form-data"
+                          data-success-create-message="<?= $createFormSuccess; ?>"
+                          data-success-update-message="<?= $updateFormSuccess; ?>"
+                          action="<?=  $formAction; ?>"
+                          method="post">
+                        <div class="form-group">
+                            <input type="file" name="userImportFile" id="userImportFile" class="form-control">
+                            <button class="btn btn-success form-control">Upload</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

@@ -1,0 +1,22 @@
+<?php
+/** @var string $baseUrl */
+/** @var \Entities\Participant[] $participants */
+?>
+<?php foreach($participants as $participant):?>
+<tr>
+    <td><?=$participant->getId();?></td>
+    <td><?=$participant->getUniqueId();?></td>
+    <td><?=$participant->getFormattedCredit();?></td>
+    <td><?=$participant->getName();?></td>
+    <td><?=$participant->getEmailAddress();?></td>
+    <td>
+        <a data-toggle="tooltip"
+           data-placement="left"
+           title="Participant Activity"
+           href="/participant/<?=$participant->getUniqueId();?>/adjustment"
+        ><i class="fa fa-th-list"></i></a>
+        <a href="/participant/<?=$participant->getUniqueId();?>/view" data-toggle="tooltip" data-original-title="Edit this participant"
+        ><i class="fa fa-edit"></i></a>
+    </td>
+</tr>
+<?php endforeach;?>

@@ -1,0 +1,507 @@
+<?php
+/**
+ * @var string $baseUrl
+ * @var string $form_post_path
+ * @var \Entities\Program $program
+ * @var Services\Authentication\Authenticate $auth
+ */
+$successUpdateMessage = _('Product layout updated. This page will refresh within 3 seconds.');
+$rowSuccessDeleteMessage = _("Row has been deleted");
+$imageUrl = '/resources/app/layout';
+if (getenv('FILESYSTEM') !== 'local') {
+    $imageUrl = 'https://storage.googleapis.com/adrcdn/layout';
+}
+?>
+<!-- Content Header (Page header) -->
+<div class="header-content">
+    <h2><i class="fa fa-fw fa-tablet"></i>Program Layout: <?=$program->getName();?> [<?=$program->getUniqueId();?>]</h2>
+</div>
+
+<!-- Start body content -->
+<div class="body-content animated fadeIn">
+
+    <div class="message"></div>
+    <form id="programProductLayout" name="programProductLayout"
+          action="/program/<?= $program->getUniqueId(); ?>/layout"
+          data-success-update-message="<?= $successUpdateMessage; ?>"
+          method="post">
+
+
+        <!-- Add hidden input field for image data value -->
+        <!-- Update product name with proper name-->
+
+        <div class="hide">
+            <div class="card-template">
+                <div class="card">
+                    <div class="row">
+                        <div class="col-8 col-sm-8 col-xs-12 type-control">
+                            <label>Type</label>
+                            <select name="" class="form-control"
+                                    data-ignore-select="true">
+                                <option value="image">Image</option>
+                                <option value="product">Product</option>
+                                <option value="link">Link</option>
+                                <option value="product_row">Product Row</option>
+                            </select>
+                        </div>
+                        <div class="col-xs-12 col-4 col-sm-4">
+                            <div class="form-group pull-right">
+                                <label>Size</label>
+                                <select class="form-control card-size"
+                                        data-ignore-select="true">
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4" selected>4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                    <option value="7">7</option>
+                                    <option value="8">8</option>
+                                    <option value="9">9</option>
+                                    <option value="10">10</option>
+                                    <option value="11">11</option>
+                                    <option value="12">12</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12 image-control">
+                            <img src="http://via.placeholder.com/350x150" class="preview update-card-image"
+                                 style="cursor:pointer;" width="100%"/>
+                            <input type="file" name="dummy" style="visibility:hidden;"/>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12 product-control hide d-none">
+                            <label>Product</label>
+                            <select autocomplete="off"
+                                    disabled
+                                    name=""
+                                    data-offset="30"
+                                    data-min-characters="0"
+                                    data-unique-id="sku"
+                                    class="form-control"
+                                    data-filter-program="<?= $program->getUniqueId(); ?>"
+                                    data-remote="/program/product/list?method=json">
+                            </select>
+                        </div>
+                        <div class="col-sm-12 col-xs-12 link-control hide d-none">
+                            <label>Link</label>
+                            <input autocomplete="off"
+                                   value=""
+                                   name=""
+                                   class="form-control"
+                                   data-validation="url"
+                            />
+                        </div>
+                        <div class="col-sm-12 product-row-control hide d-none">
+                            <label>Product Row</label>
+                            <select autocomplete="off"
+                                    multiple
+                                    disabled
+                                    name=""
+                                    data-offset="30"
+                                    data-min-characters="0"
+                                    data-unique-id="sku"
+                                    class="form-control"
+                                    data-filter-program="<?= $program->getUniqueId(); ?>"
+                                    data-remote="<?= $baseUrl; ?>/program/product/list?method=json">
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <style>
+            .layout-row {
+                margin-bottom: 2em;
+            }
+        </style>
+        <div class="layout-container">
+            <?php if (!empty($program->getLayoutRows())): ?>
+                <?php foreach ($program->getLayoutRows() as $row): ?>
+                    <div class="row layout-row">
+                        <div class="row control">
+                            <div class="form-group col-1 col-sm-1">
+                                <label>Columns</label>
+                                <select class="form-control" name="row_columns" data-ignore-select="true">
+                                    <option <?= count($row->getCards()) === 1 ? 'selected' : ''; ?> value="1">1</option>
+                                    <option <?= count($row->getCards()) === 2 ? 'selected' : ''; ?> value="2">2</option>
+                                    <option <?= count($row->getCards()) === 3 ? 'selected' : ''; ?> value="3">3</option>
+                                    <option <?= count($row->getCards()) === 4 ? 'selected' : ''; ?> value="4">4</option>
+                                    <option <?= count($row->getCards()) === 5 ? 'selected' : ''; ?> value="5">5</option>
+                                    <option <?= count($row->getCards()) === 6 ? 'selected' : ''; ?> value="6">6</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-3 col-sm-3">
+                                <label>Label</label>
+                                <input name="row[<?= $row->getPriority(); ?>][label]" value="<?= $row->getLabel() ?? ''; ?>" class="form-control">
+                            </div>
+                            <div class="form-group col-8 col-sm-8 text-right">
+                            <span data-toggle="tooltip" title="Remove row" data-placement="left">
+                                <a href="/program/<?= $program->getUniqueId(); ?>/layout/remove/<?= $row->getId(); ?>"
+                                   class="btn btn-danger btn-sm remove-row"
+                                   data-row-id="<?= $row->getId(); ?>"
+                                   data-success-delete-message="<?= $rowSuccessDeleteMessage; ?>"
+                                >
+                                    <i class="fa fa-fw fa-times"></i>
+                                </a>
+                            </span>
+                            </div>
+                        </div>
+                        <div class="row cards">
+                            <?php foreach ($row->getCards() as $card): ?>
+                                <div class="col-xs-<?= $card->getSize(); ?>">
+                                    <div class="card">
+                                        <div class="row">
+                                            <div class="col-8 col-sm-8 col-xs-12 type-control">
+                                                <label>Type</label>
+
+                                                <select name="row[<?= $row->getPriority(); ?>][card][<?= $card->getPriority(); ?>][type]"
+                                                        class="form-control" data-ignore-select="true">
+                                                    <option <?= $card->getType() === 'image' ? 'selected' : ''; ?>
+                                                            value="image">Image
+                                                    </option>
+                                                    <option <?= $card->getType() === 'product' ? 'selected' : ''; ?>
+                                                            value="product">Product
+                                                    </option>
+                                                    <option <?= $card->getType() === 'link' ? 'selected' : ''; ?>
+                                                            value="link">Link
+                                                    </option>
+                                                    <option <?= $card->getType() === 'product_row' ? 'selected' : ''; ?>
+                                                            value="product_row">Product Row
+                                                    </option>
+                                                </select>
+                                            </div>
+                                            <div class="col-4 col-sm-4 col-xs-12">
+                                                <div class="form-group pull-right">
+                                                    <label>Size</label>
+                                                    <select class="form-control card-size"
+                                                            name="row[<?= $row->getPriority(); ?>][card][<?= $card->getPriority(); ?>][size]"
+                                                            data-ignore-select="true">
+
+                                                        <?php for ($i = 1; $i <= 12; $i++) : ?>
+                                                            <option <?= $card->getSize() === $i ? 'selected' : ''; ?>
+                                                                    value="<?= $i; ?>"><?= $i; ?>
+                                                            </option>
+                                                        <?php endfor; ?>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-12 image-control">
+                                                <?php if ($card->getType() !== 'product_row'): ?>
+                                                    <?php if ($card->getImage() !== null): ?>
+                                                        <img src="<?= $imageUrl; ?>/<?= $card->getImage(); ?>"
+                                                             class="preview update-card-image"
+                                                             style="cursor:pointer;" width="100%"/>
+                                                        <input type="hidden"
+                                                               name="row[<?= $row->getPriority(); ?>][card][<?= $card->getPriority(); ?>][image]"
+                                                               value="<?= $card->getImageData(); ?>"/>
+                                                    <?php else : ?>
+                                                        <img src="http://via.placeholder.com/350x150"
+                                                             class="preview update-card-image"
+                                                             style="cursor:pointer;" width="100%"/>
+                                                        <input type="hidden"
+                                                               name="row[<?= $row->getPriority(); ?>][card][<?= $card->getPriority(); ?>][image]"
+                                                               value=""/>
+                                                    <?php endif; ?>
+                                                <?php endif; ?>
+                                                <input type="file" name="dummy" style="visibility:hidden;"/>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-12 product-control  <?= $card->getType() !== 'product' ? 'hide d-none' : ''; ?>">
+                                                <label>Product</label>
+                                                <select autocomplete="off"
+                                                        name="row[<?= $row->getPriority(); ?>][card][<?= $card->getPriority(); ?>][product]"
+                                                        data-offset="30"
+                                                        data-min-characters="0"
+                                                        data-unique-id="sku"
+                                                        class="form-control"
+                                                        data-filter-program="<?= $program->getUniqueId(); ?>"
+                                                        data-remote="/program/product/list?method=json">
+                                                    <?php if ($card->getProduct() !== null): ?>
+                                                        <option value="<?= $card->getProduct(); ?>"><?= $card->getProduct(); ?></option>
+                                                    <?php endif; ?>
+                                                </select>
+                                            </div>
+                                            <div class="col-sm-12 col-xs-12 link-control <?= $card->getType() !== 'link' ? 'hide d-none' : ''; ?>">
+                                                <label>Link</label>
+                                                <input autocomplete="off"
+                                                       value="<?= $card->getLink(); ?>"
+                                                       class="form-control"
+                                                       data-validation="url"
+                                                       name="row[<?= $row->getPriority(); ?>][card][<?= $card->getPriority(); ?>][link]"
+                                                />
+                                            </div>
+
+                                            <div class="col-sm-12 product-row-control  <?= $card->getType() !== 'product_row' ? 'hide d-none' : ''; ?>">
+                                                <label>Product Row</label>
+                                                <select autocomplete="off"
+                                                        multiple
+                                                        name="row[<?= $row->getPriority(); ?>][card][<?= $card->getPriority(); ?>][product_row][]"
+                                                        data-offset="30"
+                                                        data-min-characters="0"
+                                                        data-unique-id="sku"
+                                                        class="form-control"
+                                                        data-filter-program="<?= $program->getUniqueId(); ?>"
+                                                        data-remote="<?= $baseUrl; ?>/program/product/list?method=json">
+                                                    <?php if ($card->getProductRow() !== null): ?>
+                                                        <?php foreach ($card->getProductRow() as $product) : ?>
+                                                            <option selected value="<?= $product; ?>"><?= $product; ?></option>
+                                                        <?php endforeach; ?>
+                                                    <?php endif; ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <div class="row layout-row">
+                    <div class="row control">
+                        <div class="form-group col-1 col-sm-1">
+                            <label>Columns</label>
+                            <select class="form-control" name="row_columns" data-ignore-select="true">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3" selected>3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-3 col-sm-3">
+                            <label>Label</label>
+                            <input class="form-control" name="row[0][label]" value="">
+                        </div>
+                    </div>
+                    <div class="row cards">
+
+                        <?php for ($i = 0; $i < 3; $i++) : ?>
+                            <div class="col-xs-4">
+                                <div class="card">
+                                    <div class="row">
+                                        <div class="col-8 col-sm-8 col-xs-12 type-control">
+                                            <label>Type</label>
+                                            <select name="row[0][card][<?= $i; ?>][type]" class="form-control"
+                                                    data-ignore-select="true">
+                                                <option value="image">Image</option>
+                                                <option value="product">Product</option>
+                                                <option value="link">Link</option>
+                                                <option value="product_row">Product Row</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-xs-12 col-4 col-sm-4">
+                                            <div class="form-group pull-right">
+                                                <label>Size</label>
+                                                <select class="form-control card-size" name="row[0][card][<?= $i; ?>][size]"
+                                                        data-ignore-select="true">
+                                                    <option value="1">1</option>
+                                                    <option value="2">2</option>
+                                                    <option value="3">3</option>
+                                                    <option value="4" selected>4</option>
+                                                    <option value="5">5</option>
+                                                    <option value="6">6</option>
+                                                    <option value="7">7</option>
+                                                    <option value="8">8</option>
+                                                    <option value="9">9</option>
+                                                    <option value="10">10</option>
+                                                    <option value="11">11</option>
+                                                    <option value="12">12</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12 image-control">
+                                            <img src="http://via.placeholder.com/350x150"
+                                                 class="preview update-card-image"
+                                                 style="cursor:pointer;" width="100%"/>
+                                            <input type="file" name="dummy" style="visibility:hidden;"/>
+                                            <input type="hidden" name="row[0][card][<?= $i; ?>][image]" value=""/>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12 product-control hide d-none">
+                                            <label>Product</label>
+                                            <select autocomplete="off"
+                                                    name="row[0][card][<?= $i; ?>][product]"
+                                                    data-offset="30"
+                                                    data-min-characters="0"
+                                                    data-unique-id="sku"
+                                                    class="form-control"
+                                                    data-filter-program="<?= $program->getUniqueId(); ?>"
+                                                    data-remote="/program/product/list?method=json">
+                                            </select>
+                                        </div>
+                                        <div class="col-sm-12 col-xs-12 link-control hide d-none">
+                                            <label>Link</label>
+                                            <input autocomplete="off"
+                                                   value=""
+                                                   class="form-control"
+                                                   data-validation="url"
+                                                   name="row[0][card][<?= $i; ?>][link]"
+                                            />
+                                        </div>
+                                        <div class="col-sm-12 product-row-control hide d-none">
+                                            <label>Product Row</label>
+                                            <select autocomplete="off"
+                                                    multiple
+                                                    name="row[0][card][<?= $i; ?>][product_row][]"
+                                                    data-offset="30"
+                                                    data-min-characters="0"
+                                                    data-unique-id="sku"
+                                                    class="form-control"
+                                                    data-filter-program="<?= $program->getUniqueId(); ?>"
+                                                    data-remote="<?= $baseUrl; ?>/program/product/list?method=json">
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endfor; ?>
+                    </div>
+                </div>
+            <?php endif; ?>
+        </div>
+        <div class="hide">
+            <div class="layout-template">
+                <div class="row layout-row">
+                    <div class="row control">
+                        <div class="form-group col-1 col-sm-1">
+                            <label>Columns</label>
+                            <select class="form-control" name="row_columns" data-ignore-select="true">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3" selected>3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-3 col-sm-3">
+                            <label>Label</label>
+                            <input class="form-control row-label" name="" value="">
+                        </div>
+                        <div class="form-group col-8 col-sm-8 text-right">
+                            <span data-toggle="tooltip" title="Remove row"
+                                  data-placement="left">
+                                <a class="btn btn-danger btn-sm remove-row"
+                                   data-success-delete-message="<?= $rowSuccessDeleteMessage; ?>"
+                                >
+                                    <i class="fa fa-fw fa-times"></i>
+                                </a>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="row cards">
+                        <?php for ($i = 0; $i < 3; $i++): ?>
+                            <div class="col-xs-4">
+                                <div class="card">
+                                    <div class="row">
+                                        <div class="col-8 col-sm-8 col-xs-12 type-control">
+                                            <label>Type</label>
+                                            <select name="" class="form-control"
+                                                    data-ignore-select="true">
+                                                <option value="image">Image</option>
+                                                <option value="product">Product</option>
+                                                <option value="link">Link</option>
+                                                <option value="product_row">Product Row</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-xs-12 col-4 col-sm-4">
+                                            <div class="form-group pull-right">
+                                                <label>Size</label>
+                                                <select class="form-control card-size"
+                                                        data-ignore-select="true">
+                                                    <option value="1">1</option>
+                                                    <option value="2">2</option>
+                                                    <option value="3">3</option>
+                                                    <option value="4" selected>4</option>
+                                                    <option value="5">5</option>
+                                                    <option value="6">6</option>
+                                                    <option value="7">7</option>
+                                                    <option value="8">8</option>
+                                                    <option value="9">9</option>
+                                                    <option value="10">10</option>
+                                                    <option value="11">11</option>
+                                                    <option value="12">12</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12 image-control">
+                                            <img src="http://via.placeholder.com/350x150"
+                                                 class="preview update-card-image"
+                                                 style="cursor:pointer;" width="100%"/>
+                                            <input type="file" name="dummy" style="visibility:hidden;"/>
+                                            <input type="hidden"/>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12 product-control hide d-none">
+                                            <label>Product</label>
+                                            <select autocomplete="off"
+                                                    disabled
+                                                    name=""
+                                                    data-offset="30"
+                                                    data-min-characters="0"
+                                                    data-unique-id="sku"
+                                                    class="form-control"
+                                                    data-filter-program="<?= $program->getUniqueId(); ?>"
+                                                    data-remote="/program/product/list?method=json">
+                                            </select>
+                                        </div>
+                                        <div class="col-sm-12 col-xs-12 link-control hide d-none">
+                                            <label>Link</label>
+                                            <input autocomplete="off"
+                                                   value=""
+                                                   name=""
+                                                   class="form-control"
+                                                   data-validation="url"
+                                            />
+                                        </div>
+                                        <div class="col-sm-12 product-row-control hide d-none">
+                                            <label>Product Row</label>
+                                            <select autocomplete="off"
+                                                    multiple
+                                                    disabled
+                                                    name=""
+                                                    data-offset="30"
+                                                    data-min-characters="0"
+                                                    data-unique-id="sku"
+                                                    class="form-control"
+                                                    data-filter-program="<?= $program->getUniqueId(); ?>"
+                                                    data-remote="<?= $baseUrl; ?>/program/product/list?method=json">
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endfor; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" style="margin-top:1em;">
+            <div class="form-group col-12 col-sm-12 text-right">
+                <a href="javascript:void(0)" class="add-layout-row btn btn-success">Add row</a>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-success" data-toggle="tooltip" data-placement="left"
+                title="Save Product Layout">Submit
+        </button>
+        <br/>
+    </form>
+
+</div>

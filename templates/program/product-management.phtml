@@ -1,0 +1,236 @@
+<?php
+/**
+ * @var string $baseUrl
+ * @var string $form_post_path
+ * @var \Entities\Program $program
+ * @var Services\Authentication\Authenticate $auth
+ */
+$successUpdateMessage = _('Products updated');
+?>
+<!-- Content Header (Page header) -->
+<div class="header-content">
+    <h2><i class="fa fa-fw fa-gears"></i>Product Management</h2>
+</div>
+
+<!-- Start body content -->
+<div class="body-content animated fadeIn">
+
+    <div class="row">
+        <div class="col-xs-12 col-12">
+            <div class="message"></div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12 col-12">
+            <form id="programFeaturedProductForm" name="programFeaturedProductForm"
+                  action="/program/<?=$program->getUniqueId();?>/product/management/featured"
+                  data-success-update-message="<?=$successUpdateMessage;?>"
+                  method="post">
+
+                <fieldset>
+                    <legend>Featured Products</legend>
+                    <?php $featuredProducts = $program->getFeaturedProducts();?>
+                    <div class="form-group row">
+                        <div class="col-xs-12 col-12 col-sm-12">
+                            <label>Product Name</label>
+                            <select multiple
+                                    autocomplete="off"
+                                    name="products[]"
+                                    data-offset="30"
+                                    data-min-characters="0"
+                                    data-unique-id="sku"
+                                    data-filter-program="<?= $program->getUniqueId(); ?>"
+                                    class="form-control"
+                                    data-remote="/program/product/list?method=json">
+                                <?php if(!empty($featuredProducts)):?>
+                                    <?php foreach($featuredProducts as $product):?>
+                                        <option value="<?=$product->getSku();?>" selected><?=$product->getSku();?></option>
+                                    <?php endforeach;?>
+                                <?php endif;?>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 col-12 col-sm-12">
+                            <button type="submit" class="btn btn-success" data-toggle="tooltip" data-placement="left" title="Save Product Criteria">Submit</button>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <br/>
+            </form>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-12">
+            <form id="programProductForm" name="programProductForm"
+                  action="/program/<?=$program->getUniqueId();?>/product/management/criteria"
+                  data-success-update-message="<?=$successUpdateMessage;?>"
+                  method="post">
+
+                <fieldset>
+                    <legend>Product Criteria</legend>
+
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="form-group row">
+                                <div class="col-md-6">
+                                    <label>Price Between</label>
+                                    <input type="number" step="0.01" class="form-control" name="min" placeholder="min" value="<?=$program->getProductCriteria()->getMinFilter();?>">
+                                </div>
+                                <div class="col-md-6">
+                                    <label>&nbsp;</label>
+                                    <input type="number" step="0.01" class="form-control" name="max" placeholder="max" value="<?=$program->getProductCriteria()->getMaxFilter();?>">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="form-group row">
+                                <div class="col-xs-12">
+                                    <label>Category</label>
+                                    <select multiple
+                                            autocomplete="off"
+                                            name="categories[]"
+                                            data-offset="30"
+                                            data-min-characters="0"
+                                            data-unique-id="unique_id"
+                                            class="form-control"
+                                            data-remote="/program/category/list?method=json">
+                                        <?php if(!empty($program->getProductCriteria()->getCategories())):?>
+                                            <?php foreach($program->getProductCriteria()->getCategories() as $category):?>
+                                                <option selected value="<?=$category->getUniqueId();?>"><?=$category->getName();?></option>
+                                            <?php endforeach;?>
+                                        <?php endif;?>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="form-group row">
+                                <div class="col-xs-12">
+                                    <label>Brand</label>
+                                    <select multiple
+                                            autocomplete="off"
+                                            name="brands[]"
+                                            data-offset="30"
+                                            data-min-characters="0"
+                                            data-unique-id="unique_id"
+                                            class="form-control"
+                                            data-remote="/program/brand/list?method=json">
+                                        <?php if(!empty($program->getProductCriteria()->getBrands())):?>
+                                            <?php foreach($program->getProductCriteria()->getBrands() as $brand):?>
+                                                <option selected value="<?=$brand->getUniqueId();?>"><?=$brand->getName();?></option>
+                                            <?php endforeach;?>
+                                        <?php endif;?>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="form-group row">
+                                <div class="col-xs-6">
+                                    <label>Product Name</label>
+                                    <select multiple
+                                            autocomplete="off"
+                                            name="products[]"
+                                            data-offset="30"
+                                            data-min-characters="0"
+                                            data-unique-id="sku"
+                                            class="form-control"
+                                            data-remote="/program/product/list?method=json">
+                                        <?php if(!empty($program->getProductCriteria()->getProducts())):?>
+                                            <?php foreach($program->getProductCriteria()->getProducts() as $product):?>
+                                                <option selected value="<?=$product->getSku();?>"><?=$product->getName();?></option>
+                                            <?php endforeach;?>
+                                        <?php endif;?>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </fieldset>
+
+                <button type="submit" class="btn btn-success" data-toggle="tooltip" data-placement="left" title="Save Product Criteria">Submit</button>
+                <br/>
+            </form>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-12">
+            <hr />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12">
+            <h3>Products</h3>
+            <div class="product-listing"
+                 data-paginate-alias="product-listing"
+                 data-paginate-cache="600"
+                 data-paginate-pulse="false"
+                 data-paginate-type="infinity"
+                 data-paginate-container=""
+                 data-paginate-touchy="400"
+                 data-paginate-query-prefix=""
+                 data-paginate-per-page="30"
+                 data-paginate-autoload="true"
+                 data-paginate-autosearch="true"
+                 data-paginate-url="/program/product/list">
+                <div class="paginated-search product-border-dashed">
+                    <input type="hidden" name="program" value="<?=$program->getUniqueId();?>" />
+                    <input type="hidden" name="gui" value="1" />
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <input type="text" name="name" class="form-control" placeholder="Search by product name"/>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <select name="active" class="form-control">
+                                    <option value="1">Active</option>
+                                    <option value="0">Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <div class="paginator-submit btn btn-primary">Search</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive table-color mb-20">
+                    <table class="table hover">
+                        <thead>
+                        <tr>
+                            <th width="5%">ID</th>
+                            <th width="80%">Name</th>
+                            <th width="10%">Total</th>
+                            <th width="5%">Actions</th>
+                        </tr>
+                        </thead>
+
+                        <tbody class="paginated-container">
+
+                        </tbody>
+                    </table>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+
+    </div>
+
+
+</div>

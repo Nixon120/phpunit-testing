@@ -1,0 +1,41 @@
+#!/usr/bin/env php
+<?php
+/**
+ * @var \Psr\Container\ContainerInterface $container
+ */
+require __DIR__ . "/../cli-bootstrap.php";
+require __DIR__ . '/../src/events.php';
+
+$input = file_get_contents('php://stdin');
+$eventData = json_decode($input, true);
+$oEvent = new \Entities\Event;
+$oEvent->exchange($eventData);
+
+if ($oEvent->getAttemptCount() > 20) {
+    // Event has been triggered too many times. Log the event as failed.
+    /**
+     * @var \Psr\Log\LoggerInterface $logger
+     */
+    $logger = $container->get('logger');
+    $logger->error($input, ['service' => 'Event']);
+    exit(0);
+}
+
+if (!$emitter->hasListeners($oEvent->getName())) {
+    /**
+     * @var \Psr\Log\LoggerInterface $logger
+     */
+    $logger = $container->get('logger');
+    $logger->info(
+        'No Listeners for Event',
+        [
+            'service' => 'Event',
+            'event' => $oEvent->getName(),
+            'entityId' => $oEvent->getEntityId()
+        ]
+    );
+    exit(0);
+}
+
+$emitter->emit($oEvent);
+exit(0);

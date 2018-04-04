@@ -1,0 +1,89 @@
+<?php
+/**
+ *
+ * @var \Services\Authentication\Authenticate $auth
+ * @var string $baseUrl
+ * @var string $formAction
+ * @var \Entities\Product $product
+ */
+?>
+<!-- Content Header (Page header) -->
+<div class="header-content">
+    <h2><i class="fa fa-fw fa-gears"></i>Product</h2>
+</div>
+
+<!-- Start body content -->
+<div class="body-content animated fadeIn">
+
+    <div class="errors"></div>
+    <form name="product"
+          action="<?=  $formAction; ?>"
+          method="post">
+        <input type="hidden" name="ranged_pricing[unique_id]" value="<?=$product->getSku();?>" />
+        <fieldset>
+            <legend>Product: <?=$product->getName();?></legend>
+                <div class="row">
+                    <div class="col-lg-2">
+                        <div class="form-group">
+                            <label>Ranged Pricing</label>
+                            <select autocomplete="off"
+                                    name="ranged_pricing[active]"
+                                    class="form-control ranged-pricing-toggle">
+                                <option value="0"
+                                    <?= !$product->getRangedPricing()->isActive() ? 'selected' : '' ?>>No
+                                </option>
+                                <option value="1"
+                                    <?= $product->getRangedPricing()->isActive() ? 'selected' : '' ?>>Yes
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <?php $hide = (!$product->getRangedPricing()->isActive() ? true : false) ?>
+                <div class="ranged-pricing <?= !$hide ?: 'hide'; ?>">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6">
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="form-group">
+                                        <label>Min</label>
+                                        <input
+                                               class="form-control"
+                                               placeholder="<?=$product->getShippingAndHandling();?>"
+                                               name="ranged_pricing[min]"
+                                               value="<?=$product->getRangedPricing()->getMin();?>"
+                                               type="number"
+                                               min="1"
+                                               max="999"
+                                               step="0.01"
+                                               size="4" />
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="form-group">
+                                        <label>Max</label>
+                                        <input
+                                               class="form-control"
+                                               placeholder="<?=bcadd($product->getShippingAndHandling(), 1, 2);?>"
+                                               name="ranged_pricing[max]"
+                                               value="<?=$product->getRangedPricing()->getMax();?>"
+                                               type="number"
+                                               min="2"
+                                               max="1000"
+                                               step="0.01"
+                                               size="4" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </fieldset>
+
+        <div class="footer text-right">
+            <button type="submit" class="btn btn-success">Submit</button>
+        </div>
+        <br/>
+    </form>
+</div>

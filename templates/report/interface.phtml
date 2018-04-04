@@ -1,0 +1,310 @@
+<?php
+/**
+ * @var string $baseUrl
+ * @var \Controllers\Report\InputNormalizer $criteria
+ * @var \Services\Report\Interfaces\Reportable $enrollmentReport
+ * @var \Services\Report\Interfaces\Reportable $redemptionReport
+ * @var \Services\Report\Interfaces\Reportable $balanceReport
+ * @var ?\Entities\Organization $organization
+ * @var ?\Entities\Program $program
+ */
+?>
+<!-- Content Header (Page header) -->
+<div class="header-content">
+    <h2><i class="fa fa-fw fa-gears"></i>Reporting</h2>
+</div>
+
+<!-- Start body content -->
+<div class="body-content animated fadeIn">
+
+    <div class="errors"></div>
+    <form id="reportForm" name="report"
+          action="/report"
+          method="get">
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <div class="panel-title">
+                            Filters
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="form-group">
+                                    <select autocomplete="off"
+                                            name="report"
+                                            data-offset="30"
+                                            data-placeholder="Select Report"
+                                            class="form-control" data-validation="required">
+                                        <option ></option>
+                                        <option <?=$criteria->getReportType() !== 'enrollment'?:'selected'?>
+                                                value="enrollment">
+                                            Enrollment
+                                        </option>
+                                        <option <?=$criteria->getReportType() !== 'redemption'?:'selected'?>
+                                                value="redemption">
+                                            Redemption
+                                        </option>
+                                        <option <?=$criteria->getReportType() !== 'point_balance'?:'selected'?>
+                                                value="point_balance">
+                                            Point Balance
+                                        </option>
+                                        <option <?=$criteria->getReportType() !== 'sweepstake'?:'selected'?>
+                                                value="sweepstake">
+                                            Sweepstake Drawings
+                                        </option>
+                                    </select>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="report-criteria enrollment redemption point_balance sweepstake">
+                            <fieldset>
+                                <legend>Client</legend>
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-6">
+                                        <div class="form-group">
+                                            <select autocomplete="off"
+                                                    name="organization"
+                                                    data-offset="30"
+                                                    data-unique-id
+                                                    data-validation="required"
+                                                    data-min-characters="0"
+                                                    class="form-control"
+                                                    data-placeholder="Organization"
+                                                    data-remote="/report/organization/list?method=json">
+                                                <?php if($organization !== null):?>
+                                                <option value="<?=$organization->getUniqueId();?>">
+                                                    <?=$organization->getName();?>
+                                                </option>
+                                                <?php endif;?>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-6">
+                                        <div class="form-group">
+                                            <select <?=$program !== null?:'disabled';?>
+                                                    autocomplete="off"
+                                                    name="program"
+                                                    data-filter-organization="<?=$program === null?:$organization->getUniqueId();?>"
+                                                    data-offset="30"
+                                                    data-unique-id
+                                                    data-min-characters="0"
+                                                    class="form-control"
+                                                    data-placeholder="Program"
+                                                    data-remote="/report/program/list?method=json">
+                                                <?php if($program !== null):?>
+                                                    <option value="<?=$program->getUniqueId();?>">
+                                                        <?=$program->getName();?>
+                                                    </option>
+                                                <?php else:?>
+                                                    <option value="">Program</option>
+                                                <?php endif;?>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                            </fieldset>
+                        </div>
+                        <br />
+                        <?php
+                        $renderDateRangeFilter = $renderParticipantFilter = 'hide';
+                        $dateRangeConsumers = ['enrollment', 'redemption', 'sweepstake'];
+                        $participantConsumers = ['redemption', 'point_balance'];
+                        if(in_array($criteria->getReportType(), $dateRangeConsumers)) {
+                            $renderDateRangeFilter = '';
+                        }
+                        if(in_array($criteria->getReportType(), $participantConsumers)) {
+                            $renderParticipantFilter = '';
+                        }
+                        ?>
+                        <div class="report-criteria <?=implode(' ', $dateRangeConsumers);?> <?=$renderDateRangeFilter;?>">
+                            <fieldset>
+                                <legend>Date Range</legend>
+                                <div class="row date-calendar-range">
+                                    <div class="col-xs-12 col-sm-6">
+                                        <div class="form-group">
+                                            <label for="start_date">Start</label>
+                                            <div class="calendar start-date" data-date="<?=$criteria->getStartDate();?>"></div>
+                                            <input type="hidden" name="start_date" value="<?=$criteria->getStartDate();?>">
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-6">
+                                        <div class="form-group">
+                                            <label for="end_date">End</label>
+                                            <div class="calendar end-date" data-date="<?=$criteria->getEndDate();?>"></div>
+                                            <input type="hidden" name="end_date" value="<?=$criteria->getEndDate();?>">
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <br />
+                        <div class="report-criteria  <?=implode(' ', $participantConsumers);?> <?=$renderParticipantFilter;?>">
+                            <fieldset>
+                                <legend>Participant</legend>
+                                <div class="row">
+                                    <div class="col-xs-12">
+                                        <div class="form-group">
+                                            <label>Unique ID</label>
+                                            <input type="text" class="form-control" name="unique_id" value="<?=$criteria->getUniqueId();?>"/>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-6">
+                                        <div class="form-group">
+                                            <label>First Name</label>
+                                            <input type="text" class="form-control" name="firstname" value="<?=$criteria->getFirstname();?>"/>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-6">
+                                        <div class="form-group">
+                                            <label>Last Name</label>
+                                            <input type="text" class="form-control" name="lastname" value="<?=$criteria->getLastname();?>"/>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-8">
+                                        <div class="form-group">
+                                            <label>Address1</label>
+                                            <input type="text" class="form-control" name="address1" value="<?=$criteria->getAddress1();?>"/>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-4">
+                                        <div class="form-group">
+                                            <label>Address2</label>
+                                            <input type="text" class="form-control" name="address2" value="<?=$criteria->getAddress2();?>"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <div class="panel-title">
+                            Fields
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <?php $isEnrollmentReportType = $criteria->getReportType() !== 'enrollment'?false:true;?>
+                        <div class="report-fields enrollment <?=$isEnrollmentReportType?:'hide';?>">
+                            <select multiple
+                                <?=$isEnrollmentReportType?:'disabled';?>
+                                style="height:20rem"
+                                data-ignore-select="true"
+                                    data-validation="required"
+                                autocomplete="off"
+                                name="fields[]"
+                                class="form-control">
+                                <?php foreach($enrollmentReport->getFieldMap() as $column => $display): ?>
+                                    <option <?=!$criteria->isFieldSelected($column)?:'selected';?>
+                                            value="<?=$column;?>">
+                                        <?=$display;?>
+                                    </option>
+                                <?php endforeach;?>
+                            </select>
+                        </div>
+                        <?php $isRedemptionReportType = $criteria->getReportType() !== 'redemption'?false:true;?>
+                        <div class="report-fields redemption <?=$isRedemptionReportType?:'hide';?>">
+                            <select multiple
+                                <?=$isRedemptionReportType?:'disabled';?>
+                                style="height:20rem"
+                                data-ignore-select="true"
+                                    data-validation="required"
+                                autocomplete="off"
+                                name="fields[]"
+                                class="form-control">
+                                <?php foreach($redemptionReport->getFieldMap() as $column => $display): ?>
+                                    <option <?=!$criteria->isFieldSelected($column)?:'selected';?>
+                                            value="<?=$column;?>">
+                                        <?=$display;?>
+                                    </option>
+                                <?php endforeach;?>
+                            </select>
+                        </div>
+                        <?php $isPointBalanceReportType = $criteria->getReportType() !== 'point_balance'?false:true;?>
+                        <div class="report-fields point_balance <?=$isPointBalanceReportType?:'hide';?>">
+                            <select multiple
+                                <?=$isPointBalanceReportType?:'disabled';?>
+                                style="height:20rem"
+                                data-ignore-select="true"
+                                    data-validation="required"
+                                autocomplete="off"
+                                name="fields[]"
+                                class="form-control">
+                                <?php foreach($balanceReport->getFieldMap() as $column => $display): ?>
+                                    <option <?=!$criteria->isFieldSelected($column)?:'selected';?>
+                                            value="<?=$column;?>">
+                                        <?=$display;?>
+                                    </option>
+                                <?php endforeach;?>
+                            </select>
+                        </div>
+                        <?php $isSweepstakeReportType = $criteria->getReportType() !== 'sweepstake'?false:true;?>
+                        <div class="report-fields sweepstake <?=$isSweepstakeReportType?:'hide';?>">
+                            <select multiple
+                                <?=$isSweepstakeReportType?:'disabled';?>
+                                    style="height:20rem"
+                                    data-ignore-select="true"
+                                    data-validation="required"
+                                    autocomplete="off"
+                                    name="fields[]"
+                                    class="form-control">
+                                <?php foreach($sweepstakeReport->getFieldMap() as $column => $display): ?>
+                                    <option <?=!$criteria->isFieldSelected($column)?:'selected';?>
+                                            value="<?=$column;?>">
+                                        <?=$display;?>
+                                    </option>
+                                <?php endforeach;?>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <div class="panel-title">
+                            Actions
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <fieldset>
+                            <legend>Report Output</legend>
+                            <div class="radio-inline">
+                                <label class="checkbox-inline">
+                                    <input type="radio" name="report_output" value="download" >
+                                    Download
+                                </label>
+
+                                <label class="checkbox-inline">
+                                    <input type="radio" name="report_output" value="view" checked="">
+                                    View
+                                </label>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <div class="footer text-right">
+                                        <button type="submit" class="btn btn-success" data-toggle="tooltip" data-original-title="Submit report">Submit</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+</div>

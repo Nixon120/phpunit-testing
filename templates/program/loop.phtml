@@ -1,0 +1,48 @@
+<?php
+/** @var \Services\Authentication\Authenticate $auth */
+/** @var \Entities\Program[] $programs */
+/** @var string $baseUrl */
+/** @var Services\Authentication\Authenticate $auth */
+?>
+
+<?php foreach($programs as $program):?>
+    <?php /** @var \Entities\Program $program */?>
+<tr>
+    <td class="program-id"><?=$program->getUniqueId();?></td>
+    <td><?=$program->getName();?></td>
+    <?php if($auth->getUser()->getRole() == 'superadmin'):?>
+        <td>
+            <label class="switch">
+                <input
+                    href="/program/<?=$program->getUniqueId();?>/publish"
+                    type="checkbox"
+                    <?= $program->getPublished() ? 'checked':''; ?>
+                    class="publish">
+                <div class="slider round"></div>
+            </label>
+        </td>
+    <?php endif;?>
+    <td>
+        <a data-toggle="tooltip"
+           title="Edit"
+           href="/program/view/<?=$program->getUniqueId();?>">
+            <i class="fa fa-edit"></i></a>
+        <?php if ($auth->getUser()->getRole() === 'superadmin'): ?>
+            <a data-toggle="tooltip"
+               title="Product management"
+               href="/program/<?=$program->getUniqueId();?>/product/management">
+                <i class="fa fa-gears"></i></a>
+        <?php endif;?>
+        <a data-toggle="tooltip"
+           title="Program sweepstakes"
+           href="/program/<?=$program->getUniqueId();?>/sweepstake">
+            <i class="fa fa-list-ol"></i></a>
+        <?php if ($auth->getUser()->getRole() === 'superadmin'): ?>
+            <a data-toggle="tooltip"
+               title="Program layout"
+               href="/program/<?=$program->getUniqueId();?>/layout">
+                <i class="fa fa-tablet"></i></a>
+        <?php endif;?>
+    </td>
+</tr>
+<?php endforeach;?>

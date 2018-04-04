@@ -1,0 +1,122 @@
+<!-- Content Header (Page header) -->
+<div class="header-content">
+    <h2><i class="fa fa-fw fa-th-large"></i>Products</h2>
+</div>
+<!-- Start body content -->
+
+<div class="body-content animated fadeIn">
+    <div class="row">
+        <div class="col-xs-6">
+
+            <div class="panel rounded">
+
+                <div class="panel-heading">
+                    <span class="panel-title pull-left">Marketplace Categories</span>
+                    <div class="btn-group pull-right" role="group" data-toggle="tooltip" data-placement="left" title="Add new category">
+                        <a class="btn btn-success"
+                           data-toggle="modal"
+                           data-target="#modal-dialog"
+                           data-action-type="insert"
+                           data-size="medium"
+                           data-remote="/category/create">
+                            <i class="fa fa-fw fa-plus-square"></i>
+                        </a>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+
+                <div class="panel-body">
+
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="marketplace-categories"
+                                 data-paginate-alias="marketplace-categories"
+                                 data-paginate-cache="600"
+                                 data-paginate-pulse="false"
+                                 data-paginate-type="traditional"
+                                 data-paginate-container=""
+                                 data-paginate-touchy="400"
+                                 data-paginate-query-prefix=""
+                                 data-paginate-per-page="50"
+                                 data-paginate-autoload="true"
+                                 data-paginate-url="/category/list">
+
+                                <div class="paginated-search group-border-dashed">
+                                    <div class="row">
+                                        <div class="col-md-9">
+                                            <div class="form-group">
+                                                <input autocomplete="off" type="text" name="name" class="form-control"
+                                                       placeholder="Search by category name"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <select autocomplete="off" name="categoryStatus" class="form-control">
+                                                    <option value="">Active [All]</option>
+                                                    <option value="yes">Yes</option>
+                                                    <option value="no">No</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="paginated-container">
+                                </div>
+                                <ul class="pull-right paginated-buttons pagination pagination-xs hide">
+                                    <li><a href="#" data-paginate-direction="previous">«</a></li>
+                                    <li><a href="#" data-paginate-direction="next">»</a></li>
+                                </ul>
+                                <div class="clearfix"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-6">
+            <div class="panel rounded">
+                <div class="panel-heading">
+                    <span class="panel-title pull-left">Feed Categories</span>
+                    <div class="pull-right">
+                        <button class="btn btn-lilac category-assignment-save hide"><i class="fa fa-fw fa-check"></i> Save changes</button>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+
+                <div class="panel-body">
+
+                    <div class="row">
+                        <div class="col-xs-12">
+
+                            <div class="feed-categories"
+                                 data-paginate-alias="feed-categories"
+                                 data-paginate-cache="600"
+                                 data-paginate-pulse="false"
+                                 data-paginate-type="traditional"
+                                 data-paginate-container=""
+                                 data-paginate-touchy="400"
+                                 data-paginate-query-prefix=""
+                                 data-paginate-per-page="50"
+                                 data-paginate-autoload="true"
+                                 data-paginate-url="/category/feed-list">
+                                <div class="paginated-container">
+                                </div>
+                                <ul class="pull-right paginated-buttons pagination pagination-xs hide">
+                                    <li><a href="#" data-paginate-direction="previous">«</a></li>
+                                    <li><a href="#" data-paginate-direction="next">»</a></li>
+                                </ul>
+                                <div class="clearfix"></div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>

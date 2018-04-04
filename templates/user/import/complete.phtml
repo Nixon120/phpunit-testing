@@ -1,0 +1,35 @@
+<?php
+/**
+ * @var array $errors
+ * @var int $users_invited
+ */
+?>
+<!-- Content Header (Page header) -->
+<div class="header-content">
+    <h2><i class="fa fa-fw fa-gears"></i>Import Users</h2>
+</div>
+
+<!-- Start body content -->
+<div class="body-content animated fadeIn">
+
+    <div class="row">
+        <div class="col-md-12">
+            <h1>Invitations Sent!</h1>
+            <p>
+                You invited <?= $users_invited; ?> users to the Marketplace Admin.
+            </p>
+        </div>
+    </div>
+
+    <?php if (!empty($errors)) : ?>
+        <div class="row">
+            <div class="col-md-12">
+                <ul>
+                    <?php foreach ($errors as $error): ?>
+                        <li><?= $error; ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        </div>
+    <?php endif; ?>
+</div>

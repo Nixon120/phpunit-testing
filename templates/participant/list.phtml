@@ -1,0 +1,142 @@
+<?php
+/** @var string $baseUrl */
+/** @var string $type */
+/** @var \Services\Authentication\Authenticate $auth */
+?>
+<!-- Content Header (Page header) -->
+<div class="header-content">
+    <h2><i class="fa fa-fw fa-users"></i>Participants</h2>
+</div>
+<!-- Start body content -->
+<div class="body-content animated fadeIn">
+    <div class="row">
+        <div class="col-xs-12">
+            <?php if(in_array($auth->getUser()->getRole(), ['superadmin', 'admin'])):?>
+            <div class="btn-group pull-right" role="group" data-toggle="tooltip" data-placement="left" title="Add Participant">
+                <a class="btn btn-success"
+                   href="/participant/create">
+                    <i class="fa fa-fw fa-plus-square"></i>
+                </a>
+            </div>
+            <?php endif;?>
+        </div>
+
+    </div>
+
+    <br/>
+
+    <div class="row">
+
+        <div class="col-xs-12">
+            <?php $url =  '/participant/list';?>
+            <div class="participant-listing"
+                 data-paginate-alias="participant-listing"
+                 data-paginate-cache="600"
+                 data-paginate-pulse="false"
+                 data-paginate-type="infinity"
+                 data-paginate-container=""
+                 data-paginate-touchy="400"
+                 data-paginate-query-prefix=""
+                 data-paginate-per-page="30"
+                 data-paginate-autoload="false"
+                 data-paginate-autosearch="false"
+                 data-paginate-url="<?= $url; ?>">
+                <div class="paginated-search group-border-dashed">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <select autocomplete="off"
+                                        name="organization"
+                                        required
+                                        data-offset="30"
+                                        data-unique-id
+                                        data-min-characters="0"
+                                        class="form-control"
+                                        data-placeholder="Organization"
+                                        data-remote="/participant/organization/list?method=json">
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <select disabled
+                                        autocomplete="off"
+                                        name="program"
+                                        data-filter-organization=""
+                                        data-offset="30"
+                                        data-unique-id
+                                        data-min-characters="0"
+                                        class="form-control"
+                                        data-placeholder="Program"
+                                        data-remote="/participant/program/list?method=json">
+                                    <option value="">Program</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <div class="form-group">
+                                <input autocomplete="off" type="text" name="unique_id" class="form-control" placeholder="Unique ID"/>
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <div class="form-group">
+                                <input autocomplete="off" type="text" name="name" required class="form-control" placeholder="Name"/>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <input autocomplete="off" type="text" name="email_address" class="form-control" placeholder="Email"/>
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <div class="form-group">
+                                <input placeholder="YYYY-MM-DD" class="calendar form-control" type="text" name="birthdate" value="">
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <div class="form-group">
+                                <select autocomplete="off" name="status" data-ignore-select="true" class="form-control">
+                                    <option value="">Status: All</option>
+                                    <option value="1">Active</option>
+                                    <option value="0">Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                        <div class="form-group">
+                            <div class="paginator-submit btn btn-primary"
+                                 data-toggle="tooltip"
+                                 data-placement="left"
+                                 title="Search existing Participants">
+                                Search
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+                <div class="table-responsive table-color">
+                    <table class="table hover">
+                        <thead>
+                        <tr>
+
+                            <th>ID</th>
+                            <th>Unique ID</th>
+                            <th>Points</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Actions</th>
+
+                        </tr>
+                        </thead>
+
+                        <tbody class="paginated-container">
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>

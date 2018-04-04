@@ -1,0 +1,108 @@
+<!-- Content Header (Page header) -->
+<div class="header-content">
+    <h2><i class="fa fa-fw fa-gears"></i>Programs</h2>
+</div>
+<!-- Start body content -->
+<div class="body-content animated fadeIn">
+    <div class="row">
+        <div class="col-xs-6 message"></div>
+        <div class="col-xs-6 pull-right">
+            <div class="btn-group pull-right" role="group" data-toggle="tooltip" data-placement="left" title="Add Program">
+                <a class="btn btn-success"
+                   href="/program/create">
+                    <i class="fa fa-fw fa-plus-square"></i> New
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <br/>
+
+    <div class="row">
+
+        <?php if (!empty($flash['warning'])) : ?>
+            <?php foreach($flash['warning'] as $message):?>
+                <div class="alert alert-warning col-12 col-xs-12">
+                    <strong><?=$message;?></strong>
+                </div>
+            <?php endforeach;?>
+        <?php endif; ?>
+
+        <div class="col-xs-12">
+            <div class="program-listing"
+                 data-paginate-alias="program-listing"
+                 data-paginate-cache="600"
+                 data-paginate-pulse="false"
+                 data-paginate-type="infinity"
+                 data-paginate-container=""
+                 data-paginate-touchy="400"
+                 data-paginate-query-prefix=""
+                 data-paginate-per-page="30"
+                 data-paginate-autoload="false"
+                 data-paginate-autosearch="false"
+                 data-paginate-url="/program/list">
+                <div class="paginated-search group-border-dashed">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <select autocomplete="off"
+                                        name="organization"
+                                        data-offset="30"
+                                        data-min-characters="0"
+                                        class="form-control"
+                                        data-unique-id
+                                        data-placeholder="Organization"
+                                        data-remote="/organization/list?method=json">
+                                    <option value="">Organization</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="form-group">
+                                <input type="text" name="name" class="form-control" placeholder="Search by program name"/>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <select autocomplete="off" name="status" data-ignore-select="true" class="form-control">
+                                    <option value="">Status: All</option>
+                                    <option value="1">Active</option>
+                                    <option value="0">Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <div class="paginator-submit btn btn-primary"
+                                     data-toggle="tooltip"
+                                     data-placement="left"
+                                     title="Search existing Programs">
+                                    Search
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive table-color mb-20">
+                    <table class="table hover">
+                        <thead>
+                        <tr>
+                            <th width="5%">ID</th>
+                            <th width="75%">Name</th>
+                            <th width="10%">Publish</th>
+                            <th width="10%">Actions</th>
+                        </tr>
+                        </thead>
+
+                        <tbody class="paginated-container">
+
+                        </tbody>
+                    </table>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+
+    </div>
+
+</div>

@@ -1,0 +1,14 @@
+<?php if (!empty($categories)) :?>
+    <?php foreach ($categories as $category) :?>
+        <?php /** @var \Entities\FeedCategory $category */;?>
+        <div class="btn btn-inverse feed-category-listing"
+             data-actioned="false"
+             data-origin-linked-category-id="<?=$category->getLinkedCategoryId();?>"
+             data-updated-linked-category-id="<?=$category->getLinkedCategoryId();?>"
+             data-category-id="<?=$category->getCategoryId();?>">
+            <span>
+                <?=$category->getGrandparent();?> / <?=$category->getParent();?> / <?=$category->getCategoryName();?>
+            </span>
+        </div>
+    <?php endforeach;?>
+<?php endif;?>

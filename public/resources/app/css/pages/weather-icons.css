@@ -1,0 +1,33 @@
+/* ========================================================================
+ * WEATHER ICONS
+ * ======================================================================== */
+/* line 12, ../../sass/pages/weather-icons.scss */
+.example {
+  text-align: center;
+  margin: 10px 3px;
+}
+/* line 15, ../../sass/pages/weather-icons.scss */
+.example:before, .example:after {
+  content: " ";
+  display: table;
+}
+/* line 19, ../../sass/pages/weather-icons.scss */
+.example:after {
+  clear: both;
+}
+/* line 22, ../../sass/pages/weather-icons.scss */
+.example .icon {
+  font-size: 20px;
+  float: left;
+  width: 35px;
+}
+/* line 27, ../../sass/pages/weather-icons.scss */
+.example .class {
+  text-align: center;
+  font-size: 17px;
+  float: left;
+  margin-top: 0;
+  font-weight: 400;
+  margin-left: 10px;
+  color: #333;
+}

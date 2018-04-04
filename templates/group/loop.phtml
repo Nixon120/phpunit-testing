@@ -1,0 +1,16 @@
+<?php foreach($groups as $group):?>
+<tr>
+    <td><?=$group->getId();?></td>
+    <td><?=$group->getName();?></td>
+    <td>
+        <a class="modal-link"
+           data-toggle="modal"
+           data-target="#modal-dialog"
+           data-action-type="update"
+           data-size="medium"
+           data-remote="/group/view/<?=$group->getId();?>">
+            <i class="fa fa-edit"></i>
+        </a>
+    </td>
+</tr>
+<?php endforeach;?>

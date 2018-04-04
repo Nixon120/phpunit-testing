@@ -1,0 +1,99 @@
+/* ========================================================================
+ * RESET
+ * ======================================================================== */
+/* line 12, ../sass/reset.scss */
+body, html {
+  background-color: #E9EAED;
+  font-family: "Open Sans", sans-serif;
+  color: #000;
+  -webkit-font-smoothing: antialiased;
+  direction: ltr;
+  line-height: 21px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* line 23, ../sass/reset.scss */
+a, button {
+  outline: none !important;
+}
+
+/* line 26, ../sass/reset.scss */
+input[type="text"],
+input[type="password"],
+input[type="datetime"],
+input[type="datetime-local"],
+input[type="date"],
+input[type="month"],
+input[type="time"],
+input[type="week"],
+input[type="number"],
+input[type="email"],
+input[type="url"],
+input[type="search"],
+input[type="tel"],
+input[type="color"],
+textarea,
+select {
+  border: 1px solid #DDD;
+  -moz-box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  box-shadow: none !important;
+  color: #a2a2a2 !important;
+  font-size: 13px !important;
+  -moz-border-radius: 0px;
+  -webkit-border-radius: 0px;
+  border-radius: 0px;
+}
+/* line 47, ../sass/reset.scss */
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="datetime"]:focus,
+input[type="datetime-local"]:focus,
+input[type="date"]:focus,
+input[type="month"]:focus,
+input[type="time"]:focus,
+input[type="week"]:focus,
+input[type="number"]:focus,
+input[type="email"]:focus,
+input[type="url"]:focus,
+input[type="search"]:focus,
+input[type="tel"]:focus,
+input[type="color"]:focus,
+textarea:focus,
+select:focus {
+  box-shadow: none !important;
+}
+
+/* line 51, ../sass/reset.scss */
+input[type=file] {
+  border: none !important;
+}
+
+/* line 54, ../sass/reset.scss */
+input[type=checkbox]:disabled + label, input[type=radio]:disabled + label {
+  color: #999;
+  cursor: not-allowed;
+}
+
+/* line 58, ../sass/reset.scss */
+label {
+  font-weight: normal;
+}
+
+/* line 61, ../sass/reset.scss */
+code {
+  background: transparent;
+}
+
+/* line 64, ../sass/reset.scss */
+pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+/* line 68, ../sass/reset.scss */
+svg {
+  width: 100%;
+}

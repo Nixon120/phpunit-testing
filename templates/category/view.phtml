@@ -1,0 +1,37 @@
+<?php /** @var \Entities\Category $category */;?>
+<form name="category" action="/category/view/<?=$category->getId();?>" method="post">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h4 class="modal-title"><span class="fa fa-pencil-square"></span> Edit category: <?= $category->getName(); ?></h4>
+    </div>
+    <div class="modal-body">
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="form-group">
+                    <label>Category Name<span><strong>*</strong></span></label>
+                    <input autocomplete="off" type="text" class="form-control" name="name" value="<?= $category->getName(); ?>"/>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <label>Active <span><strong>*</strong></span></label>
+                    <select autocomplete="off" class="form-control" name="active">
+                        <option <?=($category->getActive() === 'yes' ? 'selected':'');?> value="yes">Yes</option>
+                        <option <?=($category->getActive() === 'no' ? 'selected':'');?> value="no">No</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-inverse pull-left" data-dismiss="modal">Close</button>
+
+        <a href="/category/delete/<?=$category->getId();?>"
+           class="btn btn-danger delete-item"
+           data-modal-classes="modal modal-danger local-modal">
+            Delete
+        </a>
+        <button type="submit" class="btn btn-lilac">Save changes</button>
+    </div>
+</form>

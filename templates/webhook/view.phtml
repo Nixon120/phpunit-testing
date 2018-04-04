@@ -1,0 +1,81 @@
+<?php
+/**
+ * @var string $baseUrl
+ * @var \Entities\Webhook $webhook
+ * @var \Entities\Organization $organization
+ * @var \MongoDB\Driver\Cursor $logs
+ */
+
+?>
+<!-- Content Header (Page header) -->
+<div class="header-content"
+     id="webhook"
+     data-organization="<?= $organization->getUniqueId(); ?>"
+     data-webhook_id="<?= $webhook->getId(); ?>" >
+    <h2><i class="fa fa-fw fa-star"></i>Webhooks</h2>
+</div>
+
+<!-- Start body content -->
+<div class="body-content animated fadeIn">
+    <div class="row">
+        <div class="col-md-6">
+            <h1><?= $webhook->getTitle(); ?> request logs</h1>
+            <p>
+                Below you'll see a list of this hook's latest requests.
+            </p>
+
+            <div class="btn-group">
+                <a class="btn btn-primary"
+                   href="<?=  '/organization/' . $organization->getUniqueId() . '/webhooks'; ?>">
+                    <?= _("Back to organization webhooks"); ?>
+                </a>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <strong>URL: </strong> <?= $webhook->getUrl(); ?> <br />
+            <strong>Trigger: </strong> <?= $webhook->getEvent(); ?>
+        </div>
+
+        <div class="col-md-4">
+            <label for="status_code">Filter by Status Code</label>
+            <select id="status_code" name="status_code" class="form-control">
+                <option>All</option>
+                <option>200</option>
+                <option>201</option>
+                <option>204</option>
+                <option>301</option>
+                <option>302</option>
+                <option>400</option>
+                <option>401</option>
+                <option>403</option>
+                <option>404</option>
+                <option>500</option>
+                <option>501</option>
+                <option>502</option>
+                <option>503</option>
+                <option>504</option>
+            </select>
+        </div>
+    </div>
+    <br/>
+    <input type="hidden" name="last_id" value="" />
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table" id="webhook_logs">
+                <thead>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>Response</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <ul class="pagination">
+                <li><a href="#" class="paginate-previous">Previous</a></li>
+                <li><a href="#" class="paginate-next">Next</a></li>
+            </ul>
+        </div>
+    </div>
+</div>

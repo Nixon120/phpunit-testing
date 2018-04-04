@@ -1,0 +1,511 @@
+<?php
+/**
+ * @var string $baseUrl
+ * @var string $form_post_path
+ * @var \Entities\Program $program
+ * @var Services\Authentication\Authenticate $auth
+ */
+?>
+<!-- Content Header (Page header) -->
+<div class="header-content">
+    <h2><i class="fa fa-fw fa-gears"></i>Program</h2>
+</div>
+
+<!-- Start body content -->
+<div class="body-content animated fadeIn">
+
+    <div class="errors"></div>
+    <form id="programForm" name="program"
+          action="<?=  $form_post_path; ?>"
+          method="post">
+
+        <fieldset>
+            <legend>Program</legend>
+
+            <div class="row">
+                <div class="col-lg-7">
+                    <div class="form-group">
+                        <label>Name <span><strong>*</strong></span></label>
+                        <input data-validation="required" type="text" class="form-control" name="name" value="<?= $program->getName(); ?>"/>
+                    </div>
+                </div>
+
+                <div class="col-lg-3">
+                    <div class="form-group">
+                        <label>Point Conversion <span><strong>*</strong></span> <span style="font-size: small"><i>(1USD is equal to..)</i></span></label>
+                        <input data-validation="required" type="number" class="form-control" name="point" value="<?= $program->getPoint(); ?>"/>
+                    </div>
+                </div>
+
+                <?php if(in_array($auth->getUser()->getRole(), ['superadmin', 'admin'])):?>
+                <div class="col-lg-2">
+                    <div class="form-group">
+                        <div class="form-group">
+                            <label>Status <span><strong>*</strong></span></label>
+                            <select autocomplete="off" class="form-control" name="active">
+                                <option value="1">Active</option>
+                                <option <?=$program->isActive() === true ?:'selected';?> value="0">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <?php endif;?>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-3">
+                    <div class="form-group">
+                        <label>Unique ID <span><strong>*</strong></span> <span data-toggle="tooltip"
+                                                                               title="The unique program reference"><strong>?</strong></span></label>
+                        <input type="text" class="form-control" name="unique_id"
+                            <?php if ($program->getUniqueId()) : ?>
+                                disabled
+                            <?php endif; ?>
+                               data-validation="required"
+                               value="<?= $program->getUniqueId(); ?>"/>
+                    </div>
+                </div>
+                <div class="col-xs-3">
+                    <div class="form-group">
+                        <label>Cost Center ID <span><strong>*</strong></span></label>
+                        <input name="cost_center_id"
+                            <?php if ($program->getOrganization() !== null) : ?>
+                                value="<?= $program->getCostCenterId(); ?>"
+                            <?php endif;?>
+                               data-validation="required"
+                               class="form-control">
+                    </div>
+                </div>
+                <div class="col-xs-6">
+                    <div class="form-group">
+                        <label>Organization <span><strong>*</strong></span></label>
+
+                        <select autocomplete="off"
+                                data-validation="required"
+                                name="organization"
+                                data-offset="30"
+                                data-unique-id="true"
+                                data-min-characters="0"
+                                class="form-control"
+                                data-remote="/organization/list?method=json">
+                            <?php if ($program->getOrganization() !== null) : ?>
+                                <option selected
+                                        value="<?= $program->getOrganization()->getUniqueId(); ?>"><?= $program->getOrganization()->getName(); ?></option>
+                            <?php endif; ?>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+        <br/>
+        <fieldset>
+            <legend class="padding-top-15">Contact</legend>
+            <?php $contact = $program->getContact(); ?>
+            <div class="row">
+                <div class="col-lg-5">
+                    <div class="form-group">
+                        <label>First Name <span><strong>*</strong></span></label>
+
+                        <div class="input-group">
+                            <div class="input-group-addon">
+                                <i class="fa fa-fw fa-address-book"></i>
+                            </div>
+                            <input type="text"
+                                   data-validation="required"
+                                   class="form-control"
+                                   name="contact[firstname]"
+                                   value="<?= $contact->getFirstname(); ?>"/>
+                        </div><!-- /.input group -->
+                    </div>
+                </div>
+                <div class="col-lg-5">
+                    <div class="form-group">
+                        <label>Last Name <span><strong>*</strong></span></label>
+
+                        <div class="input-group">
+                            <div class="input-group-addon">
+                                <i class="fa fa-fw fa-address-book"></i>
+                            </div>
+                            <input type="text"
+                                   data-validation="required"
+                                   class="form-control"
+                                   name="contact[lastname]"
+                                   value="<?= $contact->getLastname(); ?>"/>
+                        </div><!-- /.input group -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-5">
+                    <div class="form-group">
+                        <label>Phone <span><strong>*</strong></span></label>
+
+                        <div class="input-group">
+                            <div class="input-group-addon">
+                                <i class="fa fa-fw fa-phone"></i>
+                            </div>
+                            <input type="number"
+                                   data-validation="required"
+                                   class="form-control"
+                                   name="contact[phone]"
+                                   value="<?= $contact->getPhone(); ?>"/>
+                        </div><!-- /.input group -->
+                    </div>
+                </div>
+                <div class="col-lg-5">
+                    <div class="form-group">
+                        <label>Email <span><strong>*</strong></span></label>
+
+                        <div class="input-group">
+                            <div class="input-group-addon">
+                                <i class="fa fa-fw fa-envelope"></i>
+                            </div>
+                            <input type="text"
+                                   data-validation="email"
+                                   class="form-control"
+                                   name="contact[email]"
+                                   value="<?= $contact->getEmail(); ?>"/>
+                        </div><!-- /.input group -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="form-group">
+                        <label>Address1 <span><strong>*</strong></span></label>
+                        <input type="text"
+                               data-validation="required"
+                               class="form-control"
+                               name="contact[address1]"
+                               value="<?= $contact->getAddress1(); ?>"/>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="form-group">
+                        <label>Address2</label>
+                        <input type="text"
+                               class="form-control"
+                               name="contact[address2]"
+                               value="<?= $contact->getAddress2(); ?>"/>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="form-group">
+                        <label>City <span><strong>*</strong></span></label>
+                        <input type="text"
+                               data-validation="required"
+                               class="form-control"
+                               name="contact[city]"
+                               value="<?= $contact->getCity(); ?>"/>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="form-group">
+                        <label>State <span><strong>*</strong></span></label>
+                        <select data-validation="required" class="form-control" name="contact[state]">
+                            <option></option>
+                            <?php foreach ($states as $abbr => $state) : ?>
+                                <?php $selected = ($abbr == $contact->getState()) ? 'selected' : ''; ?>
+                                <option value="<?= $abbr; ?>" <?= $selected; ?>><?= $state; ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="form-group">
+                        <label>Zip Code <span><strong>*</strong></span></label>
+                        <input type="text"
+                               data-validation="required"
+                               class="form-control"
+                               name="contact[zip]"
+                               value="<?= $contact->getZip(); ?>"/>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+
+        <br/>
+
+        <fieldset>
+            <legend class="padding-top-15">Accounting</legend>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Invoice To</label>
+                        <select name="invoice_to" class="form-control">
+                            <?php foreach ($program->getInvoiceToOptions() as $invoiceToOption) : ?>
+                                <?php $sel = ($program->getInvoiceTo() === $invoiceToOption) ? 'selected' : ''; ?>
+                                <option <?= $sel; ?>><?= $invoiceToOption; ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-4" style="margin-left: 40px;">
+                    <div class="form-group">
+                        <label style="margin-left: 10px">Deposit Amount <span><strong>*</strong></span></label>
+                        <div class="dollar">
+                            <input name="deposit_amount"
+                                   id="deposit_amount"
+                                   type="number"
+                                   min="0"
+                                   data-validation="required"
+                                   value="<?= $program->getDepositAmount(); ?>"
+                                   class="form-control"
+                                   style="display: inline-block; width: 80%;">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    1099 Issuance
+                    <div class="form-check form-check-inline">
+                        <label class="form-check-label">
+                            <input type="radio"
+                                <?= ($program->getIssue1099() === true) ? 'Checked' : ''; ?>
+                                   name="issue_1099"
+                                   value="yes"
+                                   class="form-check-input"> Yes
+                        </label>
+                        <label class="form-check-label">
+                            <input type="radio"
+                                <?= ($program->getIssue1099() === false) ? 'Checked' : ''; ?>
+                                   name="issue_1099"
+                                   value="no"
+                                   class="form-check-input"> No
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    Employee Payroll File
+                    <div class="form-check form-check-inline">
+                        <label class="form-check-label">
+                            <input type="radio"
+                                <?= ($program->getEmployeePayrollFile() === true) ? 'Checked' : ''; ?>
+                                   name="employee_payroll_file"
+                                   value="yes"
+                                   class="form-check-input"> Yes
+                        </label>
+                        <label class="form-check-label">
+                            <input type="radio"
+                                <?= ($program->getEmployeePayrollFile() === false) ? 'Checked' : ''; ?>
+                                   name="employee_payroll_file"
+                                   value="no"
+                                   class="form-check-input"> No
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+
+        <br/>
+        <fieldset>
+            <legend>Marketplace Client</legend>
+
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label>Sub Domain</label>
+                        <input type="text" class="form-control" name="url" value="<?= $program->getUrl() ?>"/>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label>
+                            <span data-toggle="tooltip"
+                                  title="Not seeing your domain? Make sure to select the organization above.">
+                                Domain
+                            </span>
+                        </label>
+                        <select autocomplete="off"
+                                name="domain"
+                                data-offset="30"
+                                data-name="url"
+                                data-unique-id="url"
+                                data-filter-organization="<?= is_null($program->getOrganization()) ?: $program->getOrganization()->getUniqueId(); ?>"
+                                data-min-characters="0"
+                                class="form-control"
+                                data-remote="/organization/domain/list?method=json">
+                            <?php if ($program->getDomain() !== null): ?>
+                                <option selected
+                                        value="<?= $program->getDomain()->getUrl(); ?>">
+                                    <?= $program->getDomain()->getUrl(); ?>
+                                </option>
+                            <?php endif; ?>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-1">
+                    <div class="form-group">
+                        <label>Logo</label>
+                        <a class="btn btn-success form-control add-logo" data-toggle="tooltip" data-placement="left" title="Upload logo"><i class="fa fa-fw fa-plus"></i></a>
+                        <a class="btn btn-danger form-control del-logo" data-toggle="tooltip" data-placement="left" title="Delete uploaded logo"><i class="fa fa-fw fa-trash"></i></a>
+                        <input type="file" name="logo_dummy" class="hide"/>
+                        <input type="hidden"
+                               name="logo"
+                               value="<?= $program->getLogo(); ?>"
+                               class="hide"/>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <?php if ($program->getLogo() !== "" && $program->getLogo() !== null): ?>
+                        <img src="<?= $program->getLogo(); ?>"
+                             class="preview-logo img-responsive img-thumbnail"/>
+                    <?php else: ?>
+                        <img src="http://via.placeholder.com/350x150"
+                             class="preview-logo img-responsive img-thumbnail"/>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+        </fieldset>
+        <br/>
+        <fieldset>
+            <legend>Auto-Redemption</legend>
+
+            <div class="row">
+                <div class="col-lg-2">
+                    <div class="form-group">
+                        <label>Active</label>
+                        <select autocomplete="off"
+                                name="auto_redemption[active]"
+                                class="form-control auto-redemption-toggle">
+                            <option value="0"
+                                <?=
+                                ($program->getAutoRedemption() === null
+                                || !$program->getAutoRedemption()->isActive() ? 'selected' : '')
+                                ?>>No
+                            </option>
+                            <option value="1"
+                                <?=
+                                ($program->getAutoRedemption() !== null
+                                && $program->getAutoRedemption()->isActive() ? 'selected' : '')
+                                ?>>Yes
+                            </option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <?php $hide = $program->getAutoRedemption() === null || !$program->getAutoRedemption()->isActive() ? true : false ?>
+            <div class="auto-redemption <?= !$hide ?: 'hide'; ?>">
+                <div class="row">
+
+                    <div class="col-lg-2">
+                        <div class="form-group">
+                            <label>Interval</label>
+                            <select autocomplete="off"
+                                    name="auto_redemption[interval]"
+                                    class="form-control"
+                                    data-placeholder="Interval">
+                                <option value="scheduled"
+                                    <?=
+                                    ($program->getAutoRedemption() !== null
+                                    && $program->getAutoRedemption()->getInterval() === 'scheduled' ? 'selected' : '')
+                                    ?>>Scheduled
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-2 schedule-dropdown">
+                        <div class="form-group">
+                            <label>&nbsp;</label>
+                            <select autocomplete="off"
+                                    name="auto_redemption[schedule]"
+                                    class="form-control"
+                                    data-placeholder="schedule">
+                                <option value="hourly"
+                                    <?=
+                                    ($program->getAutoRedemption() !== null
+                                    && $program->getAutoRedemption()->getSchedule() === 'hourly' ? 'selected' : '')
+                                    ?>>
+                                    Hourly
+                                </option>
+                                <option value="daily"
+                                    <?=
+                                    ($program->getAutoRedemption() !== null
+                                    && $program->getAutoRedemption()->getSchedule() === 'daily' ? 'selected' : '')
+                                    ?>>
+                                    Daily
+                                </option>
+                                <option value="biweekly"
+                                    <?=
+                                    ($program->getAutoRedemption() !== null
+                                    && $program->getAutoRedemption()->getSchedule() === 'biweekly' ? 'selected' : '')
+                                    ?>>
+                                    Bi-Weekly
+                                </option>
+                                <option value="weekly"
+                                    <?=
+                                    ($program->getAutoRedemption() !== null
+                                    && $program->getAutoRedemption()->getSchedule() === 'weekly' ? 'selected' : '')
+                                    ?>>
+                                    Weekly
+                                </option>
+                                <option value="monthly"
+                                    <?=
+                                    ($program->getAutoRedemption() !== null
+                                    && $program->getAutoRedemption()->getSchedule() === 'monthly' ? 'selected' : '')
+                                    ?>>
+                                    Monthly
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label>Scope</label>
+                            <br/>
+                            <strong>All Participants</strong>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-12">
+
+                        <div class="form-group">
+                            <label>Product</label>
+                            <select autocomplete="off"
+                                    name="auto_redemption[product_sku]"
+                                    data-offset="30"
+                                    data-unique-id="sku"
+                                    data-min-characters="0"
+                                    class="form-control"
+                                    data-remote="/program/product/list?method=json">
+                                <?php
+                                if ($program->getAutoRedemption() !== null
+                                    && $program->getAutoRedemption()->getProduct() !== null) : ?>
+                                    <option selected
+                                            value="<?= $program->getAutoRedemption()->getProduct()->getSku(); ?>">
+                                        <?= $program->getAutoRedemption()->getProduct()->getName(); ?>
+                                    </option>
+                                <?php endif; ?>
+                            </select>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+
+        <div class="modal-footer">
+            <a href="/program" class="btn btn-inverse pull-left" data-toggle="tooltip" data-placement="left" title="Cancel Program">Cancel</a>
+            <button type="submit" class="btn btn-success" data-toggle="tooltip" data-placement="left" title="Save Program">Submit</button>
+        </div>
+        <br/>
+    </form>
+
+</div>

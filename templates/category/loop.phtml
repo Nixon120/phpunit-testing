@@ -1,0 +1,25 @@
+<?php if (!empty($categories)) :?>
+    <?php foreach ($categories as $category) :?>
+        <?php /** @var \Entities\Category $category */ ;?>
+        <div class="btn-group" role="group" >
+            <a data-category-id="<?=$category->getId();?>" class="btn btn-<?=$category->getActive() === 'no' ? 'danger':'inverse';?> category-listing">
+                <span>
+                    <?php if ($category->getActive() === 'no') :
+                    ?><s><?php
+                        endif;?>
+                        <?=$category->getName();?>
+                        <?php if ($category->getActive() === 'no') :
+                        ?></s><?php
+                endif;?>
+                </span>
+            </a>
+            <a class="btn btn-lilac modal-link" data-toggle="modal"
+               data-target="#modal-dialog"
+               data-action-type="update"
+               data-size="medium"
+               href="/category/view/<?=$category->getId();?>">
+                <i class="fa fa-fw fa-edit"></i>
+            </a>
+        </div>
+    <?php endforeach;?>
+<?php endif;?>

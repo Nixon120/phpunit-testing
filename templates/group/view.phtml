@@ -1,0 +1,153 @@
+<?php /** @var \Entities\Group $group */;?>
+<form name="group" action="/group/view/<?=$group->getId();?>" method="post">
+
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h4 class="modal-title"><i class="fa fa-pencil-square"></i> Edit Group: <?=$group->getName();?></h4>
+    </div>
+    <div class="modal-body">
+
+        <div class="row">
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <label>Name <span><strong>*</strong></span></label>
+                    <input autocomplete="off" type="text" class="form-control" name="name" value="<?=$group->getName();?>" />
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <label>Organization <span><strong>*</strong></span></label>
+                    <select autocomplete="off"
+                            name="organization"
+                            data-offset="30"
+                            data-unique-id="true"
+                            data-min-characters="0"
+                            class="form-control"
+                            data-remote="/organization/list?method=json">
+                        <?php if(!is_null($group->getOrganization())):?>
+                            <option selected value="<?=$group->getOrganization()->getId();?>"><?=$group->getOrganization()->getName();?></option>
+                        <?php endif;?>
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <label>Program <span><strong>*</strong></span></label>
+                    <select autocomplete="off"
+                            name="program"
+                            data-filter-organization=""
+                            data-offset="30"
+                            data-unique-id="true"
+                            data-min-characters="0"
+                            class="form-control"
+                            data-remote="/program/list?method=json">
+                        <?php if(!is_null($group->getProgram())):?>
+                            <option selected value="<?=$group->getProgram()->getUniqueId();?>"><?=$group->getProgram()->getName();?></option>
+                        <?php endif;?>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                <h4>Filters</h4>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-6">
+                <div class="form-group row">
+                    <label>Price Between</label>
+                    <br />
+                    <div class="col-md-6">
+                        <input type="text" class="form-control" name="min" placeholder="min" value="<?=$group->getMinFilter();?>">
+                    </div>
+                    <div class="col-md-6">
+                        <input type="text" class="form-control" name="max" placeholder="max" value="<?=$group->getMaxFilter();?>">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label>Category</label>
+                    <select multiple
+                            autocomplete="off"
+                            name="categories[]"
+                            data-offset="30"
+                            data-min-characters="0"
+                            class="form-control"
+                            data-remote="/category/list?method=json">
+                        <?php if(!empty($group->getCategories())):?>
+                            <?php foreach($group->getCategories() as $category):?>
+                                <option selected value="<?=$category->getId();?>"><?=$category->getName();?></option>
+                            <?php endforeach;?>
+                        <?php endif;?>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label>Brand</label>
+                    <select multiple
+                            autocomplete="off"
+                            name="brands[]"
+                            data-offset="30"
+                            data-min-characters="0"
+                            class="form-control"
+                            data-remote="/brand/list?method=json">
+                        <?php if(!empty($group->getBrands())):?>
+                            <?php foreach($group->getBrands() as $brand):?>
+                                <option selected value="<?=$brand->getId();?>"><?=$brand->getName();?></option>
+                            <?php endforeach;?>
+                        <?php endif;?>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label>Product</label>
+                    <select multiple
+                            autocomplete="off"
+                            name="products[]"
+                            data-offset="30"
+                            data-min-characters="0"
+                            class="form-control"
+                            data-remote="/product/list?method=json">
+                        <?php if(!empty($group->getProducts())):?>
+                            <?php foreach($group->getProducts() as $product):?>
+                                <option selected value="<?=$product->getId();?>"><?=$product->getName();?></option>
+                            <?php endforeach;?>
+                        <?php endif;?>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-2">
+                <div class="form-group">
+                    <label>Attachment</label>
+                    <a class="btn btn-success form-control add-attachment"><i class="fa fa-fw fa-plus"></i></a>
+                    <input type="file" name="attachment_dummy" class="hide" />
+                    <input type="hidden" name="attachment" class="hide" />
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-offset-2 col-sm-offset-2 col-md-offset-2 col-lg-offset-2 col-xl-offset-2 col-xs-8 text-center">
+                <img src="<?=$group->getAttachment();?>" class="preview-attachment img-responsive img-thumbnail"/>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="pull-left btn btn-inverse" data-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-lilac">Save changes</button>
+    </div>
+</form>

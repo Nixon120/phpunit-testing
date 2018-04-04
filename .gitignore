@@ -1,0 +1,59 @@
+# IDE Files
+.idea/
+.gitattributes
+.bash_history
+.cache/
+.mysql_history
+.viminfo
+.config/
+*.log
+/logs/
+!/logs/.gitkeep
+/public/resources/app/layout/
+!/public/resources/app/layout/.gitkeep
+
+# Application
+logs/
+app/Config/
+crons/cache/*
+
+# Vagrant
+.vagrant/
+/html
+
+# Logs
+access.log
+error.log
+php_errors.log
+
+# OS Files
+.DS_Store
+.vagrant/
+
+# Buildable Files
+/build/*
+!/build/deploy.sh
+!/build/staging-vhost.conf
+!/build/production-vhost.conf
+!/build/staging-key
+
+.ssh
+
+# Composer Sourced Files
+.composer/*
+.composer
+composer.lock
+vendor/
+etc/
+
+# Bower resources - this needs fixed.. separate bower folder & sass minification.
+public/resources/bower
+public/paginator
+public/resources/app/file-manager/cache
+public/resources/app/file-manager/uploads
+public/resources/app/products/images/*
+
+app/Hooks
+
+!/dev_tools/mongo/.gitkeep
+/dev_tools/mongo/

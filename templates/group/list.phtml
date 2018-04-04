@@ -1,0 +1,84 @@
+<!-- Content Header (Page header) -->
+<div class="header-content">
+    <h2><i class="fa fa-fw fa-user-circle-o"></i>Groups</h2>
+</div>
+<!-- Start body content -->
+<div class="body-content animated fadeIn">
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="btn-group pull-right" role="group" data-toggle="tooltip" data-placement="left" title="Add Group">
+                <a class="btn btn-success"
+                   data-toggle="modal"
+                   data-target="#modal-dialog"
+                   data-action-type="insert"
+                   data-size="medium"
+                   data-remote="/group/create">
+                    <i class="fa fa-fw fa-plus-square"></i>
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+    <br/>
+
+    <div class="row">
+
+        <div class="col-xs-12">
+            <div class="group-listing"
+                 data-paginate-alias="group-listing"
+                 data-paginate-cache="600"
+                 data-paginate-pulse="false"
+                 data-paginate-type="infinity"
+                 data-paginate-container=""
+                 data-paginate-touchy="400"
+                 data-paginate-query-prefix=""
+                 data-paginate-per-page="30"
+                 data-paginate-autoload="false"
+                 data-paginate-autosearch="false"
+                 data-paginate-url="/group/list">
+                <div class="paginated-search group-border-dashed">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <input type="text" name="name" class="form-control" placeholder="Search by group name"/>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <select name="status" class="form-control">
+                                    <option value="">Active [All]</option>
+                                    <option value="active">Active</option>
+                                    <option value="inactive">Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <div class="paginator-submit btn btn-primary">Search</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive table-color mb-20">
+                    <table class="table hover">
+                        <thead>
+                        <tr>
+                            <th width="5%">ID</th>
+                            <th width="90%">Name</th>
+                            <th width="5%">Actions</th>
+                        </tr>
+                        </thead>
+
+                        <tbody class="paginated-container">
+
+                        </tbody>
+                    </table>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+
+    </div>
+
+</div>

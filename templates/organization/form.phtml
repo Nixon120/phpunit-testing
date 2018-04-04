@@ -1,0 +1,435 @@
+<?php
+/**
+ * @var string $baseUrl
+ * @var string $form_post_path
+ * @var \Entities\Organization $organization
+ */
+?>
+<!-- Content Header (Page header) -->
+<div class="header-content">
+    <h2><i class="fa fa-fw fa-star"></i><?=$organization->getId() !== null ? 'Edit':'Add';?> Organization</h2>
+</div>
+
+<!-- Start body content -->
+<div class="body-content animated fadeIn">
+
+    <div class="errors"></div>
+    <form name="organization"
+          action="<?=  $form_post_path; ?>"
+          method="post">
+        <?php if($organization->getId() !== null):?>
+        <input name="id" type="hidden" value="<?=$organization->getId();?>" />
+        <?php endif;?>
+        <fieldset>
+            <legend>Organization</legend>
+            <div class="row">
+
+                <div class="col-xs-8">
+                    <div class="form-group">
+                        <label>Parent Organization<span><strong>*</strong></span></label>
+
+                        <select autocomplete="off"
+                                <?php if ($organization->getParentId()) : ?>
+                                disabled
+                                <?php endif; ?>
+                                name="parent"
+                                data-offset="30"
+                                data-unique-id="true"
+                                data-min-characters="0"
+                                class="form-control"
+                                data-remote="/organization/list?method=json">
+                            <option value="">Top</option>
+                            <?php if ($organization->getParentId()) : ?>
+                                <option selected value="<?= $organization->getParent()->getUniqueId(); ?>">
+                                    <?= $organization->getParent()->getName(); ?>
+                                </option>
+                            <?php endif; ?>
+                        </select>
+                        <div class="localized-error error-parent"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-4">
+                    <div class="form-group">
+                        <label>
+                            <span data-toggle="tooltip"
+                                  title="The unique organization reference">
+                                Organization ID
+                            </span>
+                            <span><strong>*</strong></span>
+                        </label>
+                        <input type="text"
+                               <?php if ($organization->getUniqueId()) : ?>
+                                disabled
+                               <?php endif; ?>
+                               class="form-control"
+                               name="uniqueId"
+                               value="<?= $organization->getUniqueId(); ?>"/>
+                        <div class="localized-error error-uniqueId"></div>
+                    </div>
+                </div>
+
+                <div class="col-xs-8">
+                    <div class="form-group">
+                        <label>Organization Name <span><strong>*</strong></span></label>
+                        <input type="text"
+                               class="form-control"
+                               name="name"
+                               value="<?= $organization->getName(); ?>"/>
+                        <div class="localized-error error-name"></div>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend class="padding-top-15">Company Contact</legend>
+            <?php $companyContact = $organization->getCompanyContact(); ?>
+            <div class="row">
+                <div class="col-lg-5">
+                    <div class="form-group">
+                        <label>First Name <span><strong>*</strong></span></label>
+
+                        <div class="input-group">
+                            <div class="input-group-addon">
+                                <i class="fa fa-fw fa-address-book"></i>
+                            </div>
+                            <input type="text"
+                                   class="form-control"
+                                   name="company_contact[firstname]"
+                                   value="<?= $companyContact->getFirstname(); ?>"/>
+                        </div><!-- /.input group -->
+                        <div class="localized-error error-company_contact firstname"></div>
+                    </div>
+                </div>
+                <div class="col-lg-5">
+                    <div class="form-group">
+                        <label>Last Name <span><strong>*</strong></span></label>
+
+                        <div class="input-group">
+                            <div class="input-group-addon">
+                                <i class="fa fa-fw fa-address-book"></i>
+                            </div>
+                            <input type="text"
+                                   class="form-control"
+                                   name="company_contact[lastname]"
+                                   value="<?= $companyContact->getLastname(); ?>"/>
+                        </div><!-- /.input group -->
+                        <div class="localized-error error-company_contact lastname"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-5">
+                    <div class="form-group">
+                        <label>Phone <span><strong>*</strong></span></label>
+
+                        <div class="input-group">
+                            <div class="input-group-addon">
+                                <i class="fa fa-fw fa-phone"></i>
+                            </div>
+                            <input type="text"
+                                   class="form-control"
+                                   name="company_contact[phone]"
+                                   value="<?= $companyContact->getPhone(); ?>"/>
+                        </div><!-- /.input group -->
+                        <div class="localized-error error-company_contact phone"></div>
+                    </div>
+                </div>
+                <div class="col-lg-5">
+                    <div class="form-group">
+                        <label>Email <span><strong>*</strong></span></label>
+
+                        <div class="input-group">
+                            <div class="input-group-addon">
+                                <i class="fa fa-fw fa-envelope"></i>
+                            </div>
+                            <input type="text"
+                                   class="form-control"
+                                   name="company_contact[email]"
+                                   value="<?= $companyContact->getEmail(); ?>"/>
+                        </div><!-- /.input group -->
+                        <div class="localized-error error-company_contact email"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="form-group">
+                        <label>Address1 <span><strong>*</strong></span></label>
+                        <input type="text"
+                               class="form-control"
+                               name="company_contact[address1]"
+                               value="<?= $companyContact->getAddress1(); ?>"/>
+                        <div class="localized-error error-company_contact address1"></div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="form-group">
+                        <label>Address2</label>
+                        <input type="text"
+                               class="form-control"
+                               name="company_contact[address2]"
+                               value="<?= $companyContact->getAddress2(); ?>"/>
+                        <div class="localized-error error-company_contact address2"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+
+                <div class="col-lg-4">
+                    <div class="form-group">
+                        <label>City <span><strong>*</strong></span></label>
+                        <input type="text"
+                               class="form-control"
+                               name="company_contact[city]"
+                               value="<?= $companyContact->getCity(); ?>"/>
+                        <div class="localized-error error-company_contact city"></div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="form-group">
+                        <label>State <span><strong>*</strong></span></label>
+                        <select class="form-control" name="company_contact[state]">
+                            <option></option>
+                            <?php foreach ($states as $abbr => $state) : ?>
+                                <?php $selected = ($abbr == $companyContact->getState()) ? 'selected' : ''; ?>
+                                <option value="<?= $abbr; ?>" <?= $selected; ?>><?= $state; ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <div class="localized-error error-company_contact state"></div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="form-group">
+                        <label>Zip Code <span><strong>*</strong></span></label>
+                        <input type="text"
+                               class="form-control"
+                               name="company_contact[zip]"
+                               value="<?= $companyContact->getZip(); ?>"/>
+                        <div class="localized-error error-company_contact zip"></div>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend class="padding-top-15">Accounts Payable Contact</legend>
+            <?php $accountsPayableContact = $organization->getAccountsPayableContact(); ?>
+            <div class="row">
+                <div class="col-lg-5">
+                    <div class="form-group">
+                        <label>First Name <span><strong>*</strong></span></label>
+
+                        <div class="input-group">
+                            <div class="input-group-addon">
+                                <i class="fa fa-fw fa-address-book"></i>
+                            </div>
+                            <input type="text" class="form-control"
+                                   name="accounts_payable_contact[firstname]"
+                                   value="<?= $accountsPayableContact->getFirstname(); ?>"/>
+                        </div><!-- /.input group -->
+                        <div class="localized-error error-accounts_payable_contact firstname"></div>
+                    </div>
+                </div>
+                <div class="col-lg-5">
+                    <div class="form-group">
+                        <label>Last Name <span><strong>*</strong></span></label>
+
+                        <div class="input-group">
+                            <div class="input-group-addon">
+                                <i class="fa fa-fw fa-address-book"></i>
+                            </div>
+                            <input type="text"
+                                   class="form-control"
+                                   name="accounts_payable_contact[lastname]"
+                                   value="<?= $accountsPayableContact->getLastname(); ?>"/>
+                        </div><!-- /.input group -->
+                        <div class="localized-error error-accounts_payable_contact lastname"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-5">
+                    <div class="form-group">
+                        <label>Phone <span><strong>*</strong></span></label>
+
+                        <div class="input-group">
+                            <div class="input-group-addon">
+                                <i class="fa fa-fw fa-phone"></i>
+                            </div>
+                            <input type="text"
+                                   class="form-control"
+                                   name="accounts_payable_contact[phone]"
+                                   value="<?= $accountsPayableContact->getPhone(); ?>"/>
+                        </div><!-- /.input group -->
+                        <div class="localized-error error-accounts_payable_contact phone"></div>
+                    </div>
+                </div>
+                <div class="col-lg-5">
+                    <div class="form-group">
+                        <label>Email <span><strong>*</strong></span></label>
+
+                        <div class="input-group">
+                            <div class="input-group-addon">
+                                <i class="fa fa-fw fa-envelope"></i>
+                            </div>
+                            <input type="text"
+                                   class="form-control"
+                                   name="accounts_payable_contact[email]"
+                                   value="<?= $accountsPayableContact->getEmail(); ?>"/>
+                        </div><!-- /.input group -->
+                        <div class="localized-error error-accounts_payable_contact email"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="form-group">
+                        <label>Address1 <span><strong>*</strong></span></label>
+                        <input type="text"
+                               class="form-control"
+                               name="accounts_payable_contact[address1]"
+                               value="<?= $accountsPayableContact->getAddress1(); ?>"/>
+                        <div class="localized-error error-accounts_payable_contact address1"></div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="form-group">
+                        <label>Address2</label>
+                        <input type="text"
+                               class="form-control"
+                               name="accounts_payable_contact[address2]"
+                               value="<?= $accountsPayableContact->getAddress2(); ?>"/>
+                        <div class="localized-error error-accounts_payable_contact address2"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+
+                <div class="col-lg-4">
+                    <div class="form-group">
+                        <label>City <span><strong>*</strong></span></label>
+                        <input type="text"
+                               class="form-control"
+                               name="accounts_payable_contact[city]"
+                               value="<?= $accountsPayableContact->getCity(); ?>"/>
+
+                        <div class="localized-error error-accounts_payable_contact city"></div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="form-group">
+                        <label>State <span><strong>*</strong></span></label>
+                        <select class="form-control" name="accounts_payable_contact[state]">
+                            <option></option>
+                            <?php foreach ($states as $abbr => $state) : ?>
+                                <?php $selected = ($abbr == $accountsPayableContact->getState()) ? 'selected' : ''; ?>
+                                <option value="<?= $abbr; ?>" <?= $selected; ?>><?= $state; ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <div class="localized-error error-accounts_payable_contact state"></div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="form-group">
+                        <label>Zip Code <span><strong>*</strong></span></label>
+                        <input type="text"
+                               class="form-control"
+                               name="accounts_payable_contact[zip]"
+                               value="<?= $accountsPayableContact->getZip(); ?>"/>
+                        <div class="localized-error error-accounts_payable_contact zip"></div>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend class="padding-top-15">Integration</legend>
+            <div class="row">
+                <div class="col-lg-2">
+                    <div class="form-group">
+                        <label>Domains</label>
+                        <a class="btn btn-success form-control add-domain" data-toggle="tooltip" data-placement="left" title="Add Domain"><i class="fa fa-fw fa-plus"></i></a>
+                    </div>
+                </div>
+                <div class="col-xs-12">
+                    <?php foreach ($organization->getDomains() as $index => $domain): ?>
+                        <?php if ($domain->getOrganizationId() !== $organization->getId()) {
+                            continue;
+                        } ?>
+                        <div class="domain-input-wrapper">
+                            <div class="row">
+                                <div class="col-xs-10">
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" name="domains[]"
+                                               value="<?= $domain->getUrl(); ?>"/>
+
+                                        <div class="localized-error error-domains <?=$index;?> index"></div>
+                                    </div>
+                                </div>
+                                <div class="col-xs-2">
+                                    <a class="remove-domain"
+                                       href="#"
+                                       data-action-url="/organization/domain/delete/<?= $domain->getId(); ?>"
+                                       data-domain-id="<?= $domain->getId(); ?>"
+                                       data-toggle="tooltip"
+                                       title="Remove">
+                                        <i style="line-height:2.6em;"
+                                           class="text-danger fa fa-times">
+                                        </i>
+                                    </a>
+                                </div>
+                            </div>
+                            <br />
+                        </div>
+                    <?php endforeach; ?>
+                    <div class="domain-wrapper">
+
+                    </div>
+
+                    <div class="domain-input-clone hide">
+                        <div class="row">
+                            <div class="col-xs-10">
+                                <div class="form-group">
+                                    <input disabled type="text" class="form-control" name="domains[]"/>
+                                    <div class="localized-error error-domains index"></div>
+                                </div>
+                            </div>
+                            <div class="col-xs-2">
+                                <a class="remove-domain"
+                                   href="#"
+                                   data-toggle="tooltip"
+                                   title="Remove">
+                                    <i style="line-height:2.6em;"
+                                       class="text-danger fa fa-times">
+                                    </i>
+                                </a>
+                            </div>
+                        </div>
+                        <br />
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+
+        <div class="modal-footer">
+            <div class="row">
+                <div class="col-xs-8 col-8 form-warning">
+
+                </div>
+                <div class="col-xs-4 col-4">
+                    <button type="submit" class="btn btn-success" data-toggle="tooltip" data-placement="left" title="Add Organization">Submit</button>
+                </div>
+            </div>
+        </div>
+
+    </form>
+
+</div>

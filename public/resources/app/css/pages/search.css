@@ -1,0 +1,76 @@
+/* ========================================================================
+ * SEARCH BASIC
+ * ======================================================================== */
+/* line 13, ../../sass/pages/search.scss */
+.search-basic-form {
+  padding: 15px;
+  background-color: #e1e1e1;
+}
+
+/* line 17, ../../sass/pages/search.scss */
+.search-basic-list {
+  margin-top: 20px;
+}
+/* line 19, ../../sass/pages/search.scss */
+.search-basic-list h4 {
+  margin-bottom: 3px;
+}
+/* line 21, ../../sass/pages/search.scss */
+.search-basic-list h4 a {
+  color: #1A0DAB;
+}
+/* line 25, ../../sass/pages/search.scss */
+.search-basic-list p {
+  color: #545454;
+}
+/* line 28, ../../sass/pages/search.scss */
+.search-basic-list > a {
+  color: #006621;
+  font-size: 13px;
+}
+/* line 33, ../../sass/pages/search.scss */
+.search-basic-list .media img {
+  width: 155px;
+}
+/* line 36, ../../sass/pages/search.scss */
+.search-basic-list .media .media-heading {
+  margin-bottom: 3px;
+}
+/* line 38, ../../sass/pages/search.scss */
+.search-basic-list .media .media-heading + a {
+  color: #006621;
+  font-size: 13px;
+}
+
+/* line 45, ../../sass/pages/search.scss */
+.cbp-l-filters-big {
+  margin-top: 15px;
+  margin-bottom: 0;
+  text-align: left;
+}
+/* line 49, ../../sass/pages/search.scss */
+.cbp-l-filters-big .cbp-filter-item {
+  margin: 0;
+  padding: 10px 20px 7px;
+}
+
+/* line 55, ../../sass/pages/search.scss */
+.cbp-l-grid-tabs .cbp-item {
+  text-align: left;
+  max-width: 100%;
+}
+
+/* line 62, ../../sass/pages/search.scss */
+#js-grid-tabs .cbp-item:last-child {
+  padding-top: 20px;
+}
+
+/* line 68, ../../sass/pages/search.scss */
+#js-grid-lightbox-search .cbp-wrapper-outer {
+  overflow: inherit !important;
+}
+/* line 72, ../../sass/pages/search.scss */
+#js-grid-lightbox-search .cbp-wrapper-outer .cbp-item, #js-grid-lightbox-search .cbp-wrapper .cbp-item, #js-grid-lightbox-search .cbp-wrapper-helper .cbp-item {
+  max-width: inherit;
+  right: inherit;
+}

@@ -1,0 +1,18 @@
+#!/usr/bin/env php
+<?php
+require __DIR__ . "/../cli-bootstrap.php";
+/** @var \Interop\Container\ContainerInterface $container */
+$factory = new \Services\Scheduler\ServiceFactory($container);
+$scheduler = $factory->getService();
+$output = $scheduler->run();
+
+/**
+ * @var \Psr\Log\LoggerInterface $logger
+ */
+$logger = $container->get('logger');
+foreach ($output as $taskOutput) {
+    $logger->info(
+        $taskOutput['output'],
+        ['task' => $taskOutput['task']]
+    );
+}

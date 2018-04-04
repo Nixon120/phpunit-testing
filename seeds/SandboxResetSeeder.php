@@ -1,0 +1,551 @@
+<?php
+
+use Phinx\Seed\AbstractSeed;
+
+class SandboxResetSeeder extends AbstractSeed
+{
+    private $products = [];
+
+    private $participantEmailContainerSeed = [];
+
+    private $participantFirstnameContainerSeed = [];
+
+    private $participantLastnameContainerSeed = [];
+
+    private $participantAddressReferenceContainerSeed = [];
+
+    private $participantAddressContainerSeed = [];
+
+    private $transactionProductContainerSeed = [];
+
+    public function run()
+    {
+        $this->prepareInformationForSeeders();
+        $orgId = $this->seedOrganization();
+        $this->seedWebhook($orgId);
+        $domainId = $this->seedDomain($orgId);
+        $programId = $this->seedProgram($orgId, $domainId);
+        $this->seedSweepstake();
+        $this->seedUser($orgId);
+        $this->seedParticipant($orgId, $programId);
+        $this->seedParticipantAddress();
+        $this->seedCreditAdjustments();
+        $this->seedTransaction();
+        $this->setParticipantCalculatedCredit();
+    }
+
+    /**
+     * @return \Faker\Generator
+     */
+    private function getFaker(): Faker\Generator
+    {
+        return Faker\Factory::create();
+    }
+
+    /**
+     * Gets a random date between two dates
+     * @param $start
+     * @param $end
+     * @return false|string
+     */
+    private function getRandomDate($start, $end)
+    {
+        $min = strtotime($start);
+        $max = strtotime($end);
+        $val = mt_rand($min, $max);
+        return date('Y-m-d H:i:s', $val);
+    }
+
+    /**
+     * Fetches and stores products that are used to seed transactions
+     * Calls for mock participant information generation
+     * Calls for mock address information generation
+     */
+    private function prepareInformationForSeeders()
+    {
+        $this->prepareProductsToBeConsumed();
+        $this->prepareParticipantInformation();
+        $this->prepareAddressSeedContainer();
+    }
+
+    /**
+     * Fetches products that are consumed in the transaction seeds
+     * @return array
+     */
+    private function prepareProductsToBeConsumed()
+    {
+        if (empty($this->products)) {
+            $catalog = new \AllDigitalRewards\Services\Catalog\Client;
+            $catalog->setUrl(getenv('CATALOG_URL'));
+
+            $this->products = $catalog->getProducts([
+                'maxPrice' => 50
+            ], 1, 250);
+        }
+        return $this->products;
+    }
+
+    /**
+     * Mocks participant information to be consumed in the participant seed
+     */
+    private function prepareParticipantInformation()
+    {
+        for ($i = 0; $i <= 100; $i++) {
+            $email = $this->getFaker()->userName . '@alldigitalrewards.com';
+            $firstname = $this->getFaker()->firstName;
+            $lastname = $this->getFaker()->lastName;
+            array_push($this->participantEmailContainerSeed, $email);
+            array_push($this->participantFirstnameContainerSeed, $firstname);
+            array_push($this->participantLastnameContainerSeed, $lastname);
+        }
+    }
+
+    /**
+     * Mocks address information to be consumed in the participant/transaction seeds
+     * @return array
+     */
+    private function prepareAddressSeedContainer()
+    {
+        for ($i = 0, $j = 1; $i <= 100; $i++, $j++) {
+            $addressContainer = [
+                'firstname' => $this->participantFirstnameContainerSeed[$i],
+                'lastname' => $this->participantLastnameContainerSeed[$i],
+                'address1' => $this->getFaker()->streetAddress,
+                'address2' => $this->getFaker()->secondaryAddress,
+                'city' => $this->getFaker()->city,
+                'state' => $this->getFaker()->stateAbbr,
+                'zip' => $this->getFaker()->postcode,
+                'country' => 840
+            ];
+            $reference = sha1(json_encode($addressContainer));
+            $addressContainer['reference_id'] = $reference;
+            $addressContainer['participant_id'] = $j;
+
+            array_push($this->participantAddressReferenceContainerSeed, $reference);
+            array_push($this->participantAddressContainerSeed, $addressContainer);
+        }
+    }
+
+    /**
+     * Creates a unique id
+     * @return string
+     */
+    private function getParticipantUuid()
+    {
+        $uuid = [];
+        for ($i = 1; $i < 15; $i++) {
+            // get a random digit, but always a new one, to avoid duplicates
+            $character = [$this->getFaker()->randomDigit, $this->getFaker()->randomLetter];
+            $uuid[] = $character[mt_rand(0, 1)];
+        }
+        $uuid = implode('', $uuid);
+
+        return $uuid;
+    }
+
+    /**
+     * Mock transaction creation
+     * @param $participantId
+     * @return array
+     */
+    private function getParticipantTransaction($participantId)
+    {
+        return [
+            'participant_id' => $participantId,
+            'email_address' => $this->participantEmailContainerSeed[($participantId - 1)],
+            'type' => 1,
+            'shipping_reference' => $this->participantAddressReferenceContainerSeed[($participantId - 1)],
+            'created_at' => $this->getRandomDate('2017-01-01', date('Y-m-d'))
+        ];
+    }
+
+    /**
+     * Mock transaction items
+     * @param $transactionId
+     * @return array
+     */
+    private function getParticipantTransactionItems($transactionId): array
+    {
+        $items = [];
+        $numberOfItemsInTransaction = mt_rand(1, 3);
+        for ($i = 0; $i <= $numberOfItemsInTransaction; $i++) {
+            $selectedProduct = $this->products[rand(0, 3)];
+            $product = [
+                'unique_id' => $selectedProduct->getSku(),
+                'wholesale' => $selectedProduct->getPriceWholesale(),
+                'retail' => $selectedProduct->getPriceRetail(),
+                'shipping' => $selectedProduct->getPriceShipping(),
+                'handling' => $selectedProduct->getPriceHandling(),
+                'vendor_code' => $selectedProduct->getSku(),
+                'kg' => 0,
+                'name' => $selectedProduct->getName(),
+                'description' => $selectedProduct->getDescription(),
+                'terms' => $selectedProduct->getTerms(),
+                //@TODO change type to digital on marketplace entity
+                'type' => $selectedProduct->isDigital() ? 1 : 0
+            ];
+            $reference = sha1(json_encode($product));
+            $product['reference_id'] = $reference;
+            $this->transactionProductContainerSeed[$reference] = $product;
+            $items[] = [
+                'transaction_id' => $transactionId,
+                'reference_id' => $reference,
+                'quantity' => rand(1, 5),
+                'guid' => \Ramsey\Uuid\Uuid::uuid1()
+            ];
+        }
+        return $items;
+    }
+
+    /** Seeders */
+
+    private function seedOrganization()
+    {
+        // Purge all existing Organizations.
+        $this->execute("DELETE FROM Organization");
+        // Reset auto increment value.
+        $this->execute('ALTER TABLE Organization AUTO_INCREMENT = 1');
+
+        $data = [
+            [
+                'name' => 'All Digital Rewards',
+                'lft' => 1,
+                'rgt' => 4,
+                'lvl' => 1,
+                'active' => 1,
+                'unique_id' => 'alldigitalrewards',
+            ],
+            [
+                'name' => 'ShareCare',
+                'lft' => 2,
+                'rgt' => 3,
+                'lvl' => 2,
+                'active' => 1,
+                'unique_id' => 'sharecare',
+            ]
+        ];
+
+        $organizations = $this->table('Organization');
+
+        $organizations
+            ->insert($data)
+            ->save();
+
+        return $this->fetchRow("select LAST_INSERT_ID() as org_id")['org_id'];
+    }
+
+    private function seedWebhook($orgId)
+    {
+        $data = [
+            [
+                'organization_id' => $orgId,
+                'title' => 'RA Transaction',
+                'url' => 'https://ra.staging.alldigitalrewards.com/api/transaction',
+                'username' => 'claim',
+                'password' => 'claim',
+                'event' => 'Transaction.create',
+                'active' => 1,
+                'updated_at' => '2017-01-01'
+            ]
+        ];
+
+        $table = $this->table('webhook');
+        $table->insert($data)->save();
+    }
+
+    private function seedDomain($orgId)
+    {
+        $domainContainerSeed = [
+            [
+                'organization_id' => $orgId,
+                'url' => 'mydigitalrewards.com',
+                'active' => 1
+            ]
+        ];
+
+        $domains = $this->table('Domain');
+        $domains->truncate();
+
+        $domains->insert($domainContainerSeed)
+            ->save();
+
+        return $this->fetchRow("select LAST_INSERT_ID() as domain_id")['domain_id'];
+    }
+
+    private function seedProgram($orgId, $domainId)
+    {
+        $data = [
+            [
+                'organization_id' => $orgId,
+                'name' => 'Sharecare Demo',
+                'point' => 1000,
+                'url' => 'sharecare-demo',
+                'logo' => 'data:image/png;base64,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',
+                'active' => 1,
+                'unique_id' => 'sharecare',
+                'invoice_to' => 'Top Level Client',
+                'domain_id' => $domainId
+            ]
+        ];
+
+        $programs = $this->table('Program');
+
+        # Purge all Organizations
+        $programs->truncate();
+
+        $programs
+            ->insert($data)
+            ->save();
+
+        return $this->fetchRow("select LAST_INSERT_ID() as program_id")['program_id'];
+    }
+
+    private function seedSweepstake()
+    {
+        $data = [
+            'program_id' => 'sharecare',
+            'active' => 1,
+            'start_date' => '2018-01-01',
+            'end_date' => '2024-12-31',
+            'point' => 1,
+            'max_participant_entry' => 100,
+            'created_at' => '2018-02-27'
+        ];
+
+        $sweepstake = $this->table('Sweepstake');
+        $entries = $this->table('SweepstakeEntry');
+        $drawing = $this->table('SweepstakeDraw');
+
+        # Purge all existing sweepstakes
+        $sweepstake->truncate();
+        $entries->truncate();
+        $drawing->truncate();
+
+        $sweepstake->insert($data)->save();
+    }
+
+    private function seedUser($orgId)
+    {
+        $data = [
+            [
+                'email_address' => 'username',
+                'password' => password_hash('password', PASSWORD_BCRYPT),
+                'firstname' => 'Test',
+                'lastname' => 'API',
+                'organization_id' => 1,
+                'role' => 'admin',
+                'active' => 1,
+            ],
+            [
+                'email_address' => 'superadmin',
+                'password' => password_hash('password', PASSWORD_BCRYPT),
+                'firstname' => 'Test',
+                'lastname' => 'API',
+                'role' => 'superadmin',
+                'active' => 1,
+            ],
+            [
+                'email_address' => 'test@alldigitalrewards.com',
+                'password' => password_hash('password', PASSWORD_BCRYPT),
+                'firstname' => 'Test',
+                'lastname' => 'Admin',
+                'role' => 'superadmin',
+                'active' => 1,
+            ],
+            [
+                'email_address' => 'admin@alldigitalrewards.com',
+                'password' => password_hash('password', PASSWORD_BCRYPT),
+                'firstname' => 'Super',
+                'lastname' => 'Admin',
+                'role' => 'superadmin',
+                'active' => 1,
+            ],
+            [
+                'organization_id' => $orgId,
+                'email_address' => 'client@alldigitalrewards.com',
+                'password' => password_hash('password', PASSWORD_BCRYPT),
+                'firstname' => 'Client',
+                'lastname' => 'Admin',
+                'role' => 'admin',
+                'active' => 1,
+            ],
+            [
+                'organization_id' => $orgId,
+                'email_address' => 'configs@alldigitalrewards.com',
+                'password' => password_hash('password', PASSWORD_BCRYPT),
+                'firstname' => 'Config',
+                'lastname' => 'Admin',
+                'role' => 'configs',
+                'active' => 1,
+            ],
+            [
+                'organization_id' => $orgId,
+                'email_address' => 'reports@alldigitalrewards.com',
+                'password' => password_hash('password', PASSWORD_BCRYPT),
+                'firstname' => 'Report',
+                'lastname' => 'Admin',
+                'role' => 'reports',
+                'active' => 1,
+            ]
+        ];
+
+        $users = $this->table('User');
+
+        # Purge all existing users.
+        $users->truncate();
+
+        # Load users.
+        $users->insert($data)->save();
+    }
+
+    private function seedParticipant($orgId, $programId)
+    {
+        $userContainerSeed = [];
+
+        for ($i = 1, $j = 0; $i <= 100; $i++, $j++) {
+            $birthdate = $this->getFaker()->dateTimeBetween('-50 years', 'now')->format('Y-m-d');
+
+            $userContainerSeed[] = [
+                'organization_id' => $orgId,
+                'program_id' => $programId,
+                'email_address' => $this->participantEmailContainerSeed[$j],
+                'password' => password_hash('password', PASSWORD_BCRYPT),
+                'unique_id' => $this->getParticipantUuid(),
+                'firstname' => $this->participantFirstnameContainerSeed[$j],
+                'lastname' => $this->participantLastnameContainerSeed[$j],
+                'address_reference' => $this->participantAddressReferenceContainerSeed[$j],
+                'active' => 1,
+                'created_at' => "2017-01-01",
+                'birthdate' => $birthdate
+            ];
+        }
+
+        $userContainerSeed[] = [
+            'organization_id' => $orgId,
+            'program_id' => $programId,
+            'email_address' => 'test@alldigitalrewards.com',
+            'password' => password_hash('password', PASSWORD_BCRYPT),
+            'unique_id' => 'TESTPARTICIPANT1',
+            'firstname' => 'Test',
+            'lastname' => 'User',
+            'active' => 1,
+        ];
+
+        $participants = $this->table('Participant');
+
+        # Purge all existing participants.
+        $participants->truncate();
+
+        # Load participants.
+        $participants->insert($userContainerSeed)
+            ->save();
+    }
+
+    private function seedParticipantAddress()
+    {
+        $address = $this->table('Address');
+        $address->truncate();
+
+        $address->insert($this->participantAddressContainerSeed)
+            ->save();
+    }
+
+    private function seedCreditAdjustments()
+    {
+        $adjustments = [];
+        for ($i = 1; $i <= 100; $i++) {
+            $adjustments[] = [
+                'participant_id' => $i,
+                'amount' => 500,
+                'type' => 1,
+                'active' => 1,
+                'created_at' => "2017-01-01 01:00:00"
+            ];
+        }
+
+        $users = $this->table('Adjustment');
+
+        # Purge all existing adjustments.
+        $users->truncate();
+        $users->insert($adjustments)->save();
+    }
+
+    private function seedTransaction()
+    {
+        $transactionContainerSeed = [];
+        $transactionItemContainerSeed = [];
+        $transactionDebitAdjustmentsSeed = [];
+
+        for ($i = 1; $i <= 100; $i++) {
+            $participantId = mt_rand(1, 100);
+            $transaction = $this->getParticipantTransaction($participantId);
+            $items = $this->getParticipantTransactionItems($i);
+            $total = 0;
+            $subtotal = 0;
+            $wholesale = 0;
+
+            foreach ($items as $item) {
+                $product = $this->transactionProductContainerSeed[$item['reference_id']];
+                $productTotal = bcadd((bcadd($product['retail'], $product['shipping'], 2)), $product['handling'], 2);
+                $wholesale = bcadd($total, $product['wholesale'], 2);
+                $subtotal = bcadd($total, $product['retail'], 2);
+                $total = bcadd($total, $productTotal, 2);
+            }
+            if($total > 500) {
+                continue;
+            }
+            $transaction['wholesale'] = $wholesale;
+            $transaction['subtotal'] = $subtotal;
+            $transaction['total'] = $total;
+
+            $transactionContainerSeed[] = $transaction;
+            $transactionItemContainerSeed = array_merge($transactionItemContainerSeed, $items);
+
+            $transactionDebitAdjustmentsSeed[] = [
+                'participant_id' => $participantId,
+                'amount' => $total,
+                'type' => 2,
+                'active' => 1,
+                'transaction_id' => $i,
+                'created_at' => $transaction['created_at']
+            ];
+        }
+
+        $transactions = $this->table('Transaction');
+        $transactionItems = $this->table('TransactionItem');
+        $transactionProducts = $this->table('TransactionProduct');
+        $debitAdjustments = $this->table('Adjustment');
+
+        $this->execute('
+            SET FOREIGN_KEY_CHECKS=0;
+            TRUNCATE `' . getenv('MYSQL_DATABASE') . '`.`Transaction`;
+            TRUNCATE `' . getenv('MYSQL_DATABASE') . '`.`TransactionItem`;
+            TRUNCATE `' . getenv('MYSQL_DATABASE') . '`.`TransactionProduct`;
+            SET FOREIGN_KEY_CHECKS=1;
+        ');
+        $transactions->insert($transactionContainerSeed)->save();
+        $transactionItems->insert($transactionItemContainerSeed)->save();
+        $transactionProducts->insert(array_values($this->transactionProductContainerSeed))->save();
+        $debitAdjustments->insert($transactionDebitAdjustmentsSeed)->save();
+    }
+
+    private function setParticipantCalculatedCredit()
+    {
+        $query = "UPDATE Participant SET credit = (
+            IFNULL((
+                SELECT SUM(amount) FROM (SELECT * FROM Participant) temp
+                LEFT JOIN Adjustment ON Adjustment.participant_id = temp.id
+                WHERE type = 1 AND temp.id = Participant.id
+                GROUP BY temp.id
+            ),0) - 
+            IFNULL((
+                SELECT SUM(amount) FROM (SELECT * FROM Participant) temp
+                LEFT JOIN Adjustment ON Adjustment.participant_id = temp.id
+                WHERE type = 2 AND temp.id = Participant.id
+                GROUP BY temp.id
+            ),0)) * 1000 WHERE 1=1;";
+        // Purge all existing Organizations.
+        $this->execute($query);
+    }
+
+}

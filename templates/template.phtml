@@ -1,0 +1,217 @@
+<?php
+/** @var \Services\Authentication\Authenticate $auth */
+?>
+<!DOCTYPE html>
+<!--[if IE 8]> <html lang="en" class="ie8"> <![endif]-->
+<!--[if IE 9]> <html lang="en" class="ie9"> <![endif]-->
+<!--[if !IE]><!--> <html lang="en"> <!--<![endif]-->
+
+<!-- START @HEAD -->
+<head>
+    <!-- START @META SECTION -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+    <meta name="author" content="">
+    <title>Administration</title>
+    <!--/ END META SECTION -->
+
+    <!-- START @FONT STYLES -->
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:400,300,600,700&subset=all" rel="stylesheet">
+    <!--/ END FONT STYLES -->
+    <link href="" rel="stylesheet">
+
+    <link href="/resources/bower/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/resources/bower/jquery-confirm2/dist/jquery-confirm.min.css" rel="stylesheet">
+    <link href="/resources/bower/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <link href="/resources/bower/animate.css/animate.min.css" rel="stylesheet">
+    <link href="/resources/app/css/reset.css" rel="stylesheet">
+    <link href="/resources/app/css/layout.css" rel="stylesheet">
+    <link href="/resources/app/css/components.css" rel="stylesheet">
+    <link href="/resources/app/css/plugins.css" rel="stylesheet">
+    <link href="/resources/app/css/theme.css" rel="stylesheet">
+    <link href="/resources/app/css/custom.css" rel="stylesheet">
+    <link href="/resources/bower/select2/dist/css/select2.min.css" rel="stylesheet">
+    <link href="/resources/bower/select2-bootstrap-theme/dist/select2-bootstrap.min.css" rel="stylesheet">
+
+    <!-- START @IE SUPPORT -->
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <!--/ END IE SUPPORT -->
+
+</head>
+<!--/ END HEAD -->
+<body class="page-header-fixed page-sidebar-fixed">
+
+<!-- START @WRAPPER -->
+<section id="wrapper">
+
+    <!-- START @HEADER -->
+    <header id="header">
+
+        <!-- Start header left -->
+        <div class="header-left">
+            <!-- Start offcanvas left: This menu will take position at the top of template header (mobile only). Make sure that only #header have the `position: relative`, or it may cause unwanted behavior -->
+            <div class="navbar-minimize-mobile left">
+                <i class="fa fa-bars"></i>
+            </div>
+            <div class="clearfix"></div>
+        </div><!-- /.header-left -->
+        <!--/ End header left -->
+
+        <!-- Start header right -->
+        <div class="header-right">
+            <!-- Start navbar toolbar -->
+            <div class="navbar navbar-toolbar">
+
+                <!-- Start left navigation -->
+                <ul class="nav navbar-nav navbar-left">
+
+                    <!-- Start sidebar shrink -->
+                    <li class="navbar-minimize">
+                        <a href="javascript:void(0);" title="Minimize sidebar">
+                            <i class="fa fa-bars"></i>
+                        </a>
+                    </li>
+                    <!--/ End sidebar shrink -->
+
+                </ul>
+
+                <?php if($auth->getUser()):?>
+                <ul class="nav navbar-nav navbar-right">
+                    <li class="dropdown navbar-profile">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        <span class="meta">
+                            <span class="text hidden-xs hidden-sm text-muted">
+                                <?=$auth->getUser()->getName();?>
+                            </span>
+                            <span class="caret"></span>
+                        </span>
+                        </a>
+                        <ul class="dropdown-menu animated flipInX">
+                            <li class="dropdown-header">Account</li>
+                            <li><a href="/logout"><i class="fa fa-sign-out"></i>Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <?php endif;?>
+            </div>
+        </div>
+    </header>
+
+    <aside id="sidebar-left" class="sidebar-box">
+        <img class="logo" src="/resources/app/images/logo.png">
+        <!-- support -->
+
+        <!-- /support -->
+        <!-- Start left navigation - menu -->
+        <ul class="sidebar-menu">
+
+            <!-- Start navigation - dashboard -->
+            <?php if($auth->hasAccess('organization', 'read')):?>
+            <li>
+                <a href="/organization">
+                    <span class="icon"><i class="fa fa-star"></i></span>
+                    <span class="text">Organizations</span>
+                </a>
+            </li>
+            <?php endif;?>
+            <?php if($auth->hasAccess('program', 'read')):?>
+            <li>
+                <a href="/program">
+                    <span class="icon"><i class="fa fa-gears"></i></span>
+                    <span class="text">Programs</span>
+                </a>
+            </li>
+            <?php endif;?>
+            <?php if($auth->hasAccess('product', 'read')):?>
+            <li>
+                <a href="/product">
+                    <span class="icon"><i class="fa fa-th-large"></i></span>
+                    <span class="text">Products</span>
+                </a>
+            </li>
+            <?php endif;?>
+            <?php if($auth->hasAccess('participant', 'read')):?>
+            <li>
+                <a href="/participant">
+                    <span class="icon"><i class="fa fa-users"></i></span>
+                    <span class="text">Participants</span>
+                </a>
+            </li>
+            <?php endif;?>
+            <?php if($auth->hasAccess('report', 'read')):?>
+            <li>
+                <a href="/report">
+                    <span class="icon"><i class="fa fa-list-ul" aria-hidden="true"></i></span>
+                    <span class="text">Reporting</span>
+                </a>
+            </li>
+            <?php endif;?>
+            <?php if($auth->hasAccess('user', 'read')):?>
+            <li>
+                <a href="/user">
+                    <span class="icon"><i class="fa fa-key"></i></span>
+                    <span class="text">Users</span>
+                </a>
+            </li>
+            <?php endif;?>
+        </ul>
+
+    </aside>
+
+    <section id="page-content">
+
+        <?php if (isset($body)) : ?>
+            <?= $body; ?>
+        <?php endif; ?>
+
+    </section>
+</section>
+
+<div id="back-top" class="animated pulse circle">
+    <i class="fa fa-angle-up"></i>
+</div>
+
+<!-- Modal -->
+<div id="modal-dialog" class="modal modal-ajax">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        </div>
+    </div><!-- /.modal-dialog -->
+</div>
+
+<script>
+    var baseURL = '/';
+</script>
+
+<script src="/resources/bower/jquery/dist/jquery.min.js"></script>
+<script src="/resources/bower/jquery.cookie/jquery.cookie.js"></script>
+<script src="/resources/bower/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="/resources/bower/jquery.easing/js/jquery.easing.min.js"></script>
+<script src="/resources/bower/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
+<script src="/resources/bower/querystring/querystring.js"></script>
+<script src="/resources/bower/select2/dist/js/select2.full.min.js"></script>
+<script src="/resources/bower/jquery-form-validator/form-validator/jquery.form-validator.js"></script>
+<script src="/resources/bower/jquery-confirm2/dist/jquery-confirm.min.js"></script>
+<script src="/resources/app/js/paginator.js"></script>
+<script src="/resources/app/js/app.js"></script>
+<script src="/resources/app/js/organization.js"></script>
+<script src="/resources/app/js/program.js"></script>
+<script src="/resources/app/js/participant.js"></script>
+<script src="/resources/app/js/user.js"></script>
+<script src="/resources/app/js/group.js"></script>
+<script src="/resources/app/js/category.js"></script>
+<script src="/resources/app/js/report.js"></script>
+<script src="/resources/app/js/webhook.js"></script>
+<script src="/resources/app/js/product.js"></script>
+
+<!--/ END JAVASCRIPT SECTION -->
+</body>
+<!--/ END BODY -->
+
+</html>

@@ -1,0 +1,16 @@
+<?php
+/** @var string $baseUrl */
+/** @var \Entities\User[] $users */
+?>
+<?php foreach($users as $user):?>
+<tr>
+    <td><?=$user->getId();?></td>
+    <td><?=$user->getName();?></td>
+    <td><?=$user->getEmailAddress();?></td>
+    <td>
+        <a href="/user/view/<?=$user->getId();?>" data-toggle="tooltip" data-original-title="Edit this user">
+            <i class="fa fa-edit"></i>
+        </a>
+    </td>
+</tr>
+<?php endforeach;?>

@@ -1,0 +1,172 @@
+<?php
+/**
+ * @var string $baseUrl
+ * @var string $form_post_path
+ * @var \Entities\Program $program
+ * @var Services\Authentication\Authenticate $auth
+ *
+ */
+
+$successUpdateMessage = _('Program sweepstake updated');
+$sweepstake = $program->getSweepstake();
+?>
+<!-- Content Header (Page header) -->
+<div class="header-content">
+    <h2><i class="fa fa-fw fa-list-ol"></i><?= $program->getName(); ?>'s Sweepstake</h2>
+</div>
+
+<!-- Start body content -->
+<div class="body-content animated">
+
+    <div class="message"></div>
+    <form id="programForm" name="sweepstake"
+          action="<?=  '/program/' . $program->getUniqueId() . '/sweepstake'; ?>"
+          data-success-update-message="<?= $successUpdateMessage; ?>"
+          method="post">
+
+        <fieldset>
+            <legend>Configuration</legend>
+            <div class="row">
+                <div class="col-lg-2">
+                    <div class="form-group">
+                        <label>Active</label>
+                        <select autocomplete="off"
+                                name="active"
+                                class="form-control sweepstake-toggle">
+                            <option value="0"<?= !$sweepstake->isActive() ? ' selected' : '' ?>>No
+                            <option value="1"<?= $sweepstake->isActive() ? ' selected' : '' ?>>Yes
+                            </option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sweepstake <?= $sweepstake->isActive() ? '' : 'hide'; ?>">
+                <div class="row">
+                    <div class="col-xs-2 col-2">
+                        <div class="form-group">
+                            <label>Type</label>
+                            <select class="form-control" name="type">
+                                <option<?= $sweepstake->getType() === 'manual' ? ' selected' : '' ?> value="manual">
+                                    Manual
+                                </option>
+                                <option<?= $sweepstake->getType() === 'auto' ? ' selected' : '' ?> value="auto">
+                                    Automatic
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-2 col-2">
+                        <div class="form-group">
+                            <label>Point entry cost</label>
+                            <input type="number" min="1" class="form-control" name="point"
+                                   value="<?= $sweepstake->getPoint(); ?>"/>
+                        </div>
+                    </div>
+                    <div class="col-xs-2 col-2">
+                        <div class="form-group">
+                            <label>Max participant entries</label>
+                            <input type="number" min="1" class="form-control" name="max_participant_entry"
+                                   value="<?= $sweepstake->getMaxParticipantEntry(); ?>"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="row date-calendar-range">
+                    <div class="form-group col-xs-12 col-5 col-sm-5 col-md-4 col-lg-3">
+                        <label for="start_date">Active date range</label>
+                        <div class="calendar start-date"
+                             data-date="<?= !$sweepstake->isActive() ? date('Y-m-d') : $sweepstake->getStartDate(); ?>"></div>
+                        <input type="hidden" name="start_date"
+                               value="<?= !$sweepstake->isActive() ? date('Y-m-d') : $sweepstake->getStartDate(); ?>">
+                    </div>
+                    <div class="form-group col-xs-12 col-5 col-sm-5 col-md-4 col-lg-3">
+                        <label for="end_date">&nbsp;</label>
+                        <div class="calendar end-date"
+                             data-date="<?= !$sweepstake->isActive() ? date('Y-m-d', strtotime('+1 year')) : $sweepstake->getEndDate(); ?>"></div>
+                        <input type="hidden" name="end_date"
+                               value="<?= !$sweepstake->isActive() ? date('Y-m-d', strtotime('+1 year')) : $sweepstake->getEndDate(); ?>">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6 col-xs-6">
+                        <table class="table table-hover table-striped draw-list">
+                            <thead>
+                            <tr>
+                                <td>Draw Date</td>
+                                <td>Entries</td>
+                                <td></td>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <?php if (!empty($sweepstake->getDrawing())): ?>
+                                <?php foreach ($sweepstake->getDrawing() as $drawing): ?>
+                                    <tr>
+                                        <td class="col-sm-5">
+                                            <?php if ($drawing->isElapsed() === false): ?>
+                                                <input type="text" name="draw_date[]"
+                                                       value="<?= $drawing->getDate(); ?>"
+                                                       class="form-control standard-date-pickers"/>
+                                            <?php else: ?>
+                                                <input type="hidden" name="draw_date[]"
+                                                       value="<?= $drawing->getDate(); ?>"
+                                                       class="form-control standard-date-pickers"/>
+                                                <?= $drawing->getDate(); ?>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td class="col-sm-5">
+                                            <?php if ($drawing->isElapsed() === false): ?>
+                                                <input type="number" name="draw_count[]" min="1"
+                                                       value="<?= $drawing->getDrawCount(); ?>" class="form-control"/>
+                                            <?php else: ?>
+                                                <input type="hidden" name="draw_count[]"
+                                                       value="<?= $drawing->getDrawCount(); ?>" class="form-control"/>
+                                                <?= $drawing->getDrawCount(); ?>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td class="col-sm-2">
+                                            <?php if ($drawing->isElapsed() === false): ?>
+                                                <button type="button"
+                                                        class="delete-drawing-date btn btn-md btn-danger ">
+                                                    Delete
+                                                </button>
+                                            <?php endif; ?>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php else : ?>
+                                <tr>
+                                    <td class="col-sm-5">
+                                        <input type="text" name="draw_date[]" value=""
+                                               class="form-control standard-date-pickers"/>
+                                    </td>
+                                    <td class="col-sm-5">
+                                        <input type="number" name="draw_count[]" value="" class="form-control"/>
+                                    </td>
+                                    <td class="col-sm-2"></td>
+                                </tr>
+                            <?php endif; ?>
+                            </tbody>
+                            <tfoot>
+                            <tr>
+                                <td colspan="5" style="text-align: right;">
+                                    <input type="button" class="btn btn-info" id="addrow" value="Add Row"/>
+                                </td>
+                            </tr>
+                            <tr>
+                            </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+
+        <div class="modal-footer">
+            <button type="submit" class="btn btn-success" data-toggle="tooltip" data-placement="left"
+                    title="Save Program">Submit
+            </button>
+        </div>
+        <br/>
+    </form>
+
+</div>

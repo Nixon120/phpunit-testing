@@ -1,0 +1,19 @@
+<?php
+/**
+ * @var string $baseUrl
+ * @var \Entities\Product[] $products
+ */
+foreach($products as $product):
+/** @var \Entities\Product $product */
+?>
+<tr>
+    <td><?=$product->getSku();?></td>
+    <td><?=$product->getName();?></td>
+    <td><?=$product->getPriceTotal();?></td>
+    <td>
+        <a href="/product/view/<?=$product->getSku();?>">
+            <i class="fa fa-edit"></i>
+        </a>
+    </td>
+</tr>
+<?php endforeach;?>

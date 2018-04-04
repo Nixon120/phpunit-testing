@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="admin" default="profile">
+    <!-- Git Version SHA1 -->
+    <exec executable="git" outputproperty="git.revision">
+        <arg value="rev-parse"/>
+        <arg value="HEAD"/>
+    </exec>
+
+    <property name="image.name" value="${image.name}"/>
+    <property name="deployment.name" value="${deployment.name}" />
+    <property name="deployment.namespace" value="${deployment.namespace}" />
+    <property name="cluster.zone" value="${cluster.zone}" />
+    <property name="cluster.name" value="${cluster.name}" />
+
+    <target name="build"
+            depends="prepare,lint,composer,phploc,pdepend,phpmd-ci,phpcs,phpcpd"/>
+
+    <target name="test" depends="prepare,lint,composer" />
+
+    <target name="profile" depends="prepare,composer,phploc,pdepend,phpcpd,phpmd-ci,phpcs" />
+
+    <target name="build-container-image"
+            depends="composer-production,bower,package-container-files,prep-container-files,build-latest-image,reset-container-files"/>
+
+    <target name="release-container-image"
+            depends="build-container-image,push-latest-image">
+    </target>
+
+    <target name="update-container" depends="connect-to-cluster,update-container-image"/>
+
+    <target name="clean" description="Cleanup build artifacts">
+        <delete dir="${basedir}/build"/>
+    </target>
+
+    <target name="prepare" depends="clean" description="Prepare for build">
+        <mkdir dir="${basedir}/build"/>
+        <mkdir dir="${basedir}/build/coverage"/>
+        <mkdir dir="${basedir}/build/logs"/>
+        <mkdir dir="${basedir}/build/pdepend"/>
+    </target>
+
+    <target name="lint" description="Perform syntax check of sourcecode files">
+        <apply executable="php" failonerror="true">
+            <arg value="-l"/>
+            <fileset dir="${basedir}/app">
+                <include name="**/*.php"/>
+            </fileset>
+        </apply>
+    </target>
+
+    <target name="phploc" description="Measure project size using PHPLOC">
+        <exec executable="phploc">
+            <arg value="--log-csv"/>
+            <arg value="${basedir}/build/logs/phploc.csv"/>
+            <arg value="--log-xml"/>
+            <arg value="${basedir}/build/logs/phploc.xml"/>
+            <arg path="${basedir}/app"/>
+        </exec>
+    </target>
+
+    <target name="pdepend" description="Calculate software metrics using PHP_Depend">
+        <exec executable="pdepend">
+            <arg value="--jdepend-xml=${basedir}/build/logs/jdepend.xml"/>
+            <arg value="--jdepend-chart=${basedir}/build/pdepend/dependencies.svg"/>
+            <arg value="--overview-pyramid=${basedir}/build/pdepend/overview-pyramid.svg"/>
+            <arg path="${basedir}/app"/>
+        </exec>
+    </target>
+
+    <target name="phpmd"
+            description="Perform project mess detection using PHPMD and print human readable output. Intended for usage on the command line before committing.">
+        <exec executable="phpmd">
+            <arg path="${basedir}/src"/>
+            <arg value="text"/>
+            <arg value="${basedir}/build/phpmd.xml"/>
+        </exec>
+    </target>
+
+    <target name="phpmd-ci"
+            description="Code Mess Detection Report">
+        <exec executable="phpmd">
+            <arg path="${basedir}/src"/>
+            <arg value="xml"/>
+            <arg value="${basedir}/phpmd.xml"/>
+            <arg value="--reportfile"/>
+            <arg value="${basedir}/build/logs/pmd.xml"/>
+        </exec>
+    </target>
+
+    <target name="phpcs"
+            description="PSR2 Code Style Standard Report">
+        <exec executable="${basedir}/vendor/bin/phpcs">
+            <arg value="--report=checkstyle"/>
+            <arg value="--report-file=${basedir}/build/logs/checkstyle.xml"/>
+            <arg value="--standard=${basedir}/phpcs.xml"/>
+            <arg path="${basedir}/src"/>
+        </exec>
+    </target>
+
+    <target name="phpcpd" description="Find duplicate code using PHP Copy/Paste Detector">
+        <exec executable="phpcpd">
+            <arg value="--log-pmd"/>
+            <arg value="${basedir}/build/logs/pmd-cpd.xml"/>
+            <arg path="${basedir}/src"/>
+        </exec>
+    </target>
+
+    <target name="phpunit" description="Run unit tests with PHPUnit">
+        <exec executable="phpunit"
+              failonerror="false"
+              dir="${basedir}/tests"/>
+    </target>
+
+    <target name="composer" description="Install PHP Dependencies with Composer">
+        <exec executable="composer"
+              failonerror="true">
+            <arg value="install"/>
+            <arg value="--ignore-platform-reqs"/>
+        </exec>
+    </target>
+
+    <target name="composer-production" description="Install PHP Dependencies with Composer">
+        <exec executable="composer"
+              failonerror="true">
+            <arg value="install"/>
+            <arg value="--no-dev"/>
+            <arg value="--ignore-platform-reqs"/>
+        </exec>
+    </target>
+
+    <target name="bower" description="Install Front-end Dependencies with Bower">
+        <exec executable="bower">
+            <arg value="install"/>
+        </exec>
+    </target>
+
+    <target name="seed-internal-staging-database"
+            description="Seed the internal staging database with phinx">
+        <move file="composer.json" tofile="composer.json.bak"/>
+        <exec executable="composer">
+            <arg value="require"/>
+            <arg value="slim/slim"/>
+            <arg value="monolog/monolog"/>
+            <arg value="robmorgan/phinx"/>
+            <arg value="fzaninotto/faker"/>
+        </exec>
+        <exec executable="php">
+            <arg value="${basedir}/vendor/robmorgan/phinx/bin/phinx"/>
+            <arg value="seed:run"/>
+        </exec>
+        <delete dir="vendor"/>
+        <move file="composer.json.bak" tofile="composer.json"/>
+        <delete file="composer.lock"/>
+    </target>
+
+    <target name="package-container-files">
+        <copy todir="${basedir}/docker/app/packaged">
+            <fileset dir="${basedir}">
+                <exclude name="**/.idea/**"/>
+                <exclude name="**/build/**"/>
+                <exclude name="**/deploy/**"/>
+                <exclude name="**/docker/**"/>
+                <exclude name="**/sql/**"/>
+                <exclude name="**/tests/**"/>
+            </fileset>
+        </copy>
+
+        <touch file="${basedir}/docker/app/packaged/.env" />
+
+        <mkdir dir="${basedir}/docker/app/packaged/logs"/>
+        <touch file="${basedir}/docker/app/packaged/logs/app.log" />
+    </target>
+
+    <target name="prep-container-files">
+        <exec executable="chmod">
+            <arg value="-R"/>
+            <arg value="a+x"/>
+            <arg value="${basedir}/docker/app/packaged/cli"/>
+        </exec>
+    </target>
+
+    <target name="build-latest-image">
+        <exec dir="${basedir}/docker"
+              executable="docker"
+              failonerror="true">
+            <arg value="build"/>
+            <arg value="-f"/>
+            <arg value="app/Dockerfile"/>
+            <arg value="-t"/>
+            <arg value="gcr.io/green-talent-129607/${image.name}:${git.revision}"/>
+            <arg value="./app"/>
+        </exec>
+
+        <exec dir="${basedir}/docker"
+              executable="docker"
+              failonerror="true">
+            <arg value="tag"/>
+            <arg value="gcr.io/green-talent-129607/${image.name}:${git.revision}"/>
+            <arg value="gcr.io/green-talent-129607/${image.name}:latest"/>
+        </exec>
+    </target>
+
+    <target name="reset-container-files">
+        <delete dir="${basedir}/docker/app/packaged"/>
+        <mkdir dir="${basedir}/docker/app/packaged"/>
+        <touch file="${basedir}/docker/app/packaged/.gitkeep"/>
+    </target>
+
+    <target name="push-latest-image">
+        <exec executable="gcloud">
+            <arg value="docker"/>
+            <arg value="--"/>
+            <arg value="push"/>
+            <arg value="gcr.io/green-talent-129607/${image.name}:${git.revision}"/>
+        </exec>
+        <exec executable="gcloud">
+            <arg value="container"/>
+            <arg value="images"/>
+            <arg value="add-tag"/>
+            <arg value="gcr.io/green-talent-129607/${image.name}:${git.revision}"/>
+            <arg value="gcr.io/green-talent-129607/${image.name}:latest"/>
+        </exec>
+    </target>
+
+    <target name="connect-to-cluster">
+        <exec executable="gcloud">
+            <arg value="container"/>
+            <arg value="clusters"/>
+            <arg value="get-credentials"/>
+            <arg value="${cluster.name}"/>
+            <arg value="--zone"/>
+            <arg value="${cluster.zone}"/>
+            <arg value="--project"/>
+            <arg value="green-talent-129607"/>
+        </exec>
+    </target>
+
+    <target name="update-container-image">
+        <exec executable="kubectl" failonerror="true">
+            <arg value="set"/>
+            <arg value="image"/>
+            <arg value="deployment/${deployment.name}"/>
+            <arg value="${deployment.name}=gcr.io/green-talent-129607/${image.name}:${git.revision}"/>
+            <arg value="-n"/>
+            <arg value="${deployment.namespace}"/>
+        </exec>
+    </target>
+</project>
