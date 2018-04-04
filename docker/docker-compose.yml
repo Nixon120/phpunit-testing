@@ -22,6 +22,8 @@ services:
       - ./app/crontab:/etc/crontab
     expose:
       - 80
+    ports:
+      - 81:80
     environment:
       XDEBUG_CONFIG: "remote_host=${XDEBUG_HOST}"
       PHP_IDE_CONFIG: "serverName=admin"
@@ -51,8 +53,6 @@ services:
     image: gcr.io/green-talent-129607/ng-marketplace-admin:latest
     expose:
       - 80
-    ports:
-      - 81:80
     environment:
       MP_ADMIN_HOST: http://localhost
     networks:
@@ -86,8 +86,6 @@ services:
     restart: always
     volumes:
       - mpadmin_mongo:/data/db
-    ports:
-      - 27017:27017
     expose:
       - 27017
     networks:
@@ -96,8 +94,6 @@ services:
     image: gcr.io/green-talent-129607/catalog:latest
     expose:
       - 80
-    ports:
-      - 8005:80
     environment:
       MYSQL_HOST: catalog-mysql
       MYSQL_DATABASE: catalog
@@ -125,8 +121,6 @@ services:
     image: gcr.io/green-talent-129607/product-image:latest
     expose:
       - 80
-    ports:
-      - 8006:80
     environment:
       MYSQL_HOST: product-image-mysql
       MYSQL_DATABASE: image
@@ -150,8 +144,6 @@ services:
     image: gcr.io/green-talent-129607/program-catalog:latest
     expose:
       - 80
-    ports:
-      - 8007:80
     environment:
       MYSQL_DB_HOST: program-catalog-mysql
       MYSQL_DB_DATABASE: program-catalog
@@ -178,8 +170,6 @@ services:
       - adrnet
   program-catalog-redis:
     image: redis:3.2
-    ports:
-      - 6379:6379
     expose:
       - 6379
     networks:
