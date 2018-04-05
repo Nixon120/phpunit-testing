@@ -56,8 +56,6 @@ class OutputNormalizer extends AbstractOutputNormalizer
                 $return['featured_products'][] = $product->getSku();
             }
         }
-        $return['sub_domain']=$program->getUrl();
-        $return['domain']=$program->getDomain();
         $return['auto_redemption']=$program->getAutoRedemption();
         return $return;
     }
