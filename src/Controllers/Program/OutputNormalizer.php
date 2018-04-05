@@ -26,7 +26,6 @@ class OutputNormalizer extends AbstractOutputNormalizer
             'organization_id',
             'contact_reference',
             'invoice_to',
-            'deposit_amount',
             'issue_1099',
             'employee_payroll_file'
         ]);
@@ -57,7 +56,9 @@ class OutputNormalizer extends AbstractOutputNormalizer
                 $return['featured_products'][] = $product->getSku();
             }
         }
-
+        $return['sub_domain']=$program->getUrl();
+        $return['domain']=$program->getDomain();
+        $return['auto_redemption']=$program->getAutoRedemption();
         return $return;
     }
 
