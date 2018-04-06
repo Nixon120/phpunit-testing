@@ -287,7 +287,7 @@ class Authenticate
                 $this->getUserOrganizationIdContainer($user->getOrganizationId())
             );
 
-            if(!empty($user->getOrganizationOwnershipIdentificationCollection())) {
+            if (!empty($user->getOrganizationOwnershipIdentificationCollection())) {
                 $user->setProgramOwnershipIdentificationCollection(
                     $this->getUserProgramIdContainer($user->getOrganizationOwnershipIdentificationCollection())
                 );

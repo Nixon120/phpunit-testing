@@ -52,7 +52,7 @@ $container["JwtAuthentication"] = function (ContainerInterface $container) use (
             $auth = $container->get('authentication');
             $auth->setRequest($request);
             $auth->setResponse($response);
-            if($auth->isApiRequest()) {
+            if ($auth->isApiRequest()) {
                 $data["status"] = "error";
                 $data["message"] = $arguments["message"];
                 return $response->withJson($data, 401);
