@@ -14,7 +14,7 @@ class Redemption extends AbstractReport
             'Program.name as program_name' => 'Program', #Portal name
             'Transaction.created_at' => 'Date', # Order Date
             'Transaction.id' => 'Transaction ID', # Order ID
-            'Participant.unique_id' => 'Unique ID', # Employer ID
+            'Participant.unique_id' => 'Participant ID',
             'Address.firstname' => 'First Name',
             'Address.lastname' => 'Last Name',
             'Address.address1' => 'Address1',
