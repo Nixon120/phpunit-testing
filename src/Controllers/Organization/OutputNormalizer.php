@@ -24,7 +24,6 @@ class OutputNormalizer extends AbstractOutputNormalizer
             }
         }
         $return = $this->scrub($organization->toArray(), [
-            'id',
             'lvl',
             'rgt',
             'lft',
@@ -43,7 +42,6 @@ class OutputNormalizer extends AbstractOutputNormalizer
     public function getList(): array
     {
         $list = $this->scrubList(parent::get(), [
-            'id',
             'lvl',
             'rgt',
             'lft'
