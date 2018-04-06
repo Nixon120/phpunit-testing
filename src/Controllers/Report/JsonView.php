@@ -17,7 +17,6 @@ use Services\Report\PointBalanceFilterNormalizer;
 use Services\Report\RedemptionFilterNormalizer;
 use Services\Report\SweepstakeFilterNormalizer;
 use Services\Report\ServiceFactory;
-use Slim\Views\PhpRenderer;
 
 class JsonView extends AbstractViewController
 {
@@ -91,6 +90,8 @@ class JsonView extends AbstractViewController
                 break;
         }
 
+        $report->setOffset($input->getOffset());
+        $report->setPage($input->getPage());
         $report->setInput($input);
         return $report;
     }
