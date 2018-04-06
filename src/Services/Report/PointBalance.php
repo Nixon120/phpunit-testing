@@ -11,7 +11,7 @@ class PointBalance extends AbstractReport
 
         $this->setFieldMap([
             'Participant.email_address' => 'Email',
-            'Participant.unique_id' => 'Unique ID',
+            'Participant.unique_id' => 'Participant ID',
             'Participant.firstname' => 'First Name',
             'Participant.lastname' => 'Last Name',
             'Address.address1' => 'Address1',
@@ -19,7 +19,7 @@ class PointBalance extends AbstractReport
             'Address.city' => 'City',
             'Address.state' => 'State',
             'Address.zip' => 'Zip',
-            'Participant.credit' => 'Point'
+            'Participant.credit' => 'Current Balance'
         ]);
     }
 
