@@ -22,9 +22,11 @@ class SandboxResetSeeder extends AbstractSeed
     {
         $this->prepareInformationForSeeders();
         $orgId = $this->seedOrganization();
-        $this->seedWebhook($orgId);
-        $domainId = $this->seedDomain($orgId);
-        $programId = $this->seedProgram($orgId, $domainId);
+        $this->seedWebhook();
+        $this->seedDomain();
+        $programId = $this->seedProgram();
+        $this->seedLayoutRows();
+        $this->seedLayoutRowCards();
         $this->seedSweepstake();
         $this->seedUser($orgId);
         $this->seedParticipant($orgId, $programId);
@@ -234,11 +236,11 @@ class SandboxResetSeeder extends AbstractSeed
         return $this->fetchRow("select LAST_INSERT_ID() as org_id")['org_id'];
     }
 
-    private function seedWebhook($orgId)
+    private function seedWebhook()
     {
         $data = [
             [
-                'organization_id' => $orgId,
+                'organization_id' => 1,
                 'title' => 'RA Transaction',
                 'url' => 'https://ra.staging.alldigitalrewards.com/api/transaction',
                 'username' => 'claim',
@@ -253,11 +255,244 @@ class SandboxResetSeeder extends AbstractSeed
         $table->insert($data)->save();
     }
 
-    private function seedDomain($orgId)
+    private function seedLayoutRows()
+    {
+        $data = [
+            [
+                'id' => 1,
+                'priority' => 0,
+                'program_id' => 'alldigitalrewards',
+                'label' => ''
+            ],
+            [
+                'id' => 2,
+                'priority' => 1,
+                'program_id' => 'alldigitalrewards',
+                'label' => ''
+            ],
+            [
+                'id' => 3,
+                'priority' => 2,
+                'program_id' => 'alldigitalrewards',
+                'label' => 'Marketplace'
+            ],
+            [
+                'id' => 4,
+                'priority' => 3,
+                'program_id' => 'alldigitalrewards',
+                'label' => ''
+            ],
+            [
+                'id' => 5,
+                'priority' => 4,
+                'program_id' => 'alldigitalrewards',
+                'label' => 'Marketplace'
+            ],
+            [
+                'id' => 6,
+                'priority' => 5,
+                'program_id' => 'alldigitalrewards',
+                'label' => 'Marketplace'
+            ],
+            [
+                'id' => 7,
+                'priority' => 6,
+                'program_id' => 'alldigitalrewards',
+                'label' => ''
+            ],
+        ];
+        $table = $this->table('LayoutRow');
+        $table->truncate();
+        $table->insert($data)->save();
+    }
+
+    private function seedLayoutRowCards()
+    {
+        $data = [
+            [
+                'row_id' => 1,
+                'priority' => 0,
+                'size' => 6,
+                'type' => 'image',
+                'product' => null,
+                'image' => '4f538aab63fa10afc5be4c8b05adb4ec0f6f9074.png',
+                'link' => null,
+                'product_row' => null
+            ],
+            [
+                'row_id' => 1,
+                'priority' => 1,
+                'size' => 6,
+                'type' => 'link',
+                'product' => null,
+                'image' => '02e8c72942fdb3ca7f8ca54511ebf8fc09f7382c.jpeg',
+                'link' => 'https://sharecare-demo.mydigitalrewards.com/reward/view?sku=VVISA01',
+                'product_row' => null
+            ],
+            [
+                'row_id' => 2,
+                'priority' => 0,
+                'size' => 4,
+                'type' => 'link',
+                'product' => null,
+                'image' => '2bc45f160c6d4136570b583dd583d8088381dbd8.jpeg',
+                'link' => 'https://sharecare-demo.mydigitalrewards.com/reward/view?sku=PS0000889497-24',
+                'product_row' => null
+            ],
+            [
+                'row_id' => 2,
+                'priority' => 1,
+                'size' => 4,
+                'type' => 'link',
+                'product' => null,
+                'image' => '91db8de61963ab7cc78e19e79b999ca01ed6d355.jpeg',
+                'link' => 'https://sharecare-demo.mydigitalrewards.com/reward/view?sku=PS0000889498-24',
+                'product_row' => null
+            ],
+            [
+                'row_id' => 2,
+                'priority' => 2,
+                'size' => 4,
+                'type' => 'link',
+                'product' => null,
+                'image' => 'f368e4118faa612e58bc18c4326f621c1c7f2de4.jpeg',
+                'link' => 'https://sharecare-demo.mydigitalrewards.com/reward/view?sku=HRA01',
+                'product_row' => null
+            ],
+            [
+                'row_id' => 3,
+                'priority' => 0,
+                'size' => 9,
+                'type' => 'product_row',
+                'product' => null,
+                'image' => null,
+                'link' => null,
+                'product_row' => '["PS0000168274-24","PS0000883442-24","PS0000889498-24","PS0000913289-24"]'
+            ],
+            [
+                'row_id' => 3,
+                'priority' => 1,
+                'size' => 3,
+                'type' => 'link',
+                'product' => null,
+                'image' => '324cdd53610a7f0214d82b0cbc20eb228ae67f67.jpeg',
+                'link' => 'https://sharecare-demo.mydigitalrewards.com/featured',
+                'product_row' => null
+            ],
+            [
+                'row_id' => 4,
+                'priority' => 0,
+                'size' => 12,
+                'type' => 'image',
+                'product' => null,
+                'image' => 'b7628bf0cb95339c01989b2f5a5c29f7f2e14d51.png',
+                'link' => null,
+                'product_row' => null
+            ],
+            [
+                'row_id' => 5,
+                'priority' => 0,
+                'size' => 3,
+                'type' => 'link',
+                'product' => null,
+                'image' => '0331d477a1e1ba3bc0355077d577e3c6e08f97dc.jpeg',
+                'link' => 'https://sharecare-demo.mydigitalrewards.com/reward/view?sku=PS0000913293-24',
+                'product_row' => null
+            ],
+            [
+                'row_id' => 5,
+                'priority' => 1,
+                'size' => 9,
+                'type' => 'product_row',
+                'product' => null,
+                'image' => null,
+                'link' => null,
+                'product_row' => '["PS0000889498-24","PS0000889497-24","PS0000168274-24","PS0000883442-24"]'
+            ],
+            [
+                'row_id' => 6,
+                'priority' => 0,
+                'size' => 9,
+                'type' => 'product_row',
+                'product' => null,
+                'image' => null,
+                'link' => null,
+                'product_row' => '["PS0000889491-24","PS0000168274-24","PS0000889498-24","PS0000889497-24"]'
+            ],
+            [
+                'row_id' => 6,
+                'priority' => 1,
+                'size' => 3,
+                'type' => 'link',
+                'product' => null,
+                'image' => 'dfdbb033770d22bc9cba86a2f1d3ce473922b6fb.jpeg',
+                'link' => 'https://sharecare-demo.mydigitalrewards.com/reward/view?sku=PS0000913293-24',
+                'product_row' => null
+            ],
+            [
+                'row_id' => 7,
+                'priority' => 0,
+                'size' => 4,
+                'type' => 'link',
+                'product' => null,
+                'image' => '2729143327f0a51c5dc481edc6df06b1a6db1c67.jpeg',
+                'link' => 'https://sharecare-demo.mydigitalrewards.com/reward/view?sku=PS0000883442-24',
+                'product_row' => null
+            ],
+            [
+                'row_id' => 7,
+                'priority' => 1,
+                'size' => 4,
+                'type' => 'link',
+                'product' => null,
+                'image' => 'ffc134cc45b36fe04b3545e64a831da4090a86e9.jpeg',
+                'link' => 'https://sharecare-demo.mydigitalrewards.com/reward/view?sku=PS0000168274-24',
+                'product_row' => null
+            ],
+            [
+                'row_id' => 7,
+                'priority' => 2,
+                'size' => 4,
+                'type' => 'link',
+                'product' => null,
+                'image' => '1f1ad145ad1691599175ff62e3a8871751d80d66.jpeg',
+                'link' => 'https://sharecare-demo.mydigitalrewards.com/reward/view?sku=PS0000889491-24',
+                'product_row' => null
+            ]
+        ];
+        $table = $this->table('LayoutRowCard');
+        $table->truncate();
+        $table->insert($data)->save();
+        $this->importFixturedLayoutImages();
+    }
+
+    private function importFixturedLayoutImages()
+    {
+        $dir = opendir(ROOT . '/seeds/fixtures/layout-images');
+        $src = ROOT . '/seeds/fixtures/layout-images';
+        $dst = ROOT . '/public/resources/app/layout';
+        while (false !== ($file = readdir($dir))) {
+            if (($file != '.') && ($file != '..')) {
+                if (is_dir($src . '/' . $file)) {
+                    recurse_copy($src . '/' . $file, $dst . '/' . $file);
+                } else {
+                    copy($src . '/' . $file, $dst . '/' . $file);
+                }
+            }
+        }
+        closedir($dir);
+    }
+
+    private function seedDomain()
     {
         $domainContainerSeed = [
             [
-                'organization_id' => $orgId,
+                'organization_id' => 1,
+                'url' => 'mydigitalrewards.com',
+                'active' => 1
+            ],
+            [
+                'organization_id' => 2,
                 'url' => 'mydigitalrewards.com',
                 'active' => 1
             ]
@@ -272,11 +507,22 @@ class SandboxResetSeeder extends AbstractSeed
         return $this->fetchRow("select LAST_INSERT_ID() as domain_id")['domain_id'];
     }
 
-    private function seedProgram($orgId, $domainId)
+    private function seedProgram()
     {
         $data = [
             [
-                'organization_id' => $orgId,
+                'organization_id' => 1,
+                'name' => 'Demo',
+                'point' => 1000,
+                'url' => 'demo',
+                'logo' => null,
+                'active' => 1,
+                'unique_id' => 'alldigitalrewards',
+                'invoice_to' => 'Top Level Client',
+                'domain_id' => 1
+            ],
+            [
+                'organization_id' => 2,
                 'name' => 'Sharecare Demo',
                 'point' => 1000,
                 'url' => 'sharecare-demo',
@@ -284,7 +530,7 @@ class SandboxResetSeeder extends AbstractSeed
                 'active' => 1,
                 'unique_id' => 'sharecare',
                 'invoice_to' => 'Top Level Client',
-                'domain_id' => $domainId
+                'domain_id' => 2
             ]
         ];
 
@@ -303,13 +549,24 @@ class SandboxResetSeeder extends AbstractSeed
     private function seedSweepstake()
     {
         $data = [
-            'program_id' => 'sharecare',
-            'active' => 1,
-            'start_date' => '2018-01-01',
-            'end_date' => '2024-12-31',
-            'point' => 1,
-            'max_participant_entry' => 100,
-            'created_at' => '2018-02-27'
+            [
+                'program_id' => 'alldigitalrewards',
+                'active' => 1,
+                'start_date' => '2018-01-01',
+                'end_date' => '2024-12-31',
+                'point' => 1,
+                'max_participant_entry' => 100,
+                'created_at' => date('Y-m-d')
+            ],
+            [
+                'program_id' => 'sharecare',
+                'active' => 1,
+                'start_date' => '2018-01-01',
+                'end_date' => '2024-12-31',
+                'point' => 1,
+                'max_participant_entry' => 100,
+                'created_at' => date('Y-m-d')
+            ]
         ];
 
         $sweepstake = $this->table('Sweepstake');
@@ -421,7 +678,7 @@ class SandboxResetSeeder extends AbstractSeed
         }
 
         $userContainerSeed[] = [
-            'organization_id' => $orgId,
+            'organization_id' => 2,
             'program_id' => $programId,
             'email_address' => 'test@alldigitalrewards.com',
             'password' => password_hash('password', PASSWORD_BCRYPT),
@@ -491,7 +748,7 @@ class SandboxResetSeeder extends AbstractSeed
                 $subtotal = bcadd($total, $product['retail'], 2);
                 $total = bcadd($total, $productTotal, 2);
             }
-            if($total > 500) {
+            if ($total > 500) {
                 continue;
             }
             $transaction['wholesale'] = $wholesale;
@@ -547,5 +804,4 @@ class SandboxResetSeeder extends AbstractSeed
         // Purge all existing Organizations.
         $this->execute($query);
     }
-
 }
