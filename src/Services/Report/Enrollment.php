@@ -1,4 +1,5 @@
 <?php
+
 namespace Services\Report;
 
 class Enrollment extends AbstractReport
@@ -12,16 +13,17 @@ class Enrollment extends AbstractReport
         //@TODO Company Country, Company name? Maybe?
         $this->setFieldMap([
             'Participant.created_at' => 'Registration Date',
+            'Participant.unique_id' => 'Participant ID',
             'Participant.firstname' => 'First Name',
             'Participant.lastname' => 'Last Name',
             'Address.address1' => 'Address1',
             'Address.address2' => 'Address2',
             'Address.city' => 'City',
-            'Address.state' => 'Contact',
+            'Address.state' => 'State',
             'Address.zip' => 'Zip',
             'Participant.phone' => 'Phone',
             'Participant.email_address' => 'Email',
-            'Participant.active' => 'Status'
+            "CASE Participant.active WHEN 1 THEN 'active' ELSE 'inactive' END" => 'Status'
         ]);
     }
 
