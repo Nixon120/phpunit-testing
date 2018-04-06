@@ -153,10 +153,10 @@ services:
       ENVIRONMENT: development
       REDIS_HOST: program-catalog-redis
       REDIS_PORT: 6379
-      PROGRAM_CONFIG_URL: https://admin.qa.alldigitalrewards.com/api/program
+      PROGRAM_CONFIG_URL: http://admin/api/program
       CATALOG_URL: http://product.catalog
-      LOG_HOST: 35.225.39.223
-      LOG_PORT: 5710
+      LOG_HOST: fluentd
+      LOG_PORT: "24224"
     networks:
       - adrnet
   program-catalog-mysql:
