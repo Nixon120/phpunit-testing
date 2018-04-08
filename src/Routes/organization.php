@@ -116,22 +116,7 @@ $app->group('/api/organization', function () use ($createRoute, $updateRoute) {
                     $webhookId = $args['webhook_id'];
 
                     return $controller->deleteWebhook($organizationId, $webhookId);
-                });
-
-                $this->get('/webhook-view', function ($request, $response, $args) {
-
-                    $controller = new WebhookControllers\JsonView(
-                        $request,
-                        $response,
-                        $this->get('renderer'),
-                        $this->get('organization')
-                    );
-
-                    $organizationId = $args['id'];
-                    $webhookId = $args['webhook_id'];
-
-                    return $controller->webhookSingle($organizationId, $webhookId);
-                });
+                }); 
 
                 $this->post('/modify', function ($request, $response, $args) {
 
