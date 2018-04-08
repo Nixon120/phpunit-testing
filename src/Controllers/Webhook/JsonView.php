@@ -214,4 +214,67 @@ class JsonView extends AbstractViewController
             ->withStatus(201)
             ->withJson($webhook);
     }
+
+    public function deleteWebhook($org_id, $webhook_id)
+    {
+        $isDeleted = $this
+            ->webhookRepository
+            ->delete($webhook_id);
+
+        $org = $this->getOrg($org_id);
+
+        if (!$isDeleted
+            || is_null($org)) {
+            return $this->renderGui404();
+        }
+
+        return json_encode(['success' => true]);
+    }
+
+    public function webhookSingle($org_id, $webhook_id)
+    {
+        $webhook = $this
+            ->webhookRepository
+            ->getWebhook($webhook_id);
+
+        $org = $this->getOrg($org_id);
+
+        if (is_null($webhook)
+            || $webhook->getOrganizationId() != $org->getId()) {
+            return $this->renderGui404();
+        }
+
+        return json_encode(
+            [
+                'webhook' => $webhook,
+                'organization' => $org,
+            ]
+        );
+    }
+
+    public function modifyWebhook($webhook_id)
+    {
+        $post = $this->request->getParsedBody() ?? [];
+
+        $webhook = new Webhook;
+        $webhook->setTitle($post['title']);
+        $webhook->setEvent($post['event']);
+        $webhook->setOrganizationId((int)$post['organization_id']);
+        $webhook->setUrl($post['url']);
+        $webhook->setUsername($post['username']);
+        $webhook->setPassword($post['password']);
+
+        if (!$this->webhookRepository->isValid($webhook)
+            || !$this->webhookRepository->updateWebhook($webhook_id, $post)
+        ) {
+            $errors = $this->webhookRepository->getErrors();
+            return json_encode([
+                'error' => $errors
+            ]);
+        }
+
+        return json_encode([
+            'success' => true
+        ]);
+    }
 }
