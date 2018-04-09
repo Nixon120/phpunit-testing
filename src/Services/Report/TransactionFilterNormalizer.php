@@ -3,7 +3,7 @@ namespace Services\Report;
 
 use Services\AbstractFilterNormalizer;
 
-class RedemptionFilterNormalizer extends AbstractFilterNormalizer
+class TransactionFilterNormalizer extends AbstractFilterNormalizer
 {
     public function getStatusFilter($value)
     {
@@ -68,7 +68,7 @@ class RedemptionFilterNormalizer extends AbstractFilterNormalizer
     public function getStartDateFilter($value)
     {
         if ($value !== "") {
-            return "`Transaction`.`created_at` >= ?";
+            return "`Adjustment`.`created_at` >= ?";
         }
 
         return false;
@@ -88,7 +88,7 @@ class RedemptionFilterNormalizer extends AbstractFilterNormalizer
     public function getEndDateFilter($value)
     {
         if ($value !== "") {
-            return "`Transaction`.`created_at` <= ?";
+            return "`Adjustment`.`created_at` <= ?";
         }
 
         return false;
