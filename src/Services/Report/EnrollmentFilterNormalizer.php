@@ -5,6 +5,26 @@ use Services\AbstractFilterNormalizer;
 
 class EnrollmentFilterNormalizer extends AbstractFilterNormalizer
 {
+    public function getStatusFilter($value)
+    {
+        if ($value !== "") {
+            return "`Participant`.`active` = ?";
+        }
+
+        return false;
+    }
+
+    public function getStatusFilterArgs($value)
+    {
+        $args = [];
+
+        if ($value !== "") {
+            $args[] = $value;
+        }
+
+        return $args;
+    }
+
     public function getOrganizationFilter($value)
     {
         if ($value !== "") {
