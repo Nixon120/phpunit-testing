@@ -38,7 +38,6 @@ class ServiceFactory extends AbstractServiceFactory
     public function getRedemptionReport()
     {
         return new Redemption($this->getContainer()->get('report'));
-
     }
 
     public function getTransactionReport()
