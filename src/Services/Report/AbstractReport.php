@@ -47,7 +47,7 @@ abstract class AbstractReport implements Reportable
 
     protected function fetchDataForReport($query, $args)
     {
-        if($this->limitResultCount === true) {
+        if ($this->limitResultCount === true) {
             $query .= " LIMIT " . self::RESULT_COUNT . " OFFSET " . $this->offset;
         }
 
@@ -145,7 +145,7 @@ abstract class AbstractReport implements Reportable
         header('Content-Disposition: attachment; filename="' . $this->getReportName() . '.csv"');
         header('Content-Type: text/csv');
 
-        $output = fopen('php://output','a');
+        $output = fopen('php://output', 'a');
 
         fputcsv(
             $output,
@@ -154,8 +154,8 @@ abstract class AbstractReport implements Reportable
 
         $this->limitResultCount = false;
 
-        foreach($this->getReportData() as $row) {
-            fputcsv($output,$row);
+        foreach ($this->getReportData() as $row) {
+            fputcsv($output, $row);
         }
     }
 }

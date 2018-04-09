@@ -177,6 +177,7 @@ class JsonView extends AbstractViewController
                 '_id' => -1
             ]
         ]);
+
         return $cursor->toArray();
     }
 
