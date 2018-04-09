@@ -11,7 +11,7 @@ class Sweepstake extends AbstractReport
 
         $this->setFieldMap([
             'Participant.email_address' => 'Email',
-            'Participant.unique_id' => 'Unique ID',
+            'Participant.unique_id' => 'Participant ID',
             'Participant.firstname' => 'First Name',
             'Participant.lastname' => 'Last Name',
             'SweepstakeEntry.created_at' => 'Entered',
