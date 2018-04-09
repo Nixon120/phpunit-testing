@@ -276,12 +276,18 @@ class TransactionProduct extends Base implements Validateable
         $this->type = $type;
     }
 
+    /**
+     * @param $category
+     */
     public function setCategory($category)
     {
         $this->category = $category;
     }
 
-    public function getCategory(): string
+    /**
+     * @return string|null
+     */
+    public function getCategory()
     {
         return $this->category;
     }
