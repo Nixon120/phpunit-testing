@@ -35,6 +35,8 @@ class TransactionProduct extends Base implements Validateable
 
     public $type;
 
+    public $category;
+
     private $guid;
 
     private $quantity;
@@ -60,7 +62,8 @@ class TransactionProduct extends Base implements Validateable
                 'name' => $product->getName(),
                 'description' => $product->getDescription(),
                 'terms' => $product->getTerms(),
-                'type' => $product->isDigital()?1:0
+                'type' => $product->isDigital()?1:0,
+                'category' => $product->getCategory() !== null ? $product->getCategory()->getName() : "Other"
             ]);
             if ($product instanceof Product && $product->isPriceRanged()) {
                 $this->setRetail($amount);
@@ -271,6 +274,16 @@ class TransactionProduct extends Base implements Validateable
     public function setType($type)
     {
         $this->type = $type;
+    }
+
+    public function setCategory($category)
+    {
+        $this->category = $category;
+    }
+
+    public function getCategory(): string
+    {
+        return $this->category;
     }
 
     public function setQuantity($quantity)
