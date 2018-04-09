@@ -3,13 +3,16 @@
 namespace Controllers\Organization;
 
 use Controllers\AbstractModifyController;
+use Services\Organization\ServiceFactory;
+use Services\Organization\UpdateOrganizationModel;
 use Slim\Http\Request;
 use Slim\Http\Response;
-use Services\Organization\UpdateOrganizationModel;
-use Services\Organization\ServiceFactory;
+use Traits\LoggerAwareTrait;
 
 class Modify extends AbstractModifyController
 {
+    use LoggerAwareTrait;
+
     /**
      * @var ServiceFactory
      */
@@ -36,11 +39,32 @@ class Modify extends AbstractModifyController
 
         $post = $this->request->getParsedBody() ?? [];
         if ($organization = $insertModel->insert($post)) {
+            $this->getLogger()->notice(
+                'Organization Created',
+                [
+                    'organization_id' => $organization->getUniqueId(),
+                    'subsystem' => 'Organization',
+                    'action' => 'create',
+                    'success' => true,
+                ]
+            );
             $output = new OutputNormalizer($organization);
+
             return $this->returnJson(201, $output->get());
         }
 
         $errors = $insertModel->getErrors();
+
+        $this->getLogger()->error(
+            'Organization Create Failed',
+            [
+                'subsystem' => 'Organization',
+                'action' => 'create',
+                'success' => false,
+                'errors' => $errors
+            ]
+        );
+
         return $this->returnFormattedJsonError(400, $errors);
     }
 

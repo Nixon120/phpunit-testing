@@ -8,9 +8,12 @@ use Services\Program\Program;
 use Services\Program\ServiceFactory;
 use Slim\Http\Request;
 use Slim\Http\Response;
+use Traits\LoggerAwareTrait;
 
 class Modify extends AbstractModifyController
 {
+    use LoggerAwareTrait;
+
     /**
      * @var ServiceFactory
      */
@@ -36,11 +39,33 @@ class Modify extends AbstractModifyController
         $post = $this->request->getParsedBody()??[];
         $input = new InputNormalizer($post);
         if ($program = $this->service->insert($input)) {
+            $this->getLogger()->notice(
+                'Program Created',
+                [
+                    'program_id' => $program->getUniqueId(),
+                    'subsystem' => 'Program',
+                    'action' => 'create',
+                    'success' => true,
+                ]
+            );
+
             $output = new OutputNormalizer($program);
+
             return $this->returnJson(201, $output->get());
         }
 
         $errors = $this->service->getErrors();
+
+        $this->getLogger()->error(
+            'Program Create Failed',
+            [
+                'subsystem' => 'Program',
+                'action' => 'create',
+                'success' => false,
+                'errors' => $errors
+            ]
+        );
+
         return $this->returnJson(400, $errors);
     }
 
