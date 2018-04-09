@@ -78,7 +78,7 @@ class Program
         }
 
         //unsetting unique_id here, can't change on update.
-        if (!empty($data['auto_redemption']) && $data['auto_redemption']['active'] == 1) {
+        if (!empty($data['auto_redemption'])) {
             $autoRedemption = new AutoRedemption;
             $autoRedemption->exchange($data['auto_redemption']);
             $autoRedemption->setAllParticipant(1); // This will be changed later.
