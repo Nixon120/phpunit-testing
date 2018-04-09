@@ -116,7 +116,7 @@ $app->group('/api/organization', function () use ($createRoute, $updateRoute) {
                     $webhookId = $args['webhook_id'];
 
                     return $controller->deleteWebhook($organizationId, $webhookId);
-                }); 
+                });
 
                 $this->post('/modify', function ($request, $response, $args) {
 
