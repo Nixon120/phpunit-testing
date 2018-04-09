@@ -224,6 +224,7 @@ class SandboxResetSeeder extends AbstractSeed
                 'lvl' => 2,
                 'active' => 1,
                 'unique_id' => 'sharecare',
+                'parent_id' => 1
             ]
         ];
 
