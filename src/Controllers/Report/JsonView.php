@@ -17,6 +17,7 @@ use Services\Report\PointBalanceFilterNormalizer;
 use Services\Report\RedemptionFilterNormalizer;
 use Services\Report\SweepstakeFilterNormalizer;
 use Services\Report\ServiceFactory;
+use Services\Report\TransactionFilterNormalizer;
 
 class JsonView extends AbstractViewController
 {
@@ -73,6 +74,11 @@ class JsonView extends AbstractViewController
             case 'redemption':
                 $report = $this->factory->getRedemptionReport();
                 $filter = new RedemptionFilterNormalizer($input->getInput());
+                $report->setFilter($filter);
+                break;
+            case 'transaction':
+                $report = $this->factory->getTransactionReport();
+                $filter = new TransactionFilterNormalizer($input->getInput());
                 $report->setFilter($filter);
                 break;
             case 'point_balance':
