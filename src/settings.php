@@ -62,7 +62,7 @@ return [
             'participant.all',
             'user.all',
             'report.all',
-//            'product.all',
+            'product.all',
             'administrators.all'
         ],
         'admin' => [
