@@ -7,7 +7,7 @@ class AddCategoryToTransactionProduct extends AbstractMigration
     public function change()
     {
         $table = $this->table('TransactionProduct');
-        $table->addColumn('category', 'string')
+        $table->addColumn('category', 'string', ['null' => true])
             ->save();
     }
 }
