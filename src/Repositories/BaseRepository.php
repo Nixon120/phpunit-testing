@@ -227,7 +227,7 @@ abstract class BaseRepository implements Repository
 
         $sth = $this->database->prepare($sql);
         $sth->execute($args);
-        
+
         return $sth->fetchAll(
             PDO::FETCH_CLASS,
             $this->getRepositoryEntity()

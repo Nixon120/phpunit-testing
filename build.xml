@@ -135,8 +135,8 @@
         </exec>
     </target>
 
-    <target name="seed-internal-staging-database"
-            description="Seed the internal staging database with phinx">
+    <target name="seed-qa-database"
+            description="Seed QA database with phinx">
         <move file="composer.json" tofile="composer.json.bak"/>
         <exec executable="composer">
             <arg value="require"/>
