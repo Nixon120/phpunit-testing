@@ -45,6 +45,11 @@ class ServiceFactory extends AbstractServiceFactory
         return new Transaction($this->getContainer()->get('report'));
     }
 
+    public function getParticipantSummaryReport()
+    {
+        return new ParticipantSummary($this->getContainer()->get('report'));
+    }
+
     public function getPointBalanceReport()
     {
         return new PointBalance($this->getContainer()->get('report'));
