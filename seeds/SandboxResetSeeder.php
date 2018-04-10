@@ -77,12 +77,7 @@ class SandboxResetSeeder extends AbstractSeed
     private function prepareProductsToBeConsumed()
     {
         if (empty($this->products)) {
-            $catalog = new \AllDigitalRewards\Services\Catalog\Client;
-            $catalog->setUrl(getenv('CATALOG_URL'));
-
-            $this->products = $catalog->getProducts([
-                'maxPrice' => 50
-            ], 1, 250);
+            $this->products = require __DIR__ . '/fixtures/products.php';
         }
         return $this->products;
     }
@@ -749,9 +744,7 @@ class SandboxResetSeeder extends AbstractSeed
                 $subtotal = bcadd($total, $product['retail'], 2);
                 $total = bcadd($total, $productTotal, 2);
             }
-            if ($total > 500) {
-                continue;
-            }
+
             $transaction['wholesale'] = $wholesale;
             $transaction['subtotal'] = $subtotal;
             $transaction['total'] = $total;
