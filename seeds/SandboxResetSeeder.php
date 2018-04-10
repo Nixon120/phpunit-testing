@@ -28,8 +28,8 @@ class SandboxResetSeeder extends AbstractSeed
         $this->seedLayoutRows();
         $this->seedLayoutRowCards();
         $this->seedSweepstake();
-        $this->seedUser($orgId);
-        $this->seedParticipant($orgId, $programId);
+        $this->seedUser();
+        $this->seedParticipant();
         $this->seedParticipantAddress();
         $this->seedCreditAdjustments();
         $this->seedTransaction();
@@ -576,7 +576,7 @@ class SandboxResetSeeder extends AbstractSeed
         $sweepstake->insert($data)->save();
     }
 
-    private function seedUser($orgId)
+    private function seedUser()
     {
         $data = [
             [
@@ -584,7 +584,7 @@ class SandboxResetSeeder extends AbstractSeed
                 'password' => password_hash('password', PASSWORD_BCRYPT),
                 'firstname' => 'Test',
                 'lastname' => 'API',
-                'organization_id' => 1,
+                'organization_id' => 2,
                 'role' => 'admin',
                 'active' => 1,
             ],
@@ -613,7 +613,7 @@ class SandboxResetSeeder extends AbstractSeed
                 'active' => 1,
             ],
             [
-                'organization_id' => $orgId,
+                'organization_id' => 2,
                 'email_address' => 'client@alldigitalrewards.com',
                 'password' => password_hash('password', PASSWORD_BCRYPT),
                 'firstname' => 'Client',
@@ -622,7 +622,7 @@ class SandboxResetSeeder extends AbstractSeed
                 'active' => 1,
             ],
             [
-                'organization_id' => $orgId,
+                'organization_id' => 2,
                 'email_address' => 'configs@alldigitalrewards.com',
                 'password' => password_hash('password', PASSWORD_BCRYPT),
                 'firstname' => 'Config',
@@ -631,7 +631,7 @@ class SandboxResetSeeder extends AbstractSeed
                 'active' => 1,
             ],
             [
-                'organization_id' => $orgId,
+                'organization_id' => 2,
                 'email_address' => 'reports@alldigitalrewards.com',
                 'password' => password_hash('password', PASSWORD_BCRYPT),
                 'firstname' => 'Report',
@@ -650,7 +650,7 @@ class SandboxResetSeeder extends AbstractSeed
         $users->insert($data)->save();
     }
 
-    private function seedParticipant($orgId, $programId)
+    private function seedParticipant()
     {
         $userContainerSeed = [];
 
@@ -658,8 +658,8 @@ class SandboxResetSeeder extends AbstractSeed
             $birthdate = $this->getFaker()->dateTimeBetween('-50 years', 'now')->format('Y-m-d');
 
             $userContainerSeed[] = [
-                'organization_id' => $orgId,
-                'program_id' => $programId,
+                'organization_id' => 2,
+                'program_id' => 2,
                 'email_address' => $this->participantEmailContainerSeed[$j],
                 'password' => password_hash('password', PASSWORD_BCRYPT),
                 'unique_id' => $this->getParticipantUuid(),
