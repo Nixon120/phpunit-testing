@@ -459,7 +459,9 @@ class SandboxResetSeeder extends AbstractSeed
         $table = $this->table('LayoutRowCard');
         $table->truncate();
         $table->insert($data)->save();
-        $this->importFixturedLayoutImages();
+        if(getenv('ENVIRONMENT') === 'development') {
+            $this->importFixturedLayoutImages();
+        }
     }
 
     private function importFixturedLayoutImages()
@@ -469,13 +471,10 @@ class SandboxResetSeeder extends AbstractSeed
         $dst = ROOT . '/public/resources/app/layout';
         while (false !== ($file = readdir($dir))) {
             if (($file != '.') && ($file != '..')) {
-                if (is_dir($src . '/' . $file)) {
-                    recurse_copy($src . '/' . $file, $dst . '/' . $file);
-                } else {
-                    copy($src . '/' . $file, $dst . '/' . $file);
-                }
+                copy($src . '/' . $file, $dst . '/' . $file);
             }
         }
+
         closedir($dir);
     }
 
