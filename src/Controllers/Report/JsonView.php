@@ -13,6 +13,7 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Services\Report\EnrollmentFilterNormalizer;
 use Services\Report\Interfaces\Reportable;
+use Services\Report\ParticipantSummaryFilterNormalizer;
 use Services\Report\PointBalanceFilterNormalizer;
 use Services\Report\RedemptionFilterNormalizer;
 use Services\Report\SweepstakeFilterNormalizer;
@@ -79,6 +80,11 @@ class JsonView extends AbstractViewController
             case 'transaction':
                 $report = $this->factory->getTransactionReport();
                 $filter = new TransactionFilterNormalizer($input->getInput());
+                $report->setFilter($filter);
+                break;
+            case 'participant_summary':
+                $report = $this->factory->getParticipantSummaryReport();
+                $filter = new ParticipantSummaryFilterNormalizer($input->getInput());
                 $report->setFilter($filter);
                 break;
             case 'point_balance':
