@@ -136,22 +136,14 @@
     </target>
 
     <target name="seed-qa-database"
+            depends="composer"
             description="Seed QA database with phinx">
-        <move file="composer.json" tofile="composer.json.bak"/>
-        <exec executable="composer">
-            <arg value="require"/>
-            <arg value="slim/slim"/>
-            <arg value="monolog/monolog"/>
-            <arg value="robmorgan/phinx"/>
-            <arg value="fzaninotto/faker"/>
-        </exec>
         <exec executable="php">
             <arg value="${basedir}/vendor/robmorgan/phinx/bin/phinx"/>
             <arg value="seed:run"/>
+            <arg value="-c"/>
+            <arg value="${basedir}/phinx.php"/>
         </exec>
-        <delete dir="vendor"/>
-        <move file="composer.json.bak" tofile="composer.json"/>
-        <delete file="composer.lock"/>
     </target>
 
     <target name="package-container-files">
