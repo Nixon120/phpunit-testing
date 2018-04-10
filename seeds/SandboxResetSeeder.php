@@ -674,7 +674,7 @@ class SandboxResetSeeder extends AbstractSeed
 
         $userContainerSeed[] = [
             'organization_id' => 2,
-            'program_id' => $programId,
+            'program_id' => 2,
             'email_address' => 'test@alldigitalrewards.com',
             'password' => password_hash('password', PASSWORD_BCRYPT),
             'unique_id' => 'TESTPARTICIPANT1',
