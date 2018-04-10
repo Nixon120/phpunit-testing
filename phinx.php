@@ -4,7 +4,7 @@
  */
 
 // We stall this script from running in order to let the environment finish spinning up.
-sleep(5);
+//sleep(5);
 
 require __DIR__ . "/cli-bootstrap.php";
 
