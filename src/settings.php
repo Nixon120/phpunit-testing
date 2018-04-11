@@ -85,6 +85,8 @@ return [
             'report.all',
             'participant.read',
             'user.read',
+            'program.read',
+            'organization.read',
             'administrators.read'
         ]
     ]
