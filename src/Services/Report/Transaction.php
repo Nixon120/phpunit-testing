@@ -3,7 +3,7 @@ namespace Services\Report;
 
 class Transaction extends AbstractReport
 {
-    public $name = 'Participant Redemption';
+    public $name = 'Participant Transaction';
 
     public function __construct(ServiceFactory $factory)
     {
