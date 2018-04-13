@@ -77,14 +77,14 @@ return [
             'organization.all',
             'program.all',
             'participant.read',
-            'user.read',
+//            'user.read',
             'report.all',
             'administrators.read'
         ],
         'reports' => [
             'report.all',
             'participant.read',
-            'user.read',
+//            'user.read',
             'program.read',
             'organization.read',
             'administrators.read'
