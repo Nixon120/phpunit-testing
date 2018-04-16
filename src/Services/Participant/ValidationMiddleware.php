@@ -229,7 +229,7 @@ class ValidationMiddleware
 
     private function setConfigsAdminUpdateContext()
     {
-        $this->validator->context('superadmin', function (InputValidator $context) {
+        $this->validator->context('configs', function (InputValidator $context) {
             $context->optional('organization')->allowEmpty(false)->lengthBetween(2, 50)->string();
             $context->optional('program')->allowEmpty(false)->lengthBetween(2, 45);
             $context->optional('unique_id')->allowEmpty(false)->lengthBetween(2, 45);
