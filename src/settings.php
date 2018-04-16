@@ -76,7 +76,7 @@ return [
         'configs' => [
             'organization.all',
             'program.all',
-            'participant.read',
+            'participant.all',
 //            'user.read',
             'report.all',
             'administrators.read'
