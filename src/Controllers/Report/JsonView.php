@@ -44,7 +44,7 @@ class JsonView extends AbstractViewController
                 $report->export();
                 $this->response = $this->response->withHeader(
                     'Content-Type',
-                    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                    'text/csv'
                 );
                 return $this->response;
             }
