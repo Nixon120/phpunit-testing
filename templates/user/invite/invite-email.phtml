@@ -2,6 +2,7 @@
 /**
  * @var \Entities\User $user
  * @var string $baseUrl
+ * @var string $organization_name
  */
 ?>
 <table width="100%" cellpadding="0" cellspacing="0" border="0" data-mobile="true" dir="ltr" align="center"
@@ -45,12 +46,12 @@
                                         style="padding: 0px 25px 15px; margin: 0px; font-family: Arial, Helvetica, sans-serif; color: rgb(38, 38, 38); font-size: 16px; line-height: 1.15;">
                                         <font style="font-size: 16px;" size="16">
                                             Hi, <br /> <br />
-                                            Welcome to the Sharecare Administrator!<br>
+                                            Welcome to the <?= $organization_name; ?> Administrator!<br>
                                         </font>
                                         <div><font style="font-size: 16px;" size="16"><br></font></div>
                                         <div><span style="font-weight: bold;">To Log-in:</span><br><br></div>
                                         <div>
-                                            Click the button below to set up your Sharecare Marketplace Admin profile:
+                                            Click the button below to set up your <?= $organization_name; ?> Admin profile:
                                         </div>
                                     </td>
                                 </tr>
