@@ -24,8 +24,6 @@ class UserInvite
      */
     public function invite($data)
     {
-        $organization_name = '';
-
         if (!empty($data['organization'])) {
             $organization = $this
                 ->factory
@@ -36,7 +34,6 @@ class UserInvite
                 );
 
             $data['organization_id'] = $organization->getId();
-            $organization_name  = $organization->getName();
             unset($data['organization']);
         }
 
@@ -82,15 +79,15 @@ class UserInvite
             ->getUserRepository()
             ->getUserById($userId);
 
-        $this->sendInviteEmail($savedUser, $organization_name);
+        $this->sendInviteEmail($savedUser);
 
         // Lets pretend nothing exploded.
         return true;
     }
 
-    private function sendInviteEmail(User $user, $organization_name)
+    private function sendInviteEmail(User $user)
     {
-        $email = $this->generateEmail($user, $organization_name);
+        $email = $this->generateEmail($user);
 
         $this
             ->factory
@@ -98,16 +95,13 @@ class UserInvite
             ->publishJson($email);
     }
 
-    private function generateEmail(User $user, $organization_name)
+    private function generateEmail(User $user)
     {
         /** @var PhpRenderer $renderer */
         $renderer = $this->factory->getContainer()->get('renderer');
         $emailBody = $renderer->fetch(
             'user/invite/invite-email.phtml',
-            [
-                'user' => $user,
-                'organization_name' => $organization_name
-            ]
+            ['user' => $user]
         );
 
         return new Email(
