@@ -564,16 +564,50 @@ class SandboxResetSeeder extends AbstractSeed
             ]
         ];
 
+        for ($i = 1; $i <= 100; $i++) {
+            $data[] = [
+                'program_id' => $this->getFaker()->company,
+                'active' => 1,
+                'start_date' => '2018-01-01',
+                'end_date' => '2024-12-31',
+                'point' => rand(1,10),
+                'max_participant_entry' => rand(100,200),
+                'created_at' => date('Y-m-d')
+            ];
+        }
+
         $sweepstake = $this->table('Sweepstake');
         $entries = $this->table('SweepstakeEntry');
-        $drawing = $this->table('SweepstakeDraw');
 
         # Purge all existing sweepstakes
         $sweepstake->truncate();
         $entries->truncate();
-        $drawing->truncate();
 
         $sweepstake->insert($data)->save();
+
+        $this->seedSweepStackDrawing();
+    }
+
+    private function seedSweepStackDrawing()
+    {
+        $data = [];
+
+        for ($i = 1; $i <= 100; $i++) {
+            for ($j = 0; $j <= 10; $j++) {
+                $data[] = [
+                    'sweepstake_id' => $i,
+                    'date' => $this->getFaker()->date('Y-m-d'),
+                    'draw_count' => rand(1,100),
+                    'created_at' => date('Y-m-d')
+                ];
+            }
+        }
+
+        $drawing = $this->table('SweepstakeDraw');
+
+        $drawing->truncate();
+
+        $drawing->insert($data)->save();
     }
 
     private function seedUser()
