@@ -32,7 +32,10 @@ class WebhookRepository extends BaseRepository
 SQL;
         }
         $string = <<<SQL
-SELECT * FROM webhook {$where}
+SELECT * 
+FROM Webhook
+JOIN Organization ON Organization.id = Webhook.organization_id
+{$where}
 SQL;
         return $string;
     }
