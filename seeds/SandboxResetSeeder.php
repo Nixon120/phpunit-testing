@@ -126,9 +126,10 @@ class SandboxResetSeeder extends AbstractSeed
         }
     }
 
-    private function prepareDrawCount(){
-        for($i = 0; $i< 10; $i++){
-            $this->drawCountSeed [] = rand(10,50);
+    private function prepareDrawCount()
+    {
+        for ($i = 0; $i < 10; $i++) {
+            $this->drawCountSeed [] = mt_rand(10, 50);
         }
     }
 
@@ -468,7 +469,7 @@ class SandboxResetSeeder extends AbstractSeed
         $table = $this->table('LayoutRowCard');
         $table->truncate();
         $table->insert($data)->save();
-        if(getenv('ENVIRONMENT') === 'development') {
+        if (getenv('ENVIRONMENT') === 'development') {
             $this->importFixturedLayoutImages();
         }
     }
@@ -583,78 +584,125 @@ class SandboxResetSeeder extends AbstractSeed
         $sweepstake->insert($data)->save();
 
         $this->seedSweepStackDrawing();
+        $this->seedSweepStackEntry();
     }
 
     private function seedSweepStackDrawing()
     {
+
         $data = [
             [
                 'sweepstake_id' => 1,
                 'date' => $this->getFaker()->dateTimeBetween('-4 months', '-3 months')->format('Y-m-d'),
                 'draw_count' => $this->drawCountSeed[0],
-                'created_at' => date('Y-m-d')
+                'created_at' => date('Y-m-d'),
+                'updated_at' => date('Y-m-d')
             ],
             [
                 'sweepstake_id' => 1,
                 'date' => $this->getFaker()->dateTimeBetween('-3 months', '-2 months')->format('Y-m-d'),
                 'draw_count' => $this->drawCountSeed[1],
-                'created_at' => date('Y-m-d')
+                'created_at' => date('Y-m-d'),
+                'updated_at' => date('Y-m-d')
             ],
             [
                 'sweepstake_id' => 1,
                 'date' => $this->getFaker()->dateTimeBetween('30 days', '2 months')->format('Y-m-d'),
                 'draw_count' => $this->drawCountSeed[2],
-                'created_at' => date('Y-m-d')
+                'created_at' => date('Y-m-d'),
+                'updated_at' => date('Y-m-d')
             ],
             [
                 'sweepstake_id' => 1,
                 'date' => $this->getFaker()->dateTimeBetween('2 months', '3 months')->format('Y-m-d'),
                 'draw_count' => $this->drawCountSeed[3],
-                'created_at' => date('Y-m-d')
+                'created_at' => date('Y-m-d'),
+                'updated_at' => date('Y-m-d')
             ],
             [
                 'sweepstake_id' => 1,
                 'date' => date('Y-m-d'),
                 'draw_count' => $this->drawCountSeed[4],
-                'created_at' => date('Y-m-d')
+                'created_at' => date('Y-m-d'),
+                'updated_at' => date('Y-m-d')
             ],
             [
                 'sweepstake_id' => 2,
                 'date' => $this->getFaker()->dateTimeBetween('-4 months', '-3 months')->format('Y-m-d'),
                 'draw_count' => $this->drawCountSeed[5],
-                'created_at' => date('Y-m-d')
+                'created_at' => date('Y-m-d'),
+                'updated_at' => date('Y-m-d')
             ],
             [
                 'sweepstake_id' => 2,
                 'date' => $this->getFaker()->dateTimeBetween('-3 months', '-2 months')->format('Y-m-d'),
                 'draw_count' => $this->drawCountSeed[6],
-                'created_at' => date('Y-m-d')
+                'created_at' => date('Y-m-d'),
+                'updated_at' => date('Y-m-d')
             ],
             [
                 'sweepstake_id' => 2,
                 'date' => $this->getFaker()->dateTimeBetween('30 days', '2 months')->format('Y-m-d'),
                 'draw_count' => $this->drawCountSeed[7],
-                'created_at' => date('Y-m-d')
+                'created_at' => date('Y-m-d'),
+                'updated_at' => date('Y-m-d')
             ],
             [
                 'sweepstake_id' => 2,
                 'date' => $this->getFaker()->dateTimeBetween('2 months', '3 months')->format('Y-m-d'),
                 'draw_count' => $this->drawCountSeed[8],
-                'created_at' => date('Y-m-d')
+                'created_at' => date('Y-m-d'),
+                'updated_at' => date('Y-m-d')
             ],
             [
                 'sweepstake_id' => 2,
                 'date' => date('Y-m-d'),
                 'draw_count' => $this->drawCountSeed[9],
-                'created_at' => date('Y-m-d')
+                'created_at' => date('Y-m-d'),
+                'updated_at' => date('Y-m-d')
             ]
         ];
 
         $drawing = $this->table('SweepstakeDraw');
-
         $drawing->truncate();
-
         $drawing->insert($data)->save();
+    }
+
+    private function seedSweepStackEntry()
+    {
+        $sweepstakeIds = [1, 2];
+
+        // Seed Entry with no winners
+        foreach ($sweepstakeIds as $sweepstakeId) {
+            for ($i = 0; $i < 50; $i++) {
+                $data[] = [
+                    'sweepstake_id' => $sweepstakeId,
+                    'sweepstake_draw_id' => null,
+                    'participant_id' => $participantId = mt_rand(1, 100),
+                    'point' => 1,
+                    'created_at' => date('Y-m-d'),
+                    'updated_at' => date('Y-m-d')
+                ];
+            }
+        }
+
+        // Seed Entry with winners
+        foreach ($sweepstakeIds as $sweepstakeId) {
+            for ($i = 0; $i < $this->drawCountSeed[3]; $i++) {
+                $data[] = [
+                    'sweepstake_id' => $sweepstakeId,
+                    'sweepstake_draw_id' => 4,
+                    'participant_id' => $participantId = mt_rand(1, 100),
+                    'point' => 1,
+                    'created_at' => date('Y-m-d'),
+                    'updated_at' => date('Y-m-d')
+                ];
+            }
+        }
+
+        $entries = $this->table('SweepstakeEntry');
+        $entries->truncate();
+        $entries->insert($data)->save();
     }
 
     private function seedUser()
