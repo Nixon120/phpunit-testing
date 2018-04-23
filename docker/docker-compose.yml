@@ -58,7 +58,7 @@ services:
     networks:
       - adrnet
   admin-mysql:
-    image: mysql:latest
+    image: mysql:5.7.22
     ports:
       - "${ADMIN_MYSQL_PORT}:3306"
     expose:
@@ -109,7 +109,7 @@ services:
     networks:
       - adrnet
   catalog-mysql:
-    image: mysql:latest
+    image: mysql:5.7.22
     expose:
       - 3306
     environment:
@@ -132,7 +132,7 @@ services:
     networks:
       - adrnet
   product-image-mysql:
-    image: mysql:latest
+    image: mysql:5.7.22
     expose:
       - 3306
     environment:
@@ -160,7 +160,7 @@ services:
     networks:
       - adrnet
   program-catalog-mysql:
-    image: mysql:latest
+    image: mysql:5.7.22
     expose:
       - 3306
     environment:
