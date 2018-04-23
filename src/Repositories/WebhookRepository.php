@@ -28,11 +28,13 @@ class WebhookRepository extends BaseRepository
         if (!empty($this->getOrganizationIdContainer())) {
             $organizationIdString = implode(',', $this->getOrganizationIdContainer());
             $where = <<<SQL
- WHERE Program.organization_id IN ({$organizationIdString})
+ WHERE Webhook.organization_id IN ({$organizationIdString})
 SQL;
         }
         $string = <<<SQL
-SELECT * FROM webhook {$where}
+SELECT * 
+FROM Webhook
+{$where}
 SQL;
         return $string;
     }
