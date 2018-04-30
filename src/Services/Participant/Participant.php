@@ -72,7 +72,7 @@ class Participant
             ->getCollection(
                 $filter,
                 0,
-                10000
+                100000
             );
 
         return $participants;
