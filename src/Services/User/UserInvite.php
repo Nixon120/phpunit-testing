@@ -107,7 +107,7 @@ class UserInvite
         return new Email(
             $user->getEmailAddress(),
             'csr@alldigitalrewards.com',
-            'You\'re Invited to join Sharecare\'s Marketplace Team',
+            'You\'re Invited to join' + $user->getOrganization()->getName() + 'Team',
             $emailBody
         );
     }
