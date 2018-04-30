@@ -103,11 +103,11 @@ class UserInvite
             'user/invite/invite-email.phtml',
             ['user' => $user]
         );
-        $subject = 'You\'re Invited to join' + $user->getOrganization()->getName() + 'Team';
+
         return new Email(
             $user->getEmailAddress(),
             'csr@alldigitalrewards.com',
-            $subject,
+            'You\'re Invited to join '. $user->getOrganization()->getName().' Team',
             $emailBody
         );
     }
