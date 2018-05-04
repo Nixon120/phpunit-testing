@@ -180,6 +180,61 @@ services:
       - ../logs:/fluentd/log
     networks:
       - adrnet
+  mailcatcher:
+    image: yappabe/mailcatcher
+    ports:
+        - 1025:1025
+        - 1080:1080
+    networks:
+      - adrnet
+  email.transaction:
+    image: gcr.io/green-talent-129607/transaction-email:latest
+    expose:
+      - 80
+    environment:
+      ENVIRONMENT: development
+      JWT_SECRET: password
+      XDEBUG_CONFIG: "remote_host=${XDEBUG_HOST}"
+      PHP_IDE_CONFIG: "serverName=transaction-email"
+      LOG_HOST: fluentd
+      LOG_PORT: "24224"
+      AMQP_HOST: amqp
+      AMQP_PORT: 5672
+      AMQP_USERNAME: guest
+      AMQP_PASSWORD: guest
+      MAILCATCHER_SMTP_HOST: mailcatcher
+      MAILCATCHER_SMTP_USERNAME: "technology@alldigitalrewards.com"
+      MAILCATCHER_SMTP_PASSWORD: password
+      MAILCATCHER_SMTP_PORT: 1025
+      EMAIL_FROM: "technology@alldigitalrewards.com"
+      EMAIL_FROM_TO: Technology ADR
+      MAILCATCHER_SMTP_TO: "batman@alldigitalrewards.com"
+      MAILCATCHER_SMTP_TO_NAME: Bruce Wayne
+      RA_USERNAME: claim
+      RA_PASSWORD: claim
+      RA_ENDPOINT: https://ra.staging.alldigitalrewards.com/api/
+      TOKEN_ENDPOINT: "https://admin.qa.alldigitalrewards.com/token"
+      TOKEN_USERNAME: "test@alldigitalrewards.com"
+      TOKEN_PASSWORD: "password"
+      TRANSACTION_ITEM_CHANNEL: transaction-item
+      CATALOG_URL: http://product.catalog
+      PROGRAM_CONFIG_URL: https://admin.qa.alldigitalrewards.com/api/program
+      MYSQL_DB_PASSWORD: 123
+      MYSQL_DB_HOST: transaction-email-mysql
+      MYSQL_DB_DATABASE: TransactionEmail
+      MYSQL_DB_USERNAME: root
+      MYSQL_DB_PASSWORD: 123
+    networks:
+      - adrnet
+  transaction-email-mysql:
+    image: mysql:5.7.22
+    expose:
+      - 3306
+    environment:
+      MYSQL_ROOT_PASSWORD: 123
+      MYSQL_DATABASE: TransactionEmail
+    networks:
+      - adrnet
 volumes:
   mpadmindb:
     driver: local
