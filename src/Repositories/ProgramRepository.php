@@ -448,9 +448,10 @@ SQL;
         if (!empty($layoutRows)) {
             foreach ($layoutRows as $priority => $rowData) {
                 $row = new LayoutRow;
+                $label = $rowData['label'] ?? '';
                 $row->setProgramId($program->getUniqueId());
                 $row->setPriority($priority);
-                $row->setLabel($rowData['label']);
+                $row->setLabel($label);
                 unset($rowData['label']);
                 $this->table = 'LayoutRow';
                 $this->place($row);
