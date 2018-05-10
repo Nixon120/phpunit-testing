@@ -11,7 +11,7 @@ class LayoutRow extends Base
 
     public $program_id;
 
-    public $label;
+    public $label = "";
 
     private $cards;
 

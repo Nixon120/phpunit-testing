@@ -95,11 +95,11 @@ services:
     expose:
       - 80
     environment:
+      JWT_SECRET: password
       MYSQL_HOST: catalog-mysql
       MYSQL_DATABASE: catalog
       MYSQL_USERNAME: root
       MYSQL_PASSWORD: 123
-      JWT_SECRET: password
       VENDOR_DB_HOST: 35.226.18.191
       VENDOR_DB_USER: user_staging
       VENDOR_DB_PASS: nX&QZe*l89N5
