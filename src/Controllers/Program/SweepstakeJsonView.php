@@ -5,7 +5,6 @@ use Controllers\AbstractViewController;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Services\Program\ServiceFactory;
-use Slim\Views\PhpRenderer;
 
 class SweepstakeJsonView extends AbstractViewController
 {
@@ -36,7 +35,10 @@ class SweepstakeJsonView extends AbstractViewController
         $sweepstakeService = $this->factory->getSweepstakeService();
 
         if ($this->request->getParsedBody() !== null) {
-            $success = $sweepstakeService->setConfiguration($program, $this->request->getParsedBody());
+            $success = $sweepstakeService->setConfiguration(
+                $program,
+                $this->request->getParsedBody()
+            );
             return $response = $this->response->withStatus($success ? 200:400)
                 ->withJson([]);
         }

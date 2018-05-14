@@ -141,6 +141,7 @@ class Sweepstake
             $sweepstake->setStartDate($start->format('Y-m-d'));
             $sweepstake->setEndDate($end->format('Y-m-d'));
             $sweepstake->setPoint($data['point']);
+            $sweepstake->setSku($data['sku']);
             $sweepstake->setMaxParticipantEntry($data['max_participant_entry']);
             $sweepstake->setActive(1);
             $sweepstake->setType($data['type']);
