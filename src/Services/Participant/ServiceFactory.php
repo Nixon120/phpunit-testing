@@ -77,7 +77,10 @@ class ServiceFactory extends AbstractServiceFactory
     public function getSweepstakeService(): Sweepstake
     {
         if ($this->sweepstakeService === null) {
-            $this->sweepstakeService = new Sweepstake($this->getSweeptakeRepository(), $this->getBalanceService());
+            $this->sweepstakeService = new Sweepstake(
+                $this->getSweeptakeRepository(),
+                $this->getTransactionService()
+            );
         }
 
         return $this->sweepstakeService;

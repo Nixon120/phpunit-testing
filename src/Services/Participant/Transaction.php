@@ -65,7 +65,6 @@ class Transaction
         \Entities\Transaction $transaction,
         array $data
     ) {
-    
         $products = $data['products'] ?? null;
         $skuContainer = array_column($products, 'sku');
         $this->requestedProductContainer = $this->repository->getProducts(
@@ -102,7 +101,6 @@ class Transaction
         \Entities\Participant $participant,
         $data
     ) {
-    
         $shipping = $data['shipping'] ?? null;
         $meta = $data['meta'] ?? null;
         $products = $data['products'] ?? null;
@@ -110,6 +108,9 @@ class Transaction
         $issuePoints = !empty($data['issue_points']) && $data['issue_points'] === true ? true : false;
         if ($products === null) {
             //@TODO change to api exception ?
+            $this->repository->setErrors([
+                'No Products were included in transaction.'
+            ]);
             return null;
         }
 
