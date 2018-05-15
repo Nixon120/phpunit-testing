@@ -63,11 +63,17 @@ class AdjustmentProvider extends AbstractProvider
 
     private function getSweepstakeEntry()
     {
+        /**
+         * @var \Services\Program\ServiceFactory $programService
+         */
+        $programService = $this->getContainer()->get('program');
+
         return new SweepstakeEntry(
             $this->getMessagePublisher(),
             $this->participantServiceFactory->getService(),
-            $this->participantServiceFactory->getBalanceService(),
-            $this->participantServiceFactory->getSweepstakeService()
+            $this->participantServiceFactory->getSweepstakeService(),
+            $programService->getCatalogService()
         );
     }
+
 }
