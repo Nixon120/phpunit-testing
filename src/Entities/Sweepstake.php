@@ -22,9 +22,23 @@ class Sweepstake extends \Entities\Base
 
     public $type = 'manual';
 
+    /**
+     * Depreciated Point value for Sweepstake entry.
+     * This can be removed after product replaces entry value.
+     *
+     * @var int
+     * @depreciated 2018-05-14
+     */
     public $point;
 
     public $max_participant_entry;
+
+    /**
+     * Product SKU (Max 45chars)
+     *
+     * @var string
+     */
+    public $sku = 'SWEEP01';
 
     private $drawing = [];
 
@@ -93,7 +107,10 @@ class Sweepstake extends \Entities\Base
     }
 
     /**
-     * @return mixed
+     * Depreciated Point value for Sweepstake entry.
+     * This can be removed after product replaces entry value.
+     *
+     * @return int
      */
     public function getPoint()
     {
@@ -101,7 +118,10 @@ class Sweepstake extends \Entities\Base
     }
 
     /**
-     * @param mixed $point
+     * Depreciated Point value for Sweepstake entry.
+     * This can be removed after product replaces entry value.
+     *
+     * @param int $point
      */
     public function setPoint($point)
     {
@@ -138,5 +158,21 @@ class Sweepstake extends \Entities\Base
     public function setMaxParticipantEntry($max_participant_entry)
     {
         $this->max_participant_entry = $max_participant_entry;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSku(): string
+    {
+        return $this->sku;
+    }
+
+    /**
+     * @param string $sku
+     */
+    public function setSku(string $sku)
+    {
+        $this->sku = $sku;
     }
 }

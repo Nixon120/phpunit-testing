@@ -26,9 +26,12 @@ class SweepstakeRepository extends BaseRepository
 
     public function saveSweepstakeConfiguration(Sweepstake $sweepstake): bool
     {
-        $this->place($sweepstake);
+        if ($this->place($sweepstake) === false) {
+            return false;
+        }
+
         $activeDrawings = $sweepstake->getDrawing();
-        $success = true;
+
         if ($sweepstake->isActive() && !empty($activeDrawings)) {
             $sweepstakeId = $this->database->lastInsertId();
             $this->table = 'SweepstakeDraw';
@@ -36,8 +39,7 @@ class SweepstakeRepository extends BaseRepository
             foreach ($activeDrawings as $drawing) {
                 $drawing->setSweepstakeId($sweepstakeId);
                 if ($this->place($drawing) === false) {
-                    $success = false;
-                    break;
+                    return false;
                 }
 
                 $activeDrawingDates[] = $drawing->getDate();
@@ -47,7 +49,7 @@ class SweepstakeRepository extends BaseRepository
             $this->table = 'Sweepstake';
         }
 
-        return $success;
+        return true;
     }
 
     public function getSweepstake(Program $program)
@@ -145,7 +147,8 @@ SQL;
 
     public function setSweepstakeDrawingEntries(SweepstakeDraw $drawing): bool
     {
-        $eligibleEntryStartDate = $this->getPreviousDrawingDateFromCurrentDate($drawing->getSweepstakeId(), $drawing->getDate());
+        $eligibleEntryStartDate = $this->getPreviousDrawingDateFromCurrentDate($drawing->getSweepstakeId(),
+            $drawing->getDate());
         $eligibleEntryEndDate = (new \DateTime('-1 day'))->format('Y-m-d');
         $sql = <<<SQL
 UPDATE SweepstakeEntry SET sweepstake_draw_id = ? 
@@ -170,7 +173,7 @@ SQL;
 
     public function getEntriesBySweepstakeIdAndParticipantId($sweepstakeId, $participantId)
     {
-        $sql = "SELECT count(id) as entries FROM `SweepstakeEntry` WHERE sweepstake_id = ? AND participant_id = ? GROUP BY participant_id";
+        $sql = "SELECT count(id) AS entries FROM `SweepstakeEntry` WHERE sweepstake_id = ? AND participant_id = ? GROUP BY participant_id";
         $args = [$sweepstakeId, $participantId];
 
         $sth = $this->database->prepare($sql);

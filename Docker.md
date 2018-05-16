@@ -26,6 +26,12 @@ To view migration status: `./dev migrate status`
 
 To run migrations: `./dev migrate migrate`
 
+To create a migration: 
+```bash
+./dev exec bash
+./vendor/bin/phinx create MigrationNameGoesHere
+```
+
 ### Tests
 
 Marketplace Admin has two test suites.  Unit & Integration. Before running the integration tests

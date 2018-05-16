@@ -19,12 +19,12 @@ class SweepstakeEntryTest extends AbstractAPITestCase
 
         $decodedResponse = json_decode((string)$response->getBody())[0];
         $this->assertSame(400, $response->getStatusCode());
-        $this->assertSame("Participant does not have enough points for this transaction", $decodedResponse);
+        $this->assertSame("Participant does not have enough points for this transaction.", $decodedResponse);
     }
 
     public function testCreateSweepstakesEntry()
     {
-        $this->addPointsToParticipant(1);
+        $this->addPointsToParticipant(1000);
         $response = $this->getApiClient()->request(
             'POST',
             'api/user/TESTPARTICIPANT1/sweepstake',
@@ -39,19 +39,22 @@ class SweepstakeEntryTest extends AbstractAPITestCase
 
     public function testCreateSweepstakesWithExceededMaximumEntries()
     {
-        $this->addPointsToParticipant(1000);
+        $this->addPointsToParticipant(1000000);
         $response = $this->getApiClient()->request(
             'POST',
             'api/user/TESTPARTICIPANT1/sweepstake',
             [
                 'headers' => $this->getHeaders(),
-                'body' => json_encode(['entryCount' => 1000]),
+                'body' => json_encode(['entryCount' => 1001]),
             ]
         );
 
         $decodedResponse = json_decode((string)$response->getBody())[0];
         $this->assertSame(400, $response->getStatusCode());
-        $this->assertSame("Participant will exceed the maximum entry count for this sweepstake campaign", $decodedResponse);
+        $this->assertSame(
+            "Participant will exceed the maximum entry count for this sweepstake campaign",
+            $decodedResponse
+        );
     }
 
     private function addPointsToParticipant($points)

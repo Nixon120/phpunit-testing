@@ -2,12 +2,11 @@
 
 namespace Services\Program;
 
-use Controllers\Participant\InputNormalizer;
 use Entities\Participant;
 use Entities\SweepstakeDraw;
 use Entities\SweepstakeEntry;
 use Repositories\SweepstakeRepository;
-use Services\Participant\Balance;
+use Services\Participant\Transaction;
 use Services\Program\Exception\SweepstakeServiceException;
 
 class Sweepstake
@@ -18,16 +17,16 @@ class Sweepstake
     public $repository;
 
     /**
-     * @var Balance
+     * @var Transaction
      */
-    public $balanceService;
+    public $transactionService;
 
     public function __construct(
         SweepstakeRepository $repository,
-        Balance $balanceService
+        Transaction $transactionService
     ) {
         $this->repository = $repository;
-        $this->balanceService = $balanceService;
+        $this->transactionService = $transactionService;
     }
 
     public function createSweepstakeEntry(Participant $participant, $data)
@@ -40,22 +39,34 @@ class Sweepstake
             );
         }
 
-        //Does participant have points available
+        //Does participant have available entries to redeem for.
         $entryCount = $data['entryCount'] ?? 1;
-        $credit = $participant->getCredit();
-        $pointCost = bcmul($sweepstake->getPoint(), $entryCount, 2);
-        if ($credit < $pointCost) {
-            throw new SweepstakeServiceException(
-                'Participant does not have enough points for this transaction'
-            );
-        }
-
         $existingEntryCount = $this->getParticipantEntryCount($sweepstake, $participant);
         $availableEntries = $sweepstake->getMaxParticipantEntry() - ($existingEntryCount + $entryCount);
 
         if ($availableEntries < 0) {
             throw new SweepstakeServiceException(
                 'Participant will exceed the maximum entry count for this sweepstake campaign'
+            );
+        }
+
+        $transaction = $this
+            ->transactionService
+            ->insertParticipantTransaction(
+                $participant,
+                [
+                    'products' => [
+                        [
+                            'sku' => $sweepstake->getSku(),
+                            'quantity' => $entryCount
+                        ]
+                    ]
+                ]
+            );
+
+        if (is_null($transaction)) {
+            throw new SweepstakeServiceException(
+                implode(", ", $this->transactionService->getTransactionRepository()->getErrors())
             );
         }
 
@@ -73,14 +84,6 @@ class Sweepstake
             }
         }
 
-        $input = new InputNormalizer([
-            'type' => 'debit',
-            'amount' => $pointCost,
-            'description' => $entryCount . ' x ' . $participant->getProgram()->getName() . ' sweepstakes',
-            'reference' => 'Sweepstake'
-        ]);
-
-        $this->balanceService->createAdjustment($participant, $input);
         return true;
     }
 
@@ -122,7 +125,7 @@ class Sweepstake
         return false;
     }
 
-    private function buildEntities(\Entities\Program $program, array $data):\Entities\Sweepstake
+    private function buildEntities(\Entities\Program $program, array $data): \Entities\Sweepstake
     {
         $sweepstake = $this->buildSweepstakeEntity($program, $data);
         $sweepstake->setDrawing($this->buildSweepstakeDrawingEntity($program, $data));
@@ -141,6 +144,7 @@ class Sweepstake
             $sweepstake->setStartDate($start->format('Y-m-d'));
             $sweepstake->setEndDate($end->format('Y-m-d'));
             $sweepstake->setPoint($data['point']);
+            $sweepstake->setSku($data['sku']);
             $sweepstake->setMaxParticipantEntry($data['max_participant_entry']);
             $sweepstake->setActive(1);
             $sweepstake->setType($data['type']);
