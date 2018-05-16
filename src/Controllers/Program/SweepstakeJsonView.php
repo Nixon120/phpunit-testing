@@ -1,4 +1,5 @@
 <?php
+
 namespace Controllers\Program;
 
 use Controllers\AbstractViewController;
@@ -39,7 +40,9 @@ class SweepstakeJsonView extends AbstractViewController
                 $program,
                 $this->request->getParsedBody()
             );
-            return $response = $this->response->withStatus($success ? 200:400)
+            return $response = $this
+                ->response
+                ->withStatus($success ? 200 : 400)
                 ->withJson([]);
         }
 
@@ -47,6 +50,6 @@ class SweepstakeJsonView extends AbstractViewController
         $output = new SweepstakeOutputNormalizer($sweepstake);
         $response = $this->response->withStatus(200)
             ->withJson($output->get());
-        return $response ;
+        return $response;
     }
 }
