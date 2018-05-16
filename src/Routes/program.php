@@ -89,9 +89,7 @@ $app->group('/api/program', function () use ($app, $createRoute, $updateRoute) {
         $program = new Controllers\SweepstakeJsonView($request, $response, $this->get('program'));
         $programId = $args['id'];
         return $program->getSweepstakeConfig($programId);
-    });
-
-
+    })->add(Services\Program\Sweepstake\ValidationMiddleware::class);;
 
     $app->post('', $createRoute);
 

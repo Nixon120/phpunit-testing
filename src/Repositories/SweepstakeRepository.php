@@ -26,6 +26,7 @@ class SweepstakeRepository extends BaseRepository
 
     public function saveSweepstakeConfiguration(Sweepstake $sweepstake): bool
     {
+
         if ($this->place($sweepstake) === false) {
             return false;
         }
