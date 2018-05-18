@@ -57,8 +57,8 @@ class Request extends AbstractListener
     public function __construct(
         MessagePublisher $publisher,
         Report\ServiceFactory $factory
-    )
-    {
+    ) {
+    
         parent::__construct($publisher);
         $this->reportFactory = $factory;
     }
@@ -289,7 +289,7 @@ class Request extends AbstractListener
         /** Load report data into sheet */
         $this->getSpreadsheet()
             ->getActiveSheet()
-            ->fromArray($this->getReportData(), NULL, 'A1');
+            ->fromArray($this->getReportData(), null, 'A1');
 
         ob_start();
         $this->getWriter()->save('php://output');

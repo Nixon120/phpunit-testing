@@ -38,8 +38,8 @@ SQL;
         /** @var Report[] $reports */
         $reports = $this->getCollection($filters, $offset, $limit);
         $container = [];
-        if(!empty($reports)) {
-            foreach($reports as $key => $report) {
+        if (!empty($reports)) {
+            foreach ($reports as $key => $report) {
                 $container[$key] = $report->toArray();
                 $container[$key]['parameters'] = json_decode($container[$key]['parameters'], true);
                 $container[$key]['report'] = $report->getReportName();
@@ -64,5 +64,4 @@ SQL;
 
         return $report;
     }
-
 }

@@ -54,8 +54,8 @@ class RequestReport
     public function __invoke(
         Request $request,
         Response $response
-    )
-    {
+    ) {
+    
         $this->request = $request;
         $this->response = $response;
 
@@ -121,7 +121,7 @@ class RequestReport
 
     private function getReportService(InputNormalizer $normalizer): Reportable
     {
-        if(is_null($this->reportService)) {
+        if (is_null($this->reportService)) {
             $report = new Report;
             $report->setReport($normalizer->getReportType());
             $reportClass = '\\Services\\Report\\' . $report->getReportClass();

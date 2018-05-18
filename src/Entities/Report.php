@@ -172,7 +172,7 @@ class Report extends Base
     public function getFormatExtension(): string
     {
         $extension = 'csv';
-        switch($this->getFormat()) {
+        switch ($this->getFormat()) {
             case 'excel':
                 $extension = 'xlsx';
                 break;
@@ -221,7 +221,7 @@ class Report extends Base
      */
     public function getParameters(): ?array
     {
-        if($this->parameters === null) {
+        if ($this->parameters === null) {
             return [];
         }
 
