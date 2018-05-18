@@ -66,26 +66,26 @@ abstract class AbstractServiceFactory
         return $eventPublisherFactory();
     }
 
-    public function getFilesystem()
+    public function getFilesystem(string $folder)
     {
         if (getenv('FILESYSTEM') === 'local') {
-            return $this->getLocalFilesystem();
+            return $this->getLocalFilesystem($folder);
         }
 
-        return $this->getCdnFilesystem();
+        return $this->getCdnFilesystem($folder);
     }
 
-    public function getLocalFilesystem()
+    public function getLocalFilesystem($folder)
     {
-        if (!file_exists(ROOT . '/public/resources/app/layout')) {
-            mkdir(ROOT . '/public/resources/app/layout', 0755, true);
+        if (!file_exists(ROOT . '/public/resources/app/' . $folder)) {
+            mkdir(ROOT . '/public/resources/app/' . $folder, 0755, true);
         }
 
-        $this->storageAdapter = new Local(ROOT . '/public/resources/app/layout');
+        $this->storageAdapter = new Local(ROOT . '/public/resources/app/' . $folder);
         return new Filesystem($this->storageAdapter);
     }
 
-    public function getCdnFilesystem()
+    public function getCdnFilesystem($folder)
     {
         if ($this->storageAdapter === null) {
             $storageClient = new StorageClient([
@@ -96,7 +96,7 @@ abstract class AbstractServiceFactory
 
 
             $this->storageAdapter = new GoogleStorageAdapter($storageClient, $bucket);
-            $this->storageAdapter ->setPathPrefix('layout/');
+            $this->storageAdapter ->setPathPrefix($folder . '/');
         }
 
         return new Filesystem($this->storageAdapter);
@@ -139,7 +139,7 @@ abstract class AbstractServiceFactory
     {
         if ($this->programRepository === null) {
             $user = $this->getAuthenticatedUser();
-            $this->programRepository = new ProgramRepository($this->getDatabase(), $this->getCatalogService(), $this->getFilesystem());
+            $this->programRepository = new ProgramRepository($this->getDatabase(), $this->getCatalogService(), $this->getFilesystem('layout'));
             if ($user !== null) {
                 $this->programRepository->setProgramIdContainer($user->getProgramOwnershipIdentificationCollection());
                 $this->programRepository->setOrganizationIdContainer($user->getOrganizationOwnershipIdentificationCollection());

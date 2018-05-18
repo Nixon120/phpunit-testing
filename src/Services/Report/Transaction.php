@@ -3,7 +3,9 @@ namespace Services\Report;
 
 class Transaction extends AbstractReport
 {
-    public $name = 'Participant Transaction';
+    const NAME = 'Participant Transaction';
+
+    const REPORT = 2;
 
     public function __construct(ServiceFactory $factory)
     {
@@ -34,7 +36,7 @@ class Transaction extends AbstractReport
         ]);
     }
 
-    public function getReportData()
+    public function getReportData(): array
     {
         $selection = implode(', ', $this->getFields());
         $query = <<<SQL

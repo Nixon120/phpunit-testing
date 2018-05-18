@@ -1,8 +1,9 @@
 <?php
-
 namespace Services\Report;
 
 use Controllers\Report\InputNormalizer;
+use Entities\Event;
+use Entities\Report;
 use Services\Interfaces as Interfaces;
 use Services\Report\Interfaces\Reportable;
 
@@ -10,24 +11,47 @@ abstract class AbstractReport implements Reportable
 {
     const RESULT_COUNT = 100;
 
+    const NAME = 'Unknown';
+
+    const REPORT = 0;
+
     /**
      * @var ServiceFactory
      */
     private $factory;
 
-    public $name = 'Unknown';
+    /**
+     * @var InputNormalizer
+     */
+    public $input;
 
     /**
      * @var array
      */
     private $fields = [];
 
+    /**
+     * offset for html reports
+     *
+     * @var int
+     */
     private $offset = 0;
 
+    /**
+     * current page for html reports
+     *
+     * @var int
+     */
     private $page = 1;
 
+    /**
+     * @var Interfaces\FilterNormalizer
+     */
     private $filter;
 
+    /**
+     * @var array
+     */
     private $fieldMap;
 
     /**
@@ -40,65 +64,60 @@ abstract class AbstractReport implements Reportable
         $this->factory = $factory;
     }
 
-    public function getReportName(): string
-    {
-        return $this->name;
-    }
-
-    protected function fetchDataForReport($query, $args)
-    {
-        if ($this->limitResultCount === true) {
-            $query .= " LIMIT " . self::RESULT_COUNT . " OFFSET " . $this->offset;
-        }
-
-        $sth = $this->factory->getDatabase()->prepare($query);
-        $sth->execute($args);
-
-        return $sth->fetchAll();
-    }
-
+    /**
+     * @param array $fields
+     */
     protected function setFields(array $fields)
     {
         $this->fields = $fields;
     }
 
+    /**
+     * @return array
+     */
     protected function getFields(): array
     {
         return $this->fields;
     }
 
+    /**
+     * @param Interfaces\FilterNormalizer $filter
+     */
     public function setFilter(Interfaces\FilterNormalizer $filter)
     {
         $this->filter = $filter;
     }
 
+    /**
+     * @return Interfaces\FilterNormalizer
+     */
     public function getFilter(): Interfaces\FilterNormalizer
     {
         return $this->filter;
     }
 
+    /**
+     * @return array
+     */
     public function getFieldMap(): array
     {
         return $this->fieldMap;
     }
 
+    /**
+     * @param array $map
+     */
     public function setFieldMap(array $map)
     {
         $this->fieldMap = $map;
     }
 
-    public function setInput(InputNormalizer $input)
+    /**
+     * @return int
+     */
+    public function getOffset(): int
     {
-        $fields = $input->getRequestedFields();
-        $fieldContainer = [];
-        $map = $this->getFieldMap();
-        foreach ($fields as $field) {
-            if (isset($map[$field]) === false) {
-                throw new \Exception('Unknown field request');
-            }
-            $fieldContainer[] = $field;
-        }
-        $this->setFields($fieldContainer);
+        return $this->offset;
     }
 
     /**
@@ -125,6 +144,84 @@ abstract class AbstractReport implements Reportable
         $this->page = $page;
     }
 
+    /**
+     * @return string
+     */
+    public function getReportName(): string
+    {
+        return static::NAME;
+    }
+
+    /**
+     * @return string
+     */
+    public function getReportClassification(): string
+    {
+        return static::REPORT;
+    }
+
+    /**
+     * @param $query
+     * @param $args
+     * @return array
+     */
+    protected function fetchDataForReport($query, $args)
+    {
+        if ($this->limitResultCount === true) {
+            $query .= " LIMIT " . self::RESULT_COUNT . " OFFSET " . $this->offset;
+        }
+
+        $sth = $this->factory->getDatabase()->prepare($query);
+        $sth->execute($args);
+
+        return $sth->fetchAll();
+    }
+
+    /**
+     * @param InputNormalizer $input
+     */
+    public function setInputNormalizer(InputNormalizer $input)
+    {
+        $this->input = $input;
+        $this->mapFieldsFromInput();
+    }
+
+    /**
+     * @return InputNormalizer
+     */
+    public function getInputNormalizer(): InputNormalizer
+    {
+        return $this->input;
+    }
+
+    /**
+     * @return array
+     */
+    public function getReportData(): array
+    {
+        return [];
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function mapFieldsFromInput()
+    {
+        $fields = $this->getInputNormalizer()->getRequestedFields();
+        $fieldContainer = [];
+        $map = $this->getFieldMap();
+        foreach ($fields as $field) {
+            if (isset($map[$field]) === false) {
+                throw new \Exception('Unknown field request');
+            }
+            $fieldContainer[] = $field;
+        }
+        $this->setFields($fieldContainer);
+    }
+
+    /**
+     * @return array
+     */
     public function getReportHeaders(): array
     {
         $headers = [];
@@ -136,26 +233,43 @@ abstract class AbstractReport implements Reportable
         return $headers;
     }
 
-    public function export()
+    /**
+     * @return Report
+     */
+    public function request(): Report
     {
-        header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
-        header("Cache-Control: no-store, no-cache, must-revalidate");
-        header("Cache-Control: post-check=0, pre-check=0", false);
-        header("Pragma: no-cache");
-        header('Content-Disposition: attachment; filename="' . $this->getReportName() . '.csv"');
-        header('Content-Type: text/csv');
+        $report = new Report;
+        $date = (new \DateTime)->format('Y-m-d H:i:s');
+        $organization = $this->getInputNormalizer()->getInput()['organization'] ?? null;
+        $program = $this->getInputNormalizer()->getInput()['program'] ?? null;
+        $format = $this->getInputNormalizer()->getInput()['report_format'] ?? 'csv';
 
-        $output = fopen('php://output', 'a');
+        $report->setOrganization($organization);
+        $report->setProgram($program);
+        $report->setReport($this->getReportClassification());
+        $report->setFormat($format);
+        $report->setProcessed(0);
+        $report->setParameters(json_encode($this->getInputNormalizer()->getInput()));
+        $report->setCreatedAt($date);
+        $report->setUpdatedAt($date);
 
-        fputcsv(
-            $output,
-            $this->getReportHeaders()
-        );
+        $repository = $this->factory->getReportRepository();
+        $repository->place($report);
+        $entity = $repository->getReportById($repository->getLastInsertId());
+        $this->queueReportEvent($entity);
+        return $entity;
+    }
 
-        $this->limitResultCount = false;
-
-        foreach ($this->getReportData() as $row) {
-            fputcsv($output, $row);
-        }
+    /**
+     * @param Report $report
+     */
+    private function queueReportEvent(Report $report)
+    {
+        $event = new Event;
+        $event->setName('Report.request');
+        $event->setEntityId($report->getId());
+        $this->factory
+            ->getEventPublisher()
+            ->publish(json_encode($event));
     }
 }
