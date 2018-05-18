@@ -6,8 +6,11 @@ ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 
+# Copy configuration files
+#COPY sql/base.sql /docker-entrypoint-initdb.d/
+
 RUN apt-get update \
-    && apt-get install -y software-properties-common language-pack-en locales \
+    && apt-get install -y software-properties-common language-pack-en locales netcat \
     && add-apt-repository ppa:ondrej/php \
     && locale-gen en_US en_US.UTF-8
 
@@ -34,9 +37,9 @@ COPY crontab /etc/crontab
 
 # Copy container entry point script.
 COPY startup.sh /usr/local/bin/startup.sh
-
 # Copy app files and set permissions.
 COPY packaged/ /var/www/html/
+
 RUN chown -R www-data: /var/www/html
 
 EXPOSE 80

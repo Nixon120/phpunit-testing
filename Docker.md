@@ -15,7 +15,7 @@ cd docker
 
 You will do this the very first time you spin up the docker container.  
 
-`docker exec -i docker_admin-mysql_1 mysql -u root -p123 mpadmin < base.sql`
+`docker exec -i docker_admin-mysql_1 mysql -u root -p123 mpadmin < docker/app/sql/base.sql`
 
 ### Migrations
 
