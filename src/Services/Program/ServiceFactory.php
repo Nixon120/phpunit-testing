@@ -73,7 +73,8 @@ class ServiceFactory extends AbstractServiceFactory
     {
         return new Sweepstake(
             $this->getSweepstakeRepository(),
-            $this->getTransactionService()
+            $this->getTransactionService(),
+            $this->getCatalogService()
         );
     }
 
