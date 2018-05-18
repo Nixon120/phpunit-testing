@@ -10,9 +10,7 @@
 /logs/
 !/logs/.gitkeep
 /public/resources/app/layout/
-!/public/resources/app/layout/.gitkeep
 /public/resources/app/reports/
-!/public/resources/app/reports/.gitkeep
 
 
 # Application
