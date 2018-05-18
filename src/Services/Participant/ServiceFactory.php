@@ -8,12 +8,14 @@ use Repositories\ContactRepository;
 use Repositories\DomainRepository;
 use Repositories\OrganizationRepository;
 use Repositories\ParticipantRepository;
+use Repositories\ProductRepository;
 use Repositories\ProgramRepository;
 use Repositories\SweepstakeRepository;
 use Services\AbstractServiceFactory;
 use Services\Organization\Domain;
 use Services\Organization\NestedSet\NestedSet;
 use Services\Organization\UpdateOrganizationModel;
+use Services\Product\ProductRead;
 use Services\Program\Program;
 use Services\Program\Sweepstake;
 
@@ -74,12 +76,23 @@ class ServiceFactory extends AbstractServiceFactory
         return new Domain($repository);
     }
 
+
+    public function getProductService(): ProductRead
+    {
+        $repository = new ProductRepository(
+            $this->getDatabase(),
+            $this->getCatalogService()
+        );
+        return new ProductRead($repository);
+    }
+
     public function getSweepstakeService(): Sweepstake
     {
         if ($this->sweepstakeService === null) {
             $this->sweepstakeService = new Sweepstake(
                 $this->getSweeptakeRepository(),
-                $this->getTransactionService()
+                $this->getTransactionService(),
+                $this->getCatalogService()
             );
         }
 

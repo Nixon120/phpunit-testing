@@ -2,6 +2,7 @@
 
 namespace Services\Program;
 
+use AllDigitalRewards\Services\Catalog\Client;
 use Entities\Participant;
 use Entities\SweepstakeDraw;
 use Entities\SweepstakeEntry;
@@ -21,12 +22,19 @@ class Sweepstake
      */
     public $transactionService;
 
+    /**
+     * @var Client
+     */
+    private $productService;
+
     public function __construct(
         SweepstakeRepository $repository,
-        Transaction $transactionService
+        Transaction $transactionService,
+        Client $productService
     ) {
         $this->repository = $repository;
         $this->transactionService = $transactionService;
+        $this->productService = $productService;
     }
 
     public function createSweepstakeEntry(Participant $participant, $data)
@@ -47,6 +55,14 @@ class Sweepstake
         if ($availableEntries < 0) {
             throw new SweepstakeServiceException(
                 'Participant will exceed the maximum entry count for this sweepstake campaign'
+            );
+        }
+
+        $product = $this->productService->getProduct($sweepstake->getSku());
+
+        if (is_null($product)) {
+            throw new SweepstakeServiceException(
+                'Invalid Sweepstake product entry configuration.'
             );
         }
 
@@ -73,7 +89,12 @@ class Sweepstake
         for ($i = 0; $i < $entryCount; $i++) {
             $entry = new \Entities\SweepstakeEntry;
             $entry->setParticipantId($participant->getId());
-            $entry->setPoint($sweepstake->getPoint());
+            $entry->setPoint(
+                bcmul(
+                    $product->getPriceTotal(),
+                    $participant->getProgram()->getPoint()
+                )
+            );
             $entry->setSweepstakeId($sweepstake->getId());
 
             //deduct point, insert entry
