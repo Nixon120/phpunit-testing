@@ -6,6 +6,7 @@ use Repositories\ContactRepository;
 use Repositories\DomainRepository;
 use Repositories\OrganizationRepository;
 use Repositories\ProgramRepository;
+use Repositories\ReportRepository;
 use Services\AbstractServiceFactory;
 use Services\Organization\Domain;
 use Services\Organization\NestedSet\NestedSet;
@@ -63,6 +64,11 @@ class ServiceFactory extends AbstractServiceFactory
     private function getContactRepository()
     {
         return new ContactRepository($this->getDatabase());
+    }
+
+    public function getReportRepository()
+    {
+        return new ReportRepository($this->getDatabase());
     }
 
     public function getNestedSet(): NestedSet

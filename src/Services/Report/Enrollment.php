@@ -4,7 +4,9 @@ namespace Services\Report;
 
 class Enrollment extends AbstractReport
 {
-    public $name = 'Participant Enrollment';
+    const NAME = 'Participant Enrollment';
+
+    const REPORT = 1;
 
     public function __construct(ServiceFactory $factory)
     {
@@ -27,7 +29,7 @@ class Enrollment extends AbstractReport
         ]);
     }
 
-    public function getReportData()
+    public function getReportData(): array
     {
         $selection = implode(', ', $this->getFields());
 
