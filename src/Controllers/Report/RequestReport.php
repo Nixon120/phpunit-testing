@@ -91,6 +91,8 @@ class RequestReport
                     'reportHeaders' => $report->getReportHeaders()
                 ]
             );
+
+        return true;
     }
 
     private function requestReport(): bool
