@@ -167,7 +167,6 @@ class ReportRepositoryTest extends \PHPUnit\Framework\TestCase
             'organization' => 'alldigitalrewards'
         ]);
 
-//var_dump($this->getMockReportCollection());die();
         $this->assertEquals($this->getMockReportArrayCollection(), $repository->getReportList($filterNormalizer, 0, 100));
     }
 }
