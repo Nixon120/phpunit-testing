@@ -20,6 +20,11 @@ abstract class AbstractFilterNormalizer implements FilterNormalizer
         return $this->input;
     }
 
+    public function returnArg($value)
+    {
+        return [$value];
+    }
+
     public function setInput(?array $input = null)
     {
         if ($input !== null) {
@@ -40,10 +45,13 @@ abstract class AbstractFilterNormalizer implements FilterNormalizer
 
             foreach ($input as $name => $value) {
                 $filter = $this->getFilterMethod($name);
-                if (method_exists($this, $filter) && $filterString = $this->$filter($value)) {
-                    //@TODO and or separation here.. we can check to see if, getFilterCondition, which would return
-                    //AND on default, or the value of the method exist
-                    $query .= ' AND ' . $filterString;
+                if (method_exists($this, $filter) && trim($value) !== '') {
+                    $filterString = $this->$filter($value);
+                    if ($filterString !== false) {
+                        //@TODO and or separation here.. we can check to see if, getFilterCondition, which would return
+                        //AND on default, or the value of the method exist
+                        $query .= ' AND ' . $filterString;
+                    }
                 }
             }
 
@@ -61,7 +69,7 @@ abstract class AbstractFilterNormalizer implements FilterNormalizer
             $args = [];
             foreach ($input as $name => $value) {
                 $filter = $this->getFilterMethod($name);
-                if (method_exists($this, $filter)) {
+                if (method_exists($this, $filter) && trim($value) !== '') {
                     //@TODO and or separation here.. we can check to see if, getFilterCondition, which would return
                     //AND on default, or the value of the method exist
                     $argFilterMethod = $filter . 'Args';
