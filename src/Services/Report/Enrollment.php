@@ -8,7 +8,7 @@ class Enrollment extends AbstractReport
 
     const REPORT = 1;
 
-    public function __construct(ServiceFactory $factory)
+    public function __construct(?ServiceFactory $factory = null)
     {
         parent::__construct($factory);
 
@@ -41,6 +41,7 @@ class Enrollment extends AbstractReport
             . "WHERE 1=1 "
             . $this->getFilter()->getFilterConditionSql();
 
+//        var_dump($this->getFilter()->getFilterConditionArgs());die();
         return $this->fetchDataForReport($query, $this->getFilter()->getFilterConditionArgs());
     }
 }

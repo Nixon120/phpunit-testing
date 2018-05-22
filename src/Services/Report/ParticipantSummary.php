@@ -7,7 +7,7 @@ class ParticipantSummary extends AbstractReport
 
     const REPORT = 4;
 
-    public function __construct(ServiceFactory $factory)
+    public function __construct(?ServiceFactory $factory = null)
     {
         parent::__construct($factory);
 

@@ -7,7 +7,7 @@ class Sweepstake extends AbstractReport
 
     const REPORT = 6;
 
-    public function __construct(ServiceFactory $factory)
+    public function __construct(?ServiceFactory $factory = null)
     {
         parent::__construct($factory);
 

@@ -7,161 +7,81 @@ class PointBalanceFilterNormalizer extends AbstractFilterNormalizer
 {
     public function getStatusFilter($value)
     {
-        if ($value !== "") {
-            return "`Participant`.`active` = ?";
-        }
-
-        return false;
+        return "`Participant`.`active` = ?";
     }
 
     public function getStatusFilterArgs($value)
     {
-        $args = [];
-
-        if ($value !== "") {
-            $args[] = $value;
-        }
-
-        return $args;
+        return $this->returnArg($value);
     }
 
     public function getOrganizationFilter($value)
     {
-        if ($value !== "") {
-            return "`Organization`.`unique_id` = ?";
-        }
-
-        return false;
+        return "`Organization`.`unique_id` = ?";
     }
 
     public function getOrganizationFilterArgs($value)
     {
-        $args = [];
-
-        if ($value !== "") {
-            $args[] = $value;
-        }
-
-        return $args;
+        return $this->returnArg($value);
     }
 
     public function getProgramFilter($value)
     {
-        if ($value !== "") {
-            return "`Program`.`unique_id` = ?";
-        }
-
-        return false;
+        return "`Program`.`unique_id` = ?";
     }
 
     public function getProgramFilterArgs($value)
     {
-        $args = [];
-
-        if ($value !== "") {
-            $args[] = $value;
-        }
-
-        return $args;
+        return $this->returnArg($value);
     }
 
     public function getUniqueIdFilter($value)
     {
-        if ($value !== "") {
-            return "`Participant`.`unique_id` = ?";
-        }
-
-        return false;
+        return "`Participant`.`unique_id` = ?";
     }
 
     public function getUniqueIdFilterArgs($value)
     {
-        $args = [];
-
-        if ($value !== "") {
-            $args[] = $value;
-        }
-
-        return $args;
+        return $this->returnArg($value);
     }
 
     public function getFirstnameFilter($value)
     {
-        if ($value !== "") {
-            return "`Participant`.`firstname` = ?";
-        }
-
-        return false;
+        return "`Participant`.`firstname` = ?";
     }
 
     public function getFirstnameFilterArgs($value)
     {
-        $args = [];
-
-        if ($value !== "") {
-            $args[] = $value;
-        }
-
-        return $args;
+        return $this->returnArg($value);
     }
 
     public function getLastnameFilter($value)
     {
-        if ($value !== "") {
-            return "`Participant`.`lastname` = ?";
-        }
-
-        return false;
+        return "`Participant`.`lastname` = ?";
     }
 
     public function getLastnameFilterArgs($value)
     {
-        $args = [];
-
-        if ($value !== "") {
-            $args[] = $value;
-        }
-
-        return $args;
+        return $this->returnArg($value);
     }
 
     public function getAddress1Filter($value)
     {
-        if ($value !== "") {
-            return "`Address`.`address1` = ?";
-        }
-
-        return false;
+        return "`Address`.`address1` = ?";
     }
 
     public function getAddress1FilterArgs($value)
     {
-        $args = [];
-
-        if ($value !== "") {
-            $args[] = $value;
-        }
-
-        return $args;
+        return $this->returnArg($value);
     }
 
     public function getAddress2Filter($value)
     {
-        if ($value !== "") {
-            return "`Address`.`address2` = ?";
-        }
-
-        return false;
+        return "`Address`.`address2` = ?";
     }
 
     public function getAddress2FilterArgs($value)
     {
-        $args = [];
-
-        if ($value !== "") {
-            $args[] = $value;
-        }
-
-        return $args;
+        return $this->returnArg($value);
     }
 }
