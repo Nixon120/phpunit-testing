@@ -201,18 +201,20 @@ class Request extends AbstractListener
 
     /**
      * @return string
+     * @throws \Exception
      */
     private function getReportFileName()
     {
         if ($this->reportFileName === null) {
-            $this->reportFileName = (new \DateTime)->format('Y-m-d-His')
-                . '_'
-                . $this->getReport()->getOrganization()
-                . '_'
-                . $this->getReport()->getId()
-                . '_'
-                . $this->getReportService()->getReportName()
-                . '.'
+            $this->reportFileName = (new \DateTime)->format('Y-m-d-His') . '_'
+                . $this->getReport()->getOrganization() . '_';
+
+            if ($this->getReport()->getProgram() !== null) {
+                $this->reportFileName .= $this->getReport()->getProgram() . '_';
+            }
+
+            $this->reportFileName .= $this->getReport()->getId() . '_'
+                . $this->getReportService()->getReportName() . '.'
                 . $this->getReport()->getFormatExtension();
         }
 
@@ -221,6 +223,7 @@ class Request extends AbstractListener
 
     /**
      * @return array
+     * @throws \Exception
      */
     private function getReportData(): array
     {
@@ -233,6 +236,7 @@ class Request extends AbstractListener
 
     /**
      * @return Report\AbstractReport
+     * @throws \Exception
      */
     private function getReportService()
     {
