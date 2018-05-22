@@ -75,17 +75,21 @@ class Report extends Base
     }
 
     /**
-     * @return string
+     * @return null|string
      */
-    public function getProgram(): string
+    public function getProgram():?string
     {
+        if ($this->program === "") {
+            return null;
+        }
+
         return $this->program;
     }
 
     /**
-     * @param string $program
+     * @param null|string $program
      */
-    public function setProgram(string $program)
+    public function setProgram(?string $program)
     {
         $this->program = $program;
     }
