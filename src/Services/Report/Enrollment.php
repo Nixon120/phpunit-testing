@@ -41,7 +41,6 @@ class Enrollment extends AbstractReport
             . "WHERE 1=1 "
             . $this->getFilter()->getFilterConditionSql();
 
-//        var_dump($this->getFilter()->getFilterConditionArgs());die();
         return $this->fetchDataForReport($query, $this->getFilter()->getFilterConditionArgs());
     }
 }
