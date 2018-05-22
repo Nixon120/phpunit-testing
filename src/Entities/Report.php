@@ -108,7 +108,6 @@ class Report extends Base
 
     /**
      * @return string
-     * @throws \Exception
      */
     public function getReportName()
     {
@@ -132,7 +131,8 @@ class Report extends Base
                 return 'Sweepstake Drawings';
                 break;
             default:
-                throw new \Exception('Invalid report specification');
+                return 'Unknown';
+                break;
         }
     }
 
