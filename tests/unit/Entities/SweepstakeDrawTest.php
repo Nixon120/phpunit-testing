@@ -27,5 +27,4 @@ class SweepstakeDrawTest extends TestCase
         $draw->setDate($date->format('Y-m-d'));
         $this->assertSame(false, $draw->isElapsed());
     }
-
 }

@@ -59,7 +59,25 @@ abstract class AbstractReport implements Reportable
      */
     private $limitResultCount = true;
 
-    public function __construct(ServiceFactory $factory)
+    public function __construct(?ServiceFactory $factory = null)
+    {
+        if ($factory !== null) {
+            $this->setFactory($factory);
+        }
+    }
+
+    /**
+     * @return ServiceFactory
+     */
+    public function getFactory(): ServiceFactory
+    {
+        return $this->factory;
+    }
+
+    /**
+     * @param ServiceFactory $factory
+     */
+    public function setFactory(ServiceFactory $factory): void
     {
         $this->factory = $factory;
     }
@@ -67,7 +85,7 @@ abstract class AbstractReport implements Reportable
     /**
      * @param array $fields
      */
-    protected function setFields(array $fields)
+    public function setFields(array $fields)
     {
         $this->fields = $fields;
     }
@@ -75,7 +93,7 @@ abstract class AbstractReport implements Reportable
     /**
      * @return array
      */
-    protected function getFields(): array
+    public function getFields(): array
     {
         return $this->fields;
     }
@@ -171,19 +189,25 @@ abstract class AbstractReport implements Reportable
             $query .= " LIMIT " . self::RESULT_COUNT . " OFFSET " . $this->offset;
         }
 
-        $sth = $this->factory->getDatabase()->prepare($query);
+        $sth = $this->getFactory()->getDatabase()->prepare($query);
         $sth->execute($args);
-
         return $sth->fetchAll();
     }
 
     /**
      * @param InputNormalizer $input
+     * @return bool
      */
     public function setInputNormalizer(InputNormalizer $input)
     {
-        $this->input = $input;
-        $this->mapFieldsFromInput();
+        try {
+            $this->input = $input;
+            $this->mapFieldsFromInput();
+        } catch (\Exception $e) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -253,7 +277,7 @@ abstract class AbstractReport implements Reportable
         $report->setCreatedAt($date);
         $report->setUpdatedAt($date);
 
-        $repository = $this->factory->getReportRepository();
+        $repository = $this->getFactory()->getReportRepository();
         $repository->place($report);
         $entity = $repository->getReportById($repository->getLastInsertId());
         $this->queueReportEvent($entity);
@@ -268,7 +292,7 @@ abstract class AbstractReport implements Reportable
         $event = new Event;
         $event->setName('Report.request');
         $event->setEntityId($report->getId());
-        $this->factory
+        $this->getFactory()
             ->getEventPublisher()
             ->publish(json_encode($event));
     }

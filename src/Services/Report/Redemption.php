@@ -7,7 +7,7 @@ class Redemption extends AbstractReport
 
     const REPORT = 3;
 
-    public function __construct(ServiceFactory $factory)
+    public function __construct(?ServiceFactory $factory = null)
     {
         parent::__construct($factory);
 

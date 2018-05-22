@@ -7,7 +7,7 @@ class PointBalance extends AbstractReport
 
     const REPORT = 5;
 
-    public function __construct(ServiceFactory $factory)
+    public function __construct(?ServiceFactory $factory = null)
     {
         parent::__construct($factory);
 
