@@ -48,5 +48,4 @@ class OrganizationUniquenessTest extends AbstractAPITestCase
         // Response MUST be status code 201
         $this->assertSame(400, $response->getStatusCode());
     }
-
 }

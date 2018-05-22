@@ -6,6 +6,8 @@ abstract class AbstractUserServiceTest extends \PHPUnit\Framework\TestCase
 
     private $userServiceFactory;
 
+    private $reportServiceFactory;
+
     public $mockDatabase;
 
     protected function getPdoStatementMock()
@@ -49,6 +51,16 @@ abstract class AbstractUserServiceTest extends \PHPUnit\Framework\TestCase
         }
 
         return $this->userServiceFactory;
+    }
+
+    protected function getReportServiceFactory(): \Services\Report\ServiceFactory
+    {
+        if ($this->reportServiceFactory === null) {
+            $this->reportServiceFactory = new Services\Report\ServiceFactory($this->getMockSlimContainer());
+            $this->reportServiceFactory->setDatabase($this->getMockDatabase());
+        }
+
+        return $this->reportServiceFactory;
     }
 
     protected function getUserOrganizationEntity()
