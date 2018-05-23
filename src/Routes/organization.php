@@ -36,6 +36,12 @@ $app->group('/api/organization', function () use ($createRoute, $updateRoute) {
         return $organization->domainList($organizationId);
     });
 
+    $this->delete('/domain/delete/{id}', function ($request, $response, $args) {
+        $organization = new OrgControllers\Modify($request, $response, $this->get('organization'));
+        $domainId = $args['id'];
+        return $organization->deleteDomain($domainId);
+    });
+
     $this->post('', $createRoute);
 
     $this->put('/{id}', $updateRoute);
