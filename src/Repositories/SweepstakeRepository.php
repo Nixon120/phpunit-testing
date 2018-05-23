@@ -148,8 +148,10 @@ SQL;
 
     public function setSweepstakeDrawingEntries(SweepstakeDraw $drawing): bool
     {
-        $eligibleEntryStartDate = $this->getPreviousDrawingDateFromCurrentDate($drawing->getSweepstakeId(),
-            $drawing->getDate());
+        $eligibleEntryStartDate = $this->getPreviousDrawingDateFromCurrentDate(
+            $drawing->getSweepstakeId(),
+            $drawing->getDate()
+        );
         $eligibleEntryEndDate = (new \DateTime('-1 day'))->format('Y-m-d');
         $sql = <<<SQL
 UPDATE SweepstakeEntry SET sweepstake_draw_id = ? 

@@ -75,5 +75,4 @@ class AdjustmentProvider extends AbstractProvider
             $programService->getCatalogService()
         );
     }
-
 }

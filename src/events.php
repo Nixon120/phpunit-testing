@@ -9,3 +9,4 @@ $emitter->useListenerProvider(new \Events\Providers\OrganizationRaProvider($cont
 $emitter->useListenerProvider(new \Events\Providers\ProgramRaProvider($container));
 $emitter->useListenerProvider(new \Events\Providers\AdjustmentProvider($container));
 $emitter->useListenerProvider(new \Events\Providers\TransactionWebhookProvider($container));
+$emitter->useListenerProvider(new \Events\Providers\ReportProvider($container));

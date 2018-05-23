@@ -66,7 +66,7 @@ class ProductAutoRedemptionTest extends TestCase
 
     public function getMockAutoRedemption()
     {
-        if($this->autoRedemption === null) {
+        if ($this->autoRedemption === null) {
             $this->autoRedemption = new AutoRedemption([
                 'program_id' => 1,
                 'product_sku' => 'APRODUCTSKU',
@@ -137,7 +137,7 @@ class ProductAutoRedemptionTest extends TestCase
      */
     public function getMockTransactionService(): Transaction
     {
-        if($this->transactionService === null) {
+        if ($this->transactionService === null) {
             $this->transactionService = $this->getMockBuilder(Transaction::class)
                 ->disableOriginalConstructor()
                 ->getMock();
@@ -157,7 +157,7 @@ class ProductAutoRedemptionTest extends TestCase
      */
     public function getMockEmptyParticipantService(): Participant
     {
-        if($this->participantService === null) {
+        if ($this->participantService === null) {
             $this->participantService = $this->getMockBuilder(Participant::class)
                 ->disableOriginalConstructor()
                 ->getMock();
@@ -177,7 +177,7 @@ class ProductAutoRedemptionTest extends TestCase
      */
     public function getMockParticipantService(): Participant
     {
-        if($this->participantService === null) {
+        if ($this->participantService === null) {
             $this->participantService = $this->getMockBuilder(Participant::class)
                 ->disableOriginalConstructor()
                 ->getMock();

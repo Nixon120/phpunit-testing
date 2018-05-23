@@ -114,7 +114,7 @@ class AutoRedemption extends AbstractListener
         $product = $participant->getProgram()->getAutoRedemption()->getProduct();
         $multiplier = $participant->getProgram()->getPoint();
 
-        if (($product->getTotal() * $multiplier) <= $participant->getCredit()) {
+        if (($product->getPriceTotal() * $multiplier) <= $participant->getCredit()) {
             return true;
         }
 

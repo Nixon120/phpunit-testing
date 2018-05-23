@@ -3,9 +3,11 @@ namespace Services\Report;
 
 class Sweepstake extends AbstractReport
 {
-    public $name = 'Sweepstake Drawings';
+    const NAME = 'Sweepstake Drawings';
 
-    public function __construct(ServiceFactory $factory)
+    const REPORT = 6;
+
+    public function __construct(?ServiceFactory $factory = null)
     {
         parent::__construct($factory);
 
@@ -19,7 +21,7 @@ class Sweepstake extends AbstractReport
         ]);
     }
 
-    public function getReportData()
+    public function getReportData(): array
     {
         $selection = implode(', ', $this->getFields());
 

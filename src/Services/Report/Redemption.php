@@ -3,9 +3,11 @@ namespace Services\Report;
 
 class Redemption extends AbstractReport
 {
-    public $name = 'Participant Redemption';
+    const NAME = 'Participant Redemption';
 
-    public function __construct(ServiceFactory $factory)
+    const REPORT = 3;
+
+    public function __construct(?ServiceFactory $factory = null)
     {
         parent::__construct($factory);
 
@@ -30,7 +32,7 @@ class Redemption extends AbstractReport
         ]);
     }
 
-    public function getReportData()
+    public function getReportData(): array
     {
         $selection = implode(', ', $this->getFields());
 

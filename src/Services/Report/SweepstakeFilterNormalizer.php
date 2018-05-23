@@ -7,81 +7,41 @@ class SweepstakeFilterNormalizer extends AbstractFilterNormalizer
 {
     public function getOrganizationFilter($value)
     {
-        if ($value !== "") {
-            return "`Organization`.`unique_id` = ?";
-        }
-
-        return false;
+        return "`Organization`.`unique_id` = ?";
     }
 
     public function getOrganizationFilterArgs($value)
     {
-        $args = [];
-
-        if ($value !== "") {
-            $args[] = $value;
-        }
-
-        return $args;
+        return $this->returnArg($value);
     }
 
     public function getProgramFilter($value)
     {
-        if ($value !== "") {
-            return "`Program`.`unique_id` = ?";
-        }
-
-        return false;
+        return "`Program`.`unique_id` = ?";
     }
 
     public function getProgramFilterArgs($value)
     {
-        $args = [];
-
-        if ($value !== "") {
-            $args[] = $value;
-        }
-
-        return $args;
+        return $this->returnArg($value);
     }
 
     public function getStartDateFilter($value)
     {
-        if ($value !== "") {
-            return "DATE(`SweepstakeEntry`.`created_at`) >= ?";
-        }
-
-        return false;
+        return "DATE(`SweepstakeEntry`.`created_at`) >= ?";
     }
 
     public function getStartDateFilterArgs($value)
     {
-        $args = [];
-
-        if ($value !== "") {
-            $args[] = $value;
-        }
-
-        return $args;
+        return $this->returnArg($value);
     }
 
     public function getEndDateFilter($value)
     {
-        if ($value !== "") {
-            return "DATE(`SweepstakeEntry`.`created_at`) <= ?";
-        }
-
-        return false;
+        return "DATE(`SweepstakeEntry`.`created_at`) <= ?";
     }
 
     public function getEndDateFilterArgs($value)
     {
-        $args = [];
-
-        if ($value !== "") {
-            $args[] = $value;
-        }
-
-        return $args;
+        return $this->returnArg($value);
     }
 }

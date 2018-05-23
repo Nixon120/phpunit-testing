@@ -3,9 +3,11 @@ namespace Services\Report;
 
 class PointBalance extends AbstractReport
 {
-    public $name = 'Participant Point Balance';
+    const NAME = 'Participant Point Balance';
 
-    public function __construct(ServiceFactory $factory)
+    const REPORT = 5;
+
+    public function __construct(?ServiceFactory $factory = null)
     {
         parent::__construct($factory);
 
@@ -23,7 +25,7 @@ class PointBalance extends AbstractReport
         ]);
     }
 
-    public function getReportData()
+    public function getReportData(): array
     {
         $selection = implode(', ', $this->getFields());
 

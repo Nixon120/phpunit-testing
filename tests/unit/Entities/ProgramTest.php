@@ -16,7 +16,7 @@ class ProgramTest extends TestCase
     {
         $program = new Program();
 
-        $this->assertSame('',$program->getCostCenterId());
+        $this->assertSame('', $program->getCostCenterId());
     }
 
     /**
@@ -26,7 +26,7 @@ class ProgramTest extends TestCase
     {
         $program = new Program();
 
-        $this->assertSame(0,$program->getDepositAmount());
+        $this->assertSame(0, $program->getDepositAmount());
     }
 
     public function testReturnsJsonStringOfProductsForProgramLayoutProductRowType()
@@ -118,19 +118,19 @@ class ProgramTest extends TestCase
 
     private function mockLayoutRowWithLabel()
     {
-       return [
+        return [
            'program_id' => $this->program,
            'priority' => 1,
            'label' => 'Test Label'
-       ];
+        ];
     }
 
     private function mockLayoutRowWithNullLabel()
     {
-       return [
+        return [
            'program_id' => $this->program,
            'priority' => 1,
            'label' => ''
-       ];
+        ];
     }
 }

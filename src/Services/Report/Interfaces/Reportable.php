@@ -10,7 +10,7 @@ interface Reportable
 
     public function getReportName(): string;
 
-    public function setInput(InputNormalizer $input);
+    public function setInputNormalizer(InputNormalizer $input);
 
     public function getReportData();
 
@@ -20,11 +20,17 @@ interface Reportable
 
     public function getFilter(): FilterNormalizer;
 
+    public function setPage(int $page);
+
     public function getPage(): int;
+
+    public function setOffset(int $offset);
+
+    public function getOffset(): int;
 
     public function setFieldMap(array $map);
 
     public function getFieldMap(): array;
 
-    public function export();
+    public function request();
 }

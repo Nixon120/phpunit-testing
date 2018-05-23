@@ -8,5 +8,4 @@ class SweepstakeEntryTest extends TestCase
         $entry = new \Entities\SweepstakeEntry();
         $this->assertSame(null, $entry->getSweepstakeDrawId());
     }
-
 }
