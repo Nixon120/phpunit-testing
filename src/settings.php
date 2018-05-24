@@ -50,10 +50,10 @@ return [
         ]
     ],
     'defaultRoutes' => [
-        'superadmin' => '/organization',
-        'admin' => '/program',
-        'configs' => '/report',
-        'reports' => '/report'
+        'superadmin' => '/organizations',
+        'admin' => '/programs',
+        'configs' => '/report-list',
+        'reports' => '/report-list'
     ],
     'roles' => [
         'superadmin' => [
