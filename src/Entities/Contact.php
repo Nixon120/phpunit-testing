@@ -172,9 +172,9 @@ class Contact extends Base
     }
 
     /**
-     * @param string $address2
+     * @param null|string $address2
      */
-    public function setAddress2(string $address2)
+    public function setAddress2(?string $address2)
     {
         $this->address2 = $address2;
     }
