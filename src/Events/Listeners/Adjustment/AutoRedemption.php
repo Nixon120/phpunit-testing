@@ -49,13 +49,6 @@ class AutoRedemption extends AbstractListener
             return false;
         }
 
-        if ($participant->getAddress() === null) {
-            $this->setError('Participant\'s does not have an address');
-            $event->setName('Adjustment.autoRedemption');
-            $this->reQueueEvent($event);
-            return false;
-        }
-
         $program = $participant->getProgram();
 
         if ($this->isInstantAutoRedeemEnabled($program) === false
@@ -82,13 +75,24 @@ class AutoRedemption extends AbstractListener
                     'quantity' => 1
                 ]
             ],
-            'shipping' => $participant->getAddress()->toArray(),
             'meta' => [
                 [
                     'description' => 'AutoRedemption for ' . $product->getName()
                 ]
             ]
         ];
+
+        if ($participant->getAddress() === null) {
+            $return['shipping'] = [
+                'firstname' => $participant->getFirstname(),
+                'lastname' => $participant->getLastname(),
+                'address1' => $participant->getAddress()->getAddress1(),
+                'address2' => $participant->getAddress()->getAddress2(),
+                'city' => $participant->getAddress()->getCity(),
+                'state' => $participant->getAddress()->getState(),
+                'zip' => $participant->getAddress()->getZip()
+            ];
+        }
 
         $transaction = $this->transactionService->insert(
             $organizationId,
