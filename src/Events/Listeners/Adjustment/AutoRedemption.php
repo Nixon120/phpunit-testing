@@ -83,7 +83,7 @@ class AutoRedemption extends AbstractListener
         ];
 
         if ($participant->getAddress() === null) {
-            $return['shipping'] = [
+            $transaction['shipping'] = [
                 'firstname' => $participant->getFirstname(),
                 'lastname' => $participant->getLastname(),
                 'address1' => $participant->getAddress()->getAddress1(),
