@@ -49,7 +49,7 @@ class AutoRedemption extends AbstractListener
             return false;
         }
 
-        if($participant->getAddress() === null) {
+        if ($participant->getAddress() === null) {
             $this->setError('Participant\'s does not have an address');
             $event->setName('Adjustment.autoRedemption');
             $this->reQueueEvent($event);
