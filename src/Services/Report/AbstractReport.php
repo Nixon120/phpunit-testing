@@ -163,6 +163,22 @@ abstract class AbstractReport implements Reportable
     }
 
     /**
+     * @return bool
+     */
+    public function isLimitResultCount(): bool
+    {
+        return $this->limitResultCount;
+    }
+
+    /**
+     * @param bool $limitResultCount
+     */
+    public function setLimitResultCount(bool $limitResultCount): void
+    {
+        $this->limitResultCount = $limitResultCount;
+    }
+
+    /**
      * @return string
      */
     public function getReportName(): string
@@ -185,7 +201,7 @@ abstract class AbstractReport implements Reportable
      */
     protected function fetchDataForReport($query, $args)
     {
-        if ($this->limitResultCount === true) {
+        if ($this->isLimitResultCount()) {
             $query .= " LIMIT " . self::RESULT_COUNT . " OFFSET " . $this->offset;
         }
 
