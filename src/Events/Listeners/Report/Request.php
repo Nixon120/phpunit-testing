@@ -227,8 +227,10 @@ class Request extends AbstractListener
      */
     private function getReportData(): array
     {
-        $data = $this->getReportService()->getReportData();
-        $headers = $this->getReportService()->getReportHeaders();
+        $reportService = $this->getReportService();
+        $reportService->setLimitResultCount(false);
+        $data = $reportService->getReportData();
+        $headers = $reportService->getReportHeaders();
         array_unshift($data, $headers);
 
         return $data;
