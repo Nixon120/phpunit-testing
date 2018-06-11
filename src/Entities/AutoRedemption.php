@@ -89,11 +89,11 @@ class AutoRedemption extends Base
     public function setInterval($interval)
     {
         $value = 2; // Instant
-        switch ($interval) {
-            case 'scheduled':
-                $value = 1;
-                break;
+
+        if (in_array($interval, ['scheduled', 1], true)) {
+            $value = 1;
         }
+
         $this->interval = $value;
     }
 
