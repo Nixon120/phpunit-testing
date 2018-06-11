@@ -82,7 +82,7 @@ class AutoRedemption extends AbstractListener
             ]
         ];
 
-        if ($participant->getAddress() === null) {
+        if ($participant->getAddress() !== null) {
             $transaction['shipping'] = [
                 'firstname' => $participant->getFirstname(),
                 'lastname' => $participant->getLastname(),
@@ -99,6 +99,7 @@ class AutoRedemption extends AbstractListener
             $participant->getUniqueId(),
             $transaction
         );
+
         if ($transaction instanceof \Entities\Transaction) {
             //@TODO: publish webhook
             return true;
