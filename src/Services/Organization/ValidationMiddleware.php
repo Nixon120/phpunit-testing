@@ -11,6 +11,7 @@ use Services\Authentication\Authenticate;
 use Slim\Http\Request;
 use Slim\Http\Response;
 use Validation\InputValidator;
+use Validation\Rules\AlphanumericId;
 use Validation\Rules\UsPostalCode;
 
 class ValidationMiddleware
@@ -138,7 +139,8 @@ class ValidationMiddleware
             'unique_id' => [
                 NotEmpty::EMPTY_VALUE => _('Organization ID must not be empty'),
                 LengthBetween::TOO_LONG => _('Organization ID must be {{ max }} characters or shorter'),
-                LengthBetween::TOO_SHORT => _('Organization ID must be {{ min }} characters or longer')
+                LengthBetween::TOO_SHORT => _('Organization ID must be {{ min }} characters or longer'),
+                AlphanumericId::INVALID_FORMAT => _('Organization ID must be alphanumeric only')
             ],
             'company_contact.firstname' => [
                 NotEmpty::EMPTY_VALUE => _('Company contact firstname must not be empty'),
@@ -289,7 +291,7 @@ class ValidationMiddleware
             //This lets API update without the extended validation requirement
             //We should probably consider a new context, API context in the future.
             $context->optional('name')->allowEmpty(false)->lengthBetween(2, 50)->string();
-            $context->optional('uniqueId')->allowEmpty(false)->lengthBetween(2, 45);
+            $context->optional('uniqueId')->allowEmpty(false)->lengthBetween(2, 45)->alphanumericId();
             $context->optional('company_contact.firstname')->allowEmpty(false)->lengthBetween(1, 50);
             $context->optional('company_contact.lastname')->allowEmpty(false)->lengthBetween(1, 50);
             $context->optional('company_contact.phone')->allowEmpty(false)->lengthBetween(10, 255);
