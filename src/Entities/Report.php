@@ -59,6 +59,10 @@ class Report extends Base
     public $processed = 0;
 
     /**
+     * @var int
+     */
+    public $report_count = 0;
+    /**
      * @return string
      */
     public function getOrganization(): string
@@ -245,6 +249,7 @@ class Report extends Base
      */
     public function isProcessed(): bool
     {
+        $this->setReportCount($this->getReportCount() + 1);
         return $this->processed == 1;
     }
 
@@ -255,4 +260,21 @@ class Report extends Base
     {
         $this->processed = $processed;
     }
+
+    /**
+     * @return int
+     */
+    public function getReportCount()
+    {
+        return $this->report_count;
+    }
+
+    /**
+     * @param int $report_count
+     */
+    public function setReportCount($report_count)
+    {
+        $this->report_count = $report_count;
+    }
+
 }
