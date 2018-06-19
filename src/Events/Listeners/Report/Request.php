@@ -40,6 +40,11 @@ class Request extends AbstractListener
     private $report;
 
     /**
+     * @var null|array
+     */
+    private $reportData;
+
+    /**
      * @var string
      */
     private $reportFileName;
@@ -227,13 +232,16 @@ class Request extends AbstractListener
      */
     private function getReportData(): array
     {
-        $reportService = $this->getReportService();
-        $reportService->setLimitResultCount(false);
-        $data = $reportService->getReportData();
-        $headers = $reportService->getReportHeaders();
-        array_unshift($data, $headers);
+        if($this->reportData === null) {
+            $reportService = $this->getReportService();
+            $reportService->setLimitResultCount(false);
+            $data = $reportService->getReportData();
+            $headers = $reportService->getReportHeaders();
+            array_unshift($data, $headers);
+            $this->reportData = $data;
+        }
 
-        return $data;
+        return $this->reportData;
     }
 
     /**
@@ -313,6 +321,7 @@ class Request extends AbstractListener
     {
         $report = $this->getReport();
         $report->setProcessed(1);
+        $report->setResultCount(count($this->getReportData()));
         $report->setAttachment($this->getReportFileName());
         $this->reportFactory->getReportRepository()
             ->update($report->getId(), $report->toArray());

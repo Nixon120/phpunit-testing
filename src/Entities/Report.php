@@ -59,6 +59,10 @@ class Report extends Base
     public $processed = 0;
 
     /**
+     * @var int
+     */
+    public $result_count = 0;
+    /**
      * @return string
      */
     public function getOrganization(): string
@@ -255,4 +259,21 @@ class Report extends Base
     {
         $this->processed = $processed;
     }
+
+    /**
+     * @return int
+     */
+    public function getResultCount()
+    {
+        return $this->result_count;
+    }
+
+    /**
+     * @param int $result_count
+     */
+    public function setResultCount($result_count)
+    {
+        $this->result_count = $result_count;
+    }
+
 }
