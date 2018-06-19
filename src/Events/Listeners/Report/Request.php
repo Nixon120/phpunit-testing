@@ -320,8 +320,9 @@ class Request extends AbstractListener
     private function setReportAsProcessed()
     {
         $report = $this->getReport();
+        $count = count($this->getReportData()) - 1;
         $report->setProcessed(1);
-        $report->setResultCount(count($this->getReportData()));
+        $report->setResultCount($count);
         $report->setAttachment($this->getReportFileName());
         $this->reportFactory->getReportRepository()
             ->update($report->getId(), $report->toArray());
