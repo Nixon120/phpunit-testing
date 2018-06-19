@@ -63,7 +63,9 @@ return [
             'user.all',
             'report.all',
             'product.all',
-            'administrators.all'
+            'administrators.all',
+            'vendors.all',
+            'cardaccounts.all'
         ],
         'admin' => [
             'organization.all',
