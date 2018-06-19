@@ -2,13 +2,13 @@
 
 use Phinx\Migration\AbstractMigration;
 
-class AddReportCount extends AbstractMigration
+class AddResultCount extends AbstractMigration
 {
     public function change()
     {
         $table = $this->table('Report');
         $table
-            ->addColumn('report_count', 'integer', ['after' => 'parameters', 'null' => false])
+            ->addColumn('result_count', 'integer', ['default' => 0, 'null' => false])
             ->update();
     }
 }
