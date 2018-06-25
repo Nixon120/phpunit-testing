@@ -87,4 +87,37 @@ class RedemptionReportTest extends AbstractReportTest
         $report->setFilter($filter);
         $this->assertEquals([], $report->getReportData());
     }
+
+    public function testGetTotalRecordCount(){
+
+        $sthMock = $this->getPdoStatementMock();
+
+        $this->getMockDatabase()
+            ->expects($this->once())
+            ->method('prepare')
+            ->with($this->isType('string'))
+            ->will($this->returnValue($sthMock));
+
+        $sthMock->expects($this->once())
+            ->method('execute')
+            ->with($this->isType('array'));
+
+        $sthMock->expects($this->once())
+            ->method('fetchColumn')
+            ->will($this->returnValue(30));
+
+        $this->getMockServiceFactory()
+            ->expects($this->once())
+            ->method('getDatabase')
+            ->willReturn($this->getMockDatabase());
+
+        $report = $this->getReportService();
+
+        $inputNormalizer = $this->getInputNormalizer();
+        $filter = new \Services\Report\EnrollmentFilterNormalizer($inputNormalizer->getInput());
+        $report->setInputNormalizer($inputNormalizer);
+        $report->setFilter($filter);
+        $this->assertEquals(30, $report->getTotalRecordCount());
+
+    }
 }
