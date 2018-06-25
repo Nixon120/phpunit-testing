@@ -56,5 +56,4 @@ class Enrollment extends AbstractReport
 
         return $this->fetchRecordCount($query, $this->getFilter()->getFilterConditionArgs());
     }
-
 }

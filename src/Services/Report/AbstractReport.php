@@ -324,5 +324,4 @@ abstract class AbstractReport implements Reportable
         $sth->execute($args);
         return $sth->fetchColumn();
     }
-
 }

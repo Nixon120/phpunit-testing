@@ -275,5 +275,4 @@ class Report extends Base
     {
         $this->result_count = $result_count;
     }
-
 }
