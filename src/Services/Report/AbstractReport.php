@@ -312,4 +312,17 @@ abstract class AbstractReport implements Reportable
             ->getEventPublisher()
             ->publish(json_encode($event));
     }
+
+    /**
+     * @param $query
+     * @param $args
+     * @return int
+     */
+    protected function fetchRecordCount($query, $args): int
+    {
+        $sth = $this->getFactory()->getDatabase()->prepare($query);
+        $sth->execute($args);
+        return $sth->fetchColumn();
+    }
+
 }

@@ -56,4 +56,24 @@ SQL;
 
         return $this->fetchDataForReport($query, $this->getFilter()->getFilterConditionArgs());
     }
+
+    public function getTotalRecordCount(): int
+    {
+        $query = <<<SQL
+SELECT COUNT(*)
+FROM `TransactionItem`
+JOIN `Transaction` ON `Transaction`.id = `TransactionItem`.transaction_id
+JOIN `TransactionProduct` ON `TransactionItem`.reference_id = `TransactionProduct`.reference_id
+JOIN `Adjustment` ON `Adjustment`.transaction_id = Transaction.id
+JOIN `Participant` ON `Transaction`.participant_id = `Participant`.id
+JOIN `Program` ON `Program`.id = `Participant`.program_id 
+JOIN `Organization` ON `Organization`.id = `Participant`.organization_id 
+LEFT JOIN `Address` ON `Transaction`.shipping_reference = `Address`.reference_id 
+  AND Participant.id = Address.participant_id 
+WHERE 1=1
+{$this->getFilter()->getFilterConditionSql()}
+SQL;
+
+        return $this->fetchRecordCount($query, $this->getFilter()->getFilterConditionArgs());
+    }
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace Services\Report;
 
 class ParticipantSummary extends AbstractReport
@@ -35,5 +36,19 @@ GROUP BY Program.unique_id, Program.name
 SQL;
 
         return $this->fetchDataForReport($query, $this->getFilter()->getFilterConditionArgs());
+    }
+
+    public function getTotalRecordCount(): int
+    {
+        $query = <<<SQL
+SELECT COUNT(DISTINCT Program.unique_id)
+FROM `Program`
+LEFT JOIN Organization ON Program.organization_id = Organization.id
+LEFT JOIN Participant ON Program.id = Participant.program_id
+WHERE 1=1
+{$this->getFilter()->getFilterConditionSql()}
+SQL;
+
+        return $this->fetchRecordCount($query, $this->getFilter()->getFilterConditionArgs());
     }
 }

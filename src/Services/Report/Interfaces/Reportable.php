@@ -14,6 +14,8 @@ interface Reportable
 
     public function getReportData();
 
+    public function getTotalRecordCount();
+
     public function getReportHeaders();
 
     public function setFilter(FilterNormalizer $filter);
