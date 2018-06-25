@@ -38,4 +38,19 @@ SQL;
 
         return $this->fetchDataForReport($query, $this->getFilter()->getFilterConditionArgs());
     }
+
+    public function getTotalRecordCount(): int
+    {
+        $query = <<<SQL
+SELECT COUNT(*)
+FROM SweepstakeEntry
+JOIN Participant ON SweepstakeEntry.participant_id = Participant.id
+JOIN `Organization` ON `Organization`.id = `Participant`.organization_id
+JOIN `Program` ON `Program`.id = `Participant`.program_id
+WHERE 1=1
+  {$this->getFilter()->getFilterConditionSql()}
+SQL;
+
+        return $this->fetchRecordCount($query, $this->getFilter()->getFilterConditionArgs());
+    }
 }

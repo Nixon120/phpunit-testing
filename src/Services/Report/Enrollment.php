@@ -43,4 +43,17 @@ class Enrollment extends AbstractReport
 
         return $this->fetchDataForReport($query, $this->getFilter()->getFilterConditionArgs());
     }
+
+    public function getTotalRecordCount(): int
+    {
+        $query = "SELECT COUNT(*) FROM `Participant` "
+            . "JOIN `Organization` ON Organization.id = `Participant`.organization_id "
+            . "JOIN `Program` ON `Program`.id = `Participant`.program_id "
+            . "LEFT JOIN `Address` ON `Participant`.address_reference = `Address`.reference_id "
+            . "  AND Participant.id = Address.participant_id "
+            . "WHERE 1=1 "
+            . $this->getFilter()->getFilterConditionSql();
+
+        return $this->fetchRecordCount($query, $this->getFilter()->getFilterConditionArgs());
+    }
 }

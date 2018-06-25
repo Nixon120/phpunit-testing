@@ -232,7 +232,7 @@ class Request extends AbstractListener
      */
     private function getReportData(): array
     {
-        if($this->reportData === null) {
+        if ($this->reportData === null) {
             $reportService = $this->getReportService();
             $reportService->setLimitResultCount(false);
             $data = $reportService->getReportData();

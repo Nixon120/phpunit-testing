@@ -28,7 +28,7 @@ abstract class AbstractReportTest extends \PHPUnit\Framework\TestCase
     {
         return $this->getMockBuilder(PDOStatement::class)
             ->disableOriginalConstructor()
-            ->setMethods(["execute", "fetch", "fetchAll", "setFetchMode"])
+            ->setMethods(["execute", "fetch", "fetchAll", "fetchColumn", "setFetchMode"])
             ->getMock();
     }
 

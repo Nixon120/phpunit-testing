@@ -88,7 +88,8 @@ class RequestReport
                 [
                     'reportName' => $report->getReportName(),
                     'reportData' => $report->getReportData(),
-                    'reportHeaders' => $report->getReportHeaders()
+                    'reportHeaders' => $report->getReportHeaders(),
+                    'totalRecordCount' => $report->getTotalRecordCount()
                 ]
             );
 
