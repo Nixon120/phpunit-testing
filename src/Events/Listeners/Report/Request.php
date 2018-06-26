@@ -55,6 +55,11 @@ class Request extends AbstractListener
     private $spreadsheet;
 
     /**
+     * @var int
+     */
+    private $reportCount;
+
+    /**
      * @var \PhpOffice\PhpSpreadsheet\Writer\IWriter
      */
     private $writer;
@@ -235,10 +240,12 @@ class Request extends AbstractListener
         if ($this->reportData === null) {
             $reportService = $this->getReportService();
             $reportService->setLimitResultCount(false);
-            $data = $reportService->getReportData();
+            $reportResponse = $reportService->getReportData();
+            $data = $reportResponse->getReportData();
             $headers = $reportService->getReportHeaders();
             array_unshift($data, $headers);
             $this->reportData = $data;
+            $this->reportCount = $reportResponse->getTotalRecords();
         }
 
         return $this->reportData;
@@ -320,7 +327,7 @@ class Request extends AbstractListener
     private function setReportAsProcessed()
     {
         $report = $this->getReport();
-        $count = count($this->getReportData()) - 1;
+        $count = $this->reportCount;
         $report->setProcessed(1);
         $report->setResultCount($count);
         $report->setAttachment($this->getReportFileName());
