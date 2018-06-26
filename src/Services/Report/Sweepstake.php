@@ -18,6 +18,8 @@ class Sweepstake extends AbstractReport
             'Participant.firstname' => 'First Name',
             'Participant.lastname' => 'Last Name',
             'Participant.email_address' => 'Email',
+            'Participant.birthdate' => 'Date of Birth',
+            'Address.zip' => 'Zip Code',
             'SweepstakeEntry.created_at' => 'Entered Date/Time',
             'IF(SweepstakeEntry.sweepstake_draw_id IS NOT NULL,\'Yes\',\'No\')' => 'Winner'
         ]);
@@ -33,6 +35,7 @@ FROM SweepstakeEntry
 JOIN Participant ON SweepstakeEntry.participant_id = Participant.id
 JOIN `Organization` ON `Organization`.id = `Participant`.organization_id
 JOIN `Program` ON `Program`.id = `Participant`.program_id
+JOIN `Address` ON `Address`.reference_id  = `Participant`.address_reference
 WHERE 1=1
   {$this->getFilter()->getFilterConditionSql()}
 ORDER BY SweepstakeEntry.created_at DESC
