@@ -87,9 +87,9 @@ class RequestReport
             ->withJson(
                 [
                     'reportName' => $report->getReportName(),
-                    'reportData' => $report->getReportData(),
+                    'reportData' => $report->getReportData()->getReportData(),
                     'reportHeaders' => $report->getReportHeaders(),
-                    'totalRecordCount' => $report->getTotalRecordCount()
+                    'totalRecordCount' => $report->getReportData()->getTotalRecords()
                 ]
             );
 

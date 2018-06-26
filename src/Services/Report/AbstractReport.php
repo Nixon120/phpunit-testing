@@ -1,6 +1,7 @@
 <?php
 namespace Services\Report;
 
+use AllDigitalRewards\RewardStack\Services\Report\ReportDataResponse;
 use Controllers\Report\InputNormalizer;
 use Entities\Event;
 use Entities\Report;
@@ -199,15 +200,21 @@ abstract class AbstractReport implements Reportable
      * @param $args
      * @return array
      */
-    protected function fetchDataForReport($query, $args)
+    protected function fetchDataForReport($query, $args): ReportDataResponse
     {
+        $reportData = new ReportDataResponse();
+
         if ($this->isLimitResultCount()) {
             $query .= " LIMIT " . self::RESULT_COUNT . " OFFSET " . $this->offset;
         }
 
         $sth = $this->getFactory()->getDatabase()->prepare($query);
         $sth->execute($args);
-        return $sth->fetchAll();
+
+        $reportData->setReportData($sth->fetchAll());
+        $reportData->setTotalRecords($this->getFoundRows());
+
+        return $reportData;
     }
 
     /**
@@ -237,7 +244,7 @@ abstract class AbstractReport implements Reportable
     /**
      * @return array
      */
-    public function getReportData(): array
+    public function getReportData(): ReportDataResponse
     {
         return [];
     }
@@ -313,15 +320,11 @@ abstract class AbstractReport implements Reportable
             ->publish(json_encode($event));
     }
 
-    /**
-     * @param $query
-     * @param $args
-     * @return int
-     */
-    protected function fetchRecordCount($query, $args): int
+    private function getFoundRows(): int
     {
+        $query = "SELECT FOUND_ROWS()";
         $sth = $this->getFactory()->getDatabase()->prepare($query);
-        $sth->execute($args);
+        $sth->execute();
         return $sth->fetchColumn();
     }
 }

@@ -1,6 +1,8 @@
 <?php
 namespace Services\Report;
 
+use AllDigitalRewards\RewardStack\Services\Report\ReportDataResponse;
+
 class Sweepstake extends AbstractReport
 {
     const NAME = 'Sweepstake Drawings';
@@ -21,12 +23,12 @@ class Sweepstake extends AbstractReport
         ]);
     }
 
-    public function getReportData(): array
+    public function getReportData(): ReportDataResponse
     {
         $selection = implode(', ', $this->getFields());
 
         $query = <<<SQL
-SELECT {$selection} 
+SELECT SQL_CALC_FOUND_ROWS {$selection} 
 FROM SweepstakeEntry
 JOIN Participant ON SweepstakeEntry.participant_id = Participant.id
 JOIN `Organization` ON `Organization`.id = `Participant`.organization_id
@@ -37,20 +39,5 @@ ORDER BY SweepstakeEntry.created_at DESC
 SQL;
 
         return $this->fetchDataForReport($query, $this->getFilter()->getFilterConditionArgs());
-    }
-
-    public function getTotalRecordCount(): int
-    {
-        $query = <<<SQL
-SELECT COUNT(*)
-FROM SweepstakeEntry
-JOIN Participant ON SweepstakeEntry.participant_id = Participant.id
-JOIN `Organization` ON `Organization`.id = `Participant`.organization_id
-JOIN `Program` ON `Program`.id = `Participant`.program_id
-WHERE 1=1
-  {$this->getFilter()->getFilterConditionSql()}
-SQL;
-
-        return $this->fetchRecordCount($query, $this->getFilter()->getFilterConditionArgs());
     }
 }
