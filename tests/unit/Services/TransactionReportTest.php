@@ -1,5 +1,7 @@
 <?php
 
+use AllDigitalRewards\RewardStack\Services\Report\ReportDataResponse;
+
 class TransactionReportTest extends AbstractReportTest
 {
     private $reportService;
@@ -60,12 +62,12 @@ class TransactionReportTest extends AbstractReportTest
         $sthMock = $this->getPdoStatementMock();
 
         $this->getMockDatabase()
-            ->expects($this->once())
+            ->expects($this->exactly(2))
             ->method('prepare')
             ->with($this->isType('string'))
             ->will($this->returnValue($sthMock));
 
-        $sthMock->expects($this->once())
+        $sthMock->expects($this->exactly(2))
             ->method('execute')
             ->with($this->isType('array'));
 
@@ -73,8 +75,12 @@ class TransactionReportTest extends AbstractReportTest
             ->method('fetchAll')
             ->will($this->returnValue([]));
 
+        $sthMock->expects($this->once())
+            ->method('fetchColumn')
+            ->will($this->returnValue(345));
+
         $this->getMockServiceFactory()
-            ->expects($this->once())
+            ->expects($this->exactly(2))
             ->method('getDatabase')
             ->willReturn($this->getMockDatabase());
 
@@ -84,6 +90,10 @@ class TransactionReportTest extends AbstractReportTest
         $filter = new \Services\Report\TransactionFilterNormalizer($inputNormalizer->getInput());
         $report->setInputNormalizer($inputNormalizer);
         $report->setFilter($filter);
-        $this->assertEquals([], $report->getReportData());
+
+        $reportResponse = $report->getReportData();
+
+        $this->assertInstanceOf(ReportDataResponse::class, $reportResponse);
+        $this->assertSame(345,$reportResponse->getTotalRecords());
     }
 }

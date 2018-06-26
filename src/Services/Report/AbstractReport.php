@@ -324,7 +324,7 @@ abstract class AbstractReport implements Reportable
     {
         $query = "SELECT FOUND_ROWS()";
         $sth = $this->getFactory()->getDatabase()->prepare($query);
-        $sth->execute();
+        $sth->execute([]);
         return $sth->fetchColumn();
     }
 }

@@ -51,5 +51,4 @@ class Redemption extends AbstractReport
 
         return $this->fetchDataForReport($query, $this->getFilter()->getFilterConditionArgs());
     }
-
 }

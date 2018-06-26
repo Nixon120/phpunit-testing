@@ -1,5 +1,7 @@
 <?php
 
+use AllDigitalRewards\RewardStack\Services\Report\ReportDataResponse;
+
 class EnrollmentReportTest extends AbstractReportTest
 {
     private $reportService;
@@ -132,12 +134,12 @@ class EnrollmentReportTest extends AbstractReportTest
         $sthMock = $this->getPdoStatementMock();
 
         $this->getMockDatabase()
-            ->expects($this->once())
+            ->expects($this->exactly(2))
             ->method('prepare')
             ->with($this->isType('string'))
             ->will($this->returnValue($sthMock));
 
-        $sthMock->expects($this->once())
+        $sthMock->expects($this->exactly(2))
             ->method('execute')
             ->with($this->isType('array'));
 
@@ -145,40 +147,12 @@ class EnrollmentReportTest extends AbstractReportTest
             ->method('fetchAll')
             ->will($this->returnValue([]));
 
-        $this->getMockServiceFactory()
-            ->expects($this->once())
-            ->method('getDatabase')
-            ->willReturn($this->getMockDatabase());
-
-        $report = $this->getReportService();
-
-        $inputNormalizer = $this->getInputNormalizer();
-        $filter = new \Services\Report\EnrollmentFilterNormalizer($inputNormalizer->getInput());
-        $report->setInputNormalizer($inputNormalizer);
-        $report->setFilter($filter);
-        $this->assertEquals([], $report->getReportData());
-    }
-
-    public function testGetTotalRecordCount(){
-
-        $sthMock = $this->getPdoStatementMock();
-
-        $this->getMockDatabase()
-            ->expects($this->once())
-            ->method('prepare')
-            ->with($this->isType('string'))
-            ->will($this->returnValue($sthMock));
-
-        $sthMock->expects($this->once())
-            ->method('execute')
-            ->with($this->isType('array'));
-
         $sthMock->expects($this->once())
             ->method('fetchColumn')
-            ->will($this->returnValue(0));
+            ->will($this->returnValue(10));
 
         $this->getMockServiceFactory()
-            ->expects($this->once())
+            ->expects($this->exactly(2))
             ->method('getDatabase')
             ->willReturn($this->getMockDatabase());
 
@@ -188,8 +162,11 @@ class EnrollmentReportTest extends AbstractReportTest
         $filter = new \Services\Report\EnrollmentFilterNormalizer($inputNormalizer->getInput());
         $report->setInputNormalizer($inputNormalizer);
         $report->setFilter($filter);
-        $this->assertEquals(0, $report->getTotalRecordCount());
 
+        $reportResponse = $report->getReportData();
+
+        $this->assertInstanceOf(ReportDataResponse::class, $reportResponse);
+        $this->assertSame(10,$reportResponse->getTotalRecords());
     }
 
     public function testFieldDoesntExist()

@@ -83,13 +83,15 @@ class RequestReport
 
     private function requestPaginatedReport(Reportable $report): bool
     {
+        $reportResponse = $report->getReportData();
+
         $this->response = $this->response->withStatus(200)
             ->withJson(
                 [
                     'reportName' => $report->getReportName(),
-                    'reportData' => $report->getReportData()->getReportData(),
+                    'reportData' => $reportResponse->getReportData(),
                     'reportHeaders' => $report->getReportHeaders(),
-                    'totalRecordCount' => $report->getReportData()->getTotalRecords()
+                    'totalRecordCount' => $reportResponse->getTotalRecords()
                 ]
             );
 

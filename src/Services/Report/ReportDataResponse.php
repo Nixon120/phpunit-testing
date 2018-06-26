@@ -45,5 +45,4 @@ class ReportDataResponse
     {
         $this->totalRecords = $totalRecords;
     }
-
 }
