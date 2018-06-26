@@ -1,6 +1,8 @@
 <?php
 namespace Services\Report;
 
+use AllDigitalRewards\RewardStack\Services\Report\ReportDataResponse;
+
 class Redemption extends AbstractReport
 {
     const NAME = 'Participant Redemption';
@@ -32,11 +34,11 @@ class Redemption extends AbstractReport
         ]);
     }
 
-    public function getReportData(): array
+    public function getReportData(): ReportDataResponse
     {
         $selection = implode(', ', $this->getFields());
 
-        $query = "SELECT {$selection} FROM `TransactionItem` "
+        $query = "SELECT SQL_CALC_FOUND_ROWS {$selection} FROM `TransactionItem` "
             . "JOIN `Transaction` ON `Transaction`.id = `TransactionItem`.transaction_id "
             . "JOIN `TransactionProduct` ON `TransactionItem`.reference_id = `TransactionProduct`.reference_id "
             . "JOIN `Participant` ON `Transaction`.participant_id = `Participant`.id "
@@ -48,21 +50,5 @@ class Redemption extends AbstractReport
             . $this->getFilter()->getFilterConditionSql();
 
         return $this->fetchDataForReport($query, $this->getFilter()->getFilterConditionArgs());
-    }
-
-    public function getTotalRecordCount(): int
-    {
-        $query = "SELECT COUNT(*) FROM `TransactionItem` "
-            . "JOIN `Transaction` ON `Transaction`.id = `TransactionItem`.transaction_id "
-            . "JOIN `TransactionProduct` ON `TransactionItem`.reference_id = `TransactionProduct`.reference_id "
-            . "JOIN `Participant` ON `Transaction`.participant_id = `Participant`.id "
-            . "JOIN `Program` ON `Program`.id = `Participant`.program_id "
-            . "JOIN `Organization` ON `Organization`.id = `Participant`.organization_id "
-            . "LEFT JOIN `Address` ON `Transaction`.shipping_reference = `Address`.reference_id "
-            . "  AND Participant.id = Address.participant_id "
-            . "WHERE 1=1 "
-            . $this->getFilter()->getFilterConditionSql();
-
-        return $this->fetchRecordCount($query, $this->getFilter()->getFilterConditionArgs());
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Services\Report\Interfaces;
 
+use AllDigitalRewards\RewardStack\Services\Report\ReportDataResponse;
 use Controllers\Report\InputNormalizer;
 use Services\Interfaces\FilterNormalizer;
 
@@ -12,9 +13,7 @@ interface Reportable
 
     public function setInputNormalizer(InputNormalizer $input);
 
-    public function getReportData();
-
-    public function getTotalRecordCount();
+    public function getReportData(): ReportDataResponse;
 
     public function getReportHeaders();
 
