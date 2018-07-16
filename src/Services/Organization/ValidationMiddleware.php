@@ -140,7 +140,7 @@ class ValidationMiddleware
                 NotEmpty::EMPTY_VALUE => _('Organization ID must not be empty'),
                 LengthBetween::TOO_LONG => _('Organization ID must be {{ max }} characters or shorter'),
                 LengthBetween::TOO_SHORT => _('Organization ID must be {{ min }} characters or longer'),
-                AlphanumericId::INVALID_FORMAT => _('Organization ID must be alphanumeric only')
+                AlphanumericId::INVALID_FORMAT => _('Organization ID must contain only -, _ or alphanumeric values')
             ],
             'company_contact.firstname' => [
                 NotEmpty::EMPTY_VALUE => _('Company contact firstname must not be empty'),
