@@ -175,7 +175,7 @@ class SweepstakeEntry extends AbstractListener
     //@TODO with parallel processing, should we lock the participant ?
     private function isParticipantSweepstakeEligible(): bool
     {
-        if ($this->getSingleEntryPointCost() >= $this->participant->getCredit()) {
+        if ($this->getSingleEntryPointCost() > $this->participant->getCredit()) {
             // Participant does not have enough points to redeem for an entry.
             return false;
         }
