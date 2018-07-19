@@ -289,10 +289,12 @@ abstract class AbstractReport implements Reportable
         $date = (new \DateTime)->format('Y-m-d H:i:s');
         $organization = $this->getInputNormalizer()->getInput()['organization'] ?? null;
         $program = $this->getInputNormalizer()->getInput()['program'] ?? null;
+        $user = $this->getInputNormalizer()->getInput()['user'] ?? null;
         $format = $this->getInputNormalizer()->getInput()['report_format'] ?? 'csv';
 
         $report->setOrganization($organization);
         $report->setProgram($program);
+        $report->setUser($user);
         $report->setReport($this->getReportClassification());
         $report->setFormat($format);
         $report->setProcessed(0);

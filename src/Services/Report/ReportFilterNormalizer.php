@@ -26,6 +26,26 @@ class ReportFilterNormalizer extends AbstractFilterNormalizer
         return $args;
     }
 
+    public function getUserFilter($value)
+    {
+        if ($value !== "") {
+            return "`Report`.`user` = ?";
+        }
+
+        return false;
+    }
+
+    public function getUserFilterArgs($value)
+    {
+        $args = [];
+
+        if ($value !== "") {
+            $args[] = $value;
+        }
+
+        return $args;
+    }
+
     public function getProcessedFilter($value)
     {
         $string = "";
