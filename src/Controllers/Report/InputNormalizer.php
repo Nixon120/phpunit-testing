@@ -126,7 +126,7 @@ class InputNormalizer extends AbstractInputNormalizer
     public function getUser()
     {
         $input = $this->getInput();
-        $user = $input['user'];
+        $user = $input['user'] ?? null;
 
         return $user;
     }
