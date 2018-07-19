@@ -130,5 +130,4 @@ class InputNormalizer extends AbstractInputNormalizer
 
         return $user;
     }
-
 }
