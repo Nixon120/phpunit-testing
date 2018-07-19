@@ -77,8 +77,6 @@ class UserModify
                 );
 
             $data['organization_id'] = $organization->getId();
-        } else {
-            $data['organization_id'] = null;
         }
 
         if (!empty($data['password'])) {
