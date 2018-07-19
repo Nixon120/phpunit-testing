@@ -1,4 +1,5 @@
 <?php
+
 namespace Entities;
 
 use Entities\Traits\TimestampTrait;
@@ -16,6 +17,11 @@ class Report extends Base
      * @var string
      */
     public $program;
+
+    /**
+     * @var string
+     */
+    public $user;
 
     /**
      * 1 = Enrollment,
@@ -62,6 +68,7 @@ class Report extends Base
      * @var int
      */
     public $result_count = 0;
+
     /**
      * @return string
      */
@@ -81,7 +88,7 @@ class Report extends Base
     /**
      * @return null|string
      */
-    public function getProgram():?string
+    public function getProgram(): ?string
     {
         if ($this->program === "") {
             return null;
@@ -96,6 +103,22 @@ class Report extends Base
     public function setProgram(?string $program)
     {
         $this->program = $program;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUser(): ?string
+    {
+        return $this->user;
+    }
+
+    /**
+     * @param string $user
+     */
+    public function setUser(?string $user)
+    {
+        $this->user = $user;
     }
 
     /**
