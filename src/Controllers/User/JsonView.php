@@ -41,6 +41,43 @@ class JsonView extends AbstractViewController
         return $response;
     }
 
+    // This method handles directing traffic for the password change request
+    public function submitRecoveryPassword($token)
+    {
+        if (!$user = $this->factory->getUserRead()->getByInviteToken($token)) {
+            return $this->response->withStatus(200)
+                ->withJson([
+                    message => 'Sorry, then token is invalid or expired.',
+                    status => 'failed'
+
+                ]);
+        }
+
+        $password = $this->request->getParsedBody()['password'] ?? null;
+        $confirm = $this->request->getParsedBody()['confirm'] ?? null;
+
+        if ($password !== $confirm) {
+            return $this->response->withStatus(200)
+                ->withJson([
+                    message => 'Password and password confirmation did not match',
+                    status => 'failed'
+
+                ]);
+        }
+
+        $this->factory->getUserModify()
+            ->update($user->getId(), [
+                'password' => $password,
+                'invite_token' => ''
+            ]);
+
+        return $this->response->withStatus(200)
+            ->withJson([
+                message => 'Your password changed successfully.',
+                status => 'success'
+            ]);
+    }
+
     //This method is executed after they supply their email in step 1
     public function submitRecoveryForm()
     {
