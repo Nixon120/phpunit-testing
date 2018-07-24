@@ -31,7 +31,7 @@ class Sweepstake extends \Entities\Base
      */
     public $point;
 
-    public $max_participant_entry;
+    public $max_participant_entry = 0;
 
     /**
      * Product SKU (Max 45chars)
