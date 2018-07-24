@@ -183,7 +183,17 @@ class ScheduledRedemption extends ScheduledTask
 
     private function noParticipantsEligible()
     {
-        $this->getLogger()->info('No participants are eligible for auto-redeem');
+        $this->getLogger()->info(
+            'Auto Redemption',
+            [
+                'subsystem' => 'Scheduler',
+                'action' => 'Generate',
+                'success' => true,
+                'program' => $this->getProgram()->getUniqueId(),
+                'message' => 'No participants have enough points to auto-redeem.'
+            ]
+        );
+
         $this->setOutput('No participants have enough points to auto-redeem.');
         return;
     }
@@ -200,9 +210,13 @@ class ScheduledRedemption extends ScheduledTask
 
         $completedOutput = 'Static product scheduled redemption completed';
         $this->setOutput($completedOutput);
-        $this->getLogger()->info($completedOutput, [
+        $this->getLogger()->info('Auto Redemption', [
+            'subsystem' => 'Scheduler',
+            'action' => 'Generate',
+            'success' => true,
             'program' => $this->getProgram()->getUniqueId(),
-            'participants' => count($participants)
+            'participants' => count($participants),
+            'message' => $completedOutput
         ]);
     }
 
@@ -216,11 +230,16 @@ class ScheduledRedemption extends ScheduledTask
 
         $this->iterateEligibleParticipant($participants);
         $completedOutput = 'Ranged product scheduled redemption completed';
-        $this->setOutput($completedOutput);
-        $this->getLogger()->info($completedOutput, [
+        $this->getLogger()->info('Auto Redemption', [
+            'subsystem' => 'Scheduler',
+            'action' => 'Generate',
+            'success' => true,
             'program' => $this->getProgram()->getUniqueId(),
-            'participants' => count($participants)
+            'participants' => count($participants),
+            'message' => $completedOutput
         ]);
+
+        $this->setOutput($completedOutput);
     }
 
     private function getEligibleStaticPricingParticipant()
