@@ -23,7 +23,10 @@ class PointBalance extends AbstractReport
             'Address.city' => 'City',
             'Address.state' => 'State',
             'Address.zip' => 'Zip',
-            'Participant.credit' => 'Current Balance'
+            'Participant.credit' => 'Current Balance',
+            'Organization.name as organization_name' => 'Organization Name',
+            'Program.unique_id as program_id' => 'Program ID',
+            'Program.name as program_name' => 'Program Name'
         ]);
     }
 

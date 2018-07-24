@@ -34,6 +34,7 @@ class Transaction extends AbstractReport
             'TransactionItem.quantity' => 'Item Qty', # Ordered quantity
             'TransactionProduct.vendor_code' => 'Item SKU', # Ordered SKU
             'TransactionProduct.name' => 'Item Description', # Item Description
+            'Organization.name as organization_name' => 'Organization Name',
             '((TransactionProduct.retail + IFNULL(TransactionProduct.shipping,0) + IFNULL(TransactionProduct.handling,0)) * TransactionItem.quantity) as Total' => 'Total'
         ]);
     }

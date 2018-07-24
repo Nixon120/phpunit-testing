@@ -27,6 +27,9 @@ class Enrollment extends AbstractReport
             'Address.zip' => 'Zip',
             'Participant.phone' => 'Phone',
             'Participant.email_address' => 'Email',
+            'Organization.name as organization_name' => 'Organization Name',
+            'Program.unique_id as program_id' => 'Program ID',
+            'Program.name as program_name' => 'Program Name',
             "CASE Participant.active WHEN 1 THEN 'active' ELSE 'inactive' END" => 'Status'
         ]);
     }
@@ -35,14 +38,15 @@ class Enrollment extends AbstractReport
     {
         $selection = implode(', ', $this->getFields());
 
-        $query = "SELECT SQL_CALC_FOUND_ROWS {$selection} FROM `Participant` "
-            . "JOIN `Organization` ON Organization.id = `Participant`.organization_id "
-            . "JOIN `Program` ON `Program`.id = `Participant`.program_id "
-            . "LEFT JOIN `Address` ON `Participant`.address_reference = `Address`.reference_id "
-            . "  AND Participant.id = Address.participant_id "
-            . "WHERE 1=1 "
-            . $this->getFilter()->getFilterConditionSql();
-
+        $query = <<<SQL
+SELECT SQL_CALC_FOUND_ROWS {$selection} FROM `Participant` 
+JOIN `Organization` ON Organization.id = `Participant`.organization_id
+JOIN `Program` ON `Program`.id = `Participant`.program_id
+LEFT JOIN `Address` ON `Participant`.address_reference = `Address`.reference_id
+AND Participant.id = Address.participant_id
+WHERE 1=1
+{$this->getFilter()->getFilterConditionSql()}
+SQL;
         return $this->fetchDataForReport($query, $this->getFilter()->getFilterConditionArgs());
     }
 }
