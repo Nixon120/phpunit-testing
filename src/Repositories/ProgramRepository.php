@@ -92,6 +92,7 @@ SQL;
         if (!$program = $this->query($sql, $args, Program::class)) {
             return null;
         }
+
         return $this->hydrateProgram($program);
     }
 
@@ -102,6 +103,7 @@ SQL;
         $program->setDomain($domain);
         $program->setAutoRedemption($this->getAutoRedemption($program));
         $program->setContact($this->getContact($program));
+        $program->setAccountingContact($this->getAccountingContact($program));
         $program->setProductCriteria($this->getProductCriteria($program));
         $program->setLayoutRows($this->getProgramLayout($program));
         $program->setSweepstake($this->getProgramSweepstake($program));
@@ -198,6 +200,18 @@ SQL;
     {
         $sql = "SELECT * FROM `Contact` WHERE reference_id = ?";
         $args = [$program->getContactReference()];
+        if (!$contact = $this->query($sql, $args, Contact::class)) {
+            return null;
+        }
+
+        return $contact;
+    }
+
+    public function getAccountingContact(Program $program)
+    {
+        $sql = "SELECT * FROM `Contact` WHERE reference_id = ?";
+        $args = [$program->getAccountingContactReference()];
+
         if (!$contact = $this->query($sql, $args, Contact::class)) {
             return null;
         }
