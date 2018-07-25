@@ -66,6 +66,8 @@ class Program extends Base
 
     public $contact_reference;
 
+    public $accounting_contact_reference;
+
     public $cost_center_id;
 
     public $invoice_to;
@@ -80,6 +82,11 @@ class Program extends Base
      * @var Contact
      */
     private $contact;
+
+    /**
+     * @var Contact
+     */
+    private $accountingContact;
 
     public function __construct(array $data = null)
     {
@@ -482,6 +489,55 @@ class Program extends Base
         }
 
         $this->contact = $contact;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getAccountingContactReference()
+    {
+        return $this->accounting_contact_reference;
+    }
+
+    /**
+     * @param mixed $accounting_contact_reference
+     */
+    public function setAccountingContactReference($accounting_contact_reference)
+    {
+        $this->accounting_contact_reference = $accounting_contact_reference;
+    }
+
+    public function hasAccountingContact()
+    {
+        if ($this->accountingContact instanceof Contact) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @return Contact
+     */
+    public function getAccountingContact()
+    {
+        if (!$this->accountingContact) {
+            return new Contact();
+        }
+
+        return $this->accountingContact;
+    }
+
+    /**
+     * @param Contact $accountingContact
+     */
+    public function setAccountingContact($accountingContact)
+    {
+        if ($accountingContact !== null) {
+            $this->setAccountingContactReference($accountingContact->getReferenceId());
+        }
+
+        $this->accountingContact = $accountingContact;
     }
 
     /**
