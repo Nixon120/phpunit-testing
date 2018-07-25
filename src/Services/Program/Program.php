@@ -77,6 +77,15 @@ class Program
             $data['contact_reference'] = $reference;
         }
 
+        if (!empty($data['accounting_contact'])) {
+            // Build the Accounting Contact entity.
+            $contact = $this->program->getAccountingContact();
+            $contact->hydrate($data['accounting_contact']);
+            $this->program->setAccountingContact($contact);
+            $reference = $this->program->getAccountingContactReference();
+            $data['accounting_contact_reference'] = $reference;
+        }
+
         //unsetting unique_id here, can't change on update.
         if (!empty($data['auto_redemption'])) {
             $autoRedemption = new AutoRedemption;
@@ -95,7 +104,7 @@ class Program
             $data['domain_id'] = $domain->getId();
         }
 
-        unset($data['organization'], $data['auto_redemption'], $data['contact']);
+        unset($data['organization'], $data['auto_redemption'], $data['contact'], $data['accounting_contact']);
         $this->program->exchange($data);
     }
 
@@ -104,6 +113,11 @@ class Program
         if ($this->program->hasContact()) {
             // Save the Contact
             $this->contactRepository->place($this->program->getContact());
+        }
+
+        if ($this->program->hasAccountingContact()) {
+            // Save the Contact
+            $this->contactRepository->place($this->program->getAccountingContact());
         }
 
         $this->repository->insert($this->program->toArray());
@@ -243,6 +257,12 @@ class Program
     {
         if ($this->program->hasContact()
             && !$this->contactRepository->validate($this->program->getContact())) {
+            $this->repository->setErrors($this->contactRepository->getErrors());
+            return false;
+        }
+
+        if ($this->program->hasAccountingContact()
+            && !$this->contactRepository->validate($this->program->getAccountingContact())) {
             $this->repository->setErrors($this->contactRepository->getErrors());
             return false;
         }
