@@ -164,7 +164,7 @@ $app->group('/api/administrators', function () use ($app, $createRoute, $updateR
             $this->get('user')
         );
 
-        if($request->getParam('token')){
+        if ($request->getParam('token')) {
             return $controller->submitRecoveryPassword($request->getParam('token'));
         }
 
