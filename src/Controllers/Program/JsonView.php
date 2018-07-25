@@ -56,6 +56,7 @@ class JsonView extends AbstractViewController
         if (is_null($program)) {
             return $this->renderJson404();
         }
+
         $output = new OutputNormalizer($program);
         $response = $this->response->withStatus(200)
             ->withJson($output->get());
