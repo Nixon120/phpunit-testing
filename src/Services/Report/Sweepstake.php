@@ -14,15 +14,15 @@ class Sweepstake extends AbstractReport
         parent::__construct($factory);
 
         $this->setFieldMap([
+            'Organization.name as organization_name' => 'Organization Name',
+            'Program.unique_id as program_id' => 'Program ID',
+            'Program.name as program_name' => 'Program Name',
             'Participant.unique_id' => 'Participant ID',
             'Participant.firstname' => 'First Name',
             'Participant.lastname' => 'Last Name',
             'Participant.email_address' => 'Email',
             'Participant.birthdate' => 'Date of Birth',
             'Address.zip' => 'Zip Code',
-            'Organization.name as organization_name' => 'Organization Name',
-            'Program.unique_id as program_id' => 'Program ID',
-            'Program.name as program_name' => 'Program Name',
             'SweepstakeEntry.created_at' => 'Entered Date/Time',
             'IF(SweepstakeEntry.sweepstake_draw_id IS NOT NULL,\'Yes\',\'No\')' => 'Winner'
         ]);

@@ -16,6 +16,9 @@ class Enrollment extends AbstractReport
 
         //@TODO Company Country, Company name? Maybe?
         $this->setFieldMap([
+            'Organization.name as organization_name' => 'Organization Name',
+            'Program.unique_id as program_id' => 'Program ID',
+            'Program.name as program_name' => 'Program Name',
             'Participant.created_at' => 'Registration Date',
             'Participant.unique_id' => 'Participant ID',
             'Participant.firstname' => 'First Name',
@@ -27,9 +30,6 @@ class Enrollment extends AbstractReport
             'Address.zip' => 'Zip',
             'Participant.phone' => 'Phone',
             'Participant.email_address' => 'Email',
-            'Organization.name as organization_name' => 'Organization Name',
-            'Program.unique_id as program_id' => 'Program ID',
-            'Program.name as program_name' => 'Program Name',
             "CASE Participant.active WHEN 1 THEN 'active' ELSE 'inactive' END" => 'Status'
         ]);
     }

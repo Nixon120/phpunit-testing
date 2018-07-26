@@ -14,6 +14,9 @@ class PointBalance extends AbstractReport
         parent::__construct($factory);
 
         $this->setFieldMap([
+            'Organization.name as organization_name' => 'Organization Name',
+            'Program.unique_id as program_id' => 'Program ID',
+            'Program.name as program_name' => 'Program Name',
             'Participant.email_address' => 'Email',
             'Participant.unique_id' => 'Participant ID',
             'Participant.firstname' => 'First Name',
@@ -23,10 +26,7 @@ class PointBalance extends AbstractReport
             'Address.city' => 'City',
             'Address.state' => 'State',
             'Address.zip' => 'Zip',
-            'Participant.credit' => 'Current Balance',
-            'Organization.name as organization_name' => 'Organization Name',
-            'Program.unique_id as program_id' => 'Program ID',
-            'Program.name as program_name' => 'Program Name'
+            'Participant.credit' => 'Current Balance'
         ]);
     }
 
