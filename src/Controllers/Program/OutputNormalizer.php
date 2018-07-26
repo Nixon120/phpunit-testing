@@ -25,9 +25,8 @@ class OutputNormalizer extends AbstractOutputNormalizer
             'role',
             'organization_id',
             'contact_reference',
-            'invoice_to',
-            'issue_1099',
-            'employee_payroll_file'
+            'accounting_contact_reference',
+            'invoice_to'
         ]);
 
         if ($program->getDomain() !== null) {
@@ -35,6 +34,7 @@ class OutputNormalizer extends AbstractOutputNormalizer
         }
         $return['organization'] = $program->getOrganization()->getUniqueId();
         $return['contact'] = $program->getContact();
+        $return['accounting_contact'] = $program->getAccountingContact();
         $categories = $program->getProductCriteria()->getCategories();
         $products = $program->getProductCriteria()->getProducts();
         $brands = $program->getProductCriteria()->getBrands();
