@@ -15,6 +15,7 @@ class ParticipantSummary extends AbstractReport
         parent::__construct($factory);
 
         $this->setFieldMap([
+            'Organization.name as organization_name' => 'Organization Name',
             'Program.unique_id' => 'Program ID',
             'Program.name' => 'Program Name',
             'MIN(Participant.created_at) as `Enroll Start Date`' => 'Enroll Start Date',
