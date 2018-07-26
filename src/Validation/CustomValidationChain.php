@@ -2,6 +2,7 @@
 namespace Validation;
 
 use Particle\Validator\Chain;
+use Validation\Rules\AlphanumericId;
 use Validation\Rules\EachIndex;
 use Validation\Rules\UsPostalCode;
 use Validation\Rules\Domain;
@@ -22,6 +23,14 @@ class CustomValidationChain extends Chain
     public function domain()
     {
         return $this->addRule(new Domain);
+    }
+
+    /**
+     * @return $this
+     */
+    public function alphanumericId()
+    {
+        return $this->addRule(new AlphanumericId());
     }
 
     /**

@@ -1,0 +1,161 @@
+{
+	"info": {
+		"_postman_id": "8aced6fc-d378-403c-a7cf-0f588224aad1",
+		"name": "RewardStack",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create Program With Space",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1MzE3NTg1MzksImV4cCI6MTUzMTc2NTczOSwianRpIjoidFwvVmZJRHMyUVc4NTIzd0tlYVNpVUE9PSIsInN1YiI6InRlc3RAYWxsZGlnaXRhbHJld2FyZHMuY29tIiwidXNlciI6eyJpZCI6MywiZmlyc3RuYW1lIjoiVGVzdCIsImxhc3RuYW1lIjoiQWRtaW4ifSwic2NvcGUiOlsib3JnYW5pemF0aW9uLmFsbCIsInByb2dyYW0uYWxsIiwicGFydGljaXBhbnQuYWxsIiwidXNlci5hbGwiLCJyZXBvcnQuYWxsIiwicHJvZHVjdC5hbGwiLCJhZG1pbmlzdHJhdG9ycy5hbGwiLCJ2ZW5kb3JzLmFsbCIsImNhcmRhY2NvdW50cy5hbGwiXX0.NcKEhDiRg9BKnbyjfxCKmUH3FqxWR0oyymvK0Gf4Pyo",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\": \"test\",\n\t\"point\": 10,\n\t\"unique_id\": \"TEST 123\",\n\t\"cost_center_id\": \"122\",\n\t\"organization\": \"alldigitalrewards\",\n\t\"contact\": {\n\t\t\"state\": \"NC\",\n\t\t\"firstname\": \"Ashok\",\n\t\t\"lastname\": \"Magar\",\n\t\t\"phone\": 1234567890,\n\t\t\"email\": \"test@test.com\",\n\t\t\"address1\": \"test Address 1\",\n\t\t\"address2\": \"address 2\",\n\t\t\"city\": \"Belmont\",\n\t\t\"zip\": \"28012\"\n\t},\n\t\"deposit_amount\": 12,\n\t\"url\": \"test\",\n\t\"domain\": \"mydigitalrewards.com\",\n\t\"auto_redemption\": {\n\t\t\"interval\": \"\",\n\t\t\"schedule\": \"\",\n\t\t\"product_sku\": \"HRA01\"\n\t}\n}"
+				},
+				"url": {
+					"raw": "http://localhost/api/program",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"api",
+						"program"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Program With Hyphen",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1MzE3NTg1MzksImV4cCI6MTUzMTc2NTczOSwianRpIjoidFwvVmZJRHMyUVc4NTIzd0tlYVNpVUE9PSIsInN1YiI6InRlc3RAYWxsZGlnaXRhbHJld2FyZHMuY29tIiwidXNlciI6eyJpZCI6MywiZmlyc3RuYW1lIjoiVGVzdCIsImxhc3RuYW1lIjoiQWRtaW4ifSwic2NvcGUiOlsib3JnYW5pemF0aW9uLmFsbCIsInByb2dyYW0uYWxsIiwicGFydGljaXBhbnQuYWxsIiwidXNlci5hbGwiLCJyZXBvcnQuYWxsIiwicHJvZHVjdC5hbGwiLCJhZG1pbmlzdHJhdG9ycy5hbGwiLCJ2ZW5kb3JzLmFsbCIsImNhcmRhY2NvdW50cy5hbGwiXX0.NcKEhDiRg9BKnbyjfxCKmUH3FqxWR0oyymvK0Gf4Pyo",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\": \"test\",\n\t\"point\": 10,\n\t\"unique_id\": \"TEST-123\",\n\t\"cost_center_id\": \"122\",\n\t\"organization\": \"alldigitalrewards\",\n\t\"contact\": {\n\t\t\"state\": \"NC\",\n\t\t\"firstname\": \"Ashok\",\n\t\t\"lastname\": \"Magar\",\n\t\t\"phone\": 1234567890,\n\t\t\"email\": \"test@test.com\",\n\t\t\"address1\": \"test Address 1\",\n\t\t\"address2\": \"address 2\",\n\t\t\"city\": \"Belmont\",\n\t\t\"zip\": \"28012\"\n\t},\n\t\"deposit_amount\": 12,\n\t\"url\": \"test\",\n\t\"domain\": \"mydigitalrewards.com\",\n\t\"auto_redemption\": {\n\t\t\"interval\": \"\",\n\t\t\"schedule\": \"\",\n\t\t\"product_sku\": \"HRA01\"\n\t}\n}"
+				},
+				"url": {
+					"raw": "http://localhost/api/program",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"api",
+						"program"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Program With Underscore",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1MzE3NTg1MzksImV4cCI6MTUzMTc2NTczOSwianRpIjoidFwvVmZJRHMyUVc4NTIzd0tlYVNpVUE9PSIsInN1YiI6InRlc3RAYWxsZGlnaXRhbHJld2FyZHMuY29tIiwidXNlciI6eyJpZCI6MywiZmlyc3RuYW1lIjoiVGVzdCIsImxhc3RuYW1lIjoiQWRtaW4ifSwic2NvcGUiOlsib3JnYW5pemF0aW9uLmFsbCIsInByb2dyYW0uYWxsIiwicGFydGljaXBhbnQuYWxsIiwidXNlci5hbGwiLCJyZXBvcnQuYWxsIiwicHJvZHVjdC5hbGwiLCJhZG1pbmlzdHJhdG9ycy5hbGwiLCJ2ZW5kb3JzLmFsbCIsImNhcmRhY2NvdW50cy5hbGwiXX0.NcKEhDiRg9BKnbyjfxCKmUH3FqxWR0oyymvK0Gf4Pyo",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\": \"test\",\n\t\"point\": 10,\n\t\"unique_id\": \"TEST_123\",\n\t\"cost_center_id\": \"122\",\n\t\"organization\": \"alldigitalrewards\",\n\t\"contact\": {\n\t\t\"state\": \"NC\",\n\t\t\"firstname\": \"Ashok\",\n\t\t\"lastname\": \"Magar\",\n\t\t\"phone\": 1234567890,\n\t\t\"email\": \"test@test.com\",\n\t\t\"address1\": \"test Address 1\",\n\t\t\"address2\": \"address 2\",\n\t\t\"city\": \"Belmont\",\n\t\t\"zip\": \"28012\"\n\t},\n\t\"deposit_amount\": 12,\n\t\"url\": \"test\",\n\t\"domain\": \"mydigitalrewards.com\",\n\t\"auto_redemption\": {\n\t\t\"interval\": \"\",\n\t\t\"schedule\": \"\",\n\t\t\"product_sku\": \"HRA01\"\n\t}\n}"
+				},
+				"url": {
+					"raw": "http://localhost/api/program",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"api",
+						"program"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Org with Space",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1MzE3NTg1MzksImV4cCI6MTUzMTc2NTczOSwianRpIjoidFwvVmZJRHMyUVc4NTIzd0tlYVNpVUE9PSIsInN1YiI6InRlc3RAYWxsZGlnaXRhbHJld2FyZHMuY29tIiwidXNlciI6eyJpZCI6MywiZmlyc3RuYW1lIjoiVGVzdCIsImxhc3RuYW1lIjoiQWRtaW4ifSwic2NvcGUiOlsib3JnYW5pemF0aW9uLmFsbCIsInByb2dyYW0uYWxsIiwicGFydGljaXBhbnQuYWxsIiwidXNlci5hbGwiLCJyZXBvcnQuYWxsIiwicHJvZHVjdC5hbGwiLCJhZG1pbmlzdHJhdG9ycy5hbGwiLCJ2ZW5kb3JzLmFsbCIsImNhcmRhY2NvdW50cy5hbGwiXX0.NcKEhDiRg9BKnbyjfxCKmUH3FqxWR0oyymvK0Gf4Pyo",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"parent\": null,\n\t\"uniqueId\": \"TEST ORG\",\n\t\"name\": \"Test Organisation\",\n\t\"domains\": [],\n\t\"company_contact\": {\n\t\t\"state\": \"NC\",\n\t\t\"firstname\": \"Magar\",\n\t\t\"lastname\": \"Magar\",\n\t\t\"phone\": \"01234567890\",\n\t\t\"email\": \"test@test.com\",\n\t\t\"address1\": \"test Address 1\",\n\t\t\"address2\": \"address 2\",\n\t\t\"city\": \"Belmont\",\n\t\t\"zip\": \"28012\"\n\t},\n\t\"accounts_payable_contact\": {\n\t\t\"state\": \"NC\",\n\t\t\"firstname\": \"Magar\",\n\t\t\"lastname\": \"Magar\",\n\t\t\"phone\": \"01234567890\",\n\t\t\"email\": \"test@test.com\",\n\t\t\"address1\": \"test Address 1\",\n\t\t\"address2\": \"address 2\",\n\t\t\"city\": \"Belmont\",\n\t\t\"zip\": \"28012\"\n\t}\n}"
+				},
+				"url": {
+					"raw": "http://localhost/organization/create",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"organization",
+						"create"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

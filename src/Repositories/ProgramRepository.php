@@ -355,7 +355,7 @@ SQL;
                 Validator::nullType()
             ))
             ->attribute('point', Validator::numeric()->min(1)->setName('Point'))
-            ->attribute('unique_id', Validator::notEmpty()->setName('Unique Id'))
+            ->attribute('unique_id', Validator::notEmpty()->alnum('_ -')->noWhitespace()->setName('Unique Id'))
             ->attribute('organization_id', Validator::notEmpty()->setName('Organization'))
             ->attribute('deposit_amount', Validator::optional(Validator::numeric()->setName('Deposit')))
             ->attribute(
