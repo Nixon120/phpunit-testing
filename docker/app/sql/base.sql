@@ -208,6 +208,7 @@ CREATE TABLE `Program` (
   `contact_reference` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `invoice_to` varchar(16) COLLATE utf8mb4_unicode_ci DEFAULT 'Top Level Client',
   `deposit_amount` int(11) NOT NULL DEFAULT '0',
+  'low_level_deposit' int(11) NOT NULL DEFAULT '0',
   `issue_1099` tinyint(1) NOT NULL DEFAULT '0',
   `employee_payroll_file` tinyint(1) NOT NULL DEFAULT '0',
   `cost_center_id` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
