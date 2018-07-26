@@ -3,7 +3,7 @@
 
 use Phinx\Migration\AbstractMigration;
 
-class AddProgramLowLevelDeposit extends AbstractMigration
+class AddLowLevelDeposit extends AbstractMigration
 {
     public function change()
     {
