@@ -15,7 +15,7 @@ class Redemption extends AbstractReport
 
         $this->setFieldMap([
             'Organization.name as organization_name' => 'Organization Name',
-            'Program.unique_id as program_uuid' => 'Program UUID', #Portal ID
+            'Program.unique_id as program_uuid' => 'Program ID', #Portal ID
             'Program.name as program_name' => 'Program', #Portal name
             'Transaction.created_at' => 'Date', # Order Date
             'Transaction.id' => 'Transaction ID', # Order ID
