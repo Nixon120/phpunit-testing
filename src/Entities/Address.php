@@ -25,7 +25,7 @@ class Address extends Base
 
     public $country = 840;
 
-    public $country_code;
+    public $country_code = 'US';
 
     public function hydrate(array $shipping)
     {
