@@ -1,0 +1,88 @@
+{
+	"info": {
+		"_postman_id": "64ee7115-6531-4bb1-b01d-f408e147aba8",
+		"name": "Participant",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Update Participant",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1MzI3MDc3MTYsImV4cCI6MTUzMjcxNDkxNiwianRpIjoiYWJxd2ZxUU1NMHozXC9GQzVIYmZjeHc9PSIsInN1YiI6InRlc3RAYWxsZGlnaXRhbHJld2FyZHMuY29tIiwidXNlciI6eyJpZCI6MywiZmlyc3RuYW1lIjoiVGVzdCIsImxhc3RuYW1lIjoiQWRtaW4ifSwic2NvcGUiOlsib3JnYW5pemF0aW9uLmFsbCIsInByb2dyYW0uYWxsIiwicGFydGljaXBhbnQuYWxsIiwidXNlci5hbGwiLCJyZXBvcnQuYWxsIiwicHJvZHVjdC5hbGwiLCJhZG1pbmlzdHJhdG9ycy5hbGwiLCJ2ZW5kb3JzLmFsbCIsImNhcmRhY2NvdW50cy5hbGwiXX0.e7TQB36OWcd5_gkBGvizcdTIilW5r7djgFpFcLAHfEg",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"organization\": \"sharecare\",\n\t\"program\": \"sharecare\",\n\t\"active\": 1,\n\t\"unique_id\": \"USERASHOK5\",\n\t\"firstname\": \"Ashok\",\n\t\"lastname\": \"Magar\",\n\t\"email_address\": \"test@test.com\",\n\t\"birthdate\": \"2018-07-27\",\n\t\"address\": {\n\t\t\"state\": \"TEST\",\n\t\t\"address1\": \"test Address 1\",\n\t\t\"address2\": \"address 2\",\n\t\t\"city\": \"TESTING\",\n\t\t\"zip\": \"28012\",\n\t\t\"country\": 840,\n\t\t\"firstname\": \"Ashok\",\n\t\t\"lastname\": \"Magar\",\n\t\t\"country_code\":\"US\"\n\t}\n}"
+				},
+				"url": {
+					"raw": "http://localhost/api/participant/USERASHOK5/view",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"api",
+						"participant",
+						"USERASHOK5",
+						"view"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Participant",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1MzI3MDc3MTYsImV4cCI6MTUzMjcxNDkxNiwianRpIjoiYWJxd2ZxUU1NMHozXC9GQzVIYmZjeHc9PSIsInN1YiI6InRlc3RAYWxsZGlnaXRhbHJld2FyZHMuY29tIiwidXNlciI6eyJpZCI6MywiZmlyc3RuYW1lIjoiVGVzdCIsImxhc3RuYW1lIjoiQWRtaW4ifSwic2NvcGUiOlsib3JnYW5pemF0aW9uLmFsbCIsInByb2dyYW0uYWxsIiwicGFydGljaXBhbnQuYWxsIiwidXNlci5hbGwiLCJyZXBvcnQuYWxsIiwicHJvZHVjdC5hbGwiLCJhZG1pbmlzdHJhdG9ycy5hbGwiLCJ2ZW5kb3JzLmFsbCIsImNhcmRhY2NvdW50cy5hbGwiXX0.e7TQB36OWcd5_gkBGvizcdTIilW5r7djgFpFcLAHfEg",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"organization\": \"sharecare\",\n\t\"program\": \"sharecare\",\n\t\"active\": 1,\n\t\"unique_id\": \"USERASHOK5\",\n\t\"firstname\": \"Ashok\",\n\t\"lastname\": \"Magar\",\n\t\"email_address\": \"test@test.com\",\n\t\"birthdate\": \"2018-07-27\",\n\t\"address\": {\n\t\t\"state\": \"TEST\",\n\t\t\"address1\": \"test Address 1\",\n\t\t\"address2\": \"address 2\",\n\t\t\"city\": \"TESTING\",\n\t\t\"zip\": \"28012\",\n\t\t\"country\": 840,\n\t\t\"firstname\": \"Ashok\",\n\t\t\"lastname\": \"Magar\",\n\t\t\"country_code\":\"US\"\n\t}\n}"
+				},
+				"url": {
+					"raw": "http://localhost/api/participant/create",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"api",
+						"participant",
+						"create"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

@@ -25,6 +25,8 @@ class Address extends Base
 
     public $country = 840;
 
+    public $country_code;
+
     public function hydrate(array $shipping)
     {
         $this->exchange($shipping);
@@ -175,4 +177,21 @@ class Address extends Base
     {
         $this->country = $country;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getCountryCode()
+    {
+        return $this->country_code;
+    }
+
+    /**
+     * @param mixed $country_code
+     */
+    public function setCountryCode($country_code): void
+    {
+        $this->country_code = $country_code;
+    }
+
 }
