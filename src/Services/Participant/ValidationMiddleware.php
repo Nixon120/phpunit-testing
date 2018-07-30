@@ -2,6 +2,7 @@
 namespace Services\Participant;
 
 use Particle\Validator\Exception\InvalidValueException;
+use Particle\Validator\Rule\Alpha;
 use Particle\Validator\Rule\Datetime;
 use Particle\Validator\Rule\Email;
 use Particle\Validator\Rule\Equal;
@@ -10,6 +11,7 @@ use Particle\Validator\Rule\NotEmpty;
 use Particle\Validator\Rule\Regex;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Particle\Validator\Rule\Length;
 use Services\Authentication\Authenticate;
 use Slim\Http\Request;
 use Slim\Http\Response;
@@ -168,6 +170,11 @@ class ValidationMiddleware
             'password_confirm' => [
                 Equal::NOT_EQUAL => _('Password confirm must match password')
             ],
+            'address.country_code' => [
+                Alpha::NOT_ALPHA => _('Country Code must only consist out of alphabetic characters'),
+                Length::TOO_LONG => _('Country Code is too long and must be 2 characters long'),
+                Length::TOO_SHORT => _('Country Code is too short and must be 2 characters long')
+            ],
         ];
 
         $this->validator->overwriteMessages($this->validationMessages);
@@ -211,6 +218,7 @@ class ValidationMiddleware
             $context->optional('email_address')->allowEmpty(false)->email();
             $context->optional('birthdate')->datetime('Y-m-d');
             $context->optional('password_confirm')->equals($this->input['password']);
+            $context->optional('address.country_code')->alpha(false)->length(2);
         });
     }
 
