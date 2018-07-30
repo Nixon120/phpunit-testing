@@ -358,6 +358,7 @@ SQL;
             ->attribute('unique_id', Validator::notEmpty()->alnum('_ -')->noWhitespace()->setName('Unique Id'))
             ->attribute('organization_id', Validator::notEmpty()->setName('Organization'))
             ->attribute('deposit_amount', Validator::optional(Validator::numeric()->setName('Deposit')))
+            ->attribute('low_level_deposit', Validator::optional(Validator::numeric()->setName('LowLevelDeposit')))
             ->attribute(
                 'cost_center_id',
                 Validator::optional(Validator::notEmpty()->length(1, 45)->setName('Cost Center'))

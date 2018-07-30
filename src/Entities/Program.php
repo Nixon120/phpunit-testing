@@ -74,6 +74,8 @@ class Program extends Base
 
     public $deposit_amount = 0;
 
+    public $low_level_deposit = 0;
+
     public $issue_1099 = 0;
 
     public $employee_payroll_file = 0;
@@ -586,6 +588,30 @@ class Program extends Base
 
         if (empty($deposit_amount)) {
             $this->deposit_amount = 0;
+        }
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLowLevelDeposit(): int
+    {
+        if (is_null($this->low_level_deposit)) {
+            return 0;
+        }
+
+        return $this->low_level_deposit;
+    }
+
+    /**
+     * @param int $low_level_deposit
+     */
+    public function setLowLevelDeposit(int $low_level_deposit)
+    {
+        $this->low_level_deposit = $low_level_deposit;
+
+        if (empty($low_level_deposit)) {
+            $this->low_level_deposit = 0;
         }
     }
 
