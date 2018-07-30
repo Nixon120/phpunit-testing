@@ -15,8 +15,8 @@ class Transaction extends AbstractReport
 
         $this->setFieldMap([
             'Organization.name as organization_name' => 'Organization Name',
-            'Program.unique_id as program_uuid' => 'Program UUID',
-            'Program.name as program_name' => 'Program',
+            'Program.unique_id as program_uuid' => 'Program ID',
+            'Program.name as program_name' => 'Program Name',
             'Adjustment.created_at' => 'Date',
             'Adjustment.id as `Adjustment ID`' => 'Adjustment ID',
             'Transaction.id as `Transaction ID`' => 'Transaction ID',
@@ -32,9 +32,9 @@ class Transaction extends AbstractReport
             'Participant.phone' => 'Phone',
             'Participant.email_address' => 'Email Address',
             'TransactionProduct.category as `Reward Type`' => 'Reward Type',
-            'TransactionItem.quantity' => 'Item Qty', # Ordered quantity
-            'TransactionProduct.vendor_code' => 'Item SKU', # Ordered SKU
-            'TransactionProduct.name' => 'Item Description', # Item Description
+            'TransactionItem.quantity' => 'Item Qty',
+            'TransactionProduct.vendor_code' => 'Item SKU',
+            'TransactionProduct.name' => 'Item Description',
             '((TransactionProduct.retail + IFNULL(TransactionProduct.shipping,0) + IFNULL(TransactionProduct.handling,0)) * TransactionItem.quantity) as Total' => 'Total'
         ]);
     }

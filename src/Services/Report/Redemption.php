@@ -15,10 +15,10 @@ class Redemption extends AbstractReport
 
         $this->setFieldMap([
             'Organization.name as organization_name' => 'Organization Name',
-            'Program.unique_id as program_uuid' => 'Program UUID', #Portal ID
-            'Program.name as program_name' => 'Program', #Portal name
-            'Transaction.created_at' => 'Date', # Order Date
-            'Transaction.id' => 'Transaction ID', # Order ID
+            'Program.unique_id as program_uuid' => 'Program ID',
+            'Program.name as program_name' => 'Program Name',
+            'Transaction.created_at' => 'Date',
+            'Transaction.id' => 'Transaction ID',
             'Participant.unique_id' => 'Participant ID',
             'Address.firstname' => 'First Name',
             'Address.lastname' => 'Last Name',
@@ -28,9 +28,9 @@ class Redemption extends AbstractReport
             'Address.state' => 'State',
             'Address.zip' => 'Zip',
             'Participant.phone' => 'Phone',
-            'TransactionItem.quantity' => 'Item Qty', # Ordered quantity
-            'TransactionProduct.vendor_code' => 'Item SKU', # Ordered SKU
-            'TransactionProduct.name' => 'Item Description', # Item Description,
+            'TransactionItem.quantity' => 'Item Qty',
+            'TransactionProduct.vendor_code' => 'Item SKU',
+            'TransactionProduct.name' => 'Item Description',
             '((TransactionProduct.retail + IFNULL(TransactionProduct.shipping,0) + IFNULL(TransactionProduct.handling,0)) * TransactionItem.quantity) as Total' => 'Total'
         ]);
     }
