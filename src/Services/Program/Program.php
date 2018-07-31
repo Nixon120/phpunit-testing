@@ -147,6 +147,11 @@ class Program
             $this->contactRepository->place($this->program->getContact());
         }
 
+        if ($this->program->hasAccountingContact()) {
+            // Save the Contact
+            $this->contactRepository->place($this->program->getAccountingContact());
+        }
+
         if ($this->repository->update($this->program->getId(), $this->program->toArray())) {
             if ($this->program->getAutoRedemption()) {
                 $autoRedemption = $this->program->getAutoRedemption();
