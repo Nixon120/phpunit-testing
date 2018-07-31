@@ -49,4 +49,33 @@ WHERE 1=1
 SQL;
         return $this->fetchDataForReport($query, $this->getFilter()->getFilterConditionArgs());
     }
+
+    public function getReportMetaFields(): array
+    {
+        $organization = $this->getFilter()->getInput()['organization'] ?? null;
+        $program = $this->getFilter()->getInput()['program'] ?? null;
+        $args = [];
+
+        $query = <<<SQL
+SELECT DISTINCT `key` FROM `ParticipantMeta` 
+JOIN `Participant` ON `ParticipantMeta`.participant_id = `Participant`.id 
+JOIN `Organization` ON Organization.id = `Participant`.organization_id 
+JOIN `Program` ON `Program`.id = `Participant`.program_id 
+LEFT JOIN `Address` ON `Participant`.address_reference = `Address`.reference_id 
+  AND Participant.id = Address.participant_id 
+WHERE 1=1
+SQL;
+
+        if($organization !== null && $organization !== '') {
+            $query .= " AND `Organization`.`unique_id` = ?";
+            $args[] = $organization;
+        }
+
+        if($program !== null && $program !== '') {
+            $query .= " AND `Program`.`unique_id` = ?";
+            $args[] = $program;
+        }
+
+        return $this->fetchMetaForReport($query, $args);
+    }
 }

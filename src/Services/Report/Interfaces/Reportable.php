@@ -15,6 +15,8 @@ interface Reportable
 
     public function getReportData(): ReportDataResponse;
 
+    public function getReportMetaFields(): array;
+
     public function getReportHeaders();
 
     public function setFilter(FilterNormalizer $filter);

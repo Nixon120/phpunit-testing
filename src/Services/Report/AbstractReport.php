@@ -216,6 +216,24 @@ abstract class AbstractReport implements Reportable
 
         return $reportData;
     }
+    /**
+     * @param $query
+     * @param $args
+     * @return array
+     */
+    protected function fetchMetaForReport($query, $args): array
+    {
+        $sth = $this->getFactory()->getDatabase()->prepare($query);
+        $sth->execute($args);
+
+        $fields = $sth->fetchAll();
+
+        if(empty($fields)) {
+            return [];
+        }
+
+        return $fields;
+    }
 
     /**
      * @param InputNormalizer $input
@@ -244,9 +262,17 @@ abstract class AbstractReport implements Reportable
     /**
      * @return array
      */
-    public function getReportData(): ReportDataResponse
+    public function getReportMetaFields(): array
     {
         return [];
+    }
+
+    /**
+     * @return ReportDataResponse
+     */
+    public function getReportData(): ReportDataResponse
+    {
+        return new ReportDataResponse();
     }
 
     /**
