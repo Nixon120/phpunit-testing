@@ -37,6 +37,8 @@ class Enrollment extends AbstractReport
     public function getReportData(): ReportDataResponse
     {
         $selection = implode(', ', $this->getFields());
+print_r($selection);die();
+        $selection .= $this->buildMetaSelectionQuery();
 
         $query = <<<SQL
 SELECT SQL_CALC_FOUND_ROWS {$selection} FROM `Participant` 
@@ -50,32 +52,42 @@ SQL;
         return $this->fetchDataForReport($query, $this->getFilter()->getFilterConditionArgs());
     }
 
+    private function buildMetaSelectionQuery(): string
+    {
+        $meta = $this->getRequestedMetaFields();
+        $sql = '';
+
+        if(!empty($meta['participant'])) {
+            //@TODO MAKE SURE META MATCHES AVAILABLE REPORT META..
+            //or else, room for SQL injection.
+            $sql .= ',';
+            foreach($meta['participant'] as $key) {
+                $sql .= <<<SQL
+(
+SELECT `value` 
+FROM `ParticipantMeta` meta 
+WHERE `key` = '{$key}' 
+  AND meta.participant_id = Participant.id
+) as {$key}
+SQL;
+                $sql .= ',';
+            }
+        }
+
+        return rtrim($sql, ',');
+    }
+
     public function getReportMetaFields(): array
     {
-        $organization = $this->getFilter()->getInput()['organization'] ?? null;
-        $program = $this->getFilter()->getInput()['program'] ?? null;
-        $args = [];
-
-        $query = <<<SQL
-SELECT DISTINCT `key` FROM `ParticipantMeta` 
-JOIN `Participant` ON `ParticipantMeta`.participant_id = `Participant`.id 
-JOIN `Organization` ON Organization.id = `Participant`.organization_id 
-JOIN `Program` ON `Program`.id = `Participant`.program_id 
-LEFT JOIN `Address` ON `Participant`.address_reference = `Address`.reference_id 
-  AND Participant.id = Address.participant_id 
-WHERE 1=1
-SQL;
-
-        if($organization !== null && $organization !== '') {
-            $query .= " AND `Organization`.`unique_id` = ?";
-            $args[] = $organization;
+        try {
+            $meta = [
+                'participant' => $this->getMetaFields('participant')
+            ];
+        } catch(\Exception $e) {
+            // Log failure
+            $meta = [];
         }
 
-        if($program !== null && $program !== '') {
-            $query .= " AND `Program`.`unique_id` = ?";
-            $args[] = $program;
-        }
-
-        return $this->fetchMetaForReport($query, $args);
+        return $meta;
     }
 }

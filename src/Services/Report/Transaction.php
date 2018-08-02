@@ -59,4 +59,19 @@ SQL;
 
         return $this->fetchDataForReport($query, $this->getFilter()->getFilterConditionArgs());
     }
+
+    public function getReportMetaFields(): array
+    {
+        try {
+            $meta = [
+                'transaction' => $this->getMetaFields('transaction'),
+                'participant' => $this->getMetaFields('participant')
+            ];
+        } catch(\Exception $e) {
+            // Log failure
+            $meta = [];
+        }
+
+        return $meta;
+    }
 }
