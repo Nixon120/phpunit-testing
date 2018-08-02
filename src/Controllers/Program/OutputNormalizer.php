@@ -94,6 +94,7 @@ class OutputNormalizer extends AbstractOutputNormalizer
         foreach ($rows as $row) {
             $cardContainer[] = [
                 'label' => $row->getLabel(),
+                'priority' => $row->getPriority(),
                 'cards' => $this->scrubList($row->getCards(), [
                     'id',
                     'created_at',
