@@ -57,6 +57,93 @@ class TransactionReportTest extends AbstractReportTest
         $this->assertEquals(2, $report->getReportClassification());
     }
 
+    public function testGetReportMetaFields()
+    {
+        $report = $this->getReportService();
+        $filterNormalizer = new \Services\Report\ReportFilterNormalizer([
+            'organization' => 'alldigitalrewards',
+            'program' => 'alldigitalrewards'
+        ]);
+        $inputNormalizer = new \Controllers\Report\InputNormalizer([
+            'meta' => [
+                'participant' => [
+                    'yep'
+                ],
+                'transaction' => [
+                    'yolo'
+                ]
+            ]
+        ]);
+        $report->setFilter($filterNormalizer);
+        $report->setInputNormalizer($inputNormalizer);
+
+        $sthMock = $this->getPdoStatementMock();
+
+        $this->getMockDatabase()
+            ->expects($this->exactly(2))
+            ->method('prepare')
+            ->with($this->isType('string'))
+            ->will($this->returnValue($sthMock));
+
+        $sthMock->expects($this->exactly(2))
+            ->method('execute')
+            ->with($this->isType('array'));
+
+        $sthMock->expects($this->exactly(2))
+            ->method('fetchAll')
+            ->willReturnOnConsecutiveCalls([['key' => 'yolo']], [['key' => 'yep']]);
+
+        $this->getMockServiceFactory()
+            ->expects($this->exactly(2))
+            ->method('getDatabase')
+            ->willReturn($this->getMockDatabase());
+
+        $expected = [
+            'transaction' => ['yolo'],
+            'participant' => ['yep']
+        ];
+
+        $this->assertEquals($expected, $report->getReportMetaFields());
+    }
+
+    public function testGetReportMetaFieldsWhereNoneExist()
+    {
+        $report = $this->getReportService();
+        $filterNormalizer = new \Services\Report\ReportFilterNormalizer([
+            'organization' => 'alldigitalrewards',
+            'program' => 'alldigitalrewards',
+        ]);
+        $report->setFilter($filterNormalizer);
+
+        $sthMock = $this->getPdoStatementMock();
+
+        $this->getMockDatabase()
+            ->expects($this->exactly(2))
+            ->method('prepare')
+            ->with($this->isType('string'))
+            ->will($this->returnValue($sthMock));
+
+        $sthMock->expects($this->exactly(2))
+            ->method('execute')
+            ->with($this->isType('array'));
+
+        $sthMock->expects($this->exactly(2))
+            ->method('fetchAll')
+            ->willReturnOnConsecutiveCalls(false, false);
+
+        $this->getMockServiceFactory()
+            ->expects($this->exactly(2))
+            ->method('getDatabase')
+            ->willReturn($this->getMockDatabase());
+
+        $expected = [
+            'transaction' => [],
+            'participant' => []
+        ];
+
+        $this->assertEquals($expected, $report->getReportMetaFields());
+    }
+
     public function testGetReportData()
     {
         $sthMock = $this->getPdoStatementMock();
