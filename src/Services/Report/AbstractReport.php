@@ -1,5 +1,4 @@
 <?php
-
 namespace Services\Report;
 
 use AllDigitalRewards\RewardStack\Services\Report\ReportDataResponse;
@@ -353,17 +352,17 @@ abstract class AbstractReport implements Reportable
             $headers[] = $map[$field];
         }
 
-        foreach($this->getRequestedMetaFields() as $type => $typeHeaders) {
+        foreach ($this->getRequestedMetaFields() as $type => $typeHeaders) {
             //Participant is available on basically every report
             //Transaction is only available on two reports so far.
-            if($type === 'transaction' && in_array($this->getReportClassification(), [2, 3]) === false) {
+            if ($type === 'transaction' && in_array($this->getReportClassification(), [2, 3]) === false) {
                 continue;
             }
 
             $available = $this->getMetaFields($type);
-            foreach($typeHeaders as $head) {
+            foreach ($typeHeaders as $head) {
                 //is this a legit meta field ?
-                if(in_array($head, $available)) {
+                if (in_array($head, $available)) {
                     $headers[] = ucfirst($head);
                 }
             }
