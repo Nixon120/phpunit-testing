@@ -49,7 +49,7 @@ SQL;
             $meta = [
                 'participant' => $this->getMetaFields('participant')
             ];
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             // Log failure
             $meta = [];
         }
