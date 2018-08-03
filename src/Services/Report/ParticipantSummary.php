@@ -27,6 +27,7 @@ class ParticipantSummary extends AbstractReport
     public function getReportData(): ReportDataResponse
     {
         $selection = implode(', ', $this->getFields());
+        $selection .= $this->getMetaSelectionSql();
 
         $query = <<<SQL
 SELECT SQL_CALC_FOUND_ROWS {$selection}
@@ -39,5 +40,20 @@ GROUP BY Program.unique_id, Program.name
 SQL;
 
         return $this->fetchDataForReport($query, $this->getFilter()->getFilterConditionArgs());
+    }
+
+
+    public function getReportMetaFields(): array
+    {
+        try {
+            $meta = [
+                'participant' => $this->getAvailableMetaFields('participant')
+            ];
+        } catch (\Exception $e) {
+            // Log failure
+            $meta = [];
+        }
+
+        return $meta;
     }
 }

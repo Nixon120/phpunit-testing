@@ -48,13 +48,11 @@ class ReportFilterNormalizer extends AbstractFilterNormalizer
 
     public function getProcessedFilter($value)
     {
-        $string = "";
-
         if ($value !== "") {
-            $string = "`Report`.`processed` = ?";
+            return "`Report`.`processed` = ?";
         }
 
-        return $string;
+        return false;
     }
 
     public function getProcessedFilterArgs($value)

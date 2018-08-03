@@ -224,4 +224,41 @@ class EnrollmentReportTest extends AbstractReportTest
         $report->setInputNormalizer($inputNormalizer);
         $this->assertSame($oReport, $report->request());
     }
+
+    public function testGetReportMetaFields()
+    {
+        $report = $this->getReportService();
+        $filterNormalizer = new \Services\Report\ReportFilterNormalizer([
+            'organization' => 'alldigitalrewards',
+            'program' => 'alldigitalrewards'
+        ]);
+        $report->setFilter($filterNormalizer);
+
+        $sthMock = $this->getPdoStatementMock();
+
+        $this->getMockDatabase()
+            ->expects($this->exactly(1))
+            ->method('prepare')
+            ->with($this->isType('string'))
+            ->will($this->returnValue($sthMock));
+
+        $sthMock->expects($this->exactly(1))
+            ->method('execute')
+            ->with($this->isType('array'));
+
+        $sthMock->expects($this->exactly(1))
+            ->method('fetchAll')
+            ->willReturnOnConsecutiveCalls([['key' => 'yep']]);
+
+        $this->getMockServiceFactory()
+            ->expects($this->exactly(1))
+            ->method('getDatabase')
+            ->willReturn($this->getMockDatabase());
+
+        $expected = [
+            'participant' => ['yep']
+        ];
+
+        $this->assertEquals($expected, $report->getReportMetaFields());
+    }
 }

@@ -108,7 +108,13 @@ class InputNormalizer extends AbstractInputNormalizer
     public function getRequestedFields()
     {
         $input = $this->getInput();
-        return $input['fields'];
+        return $input['fields'] ?? [];
+    }
+
+    public function getMetaFields()
+    {
+        $input = $this->getInput();
+        return $input['meta'] ?? [];
     }
 
     public function getReportOutput()

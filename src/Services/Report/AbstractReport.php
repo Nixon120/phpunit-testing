@@ -32,6 +32,11 @@ abstract class AbstractReport implements Reportable
     private $fields = [];
 
     /**
+     * @var array
+     */
+    private $requestedMetaFields = [];
+
+    /**
      * offset for html reports
      *
      * @var int
@@ -97,6 +102,22 @@ abstract class AbstractReport implements Reportable
     public function getFields(): array
     {
         return $this->fields;
+    }
+
+    /**
+     * @return array
+     */
+    public function getRequestedMetaFields(): array
+    {
+        return $this->requestedMetaFields;
+    }
+
+    /**
+     * @param array $meta
+     */
+    public function setRequestedMetaFields(array $meta): void
+    {
+        $this->requestedMetaFields = $meta;
     }
 
     /**
@@ -218,6 +239,36 @@ abstract class AbstractReport implements Reportable
     }
 
     /**
+     * @param $query
+     * @param $args
+     * @return array
+     */
+    protected function fetchMetaForReport($query, $args): array
+    {
+        $sth = $this->getFactory()->getDatabase()->prepare($query);
+        $sth->execute($args);
+
+        $fields = $sth->fetchAll();
+
+        if (empty($fields)) {
+            return [];
+        }
+
+        return $this->normalizeMetaFields($fields);
+    }
+
+    private function normalizeMetaFields(array $fields): array
+    {
+        $container = [];
+
+        foreach ($fields as $field) {
+            array_push($container, $field['key']);
+        }
+
+        return $container;
+    }
+
+    /**
      * @param InputNormalizer $input
      * @return bool
      */
@@ -226,6 +277,7 @@ abstract class AbstractReport implements Reportable
         try {
             $this->input = $input;
             $this->mapFieldsFromInput();
+            $this->mapMetaFromInput();
         } catch (\Exception $e) {
             return false;
         }
@@ -244,9 +296,17 @@ abstract class AbstractReport implements Reportable
     /**
      * @return array
      */
-    public function getReportData(): ReportDataResponse
+    public function getReportMetaFields(): array
     {
         return [];
+    }
+
+    /**
+     * @return ReportDataResponse
+     */
+    public function getReportData(): ReportDataResponse
+    {
+        return new ReportDataResponse();
     }
 
     /**
@@ -267,6 +327,21 @@ abstract class AbstractReport implements Reportable
     }
 
     /**
+     * @throws \Exception
+     */
+    public function mapMetaFromInput()
+    {
+        $metadata = $this->getInputNormalizer()->getMetaFields();
+        $metaContainer = [];
+
+        foreach ($metadata as $type => $meta) {
+            $metaContainer[$type] = $meta;
+        }
+
+        $this->setRequestedMetaFields($metaContainer);
+    }
+
+    /**
      * @return array
      */
     public function getReportHeaders(): array
@@ -277,7 +352,77 @@ abstract class AbstractReport implements Reportable
             $headers[] = $map[$field];
         }
 
+        foreach ($this->getRequestedMetaFields() as $type => $typeHeaders) {
+            //Participant is available on basically every report
+            //Transaction is only available on two reports so far.
+            if ($type === 'transaction' && in_array($this->getReportClassification(), [2, 3]) === false) {
+                continue;
+            }
+
+            $available = $this->getAvailableMetaFields($type);
+            foreach ($typeHeaders as $head) {
+                //is this a legit meta field ?
+                if (in_array($head, $available)) {
+                    $headers[] = ucfirst($head);
+                }
+            }
+        }
+
         return $headers;
+    }
+
+    public function getMetaSelectionSql(): string
+    {
+        return $this->getParticipantMetaSelectionSql() . $this->getTransactionMetaSelectionSql();
+    }
+
+    private function getParticipantMetaSelectionSql(): string
+    {
+        $meta = $this->getRequestedMetaFields();
+        $sql = '';
+
+        if (!empty($meta['participant'])) {
+            $sql .= ',';
+            foreach ($meta['participant'] as $key) {
+                $sql .= <<<SQL
+(
+SELECT `value` 
+FROM `ParticipantMeta` meta 
+WHERE `key` = '{$key}'  -- pass key via arg
+  AND meta.participant_id = Participant.id
+) as {$key}
+SQL;
+                $sql .= ',';
+            }
+        }
+
+
+        return rtrim($sql, ',');
+    }
+
+    private function getTransactionMetaSelectionSql(): string
+    {
+        $meta = $this->getRequestedMetaFields();
+        $sql = '';
+
+        if (!empty($meta['transaction']) && in_array($this->getReportClassification(), [2, 3]) === true) {
+            //@TODO MAKE SURE META MATCHES AVAILABLE REPORT META..
+            //or else, room for SQL injection.
+            $sql .= ',';
+            foreach ($meta['transaction'] as $key) {
+                $sql .= <<<SQL
+(
+SELECT `value` 
+FROM `TransactionMeta` meta 
+WHERE `key` = '{$key}'  -- pass key via arg 
+  AND meta.transaction_id = Transaction.id
+) as {$key}
+SQL;
+                $sql .= ',';
+            }
+        }
+
+        return rtrim($sql, ',');
     }
 
     /**
@@ -328,5 +473,65 @@ abstract class AbstractReport implements Reportable
         $sth = $this->getFactory()->getDatabase()->prepare($query);
         $sth->execute([]);
         return $sth->fetchColumn();
+    }
+
+    private function getTransactionMetaKeySql()
+    {
+        return <<<SQL
+SELECT DISTINCT `key` FROM `TransactionMeta` 
+JOIN `Transaction` ON `Transaction`.id = `TransactionMeta`.transaction_id 
+JOIN `Participant` ON `Transaction`.participant_id = `Participant`.id 
+JOIN `Program` ON `Program`.id = `Participant`.program_id 
+JOIN `Organization` ON `Organization`.id = `Participant`.organization_id 
+WHERE 1=1 
+SQL;
+    }
+
+    private function getParticipantMetaKeySql()
+    {
+        return <<<SQL
+SELECT DISTINCT `key` FROM `ParticipantMeta` 
+JOIN `Participant` ON `ParticipantMeta`.participant_id = `Participant`.id 
+JOIN `Organization` ON Organization.id = `Participant`.organization_id 
+JOIN `Program` ON `Program`.id = `Participant`.program_id 
+LEFT JOIN `Address` ON `Participant`.address_reference = `Address`.reference_id 
+  AND Participant.id = Address.participant_id 
+WHERE 1=1
+SQL;
+    }
+
+    /**
+     * @param $set
+     * @return array
+     * @throws \Exception
+     */
+    public function getAvailableMetaFields($set): array
+    {
+        $organization = $this->getFilter()->getInput()['organization'] ?? null;
+        $program = $this->getFilter()->getInput()['program'] ?? null;
+        $args = [];
+
+        switch ($set) {
+            case 'participant':
+                $query = $this->getParticipantMetaKeySql();
+                break;
+            case 'transaction':
+                $query = $this->getTransactionMetaKeySql();
+                break;
+            default:
+                throw new \Exception('Invalid meta specification on field key query');
+        }
+
+        if ($organization !== null && $organization !== '') {
+            $query .= " AND `Organization`.`unique_id` = ?";
+            $args[] = $organization;
+        }
+
+        if ($program !== null && $program !== '') {
+            $query .= " AND `Program`.`unique_id` = ?";
+            $args[] = $program;
+        }
+
+        return $this->fetchMetaForReport($query, $args);
     }
 }

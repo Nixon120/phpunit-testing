@@ -42,6 +42,8 @@ class Transaction extends AbstractReport
     public function getReportData(): ReportDataResponse
     {
         $selection = implode(', ', $this->getFields());
+        $selection .= $this->getMetaSelectionSql();
+
         $query = <<<SQL
 SELECT SQL_CALC_FOUND_ROWS {$selection} 
 FROM `TransactionItem`
@@ -58,5 +60,20 @@ WHERE 1=1
 SQL;
 
         return $this->fetchDataForReport($query, $this->getFilter()->getFilterConditionArgs());
+    }
+
+    public function getReportMetaFields(): array
+    {
+        try {
+            $meta = [
+                'transaction' => $this->getAvailableMetaFields('transaction'),
+                'participant' => $this->getAvailableMetaFields('participant')
+            ];
+        } catch (\Exception $e) {
+            // Log failure
+            $meta = [];
+        }
+
+        return $meta;
     }
 }

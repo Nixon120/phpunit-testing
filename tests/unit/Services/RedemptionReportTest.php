@@ -97,4 +97,41 @@ class RedemptionReportTest extends AbstractReportTest
         $this->assertInstanceOf(ReportDataResponse::class, $reportResponse);
         $this->assertSame(35,$reportResponse->getTotalRecords());
     }
+
+    public function testGetReportMetaFields()
+    {
+        $report = $this->getReportService();
+        $filterNormalizer = new \Services\Report\ReportFilterNormalizer([
+            'organization' => 'alldigitalrewards',
+            'program' => 'alldigitalrewards'
+        ]);
+        $report->setFilter($filterNormalizer);
+        $sthMock = $this->getPdoStatementMock();
+
+        $this->getMockDatabase()
+            ->expects($this->exactly(2))
+            ->method('prepare')
+            ->with($this->isType('string'))
+            ->will($this->returnValue($sthMock));
+
+        $sthMock->expects($this->exactly(2))
+            ->method('execute')
+            ->with($this->isType('array'));
+
+        $sthMock->expects($this->exactly(2))
+            ->method('fetchAll')
+            ->willReturnOnConsecutiveCalls([['key' => 'yolo']], [['key' => 'yep']]);
+
+        $this->getMockServiceFactory()
+            ->expects($this->exactly(2))
+            ->method('getDatabase')
+            ->willReturn($this->getMockDatabase());
+
+        $expected = [
+            'transaction' => ['yolo'],
+            'participant' => ['yep']
+        ];
+
+        $this->assertEquals($expected, $report->getReportMetaFields());
+    }
 }

@@ -33,6 +33,7 @@ class PointBalance extends AbstractReport
     public function getReportData(): ReportDataResponse
     {
         $selection = implode(', ', $this->getFields());
+        $selection .= $this->getMetaSelectionSql();
 
         $query = "SELECT SQL_CALC_FOUND_ROWS {$selection} FROM `Participant` "
             . "JOIN `Program` ON `Program`.id = `Participant`.program_id "
@@ -43,5 +44,19 @@ class PointBalance extends AbstractReport
             . $this->getFilter()->getFilterConditionSql();
 
         return $this->fetchDataForReport($query, $this->getFilter()->getFilterConditionArgs());
+    }
+
+    public function getReportMetaFields(): array
+    {
+        try {
+            $meta = [
+                'participant' => $this->getAvailableMetaFields('participant')
+            ];
+        } catch (\Exception $e) {
+            // Log failure
+            $meta = [];
+        }
+
+        return $meta;
     }
 }
