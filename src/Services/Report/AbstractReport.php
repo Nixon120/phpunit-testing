@@ -230,11 +230,9 @@ abstract class AbstractReport implements Reportable
             $query .= " LIMIT " . self::RESULT_COUNT . " OFFSET " . $this->offset;
         }
 
-        print_r($query);
-        print_r($args);
         $sth = $this->getFactory()->getDatabase()->prepare($query);
         $sth->execute($args);
-//die();
+
         $reportData->setReportData($sth->fetchAll());
         $reportData->setTotalRecords($this->getFoundRows());
 
@@ -356,8 +354,15 @@ abstract class AbstractReport implements Reportable
         }
 
         foreach($this->getRequestedMetaFields() as $type => $typeHeaders) {
+            //Participant is available on basically every report
+            //Transaction is only available on two reports so far.
+            if($type === 'transaction' && in_array($this->getReportClassification(), [2, 3]) === false) {
+                continue;
+            }
+
             $available = $this->getMetaFields($type);
             foreach($typeHeaders as $head) {
+                //is this a legit meta field ?
                 if(in_array($head, $available)) {
                     $headers[] = ucfirst($head);
                 }
@@ -365,6 +370,60 @@ abstract class AbstractReport implements Reportable
         }
 
         return $headers;
+    }
+
+    public function getMetaSelectionSql(): string
+    {
+        return $this->getParticipantMetaSelectionSql() . $this->getTransactionMetaSelectionSql();
+    }
+
+    private function getParticipantMetaSelectionSql(): string
+    {
+        $meta = $this->getRequestedMetaFields();
+        $sql = '';
+
+        if (!empty($meta['participant'])) {
+            $sql .= ',';
+            foreach ($meta['participant'] as $key) {
+                $sql .= <<<SQL
+(
+SELECT `value` 
+FROM `ParticipantMeta` meta 
+WHERE `key` = '{$key}'  -- pass key via arg
+  AND meta.participant_id = Participant.id
+) as {$key}
+SQL;
+                $sql .= ',';
+            }
+        }
+
+
+        return rtrim($sql, ',');
+    }
+
+    private function getTransactionMetaSelectionSql(): string
+    {
+        $meta = $this->getRequestedMetaFields();
+        $sql = '';
+
+        if (!empty($meta['transaction']) && in_array($this->getReportClassification(), [2, 3]) === true) {
+            //@TODO MAKE SURE META MATCHES AVAILABLE REPORT META..
+            //or else, room for SQL injection.
+            $sql .= ',';
+            foreach ($meta['transaction'] as $key) {
+                $sql .= <<<SQL
+(
+SELECT `value` 
+FROM `TransactionMeta` meta 
+WHERE `key` = '{$key}'  -- pass key via arg 
+  AND meta.transaction_id = Transaction.id
+) as {$key}
+SQL;
+                $sql .= ',';
+            }
+        }
+
+        return rtrim($sql, ',');
     }
 
     /**

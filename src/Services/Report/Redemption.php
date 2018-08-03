@@ -38,6 +38,7 @@ class Redemption extends AbstractReport
     public function getReportData(): ReportDataResponse
     {
         $selection = implode(', ', $this->getFields());
+        $selection .= $this->getMetaSelectionSql();
 
         $query = "SELECT SQL_CALC_FOUND_ROWS {$selection} FROM `TransactionItem` "
             . "JOIN `Transaction` ON `Transaction`.id = `TransactionItem`.transaction_id "

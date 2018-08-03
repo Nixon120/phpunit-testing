@@ -42,6 +42,8 @@ class Transaction extends AbstractReport
     public function getReportData(): ReportDataResponse
     {
         $selection = implode(', ', $this->getFields());
+        $selection .= $this->getMetaSelectionSql();
+
         $query = <<<SQL
 SELECT SQL_CALC_FOUND_ROWS {$selection} 
 FROM `TransactionItem`

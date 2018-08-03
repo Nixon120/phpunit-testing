@@ -37,8 +37,7 @@ class Enrollment extends AbstractReport
     public function getReportData(): ReportDataResponse
     {
         $selection = implode(', ', $this->getFields());
-print_r($selection);die();
-        $selection .= $this->buildMetaSelectionQuery();
+        $selection .= $this->getMetaSelectionSql();
 
         $query = <<<SQL
 SELECT SQL_CALC_FOUND_ROWS {$selection} FROM `Participant` 
@@ -52,30 +51,6 @@ SQL;
         return $this->fetchDataForReport($query, $this->getFilter()->getFilterConditionArgs());
     }
 
-    private function buildMetaSelectionQuery(): string
-    {
-        $meta = $this->getRequestedMetaFields();
-        $sql = '';
-
-        if(!empty($meta['participant'])) {
-            //@TODO MAKE SURE META MATCHES AVAILABLE REPORT META..
-            //or else, room for SQL injection.
-            $sql .= ',';
-            foreach($meta['participant'] as $key) {
-                $sql .= <<<SQL
-(
-SELECT `value` 
-FROM `ParticipantMeta` meta 
-WHERE `key` = '{$key}' 
-  AND meta.participant_id = Participant.id
-) as {$key}
-SQL;
-                $sql .= ',';
-            }
-        }
-
-        return rtrim($sql, ',');
-    }
 
     public function getReportMetaFields(): array
     {
@@ -83,7 +58,7 @@ SQL;
             $meta = [
                 'participant' => $this->getMetaFields('participant')
             ];
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             // Log failure
             $meta = [];
         }

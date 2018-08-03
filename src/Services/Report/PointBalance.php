@@ -33,6 +33,7 @@ class PointBalance extends AbstractReport
     public function getReportData(): ReportDataResponse
     {
         $selection = implode(', ', $this->getFields());
+        $selection .= $this->getMetaSelectionSql();
 
         $query = "SELECT SQL_CALC_FOUND_ROWS {$selection} FROM `Participant` "
             . "JOIN `Program` ON `Program`.id = `Participant`.program_id "
