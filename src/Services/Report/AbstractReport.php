@@ -390,7 +390,7 @@ SELECT `value`
 FROM `ParticipantMeta` meta 
 WHERE `key` = '{$key}'  -- pass key via arg
   AND meta.participant_id = Participant.id
-) as {$key}
+) as `{$key}`
 SQL;
                 $sql .= ',';
             }
