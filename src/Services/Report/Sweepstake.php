@@ -52,7 +52,7 @@ SQL;
     {
         try {
             $meta = [
-                'participant' => $this->getMetaFields('participant')
+                'participant' => $this->getAvailableMetaFields('participant')
             ];
         } catch (\Exception $e) {
             // Log failure

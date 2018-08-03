@@ -359,7 +359,7 @@ abstract class AbstractReport implements Reportable
                 continue;
             }
 
-            $available = $this->getMetaFields($type);
+            $available = $this->getAvailableMetaFields($type);
             foreach ($typeHeaders as $head) {
                 //is this a legit meta field ?
                 if (in_array($head, $available)) {
@@ -505,7 +505,7 @@ SQL;
      * @return array
      * @throws \Exception
      */
-    public function getMetaFields($set): array
+    public function getAvailableMetaFields($set): array
     {
         $organization = $this->getFilter()->getInput()['organization'] ?? null;
         $program = $this->getFilter()->getInput()['program'] ?? null;

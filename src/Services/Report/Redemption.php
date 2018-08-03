@@ -58,8 +58,8 @@ class Redemption extends AbstractReport
     {
         try {
             $meta = [
-                'transaction' => $this->getMetaFields('transaction'),
-                'participant' => $this->getMetaFields('participant')
+                'transaction' => $this->getAvailableMetaFields('transaction'),
+                'participant' => $this->getAvailableMetaFields('participant')
             ];
         } catch (\Exception $e) {
             // Log failure
