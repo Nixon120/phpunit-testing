@@ -496,6 +496,7 @@ SQL;
             if (!empty($card['text_markdown'])) {
                 $textMarkdown = json_encode($card['text_markdown']);
             }
+
             $entity->setRowId($row->getId());
             $entity->setPriority($cardPriority);
             $entity->setType($card['type'] ?? 'image');
@@ -503,6 +504,7 @@ SQL;
             $entity->setProduct($card['product'] ?? null);
             $entity->setProductRow($productRow);
             $entity->setTextMarkdown($textMarkdown);
+            $entity->setIsloggedin($card['isloggedin']);
             $entity->setLink($card['link'] === null || trim($card['link']) === '' ? null : $card['link']);
 
             $this->table = 'LayoutRowCard';

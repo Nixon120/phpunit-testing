@@ -31,6 +31,8 @@ class LayoutRowCard extends Base
 
     public $text_markdown;
 
+    public $isloggedin;
+
     public function __construct()
     {
         parent::__construct();
@@ -206,6 +208,31 @@ class LayoutRowCard extends Base
     public function setTextMarkdown($text_markdown)
     {
         $this->text_markdown = $text_markdown;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsloggedin(): bool
+    {
+        if ($this->isloggedin === 1) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @param string|bool $isloggedin
+     */
+    public function setIsloggedin($isloggedin)
+    {
+        if (in_array($isloggedin, ['yes', true], true)) {
+            $this->isloggedin = 1;
+            return;
+        }
+
+        $this->isloggedin = 0;
     }
 
     private function mapImageExifType($url)
