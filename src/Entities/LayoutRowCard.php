@@ -29,6 +29,8 @@ class LayoutRowCard extends Base
 
     private $image_data;
 
+    public $text_markdown;
+
     public function __construct()
     {
         parent::__construct();
@@ -185,6 +187,25 @@ class LayoutRowCard extends Base
     public function setLink($link)
     {
         $this->link = $link;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTextMarkdown()
+    {
+        if (is_null($this->text_markdown)) {
+            return $this->text_markdown;
+        }
+        return json_decode($this->text_markdown);
+    }
+
+    /**
+     * @param mixed $text_markdown
+     */
+    public function setTextMarkdown($text_markdown)
+    {
+        $this->text_markdown = $text_markdown;
     }
 
     private function mapImageExifType($url)
