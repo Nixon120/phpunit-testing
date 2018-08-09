@@ -7,6 +7,8 @@ class SweepstakeEntry extends \Entities\Base
 
     public $sweepstake_draw_id;
 
+    public $sweepstake_alt_draw_id;
+
     public $participant_id;
 
     public $point;
@@ -72,5 +74,21 @@ class SweepstakeEntry extends \Entities\Base
     public function setPoint($point)
     {
         $this->point = $point;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getSweepstakeAltDrawId()
+    {
+        return $this->sweepstake_alt_draw_id;
+    }
+
+    /**
+     * @param mixed $sweepstake_alt_draw_id
+     */
+    public function setSweepstakeAltDrawId($sweepstake_alt_draw_id): void
+    {
+        $this->sweepstake_alt_draw_id = $sweepstake_alt_draw_id;
     }
 }
