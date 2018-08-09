@@ -190,6 +190,7 @@ class Sweepstake
                 $draw = new SweepstakeDraw;
                 $draw->setDate($date->format('Y-m-d'));
                 $draw->setDrawCount($data['draw_count'][$key]);
+                $draw->setAltEntry($data['draw_alt_entry'][$key]);
                 $drawingContainer[] = $draw;
             }
         }

@@ -165,6 +165,18 @@ SQL;
         $sth->execute($args);
 
         $sql = <<<SQL
+UPDATE SweepstakeEntry SET sweepstake_alt_draw_id = ? 
+WHERE sweepstake_id = ? 
+  AND DATE(SweepstakeEntry.created_at) >= ? AND DATE(SweepstakeEntry.created_at) <= ? 
+  AND SweepstakeEntry.sweepstake_draw_id IS NULL
+ORDER BY RAND() 
+LIMIT {$drawing->getAltEntry()}
+SQL;
+
+        $sth = $this->database->prepare($sql);
+        $sth->execute($args);
+
+        $sql = <<<SQL
 UPDATE SweepstakeDraw SET processed = 1 WHERE id = ?
 SQL;
         $args = [$drawing->getId()];
