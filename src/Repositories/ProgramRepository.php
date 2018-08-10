@@ -492,10 +492,9 @@ SQL;
             if (!empty($card['product_row'])) {
                 $productRow = json_encode($card['product_row']);
             }
-            $textMarkdown = null;
-            if (!empty($card['text_markdown'])) {
-                $textMarkdown = json_encode($card['text_markdown']);
-            }
+
+            $textMarkdown = $card['text_markdown'] ?? null;
+            
             $entity->setRowId($row->getId());
             $entity->setPriority($cardPriority);
             $entity->setType($card['type'] ?? 'image');
