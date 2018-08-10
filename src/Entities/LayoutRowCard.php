@@ -1,4 +1,5 @@
 <?php
+
 namespace Entities;
 
 use Entities\Traits\TimestampTrait;
@@ -31,7 +32,7 @@ class LayoutRowCard extends Base
 
     public $text_markdown;
 
-    public $isloggedin;
+    public $is_logged_in;
 
     public function __construct()
     {
@@ -67,7 +68,7 @@ class LayoutRowCard extends Base
      */
     public function getPriority()
     {
-        return (int) $this->priority;
+        return (int)$this->priority;
     }
 
     /**
@@ -133,7 +134,7 @@ class LayoutRowCard extends Base
                 $imageUrl = $this->cdnUrl . '/' . $this->getImage();
                 $image = file_get_contents($imageUrl);
                 $mime = $this->mapImageExifType($imageUrl);
-                $this->image_data = 'data:'.$mime.';base64,'.base64_encode($image);
+                $this->image_data = 'data:' . $mime . ';base64,' . base64_encode($image);
             }
         }
 
@@ -213,9 +214,9 @@ class LayoutRowCard extends Base
     /**
      * @return bool
      */
-    public function getIsloggedin(): bool
+    public function getIsLoggedIn(): bool
     {
-        if ($this->isloggedin === 1) {
+        if ($this->is_logged_in === 1) {
             return true;
         }
 
@@ -223,16 +224,16 @@ class LayoutRowCard extends Base
     }
 
     /**
-     * @param string|bool $isloggedin
+     * @param string|bool $is_logged_in
      */
-    public function setIsloggedin($isloggedin)
+    public function setIsLoggedIn($is_logged_in): void
     {
-        if (in_array($isloggedin, ['yes', true], true)) {
-            $this->isloggedin = 1;
+        if (in_array($is_logged_in, ['yes', true], true)) {
+            $this->$is_logged_in = 1;
             return;
         }
 
-        $this->isloggedin = 0;
+        $this->$is_logged_in = 0;
     }
 
     private function mapImageExifType($url)
