@@ -504,7 +504,6 @@ SQL;
             $entity->setTextMarkdown($textMarkdown);
             $entity->setIsLoggedIn($card['is_logged_in']);
             $entity->setLink($card['link'] === null || trim($card['link']) === '' ? null : $card['link']);
-
             $this->table = 'LayoutRowCard';
             $this->place($entity);
             $this->table = 'Program';

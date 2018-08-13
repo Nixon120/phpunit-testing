@@ -229,11 +229,11 @@ class LayoutRowCard extends Base
     public function setIsLoggedIn($is_logged_in): void
     {
         if (in_array($is_logged_in, ['yes', true], true)) {
-            $this->$is_logged_in = 1;
+            $this->is_logged_in = 1;
             return;
         }
 
-        $this->$is_logged_in = 0;
+        $this->is_logged_in = 0;
     }
 
     private function mapImageExifType($url)
