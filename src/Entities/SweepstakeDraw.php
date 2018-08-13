@@ -11,6 +11,8 @@ class SweepstakeDraw extends \Entities\Base
 
     public $processed = 0;
 
+    public $alt_entry = 0;
+
     /**
      * @return mixed
      */
@@ -81,4 +83,21 @@ class SweepstakeDraw extends \Entities\Base
     {
         return $this->processed == 1?true:false;
     }
+
+    /**
+     * @return int
+     */
+    public function getAltEntry(): int
+    {
+        return $this->alt_entry;
+    }
+
+    /**
+     * @param int $alt_entry
+     */
+    public function setAltEntry(int $alt_entry): void
+    {
+        $this->alt_entry = $alt_entry;
+    }
+
 }

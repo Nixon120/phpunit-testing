@@ -152,15 +152,27 @@ SQL;
             $drawing->getSweepstakeId(),
             $drawing->getDate()
         );
-        $eligibleEntryEndDate = (new \DateTime('-1 day'))->format('Y-m-d');
+        $eligibleEntryEndDate = (new \DateTime())->format('Y-m-d');
         $sql = <<<SQL
 UPDATE SweepstakeEntry SET sweepstake_draw_id = ? 
 WHERE sweepstake_id = ? 
-  AND DATE(SweepstakeEntry.created_at) >= ? AND DATE(SweepstakeEntry.created_at) <= ?
+  AND SweepstakeEntry.created_at BETWEEN DATE(?) AND DATE(?)
 ORDER BY RAND() 
 LIMIT {$drawing->getDrawCount()}
 SQL;
         $args = [$drawing->getId(), $drawing->getSweepstakeId(), $eligibleEntryStartDate, $eligibleEntryEndDate];
+        $sth = $this->database->prepare($sql);
+        $sth->execute($args);
+
+        $sql = <<<SQL
+UPDATE SweepstakeEntry SET sweepstake_alt_draw_id = ? 
+WHERE sweepstake_id = ? 
+  AND SweepstakeEntry.created_at BETWEEN DATE(?) AND DATE(?)
+  AND SweepstakeEntry.sweepstake_draw_id IS NULL
+ORDER BY RAND() 
+LIMIT {$drawing->getAltEntry()}
+SQL;
+
         $sth = $this->database->prepare($sql);
         $sth->execute($args);
 

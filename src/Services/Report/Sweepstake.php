@@ -24,7 +24,9 @@ class Sweepstake extends AbstractReport
             'Participant.birthdate' => 'Date of Birth',
             'Address.zip' => 'Zip Code',
             'SweepstakeEntry.created_at' => 'Entered Date/Time',
-            'IF(SweepstakeEntry.sweepstake_draw_id IS NOT NULL,\'Yes\',\'No\')' => 'Winner'
+            'CASE WHEN SweepstakeEntry.sweepstake_draw_id IS NOT NULL ' .
+            'THEN \'Yes\' WHEN SweepstakeEntry.sweepstake_alt_draw_id IS NOT NULL ' .
+            'THEN \'Alt\' ELSE \'No\' END' => 'Winner'
         ]);
     }
 
@@ -36,10 +38,10 @@ class Sweepstake extends AbstractReport
         $query = <<<SQL
 SELECT SQL_CALC_FOUND_ROWS {$selection} 
 FROM SweepstakeEntry
-JOIN Participant ON SweepstakeEntry.participant_id = Participant.id
-JOIN `Organization` ON `Organization`.id = `Participant`.organization_id
-JOIN `Program` ON `Program`.id = `Participant`.program_id
-JOIN `Address` ON `Address`.reference_id  = `Participant`.address_reference
+LEFT JOIN Participant ON SweepstakeEntry.participant_id = Participant.id
+LEFT JOIN `Organization` ON `Organization`.id = `Participant`.organization_id
+LEFT JOIN `Program` ON `Program`.id = `Participant`.program_id
+LEFT JOIN `Address` ON `Address`.reference_id  = `Participant`.address_reference
 WHERE 1=1
   {$this->getFilter()->getFilterConditionSql()}
 ORDER BY SweepstakeEntry.created_at DESC
