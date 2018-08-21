@@ -200,6 +200,25 @@ services:
       MYSQL_DB_PASSWORD: 123
     networks:
       - adrnet
+  avs-service:
+    image: gcr.io/green-talent-129607/transaction-email:latest
+    expose:
+      - 80
+    ports:
+      - 85:80
+    environment:
+      ENVIRONMENT: development
+      MYSQL_HOST: admin-mysql
+      MYSQL_DATABASE: avs
+      MYSQL_USERNAME: root
+      MYSQL_PASSWORD: 123
+      LOG_HOST: fluentd
+      LOG_PORT: 24224
+      SMARTY_AUTH_ID: 0945d3f2-5eff-32f4-b4b2-158847ff5f54
+      SMARTY_AUTH_TOKEN: YsaH5jHF6lAUQzq7mOLE
+      SMARTY_INTL_URL: "https://international-street.api.smartystreets.com/verify"
+    networks:
+      - adrnet
 volumes:
   mpadmindb:
     driver: local
