@@ -201,7 +201,7 @@ services:
     networks:
       - adrnet
   avs-service:
-    image: gcr.io/green-talent-129607/transaction-email:latest
+    image: gcr.io/green-talent-129607/address-verification-service:latest
     expose:
       - 80
     ports:
