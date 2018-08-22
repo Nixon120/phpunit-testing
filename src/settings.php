@@ -65,8 +65,7 @@ return [
             'product.all',
             'administrators.all',
             'vendors.all',
-            'cardaccounts.all',
-            'avs.all',
+            'cardaccounts.all'
         ],
         'admin' => [
             'organization.all',
@@ -74,8 +73,7 @@ return [
             'participant.all',
             'user.all',
             'report.all',
-            'administrators.all',
-            'avs.all',
+            'administrators.all'
         ],
         'configs' => [
             'organization.all',
@@ -83,8 +81,7 @@ return [
             'participant.all',
 //            'user.read',
             'report.all',
-            'administrators.read',
-            'avs.all',
+            'administrators.read'
         ],
         'reports' => [
             'report.all',
@@ -92,8 +89,7 @@ return [
 //            'user.read',
             'program.read',
             'organization.read',
-            'administrators.read',
-            'avs.all',
+            'administrators.read'
         ]
     ]
 ];
