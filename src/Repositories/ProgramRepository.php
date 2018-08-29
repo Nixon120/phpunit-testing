@@ -494,6 +494,9 @@ SQL;
             }
 
             $textMarkdown = $card['text_markdown'] ?? null;
+            $isLoggedIn = $card['is_logged_in'] ?? 0;
+            $isLoggedOut = $card['is_logged_out'] ?? 0;
+            $loggedInOrOut = $card['logged_in_or_out'] ?? 0;
 
             $entity->setRowId($row->getId());
             $entity->setPriority($cardPriority);
@@ -502,7 +505,9 @@ SQL;
             $entity->setProduct($card['product'] ?? null);
             $entity->setProductRow($productRow);
             $entity->setTextMarkdown($textMarkdown);
-            $entity->setIsLoggedIn($card['is_logged_in']);
+            $entity->setIsLoggedIn($isLoggedIn);
+            $entity->setIsLoggedOut($isLoggedOut);
+            $entity->setLoggedInOrOut($loggedInOrOut);
             $entity->setLink($card['link'] === null || trim($card['link']) === '' ? null : $card['link']);
 
             $this->table = 'LayoutRowCard';

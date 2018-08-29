@@ -33,6 +33,8 @@ class LayoutRowCard extends Base
     public $text_markdown;
 
     public $is_logged_in;
+    public $is_logged_out;
+    public $logged_in_or_out;
 
     public function __construct()
     {
@@ -234,6 +236,56 @@ class LayoutRowCard extends Base
         }
 
         $this->is_logged_in = 0;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsLoggedOut(): bool
+    {
+        if ($this->is_logged_out === 1) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @param string|bool $is_logged_out
+     */
+    public function setIsLoggedOut($is_logged_out): void
+    {
+        if (in_array($is_logged_out, ['yes', true], true)) {
+            $this->is_logged_out = 1;
+            return;
+        }
+
+        $this->is_logged_out = 0;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getLoggedInOrOut()
+    {
+        if ($this->logged_in_or_out === 1) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @param string|bool $logged_in_or_out
+     */
+    public function setLoggedInOrOut($logged_in_or_out)
+    {
+        if (in_array($logged_in_or_out, ['yes', true], true)) {
+            $this->logged_in_or_out = 1;
+            return;
+        }
+
+        $this->logged_in_or_out = 0;
     }
 
     private function mapImageExifType($url)
