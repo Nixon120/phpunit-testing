@@ -9,32 +9,20 @@ class LayoutRowCard extends Base
     use TimestampTrait;
 
     public $row_id;
-
-    public $priority;
-
-    public $size;
-
     public $type = 'image';
-
+    public $priority;
+    public $size;
     public $image;
-
     public $product;
-
     public $product_row;
-
     public $link;
-
-    private $cdnUrl = 'http://localhost/resources/app/layout';
-
-    private $image_url;
-
-    private $image_data;
-
     public $text_markdown;
-
     public $is_logged_in;
     public $is_logged_out;
     public $logged_in_or_out;
+    private $image_url;
+    private $image_data;
+    private $cdnUrl = 'http://localhost/resources/app/layout';
 
     public function __construct()
     {
