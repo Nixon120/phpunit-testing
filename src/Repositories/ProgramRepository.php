@@ -494,7 +494,6 @@ SQL;
             }
 
             $textMarkdown = $card['text_markdown'] ?? null;
-            $card_show = $card['card_show'] ?? 0;
 
             $entity->setRowId($row->getId());
             $entity->setPriority($cardPriority);
@@ -503,7 +502,7 @@ SQL;
             $entity->setProduct($card['product'] ?? null);
             $entity->setProductRow($productRow);
             $entity->setTextMarkdown($textMarkdown);
-            $entity->setCardShow($card_show);
+            $entity->setCardShow($card['card_show']);
             $entity->setLink($card['link'] === null || trim($card['link']) === '' ? null : $card['link']);
 
             $this->table = 'LayoutRowCard';
