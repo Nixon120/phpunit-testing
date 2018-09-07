@@ -17,9 +17,7 @@ class LayoutRowCard extends Base
     public $product_row;
     public $link;
     public $text_markdown;
-    public $is_logged_in;
-    public $is_logged_out;
-    public $logged_in_or_out;
+    public $card_show;
     private $image_url;
     private $image_data;
     private $cdnUrl = 'http://localhost/resources/app/layout';
@@ -202,78 +200,19 @@ class LayoutRowCard extends Base
     }
 
     /**
-     * @return bool
+     * @return mixed
      */
-    public function getIsLoggedIn(): bool
+    public function getCardShow()
     {
-        if ($this->is_logged_in === 1) {
-            return true;
-        }
-
-        return false;
+        return $this->card_show;
     }
 
     /**
-     * @param string|bool $is_logged_in
+     * @param mixed $card_show
      */
-    public function setIsLoggedIn($is_logged_in): void
+    public function setCardShow($card_show)
     {
-        if (in_array($is_logged_in, ['yes', true], true)) {
-            $this->is_logged_in = 1;
-            return;
-        }
-
-        $this->is_logged_in = 0;
-    }
-
-    /**
-     * @return bool
-     */
-    public function getIsLoggedOut(): bool
-    {
-        if ($this->is_logged_out === 1) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * @param string|bool $is_logged_out
-     */
-    public function setIsLoggedOut($is_logged_out): void
-    {
-        if (in_array($is_logged_out, ['yes', true], true)) {
-            $this->is_logged_out = 1;
-            return;
-        }
-
-        $this->is_logged_out = 0;
-    }
-
-    /**
-     * @return bool
-     */
-    public function getLoggedInOrOut()
-    {
-        if ($this->logged_in_or_out === 1) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * @param string|bool $logged_in_or_out
-     */
-    public function setLoggedInOrOut($logged_in_or_out)
-    {
-        if (in_array($logged_in_or_out, ['yes', true], true)) {
-            $this->logged_in_or_out = 1;
-            return;
-        }
-
-        $this->logged_in_or_out = 0;
+        $this->card_show = $card_show;
     }
 
     private function mapImageExifType($url)

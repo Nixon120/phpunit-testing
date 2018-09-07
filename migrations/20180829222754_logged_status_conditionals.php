@@ -9,9 +9,7 @@ class LoggedStatusConditionals extends AbstractMigration
     {
         $table = $this->table('layoutrowcard');
         $table
-            ->addColumn('is_logged_in', 'integer',['default' => 0, 'null' => false])
-            ->addColumn('is_logged_out', 'integer',['default' => 0, 'null' => false])
-            ->addColumn('logged_in_or_out', 'integer',['default' => 0, 'null' => false])
+            ->addColumn('card_show', 'integer',['default' => 1, 'null' => false])
             ->save();
     }
 }
