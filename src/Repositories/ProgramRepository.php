@@ -492,12 +492,17 @@ SQL;
             if (!empty($card['product_row'])) {
                 $productRow = json_encode($card['product_row']);
             }
+
+            $textMarkdown = $card['text_markdown'] ?? null;
+
             $entity->setRowId($row->getId());
             $entity->setPriority($cardPriority);
             $entity->setType($card['type'] ?? 'image');
             $entity->setSize($card['size']);
             $entity->setProduct($card['product'] ?? null);
             $entity->setProductRow($productRow);
+            $entity->setTextMarkdown($textMarkdown);
+            $entity->setCardShow($card['card_show']);
             $entity->setLink($card['link'] === null || trim($card['link']) === '' ? null : $card['link']);
 
             $this->table = 'LayoutRowCard';

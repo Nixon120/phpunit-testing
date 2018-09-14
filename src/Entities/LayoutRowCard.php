@@ -1,4 +1,5 @@
 <?php
+
 namespace Entities;
 
 use Entities\Traits\TimestampTrait;
@@ -8,26 +9,18 @@ class LayoutRowCard extends Base
     use TimestampTrait;
 
     public $row_id;
-
-    public $priority;
-
-    public $size;
-
     public $type = 'image';
-
+    public $priority;
+    public $size;
     public $image;
-
     public $product;
-
     public $product_row;
-
     public $link;
-
-    private $cdnUrl = 'http://localhost/resources/app/layout';
-
+    public $text_markdown;
+    public $card_show;
     private $image_url;
-
     private $image_data;
+    private $cdnUrl = 'http://localhost/resources/app/layout';
 
     public function __construct()
     {
@@ -63,7 +56,7 @@ class LayoutRowCard extends Base
      */
     public function getPriority()
     {
-        return (int) $this->priority;
+        return (int)$this->priority;
     }
 
     /**
@@ -129,7 +122,7 @@ class LayoutRowCard extends Base
                 $imageUrl = $this->cdnUrl . '/' . $this->getImage();
                 $image = file_get_contents($imageUrl);
                 $mime = $this->mapImageExifType($imageUrl);
-                $this->image_data = 'data:'.$mime.';base64,'.base64_encode($image);
+                $this->image_data = 'data:' . $mime . ';base64,' . base64_encode($image);
             }
         }
 
@@ -185,6 +178,41 @@ class LayoutRowCard extends Base
     public function setLink($link)
     {
         $this->link = $link;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTextMarkdown()
+    {
+        if (is_null($this->text_markdown)) {
+            return $this->text_markdown;
+        }
+        return json_decode($this->text_markdown);
+    }
+
+    /**
+     * @param mixed $text_markdown
+     */
+    public function setTextMarkdown($text_markdown)
+    {
+        $this->text_markdown = $text_markdown;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCardShow()
+    {
+        return $this->card_show;
+    }
+
+    /**
+     * @param mixed $card_show
+     */
+    public function setCardShow($card_show)
+    {
+        $this->card_show = $card_show;
     }
 
     private function mapImageExifType($url)
