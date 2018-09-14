@@ -9,7 +9,7 @@ class LoggedStatusConditionals extends AbstractMigration
     {
         $table = $this->table('layoutrowcard');
         $table
-            ->addColumn('card_show', 'integer',['default' => 1, 'null' => false])
+            ->addColumn('card_show', 'integer',['default' => 2, 'null' => false])
             ->addColumn('text_markdown', 'text', ['null' => true])
             ->save();
     }
