@@ -481,6 +481,15 @@ SQL;
 
     private function saveRowCards(LayoutRow $row, array $cards)
     {
+        try {
+            // Purge row cards to save only the cards sent in request
+            $sql = "DELETE FROM `LayoutRowCard` WHERE row_id = ?";
+            $sth = $this->database->prepare($sql);
+            $sth->execute([$row->getId()]);
+        } catch (\PDOException $e) {
+            throw new \Exception('could not purge row cards.');
+        }
+        
         foreach ($cards as $cardPriority => $card) {
             $entity = new LayoutRowCard;
             if (!empty($card['image'])) {
