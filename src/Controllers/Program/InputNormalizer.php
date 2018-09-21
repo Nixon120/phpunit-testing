@@ -8,10 +8,10 @@ class InputNormalizer extends AbstractInputNormalizer
     public function getInput(): array
     {
         $input = parent::getInput();
-        if (!empty($input['domain'])) {
+        if (!empty($input['url'])) {
             $input['url'] = $input['url'] . '.' . $input['domain'];
-            unset($input['domain']);
         }
+        unset($input['domain']);
         return $input;
     }
 }
