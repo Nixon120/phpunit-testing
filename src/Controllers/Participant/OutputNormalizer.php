@@ -130,7 +130,7 @@ class OutputNormalizer extends AbstractOutputNormalizer
         return $return;
     }
 
-    public function getTransactionList(): array
+    public function getTransactionList(Participant $participant): array
     {
         $list = parent::get();
 
@@ -144,6 +144,10 @@ class OutputNormalizer extends AbstractOutputNormalizer
             'active',
             'bypass_conditions'
         ]);
+
+        foreach ($return as $k => $v) {
+            $return[$k]['total'] = (int)bcmul($return[$k]['total'], $participant->getProgram()->getPoint());
+        }
 
         return $return;
     }
