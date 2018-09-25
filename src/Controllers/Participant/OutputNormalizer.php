@@ -88,6 +88,7 @@ class OutputNormalizer extends AbstractOutputNormalizer
             /** @var TransactionItem $item */
             $product = $transaction->getProduct($item->getReferenceId());
             $total = bcmul($product->getPrice(), $item->getQuantity(), 2);
+            $total = bcmul($total, $participant->getProgram()->getPoint(), 2);
             $points = bcmul($total, $participant->getProgram()->getPoint());
             $return['products'][] = [
                 'name' => $product->getName(),
