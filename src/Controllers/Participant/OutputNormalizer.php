@@ -81,6 +81,7 @@ class OutputNormalizer extends AbstractOutputNormalizer
         $participant = $transaction->getParticipant();
         $return = $transaction->toArray();
         $return['points'] = bcmul($transaction->getTotal(), $participant->getProgram()->getPoint());
+        $return['total'] = bcmul($return['total'], $participant->getProgram()->getPoint(), 2);
         $return['shipping'] = $this->prepareAddressOutput($transaction->getShipping());
         $return['products'] = [];
         $items = $transaction->getItems();
