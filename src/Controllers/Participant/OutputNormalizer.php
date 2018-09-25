@@ -68,7 +68,7 @@ class OutputNormalizer extends AbstractOutputNormalizer
         ]);
 
         foreach ($return as $k => $v) {
-            $return[$k]['amount'] = (int)bcmul($return[$k]['amount'], $participant->getProgram()->getPoint());
+            $return[$k]['amount'] = bcmul($return[$k]['amount'], $participant->getProgram()->getPoint(), 2);
         }
 
         return $return;
@@ -146,7 +146,7 @@ class OutputNormalizer extends AbstractOutputNormalizer
         ]);
 
         foreach ($return as $k => $v) {
-            $return[$k]['total'] = (int)bcmul($return[$k]['total'], $participant->getProgram()->getPoint());
+            $return[$k]['total'] = bcmul($return[$k]['total'], $participant->getProgram()->getPoint(), 2);
         }
 
         return $return;
