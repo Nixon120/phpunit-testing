@@ -68,7 +68,7 @@ class OutputNormalizer extends AbstractOutputNormalizer
         ]);
 
         foreach ($return as $k => $v) {
-            $return[$k]['amount'] = bcmul($return[$k]['amount'], $participant->getProgram()->getPoint(), 2);
+            $return[$k]['amount'] = (int)bcmul($return[$k]['amount'], $participant->getProgram()->getPoint());
         }
 
         return $return;
@@ -81,7 +81,6 @@ class OutputNormalizer extends AbstractOutputNormalizer
         $participant = $transaction->getParticipant();
         $return = $transaction->toArray();
         $return['points'] = bcmul($transaction->getTotal(), $participant->getProgram()->getPoint());
-        $return['total'] = bcmul($return['total'], $participant->getProgram()->getPoint(), 2);
         $return['shipping'] = $this->prepareAddressOutput($transaction->getShipping());
         $return['products'] = [];
         $items = $transaction->getItems();
@@ -89,7 +88,6 @@ class OutputNormalizer extends AbstractOutputNormalizer
             /** @var TransactionItem $item */
             $product = $transaction->getProduct($item->getReferenceId());
             $total = bcmul($product->getPrice(), $item->getQuantity(), 2);
-            $total = bcmul($total, $participant->getProgram()->getPoint(), 2);
             $points = bcmul($total, $participant->getProgram()->getPoint());
             $return['products'][] = [
                 'name' => $product->getName(),
@@ -132,7 +130,7 @@ class OutputNormalizer extends AbstractOutputNormalizer
         return $return;
     }
 
-    public function getTransactionList(Participant $participant): array
+    public function getTransactionList(): array
     {
         $list = parent::get();
 
@@ -146,10 +144,6 @@ class OutputNormalizer extends AbstractOutputNormalizer
             'active',
             'bypass_conditions'
         ]);
-
-        foreach ($return as $k => $v) {
-            $return[$k]['total'] = bcmul($return[$k]['total'], $participant->getProgram()->getPoint(), 2);
-        }
 
         return $return;
     }
