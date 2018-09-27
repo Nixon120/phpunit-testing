@@ -378,6 +378,11 @@ SQL;
     public function saveFeaturedProducts(Program $program, array $productSkuContainer): bool
     {
         $this->table = 'FeaturedProduct';
+
+        if (empty($productSkuContainer)) {
+            return $this->deleteAllProgramFeaturedProducts($program, $productSkuContainer);
+        }
+
         $this->deleteProgramFeaturedProductsWhereNotIn($program, $productSkuContainer);
         foreach ($productSkuContainer as $sku) {
             $product = new FeaturedProduct;
@@ -403,6 +408,19 @@ SQL;
         }
 
         return true;
+    }
+
+    private function deleteAllProgramFeaturedProducts(Program $program, array $skuContainer)
+    {
+        if (empty($skuContainer)) {
+            $sql = <<<SQL
+DELETE FROM FeaturedProduct WHERE FeaturedProduct.program_id = '{$program->getUniqueId()}'
+SQL;
+            $sth = $this->getDatabase()->prepare($sql);
+            return $sth->execute();
+        }
+
+        return false;
     }
 
     public function saveProductCriteria(Program $program, $filterData): bool
