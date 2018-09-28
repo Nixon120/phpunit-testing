@@ -10,6 +10,7 @@ use Entities\Organization;
 use Entities\Transaction;
 use Entities\Webhook;
 use Events\Listeners\AbstractListener;
+use Factories\AuthenticationTokenFactory;
 use Firebase\JWT\JWT;
 use League\Event\EventInterface;
 use Repositories\WebhookRepository;
@@ -48,38 +49,12 @@ class TransactionWebhookListener extends AbstractListener
         $this->participantService = $participantService;
     }
 
-    private function generateSystemAuthToken()
-    {
-        $now = new \DateTime();
-        $future = new \DateTime("now +2 hours");
-        $jti = base64_encode(random_bytes(16));
-        $payload = [
-            "iat" => $now->getTimeStamp(),
-            "exp" => $future->getTimeStamp(),
-            "jti" => $jti,
-            "sub" => 'superadmin@alldigitalrewards.com',
-            "user" => [
-                'id' => 'An-ID',
-                'firstname' => 'Super',
-                'lastname' => 'Admin'
-            ],
-            "scope" => ['product.all']
-        ];
-
-        $secret = getenv("JWT_SECRET");
-        $token = JWT::encode($payload, $secret, "HS256");
-        $data["token"] = $token;
-        $data["expires"] = $future->getTimeStamp();
-        return $data['token'];
-    }
-
     private function approveInventoryHold(Transaction $transaction): bool
     {
-        $authToken = $this->generateSystemAuthToken();
         $catalog = $this->transactionService->getTransactionRepository()
             ->getCatalog();
 
-        $catalog->setToken($authToken);
+        $catalog->setToken(AuthenticationTokenFactory::getToken());
 
         foreach($transaction->getItems() as $item) {
             if($catalog->getInventoryHold($item->getGuid()) === true) {
