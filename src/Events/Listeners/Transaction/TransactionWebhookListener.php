@@ -3,6 +3,7 @@
 namespace Events\Listeners\Transaction;
 
 use AllDigitalRewards\AMQP\MessagePublisher;
+use AllDigitalRewards\Services\Catalog\Entity\InventoryApproveRequest;
 use Controllers\Participant\OutputNormalizer;
 use Entities\Event;
 use Entities\Organization;
@@ -46,14 +47,42 @@ class TransactionWebhookListener extends AbstractListener
         $this->participantService = $participantService;
     }
 
+    private function approveInventoryHold(Transaction $transaction): bool
+    {
+        foreach($transaction->getItems() as $item) {
+            $inventoryHoldApprove = new InventoryApproveRequest([
+                'guid' => $item->getGuid()
+            ]);
+
+            $success = $this->transactionService->getTransactionRepository()
+                ->getCatalog()
+                ->setInventoryApproved($inventoryHoldApprove);
+
+            if($success === false) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     /**
      * @param EventInterface|Event $event
+     * @return bool
      */
     public function handle(EventInterface $event)
     {
         $this->event = $event;
 
         $transaction = $this->fetchTransaction();
+
+        $inventoryHoldsApproved = $this->approveInventoryHold($transaction);
+
+        if($inventoryHoldsApproved === false) {
+            $event->setName('Transaction.create.webhook');
+            $this->reQueueEvent($event);
+            return false;
+        }
 
         // Determine the Organization the event belongs to.
         $organization = $this->fetchOrganization($transaction);
@@ -90,6 +119,8 @@ class TransactionWebhookListener extends AbstractListener
 
             $this->executeWebhook($webhook, $transaction);
         }
+
+        return true;
     }
 
     private function executeWebhook(

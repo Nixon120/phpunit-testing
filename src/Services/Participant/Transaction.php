@@ -3,6 +3,7 @@
 namespace Services\Participant;
 
 use AllDigitalRewards\AMQP\MessagePublisher;
+use AllDigitalRewards\Services\Catalog\Entity\InventoryApproveRequest;
 use AllDigitalRewards\Services\Catalog\Entity\InventoryHoldRequest;
 use Entities\Adjustment;
 use Entities\Event;
@@ -195,6 +196,7 @@ class Transaction
                 $transaction->getId()
             );
 
+            // We'll approve the inventory hold through the Transaction.create webhook listener event
             $this->queueEvent($transactionId);
 
             return $transaction;
