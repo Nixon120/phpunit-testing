@@ -90,7 +90,7 @@ class Transaction
 
                     $transactionProduct = new TransactionProduct($requestedProduct, $amount);
                     $transactionItem = new TransactionItem;
-                    $transactionItem->setGuid(Uuid::uuid1());
+                    $transactionItem->setGuid((string)Uuid::uuid1());
                     $transactionItem->setQuantity($quantity);
                     $transactionItem->setReferenceId($transactionProduct->getReferenceId());
 
@@ -98,7 +98,6 @@ class Transaction
                         $errors = array_merge($transactionProduct->getValidationErrors(), $transactionItem->getValidationErrors());
                         throw new TransactionServiceException(implode(', ', $errors));
                     }
-
 
                     // Check inventory
                     if($requestedProduct->isInventoryManaged()) {
