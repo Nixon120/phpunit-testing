@@ -115,7 +115,7 @@ class Transaction
                         ]);
 
                         $success = $this->getTransactionRepository()->getCatalog()
-                            ->getInventoryHold($holdRequest);
+                            ->createInventoryHold($holdRequest);
 
                         if($success === false) {
                             throw new TransactionServiceException(

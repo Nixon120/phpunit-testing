@@ -76,22 +76,26 @@ class TransactionWebhookListener extends AbstractListener
     private function approveInventoryHold(Transaction $transaction): bool
     {
         $authToken = $this->generateSystemAuthToken();
-        $this->transactionService->getTransactionRepository()
-            ->getCatalog()
-            ->setToken($authToken);
+        $catalog = $this->transactionService->getTransactionRepository()
+            ->getCatalog();
+
+        $catalog->setToken($authToken);
 
         foreach($transaction->getItems() as $item) {
-            $inventoryHoldApprove = new InventoryApproveRequest([
-                'guid' => $item->getGuid()
-            ]);
+            if($catalog->getInventoryHold($item->getGuid()) === true) {
 
-            $success = $this->transactionService->getTransactionRepository()
-                ->getCatalog()
-                ->setInventoryApproved($inventoryHoldApprove);
+                $inventoryHoldApprove = new InventoryApproveRequest([
+                    'guid' => $item->getGuid()
+                ]);
 
-            if($success === false) {
-                return false;
+                $success = $catalog->setInventoryApproved($inventoryHoldApprove);
+                if($success === false) {
+                    // Any failures will just requeue the event, approving inventory twice
+                    // won't hurt anything
+                    return false;
+                }
             }
+
         }
 
         return true;
