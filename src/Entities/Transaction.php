@@ -230,6 +230,9 @@ class Transaction extends Base
         $this->setTotal(bcadd($this->getTotal(), $total, 2));
     }
 
+    /**
+     * @return TransactionItem[]
+     */
     public function getItems()
     {
         $itemContainer = [];

@@ -36,6 +36,22 @@ class TransactionRepository extends BaseRepository
         $this->catalog = $client;
     }
 
+    /**
+     * @return Client
+     */
+    public function getCatalog(): Client
+    {
+        return $this->catalog;
+    }
+
+    /**
+     * @param Client $catalog
+     */
+    public function setCatalog(Client $catalog): void
+    {
+        $this->catalog = $catalog;
+    }
+
     public function getRepositoryEntity()
     {
         return Transaction::class;

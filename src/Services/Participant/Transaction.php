@@ -3,6 +3,8 @@
 namespace Services\Participant;
 
 use AllDigitalRewards\AMQP\MessagePublisher;
+use AllDigitalRewards\Services\Catalog\Entity\InventoryApproveRequest;
+use AllDigitalRewards\Services\Catalog\Entity\InventoryHoldRequest;
 use Entities\Adjustment;
 use Entities\Event;
 use Entities\TransactionItem;
@@ -45,7 +47,7 @@ class Transaction
         BalanceRepository $balanceRepository,
         MessagePublisher $eventPublisher
     ) {
-    
+
         $this->repository = $repository;
         $this->participantRepository = $participantRepository;
         $this->balanceRepository = $balanceRepository;
@@ -61,6 +63,11 @@ class Transaction
     }
 
 
+    /**
+     * @param \Entities\Transaction $transaction
+     * @param array $data
+     * @throws TransactionServiceException
+     */
     private function addTransactionItems(
         \Entities\Transaction $transaction,
         array $data
@@ -83,7 +90,7 @@ class Transaction
 
                     $transactionProduct = new TransactionProduct($requestedProduct, $amount);
                     $transactionItem = new TransactionItem;
-                    $transactionItem->setGuid(Uuid::uuid1());
+                    $transactionItem->setGuid((string)Uuid::uuid1());
                     $transactionItem->setQuantity($quantity);
                     $transactionItem->setReferenceId($transactionProduct->getReferenceId());
 
@@ -91,6 +98,32 @@ class Transaction
                         $errors = array_merge($transactionProduct->getValidationErrors(), $transactionItem->getValidationErrors());
                         throw new TransactionServiceException(implode(', ', $errors));
                     }
+
+                    // Check inventory
+                    if($requestedProduct->isInventoryManaged()) {
+                        $adjustedInventory = $requestedProduct->getInventoryCount() - $quantity;
+                        if($adjustedInventory < 0) {
+                            throw new TransactionServiceException(
+                                'Product with SKU: ' . $requestedProduct->getSku() . ' has insufficient inventory'
+                            );
+                        }
+
+                        $holdRequest = new InventoryHoldRequest([
+                            'sku' => $requestedProduct->getSku(),
+                            'guid' => $transactionItem->getGuid(),
+                            'quantity' => $quantity
+                        ]);
+
+                        $success = $this->getTransactionRepository()->getCatalog()
+                            ->createInventoryHold($holdRequest);
+
+                        if($success === false) {
+                            throw new TransactionServiceException(
+                                'Unable to obtain inventory hold for product with SKU: ' . $requestedProduct->getSku() . ''
+                            );
+                        }
+                    }
+
                     $transaction->setItem($transactionItem, $transactionProduct);
                 }
             }
@@ -162,6 +195,7 @@ class Transaction
                 $transaction->getId()
             );
 
+            // We'll approve the inventory hold through the Transaction.create webhook listener event
             $this->queueEvent($transactionId);
 
             return $transaction;
@@ -196,7 +230,7 @@ class Transaction
         $total,
         $transactionId = null
     ) {
-    
+
         $pointConversion = $participant->getProgram()->getPoint();
         $pointTotal = $total * $pointConversion;
         $adjustment = new Adjustment($participant);
@@ -225,7 +259,7 @@ class Transaction
     public function getTransactionOrganization(
         \Entities\Transaction $transaction
     ) {
-    
+
         return $this
             ->repository
             ->getTransactionOrganization($transaction);
