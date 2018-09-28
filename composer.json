@@ -58,7 +58,7 @@
     "phpoffice/phpexcel": "^1.8",
     "mongodb/mongodb": "1.2.0",
     "particle/validator": "^2.3",
-    "alldigitalrewards/catalog-wrapper": "^0.0.19",
+    "alldigitalrewards/catalog-wrapper": "^0.0.26",
     "superbalist/flysystem-google-storage": "^6.0",
     "jojihere/monolog-fluent": "^1.0",
     "ramsey/uuid": "^3.7",
