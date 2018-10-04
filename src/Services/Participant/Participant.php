@@ -150,6 +150,19 @@ class Participant
         //@TODO API Exceptions
         if (!empty($data['program'])) {
             $program = $this->repository->getParticipantProgram($data['program'], true);
+
+            if($program === null) {
+                $this->repository->setErrors(
+                    [
+                        'program' => [
+                            'NotFound::NOT_FOUND' => _("The program requested does not exist.")
+                        ]
+                    ]
+                );
+
+                return false;
+            }
+
             $data['program_id'] = $program->getId();
             $data['organization_id'] = $program->getOrganizationId();
         }
