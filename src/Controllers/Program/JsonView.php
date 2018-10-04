@@ -44,10 +44,13 @@ class JsonView extends AbstractViewController
 
     public function metrics($id)
     {
-        return $response = $this->response->withStatus(200)
+
+        $program = $this->service->getSingle($id);
+        
+        return $this->response->withStatus(200)
             ->withJson([
-                // 'participant_total' => $this->service->repository->getParticiantTotal($id),
-                // 'transaction_total' => $this->service->repository->getTransactionTotal($id)
+                'participant_total' => $this->service->repository->getParticiantTotal($program->id),
+                'transaction_total' => $this->service->repository->getTransactionTotal($program->id)
             ]);
     }
 

@@ -41,10 +41,10 @@ $app->group('/api/program', function () use ($app, $createRoute, $updateRoute) {
         return $program->deleteProgramLayoutRow($programId, $rowId);
     });
 
-    $app->get('/{id}/metrics', function ($request, $response) {
+    $app->get('/{id}/metrics', function ($request, $response, $args) {
         $program = new Controllers\JsonView($request, $response, $this->get('program'));
         $programId = $args['id'];
-        return $program->$metrics();
+        return $program->metrics($programId);
     });
 
     //ensure this considers program
