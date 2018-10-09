@@ -379,18 +379,17 @@ SQL;
     {
         $this->table = 'FeaturedProduct';
 
-        if (empty($productSkuContainer)) {
-            return $this->deleteAllProgramFeaturedProducts($program, $productSkuContainer);
-        }
+        $this->deleteAllProgramFeaturedProducts($program, $productSkuContainer);
 
-        $this->deleteProgramFeaturedProductsWhereNotIn($program, $productSkuContainer);
-        foreach ($productSkuContainer as $sku) {
-            $product = new FeaturedProduct;
-            $product->setProgramId($program->getUniqueId());
-            $product->setSku($sku);
-            $this->place($product);
+        if (!empty($productSkuContainer)) {
+            foreach ($productSkuContainer as $sku) {
+                $product = new FeaturedProduct;
+                $product->setProgramId($program->getUniqueId());
+                $product->setSku($sku);
+                $this->place($product);
+            }
+            $this->table = 'Program';
         }
-        $this->table = 'Program';
 
         return true;
     }
@@ -412,13 +411,12 @@ SQL;
 
     private function deleteAllProgramFeaturedProducts(Program $program, array $skuContainer)
     {
-        if (empty($skuContainer)) {
-            $sql = <<<SQL
+        $sql = <<<SQL
 DELETE FROM FeaturedProduct WHERE FeaturedProduct.program_id = '{$program->getUniqueId()}'
 SQL;
-            $sth = $this->getDatabase()->prepare($sql);
-            return $sth->execute();
-        }
+        $sth = $this->getDatabase()->prepare($sql);
+        return $sth->execute();
+
 
         return false;
     }
