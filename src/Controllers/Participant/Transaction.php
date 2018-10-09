@@ -64,7 +64,7 @@ class Transaction
             //@TODO: Make sure domains do not include HTTPS / HTTP on entry or here ?
             $transactions = $this->service->get($participant);
             $output = new OutputNormalizer($transactions);
-            return $this->returnJson(200, $output->getTransactionList());
+            return $this->returnJson(200, $output->getTransactionList($participant));
         }
         return $this->returnJson(400, ['Resource does not exist']);
     }
