@@ -80,17 +80,15 @@ class OutputNormalizer extends AbstractOutputNormalizer
         $transaction = parent::get();
         $participant = $transaction->getParticipant();
         $return = $transaction->toArray();
-        $return['points'] = bcmul($transaction->getTotal(), $participant->getProgram()->getPoint());
+        $return['points'] = bcmul($transaction->getTotal(), $participant->getProgram()->getPoint(), 2);
         $return['shipping'] = $this->prepareAddressOutput($transaction->getShipping());
-        $return['total'] = bcmul($return['total'], $participant->getProgram()->getPoint(), 2);
         $return['products'] = [];
         $items = $transaction->getItems();
         foreach ($items as $item) {
             /** @var TransactionItem $item */
             $product = $transaction->getProduct($item->getReferenceId());
             $total = bcmul($product->getPrice(), $item->getQuantity(), 2);
-            $total = bcmul($total, $participant->getProgram()->getPoint(), 2);
-            $points = bcmul($total, $participant->getProgram()->getPoint());
+            $points = bcmul($total, $participant->getProgram()->getPoint(), 2);
             $return['products'][] = [
                 'name' => $product->getName(),
                 'sku' => $product->getUniqueId(),
@@ -147,9 +145,6 @@ class OutputNormalizer extends AbstractOutputNormalizer
             'bypass_conditions'
         ]);
 
-        foreach ($return as $k => $v) {
-           $return[$k]['total'] = bcmul($return[$k]['total'], $participant->getProgram()->getPoint(), 2);
-        }
         return $return;
     }
 
