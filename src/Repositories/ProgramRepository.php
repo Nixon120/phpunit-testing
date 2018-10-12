@@ -113,7 +113,7 @@ SQL;
 
     private function getProgramFeaturedProducts(Program $program)
     {
-        $sql = "SELECT * FROM `FeaturedProduct` WHERE program_id = ?";
+        $sql = "SELECT * FROM `FeaturedProduct` WHERE program_id = ? ORDER BY id ASC";
         $args = [$program->getUniqueId()];
 
         $sth = $this->database->prepare($sql);
