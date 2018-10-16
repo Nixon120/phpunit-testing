@@ -7,6 +7,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Services\CacheService;
 use Slim\Http\Request;
 use Slim\Http\Response;
+use Slim\Route;
 
 class ProgramModifiedCacheClearMiddleware
 {
@@ -22,7 +23,6 @@ class ProgramModifiedCacheClearMiddleware
      * @var Request
      */
     private $request;
-    private $uniqueId;
 
     /**
      * ProgramModifiedCacheClearMiddleware constructor.
@@ -41,11 +41,14 @@ class ProgramModifiedCacheClearMiddleware
      */
     public function __invoke(Request $request, Response $response, callable $next = null)
     {
+        /**
+         * @var Response $response
+         */
         $response = $next($request, $response);
         $this->request = $request;
 
         if (in_array($request->getMethod(), ['POST', 'PUT', 'DELETE'])
-            && (substr($response->getStatus(), 0, 1) < 3)
+            && (substr($response->getStatusCode(), 0, 1) < 3)
         ) {
             $this->clearClientSiteCacheIfExists();
         }
@@ -56,7 +59,7 @@ class ProgramModifiedCacheClearMiddleware
     /**
      * @return string|bool
      */
-    private function getProgramSubDomainAndDomain()
+    private function getProgramSubDomainAndDomain($unique_id)
     {
         $sql = <<<SQL
 SELECT CONCAT(Program.url, '.', Domain.url) as url
@@ -65,11 +68,11 @@ LEFT JOIN `Domain` ON Domain.id = Program.domain_id
 WHERE Program.unique_id = ?
 SQL;
 
-        $args = [$this->uniqueId];
+        $args = [$unique_id];
 
         $sth = $this->getDb()->prepare($sql);
         $sth->execute($args);
-        $result = $sth->fetch(\PDO::FETCH_KEY_PAIR);
+        $result = $sth->fetch(\PDO::FETCH_ASSOC);
         return $result['url'];
     }
 
@@ -95,8 +98,14 @@ SQL;
 
     private function clearClientSiteCacheIfExists(): void
     {
-        $this->uniqueId = $this->request->getAttribute('id');
-        $programUrl = $this->getProgramSubDomainAndDomain();
+        /**
+         * @var Route $route
+         */
+        $route = $this->request->getAttribute('route');
+        $programUrl = $this->getProgramSubDomainAndDomain(
+            $route->getArgument('id')
+        );
+
         if ($this->getCacheService()->cachedItemExists($programUrl)) {
             $this->getCacheService()->clearItem($programUrl);
         }
