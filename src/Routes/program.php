@@ -32,7 +32,7 @@ $app->group('/api/program', function () use ($app, $createRoute, $updateRoute) {
         $program = new Controllers\JsonView($request, $response, $this->get('program'));
         $programId = $args['id'];
         return $program->layout($programId);
-    });
+    })->add(new \Middleware\ProgramModifiedCacheClearMiddleware($app->getContainer()));
 
     $app->map(['get'], '/{id}/layout/remove/{row_id}', function ($request, $response, $args) {
         $program = new Controllers\GuiView($request, $response, $this->get('renderer'), $this->get('program'));

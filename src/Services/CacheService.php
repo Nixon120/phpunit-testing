@@ -2,6 +2,7 @@
 
 namespace Services;
 
+use Cache\Adapter\Common\Exception\CacheException;
 use Psr\Cache\CacheItemPoolInterface;
 use Cache\Adapter\Common\CacheItem;
 
@@ -43,5 +44,14 @@ class CacheService
     public function getCache(): CacheItemPoolInterface
     {
         return $this->cacheFactory;
+    }
+
+    public function clearItem($key)
+    {
+        try {
+            return $this->getCache()->deleteItem($key);
+        }catch (CacheException $exception) {
+            return false;
+        }
     }
 }
