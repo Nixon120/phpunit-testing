@@ -1,4 +1,5 @@
 <?php
+
 namespace Services\Scheduler;
 
 use Services\AbstractFilterNormalizer;
