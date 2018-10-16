@@ -13,6 +13,13 @@ $container['logger'] = function (ContainerInterface $c) {
     return $logger;
 };
 
+$container['cacheService'] = function ($container) {
+    $cacheFactory = new \Factories\CacheFactory();
+    $cache = $cacheFactory();
+
+    return new \Services\CacheService($cache);
+};
+
 $container['database'] = function (ContainerInterface $c) {
     $settings = $c->get('settings')['database'];
     $host = $settings['host'];

@@ -16,7 +16,7 @@ RUN apt-get update \
 
 RUN apt-get update \
     && apt-get install -y cron nginx curl zip unzip git supervisor libmemcached-dev zlib1g-dev libicu-dev g++ \
-    && apt-get install -y php7.2-fpm php7.2-cli php7.2-gd php7.2-mysql php-memcached \
+    && apt-get install -y php7.2-fpm php7.2-cli php7.2-gd php7.2-mysql php-memcached php-redis \
        php7.2-mbstring php7.2-xml php7.2-curl php7.2-bcmath php7.2-intl php7.2-zip php-xdebug \
        php-mongodb php7.2-dev \
     && mkdir /run/php \
