@@ -83,20 +83,19 @@ $app->group('/api/program', function () use ($app, $createRoute, $updateRoute) {
         $program = new Controllers\Product($request, $response, $this->get('renderer'), $this->get('program'));
         $programId = $args['id'];
         return $program->saveProductCriteria($programId);
-    });
+    })->add(new \Middleware\ProgramModifiedCacheClearMiddleware($app->getContainer()));
 
     $app->map(['post'], '/{id}/product/management/featured', function ($request, $response, $args) {
         $program = new Controllers\Product($request, $response, $this->get('renderer'), $this->get('program'));
         $programId = $args['id'];
         return $program->saveFeaturedProducts($programId);
-    });
+    })->add(new \Middleware\ProgramModifiedCacheClearMiddleware($app->getContainer()));
 
     $app->map(['post', 'get'], '/{id}/sweepstake', function ($request, $response, $args) {
         $program = new Controllers\SweepstakeJsonView($request, $response, $this->get('program'));
         $programId = $args['id'];
         return $program->getSweepstakeConfig($programId);
     })->add(Services\Program\Sweepstake\ValidationMiddleware::class);
-    ;
 
     $app->post('', $createRoute);
 
@@ -108,7 +107,7 @@ $app->group('/api/program', function () use ($app, $createRoute, $updateRoute) {
         $rowId = $args['publish'];
 
         return $program->updateProgramPublishSetting($programId, $rowId);
-    });
+    })->add(new \Middleware\ProgramModifiedCacheClearMiddleware($app->getContainer()));
 });
 
 $app->group('/program', function () use ($app, $createRoute, $updateRoute) {
