@@ -34,12 +34,12 @@ $app->group('/api/program', function () use ($app, $createRoute, $updateRoute) {
         return $program->layout($programId);
     })->add(new \Middleware\ProgramModifiedCacheClearMiddleware($app->getContainer()));
 
-    $app->map(['get'], '/{id}/layout/remove/{row_id}', function ($request, $response, $args) {
+    $app->delete('/{id}/layout/remove/{row_id}', function ($request, $response, $args) {
         $program = new Controllers\GuiView($request, $response, $this->get('renderer'), $this->get('program'));
         $programId = $args['id'];
         $rowId = $args['row_id'];
         return $program->deleteProgramLayoutRow($programId, $rowId);
-    });
+    })->add(new \Middleware\ProgramModifiedCacheClearMiddleware($app->getContainer()));
 
     $app->get('/{id}/metrics', function ($request, $response, $args) {
         $program = new Controllers\JsonView($request, $response, $this->get('program'));
