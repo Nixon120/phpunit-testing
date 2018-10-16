@@ -36,16 +36,15 @@ class ProgramModifiedCacheClearMiddleware
     /**
      * @param Request $request
      * @param Response $response
-     * @param callable $next
+     * @param callable|null $next
      * @return Response
      */
-    public function __invoke(Request $request, Response $response, callable $next)
+    public function __invoke(Request $request, Response $response, callable $next = null)
     {
+        $response = $next($request, $response);
         $this->request = $request;
 
-        $response = $next($request, $response);
-
-        if (in_array($this->request->getMethod(), ['POST', 'PUT', 'DELETE'])
+        if (in_array($request->getMethod(), ['POST', 'PUT', 'DELETE'])
             && (substr($response->getStatus(), 0, 1) < 3)
         ) {
             $this->clearClientSiteCacheIfExists();
@@ -70,7 +69,7 @@ SQL;
 
         $sth = $this->getDb()->prepare($sql);
         $sth->execute($args);
-        $result = $sth->fetch(\PDO::FETCH_ASSOC);
+        $result = $sth->fetch(\PDO::FETCH_KEY_PAIR);
         return $result['url'];
     }
 
