@@ -688,13 +688,11 @@ SQL;
     public function getTransactionTotal($id)
     {
         $sql = <<<SQL
-SELECT SUM(t.total) AS program_transactions 
+SELECT count(t.total) AS program_transactions 
 FROM transaction t
 LEFT JOIN participant p
 ON t.participant_id = p.id
-WHERE p.active = 1 
-AND t.processed = 1
-AND p.program_id = '{$id}';
+WHERE p.program_id = '{$id}';
 SQL;
 
         $sth = $this->getDatabase()->prepare($sql);
