@@ -184,13 +184,13 @@ class Sweepstake
     private function buildSweepstakeDrawingEntity(\Entities\Program $program, array $data): array
     {
         $drawingContainer = [];
-        if (!empty($data['draw_date']) && $data['draw_date'][0] !== "") {
-            foreach ($data['draw_date'] as $key => $date) {
-                $date = new \DateTime($date);
+        if (!empty($data['drawings'])) {
+            foreach ($data['drawings'] as $drawing) {
+                $date = new \DateTime($drawing['date']);
                 $draw = new SweepstakeDraw;
                 $draw->setDate($date->format('Y-m-d'));
-                $draw->setDrawCount($data['draw_count'][$key]);
-                $draw->setAltEntry($data['draw_alt_entry'][$key]);
+                $draw->setDrawCount($data['draw_count']);
+                $draw->setAltEntry($data['alt_entry']);
                 $drawingContainer[] = $draw;
             }
         }
