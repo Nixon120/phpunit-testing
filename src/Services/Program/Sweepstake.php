@@ -164,7 +164,6 @@ class Sweepstake
 
             $sweepstake->setStartDate($start->format('Y-m-d'));
             $sweepstake->setEndDate($end->format('Y-m-d'));
-            $sweepstake->setPoint($data['point']);
             $sweepstake->setSku($data['sku']);
             $sweepstake->setMaxParticipantEntry($data['max_participant_entry']);
             $sweepstake->setActive(1);
@@ -189,12 +188,12 @@ class Sweepstake
                 $date = new \DateTime($drawing['date']);
                 $draw = new SweepstakeDraw;
                 $draw->setDate($date->format('Y-m-d'));
-                $draw->setDrawCount($data['draw_count']);
-                $draw->setAltEntry($data['alt_entry']);
+                $draw->setDrawCount($drawing['draw_count']);
+                $draw->setAltEntry($drawing['alt_entry']);
                 $drawingContainer[] = $draw;
             }
         }
-
+        
         return $drawingContainer;
     }
 }
