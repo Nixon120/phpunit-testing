@@ -22,15 +22,6 @@ class Sweepstake extends \Entities\Base
 
     public $type = 'manual';
 
-    /**
-     * Depreciated Point value for Sweepstake entry.
-     * This can be removed after product replaces entry value.
-     *
-     * @var int
-     * @depreciated 2018-05-14
-     */
-    public $point;
-
     public $max_participant_entry = 0;
 
     /**
@@ -103,29 +94,11 @@ class Sweepstake extends \Entities\Base
      */
     public function setType(string $type)
     {
+        if($type === 'automatic') {
+            $type = 'auto';
+        }
+
         $this->type = $type;
-    }
-
-    /**
-     * Depreciated Point value for Sweepstake entry.
-     * This can be removed after product replaces entry value.
-     *
-     * @return int
-     */
-    public function getPoint()
-    {
-        return $this->point;
-    }
-
-    /**
-     * Depreciated Point value for Sweepstake entry.
-     * This can be removed after product replaces entry value.
-     *
-     * @param int $point
-     */
-    public function setPoint($point)
-    {
-        $this->point = $point;
     }
 
     /**

@@ -164,7 +164,6 @@ class Sweepstake
 
             $sweepstake->setStartDate($start->format('Y-m-d'));
             $sweepstake->setEndDate($end->format('Y-m-d'));
-            $sweepstake->setPoint($data['point']);
             $sweepstake->setSku($data['sku']);
             $sweepstake->setMaxParticipantEntry($data['max_participant_entry']);
             $sweepstake->setActive(1);
@@ -184,17 +183,17 @@ class Sweepstake
     private function buildSweepstakeDrawingEntity(\Entities\Program $program, array $data): array
     {
         $drawingContainer = [];
-        if (!empty($data['draw_date']) && $data['draw_date'][0] !== "") {
-            foreach ($data['draw_date'] as $key => $date) {
-                $date = new \DateTime($date);
+        if (!empty($data['drawings'])) {
+            foreach ($data['drawings'] as $drawing) {
+                $date = new \DateTime($drawing['date']);
                 $draw = new SweepstakeDraw;
                 $draw->setDate($date->format('Y-m-d'));
-                $draw->setDrawCount($data['draw_count'][$key]);
-                $draw->setAltEntry($data['draw_alt_entry'][$key]);
+                $draw->setDrawCount($drawing['draw_count']);
+                $draw->setAltEntry($drawing['alt_entry']);
                 $drawingContainer[] = $draw;
             }
         }
-
+        
         return $drawingContainer;
     }
 }

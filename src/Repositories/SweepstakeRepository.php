@@ -26,7 +26,6 @@ class SweepstakeRepository extends BaseRepository
 
     public function saveSweepstakeConfiguration(Sweepstake $sweepstake): bool
     {
-
         if ($this->place($sweepstake) === false) {
             return false;
         }
@@ -100,7 +99,7 @@ class SweepstakeRepository extends BaseRepository
         $query = <<<SQL
 DELETE FROM SweepstakeDraw 
 WHERE SweepstakeDraw.sweepstake_id = ? 
-  AND date NOT IN ({$placeholder})
+  AND date NOT IN ({$placeholder}) AND processed = 0
 SQL;
 
         $sth = $this->database->prepare($query);
