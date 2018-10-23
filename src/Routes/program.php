@@ -34,6 +34,12 @@ $app->group('/api/program', function () use ($app, $createRoute, $updateRoute) {
         return $program->layout($programId);
     })->add(new \Middleware\ProgramModifiedCacheClearMiddleware($app->getContainer()));
 
+    $app->map(['post', 'get'], '/{id}/faqs', function ($request, $response, $args) {
+        $program = new Controllers\JsonView($request, $response, $this->get('program'));
+        $programId = $args['id'];
+        return $program->faqs($programId);
+    })->add(new \Middleware\ProgramModifiedCacheClearMiddleware($app->getContainer()));
+
     $app->delete('/{id}/layout/remove/{row_id}', function ($request, $response, $args) {
         $program = new Controllers\GuiView($request, $response, $this->get('renderer'), $this->get('program'));
         $programId = $args['id'];
@@ -192,6 +198,13 @@ $app->group('/program', function () use ($app, $createRoute, $updateRoute) {
         $programId = $args['id'];
         return $program->renderProgramLayout($programId);
     });
+
+    $app->map(['post', 'get'], '/{id}/faqs', function ($request, $response, $args) {
+        $program = new Controllers\GuiView($request, $response, $this->get('renderer'), $this->get('program'));
+        $programId = $args['id'];
+        return $program->renderProgramLayout($programId);
+    });
+
     $app->map(['post', 'get'], '/{id}/sweepstake', function ($request, $response, $args) {
         $program = new Controllers\Sweepstake($request, $response, $this->get('renderer'), $this->get('program'));
         $programId = $args['id'];
