@@ -199,12 +199,6 @@ $app->group('/program', function () use ($app, $createRoute, $updateRoute) {
         return $program->renderProgramLayout($programId);
     });
 
-    $app->map(['post', 'get'], '/{id}/faqs', function ($request, $response, $args) {
-        $program = new Controllers\GuiView($request, $response, $this->get('renderer'), $this->get('program'));
-        $programId = $args['id'];
-        return $program->renderProgramLayout($programId);
-    });
-
     $app->map(['post', 'get'], '/{id}/sweepstake', function ($request, $response, $args) {
         $program = new Controllers\Sweepstake($request, $response, $this->get('renderer'), $this->get('program'));
         $programId = $args['id'];
