@@ -4,6 +4,23 @@
  * @var \Psr\Container\ContainerInterface $container
  */
 require __DIR__ . "/../cli-bootstrap.php";
+
+// Establish JWT Auth Token for events...
+$requestedScopes = $container->get('roles')['superadmin'];
+$authentication = $container->get('authentication');
+$user = new \Entities\User([
+    'email_address' => 'rewardstack@alldigitalrewards.com',
+    'id' => 0,
+    'firstname' => 'Event Task Runner',
+    'lastname' => 'System'
+]);
+/**
+ * @var \Services\Authentication\Token $token
+ */
+$token = $authentication->getToken();
+$token->setRequestedScopes($requestedScopes);
+$token->setToken($token->generateUserToken($user)['token']);
+
 require __DIR__ . '/../src/events.php';
 
 $input = file_get_contents('php://stdin');
