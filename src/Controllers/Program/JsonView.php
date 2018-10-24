@@ -125,15 +125,15 @@ class JsonView extends AbstractViewController
 
         if ($this->request->getParsedBody() !== null
         ) {
-            $rows = $this->request->getParsedBody()['row'] ?? null;
-            $repository->saveProgramLayout($program, $rows);
+            $faqs = $this->request->getParsedBody()['faqs'] ?? null;
+            $repository->saveProgramFaqs($program, $faqs);
             return $response = $this->response->withStatus(200)
                 ->withJson([]);
         }
 
-        $output = new OutputNormalizer($program->getLayoutRows());
+        $output = new OutputNormalizer($program->getFaqs());
         $response = $this->response->withStatus(200)
-            ->withJson($output->getLayout());
+            ->withJson($output->getFaqs());
 
         return $response;
     }

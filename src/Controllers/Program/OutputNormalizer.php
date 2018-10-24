@@ -2,6 +2,7 @@
 namespace Controllers\Program;
 
 use Controllers\AbstractOutputNormalizer;
+use Entities\Faqs;
 use Entities\FeaturedProduct;
 use Entities\LayoutRow;
 use Entities\Program;
@@ -103,5 +104,19 @@ class OutputNormalizer extends AbstractOutputNormalizer
             ];
         }
         return $cardContainer;
+    }
+
+    public function getFaqs(): array
+    {
+        /** @var Faqs[] $faqs */
+        $faqs = parent::get();
+        $faqsContainer = [];
+        foreach ($faqs as $faq) {
+            $faqsContainer[] = [
+                'question' => $faq->getQuestion(),
+                'answer' => $faq->getAnswer()
+            ];
+        }
+        return $faqsContainer;
     }
 }
