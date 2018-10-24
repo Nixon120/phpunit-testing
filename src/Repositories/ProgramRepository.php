@@ -6,6 +6,7 @@ use AllDigitalRewards\Services\Catalog\Client;
 use Entities\AutoRedemption;
 use Entities\Contact;
 use Entities\Domain;
+use Entities\Faqs;
 use Entities\FeaturedProduct;
 use Entities\LayoutRow;
 use Entities\LayoutRowCard;
@@ -106,6 +107,7 @@ SQL;
         $program->setAccountingContact($this->getAccountingContact($program));
         $program->setProductCriteria($this->getProductCriteria($program));
         $program->setLayoutRows($this->getProgramLayout($program));
+        $program->setFaqs($this->getProgramFaqs($program));
         $program->setSweepstake($this->getProgramSweepstake($program));
         $program->setFeaturedProducts($this->getProgramFeaturedProducts($program));
         return $program;
@@ -457,6 +459,24 @@ SQL;
     }
 
     /**
+     * @param Program $program
+     * @return Faqs[]
+     */
+    public function getProgramFaqs(Program $program)
+    {
+        $sql = "SELECT * FROM `Faqs` WHERE program_id = ?";
+        $args = [$program->getUniqueId()];
+        $sth = $this->database->prepare($sql);
+        $sth->execute($args);
+        $faqs = $sth->fetchAll(PDO::FETCH_CLASS, Faqs::class);
+        if (!$faqs) {
+            return null;
+        }
+
+        return $faqs;
+    }
+
+    /**
      * @param array $rows
      * @return array
      */
@@ -472,6 +492,30 @@ SQL;
         }
 
         return $rows;
+    }
+
+    public function saveProgramFaqs(Program $program, array $faqs): bool
+    {
+        if (!empty($faqs)) {
+            try {
+                // Purge faqs to save only the faqs sent in request
+                $sql = "DELETE FROM `Faqs` WHERE program_id = ?";
+                $sth = $this->database->prepare($sql);
+                $sth->execute([$program->getUniqueId()]);
+            } catch (\PDOException $e) {
+                throw new \Exception('could not purge row faqs.');
+            }
+            foreach ($faqs as $faq) {
+                $faqs = new Faqs;
+                $faqs->setProgramId($program->getUniqueId());
+                $faqs->setQuestion($faq['question']);
+                $faqs->setAnswer($faq['answer']);
+                $this->table = 'Faqs';
+                $this->place($faqs);
+                $this->table = 'Program';
+            }
+        }
+        return true;
     }
 
     public function saveProgramLayout(Program $program, array $layoutRows): bool

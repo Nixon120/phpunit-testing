@@ -106,4 +106,35 @@ class JsonView extends AbstractViewController
 
         return $response;
     }
+
+    public function faqs($id)
+    {
+        $repository = $this->factory->getProgramRepository();
+        // Look up by ID first.
+        $program = $this->service->getSingle($id);
+
+        if (is_null($program)) {
+            // Failing that, lookup up by domain.
+            $program = $this->service->repository->getProgramByDomain($id);
+        }
+
+        //@TODO handle this with middleware?
+        if (is_null($program)) {
+            return $this->renderJson404();
+        }
+
+        if ($this->request->getParsedBody() !== null
+        ) {
+            $faqs = $this->request->getParsedBody()['faqs'] ?? null;
+            $repository->saveProgramFaqs($program, $faqs);
+            return $response = $this->response->withStatus(200)
+                ->withJson([]);
+        }
+
+        $output = new OutputNormalizer($program->getFaqs());
+        $response = $this->response->withStatus(200)
+            ->withJson($output->getFaqs());
+
+        return $response;
+    }
 }

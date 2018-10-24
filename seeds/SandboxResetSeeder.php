@@ -29,6 +29,7 @@ class SandboxResetSeeder extends AbstractSeed
         $programId = $this->seedProgram();
         $this->seedLayoutRows();
         $this->seedLayoutRowCards();
+        $this->seedFaqs();
         $this->seedSweepstake();
         $this->seedUser();
         $this->seedParticipant();
@@ -474,6 +475,57 @@ class SandboxResetSeeder extends AbstractSeed
         }
     }
 
+    private function seedFaqs()
+    {
+        $data = [
+            [
+                'id' => 1,
+                'program_id' => 'sharecare',
+                'question' => 'How do I check how many points I have and how I earned them?',
+                'answer' => 'You can check your account transaction details (both earned and redeemed points) at any time by clicking on your name. It\'s located at the top of every page to the right of the search button.'
+            ],
+            [
+                'id' => 2,
+                'program_id' => 'sharecare',
+                'question' => 'Do I have to use all my points in a single transaction?',
+                'answer' => 'No, you can spend a portion of your points and retain any points remaining in your account for use at a later time. <br />*Note: Points expire at the end of your program year.'
+            ],
+            [
+                'id' => 3,
+                'program_id' => 'sharecare',
+                'question' => 'How do I confirm my reward redemption was successful?',
+                'answer' => 'Any transaction resulting in points being deducted from your account will be accompanied by a confirmation page and a confirmation email and will be recorded in your "My Rewards Account" page. You can reach this page by clicking on your name, located at the top of every page to the right of the search button.'
+            ],
+            [
+                'id' => 4,
+                'program_id' => 'sharecare',
+                'question' => 'Are my reward points transferable?',
+                'answer' => 'Points have no cash value, and may not be assigned, transferred and/or pledged to any third party. You do not have property rights or other legal interests in any reward points granted pursuant to the Program.'
+            ],
+            [
+                'id' => 5,
+                'program_id' => 'sharecare',
+                'question' => 'If I have a question regarding a transaction, who do I contact?',
+                'answer' => 'The details of each transaction (including tracking numbers when available) are available on your "My Rewards Account" page. To access your "My Rewards Account" page simply click on the "My Rewards Account" link at the top right of every page in the system. If you have any questions, please feel free to contact the Marketplace Customer Support through the "Contact Us" link in the navigation bar on the right or bottom of every page.'
+            ],
+            [
+                'id' => 6,
+                'program_id' => 'sharecare',
+                'question' => 'Who pays for the shipping and handling on products ordered?',
+                'answer' => 'The cost of shipping and handling on all products are included in the price (points) displayed in the Marketplace.'
+            ],
+            [
+                'id' => 7,
+                'program_id' => 'sharecare',
+                'question' => 'Do points expire?',
+                'answer' => 'Yes, points expire at the end of your program plan year. Points do not carry over from one plan year to the next.'
+            ],
+        ];
+        $table = $this->table('Faqs');
+        $table->truncate();
+        $table->insert($data)->save();
+    }
+
     private function importFixturedLayoutImages()
     {
         $dir = opendir(ROOT . '/seeds/fixtures/layout-images');
@@ -559,7 +611,6 @@ class SandboxResetSeeder extends AbstractSeed
                 'active' => 1,
                 'start_date' => '2018-01-01',
                 'end_date' => '2024-12-31',
-                'point' => 1,
                 'max_participant_entry' => 1000,
                 'created_at' => date('Y-m-d')
             ],
@@ -568,7 +619,6 @@ class SandboxResetSeeder extends AbstractSeed
                 'active' => 1,
                 'start_date' => '2018-01-01',
                 'end_date' => '2024-12-31',
-                'point' => 1,
                 'max_participant_entry' => 1000,
                 'created_at' => date('Y-m-d')
             ]
