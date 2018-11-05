@@ -149,7 +149,15 @@ class Transaction
 
         //@TODO let's make a transaction service/repository to pass around?
         $transaction = new \Entities\Transaction($participant);
-        $this->addTransactionItems($transaction, $data);
+
+        try {
+            $this->addTransactionItems($transaction, $data);
+        }catch (TransactionServiceException $e) {
+            $this->repository->setErrors([
+                $e->getMessage()
+            ]);
+            return null;
+        }
 
         if ($shipping !== null) {
             $transaction->setShipping($shipping);
