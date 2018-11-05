@@ -229,6 +229,38 @@ services:
       - 6379
     networks:
       - adrnet
+  program.content:
+    image: gcr.io/green-talent-129607/program-content:latest
+    expose:
+      - 80
+    environment:
+      JWT_SECRET: password
+      ENVIRONMENT: development
+      MYSQL_HOST: admin-mysql
+      MYSQL_DATABASE: program-content
+      MYSQL_USERNAME: root
+      MYSQL_PASSWORD: 123
+      LOG_HOST: fluentd
+      LOG_PORT: "24224"
+      FILESYSTEM: local
+      GOOGLE_IMAGE_PATH: "https://storage.googleapis.com/adrcdn/programcontent/"
+    networks:
+      - adrnet
+  card.account:
+    image: gcr.io/green-talent-129607/card-account-admin:latest
+    expose:
+      - 80
+    environment:
+      JWT_SECRET: password
+      ENVIRONMENT: development
+      MYSQL_HOST: admin-mysql
+      MYSQL_DATABASE: ca-admin
+      MYSQL_USERNAME: root
+      MYSQL_PASSWORD: 123
+      LOG_HOST: fluentd
+      LOG_PORT: "24224"
+    networks:
+      - adrnet
 volumes:
   mpadmindb:
     driver: local
