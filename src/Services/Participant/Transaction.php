@@ -104,7 +104,7 @@ class Transaction
                         $adjustedInventory = $requestedProduct->getInventoryCount() - $quantity;
                         if($adjustedInventory < 0) {
                             throw new TransactionServiceException(
-                                'Product with SKU: ' . $requestedProduct->getSku() . ' has insufficient inventory'
+                                $requestedProduct->getName() . ' (' . $requestedProduct->getSku() . ') has insufficient inventory'
                             );
                         }
 
@@ -119,7 +119,7 @@ class Transaction
 
                         if($success === false) {
                             throw new TransactionServiceException(
-                                'Unable to obtain inventory hold for product with SKU: ' . $requestedProduct->getSku() . ''
+                                'Unable to obtain inventory hold for product '. $requestedProduct->getName(). ' ('. $requestedProduct->getSku() . ')'
                             );
                         }
                     }
