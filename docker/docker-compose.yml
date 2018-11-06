@@ -19,7 +19,6 @@ services:
       - ./app/xdebug.ini:/etc/php/7.2/fpm/conf.d/xdebug.ini
       - ./app/startup.sh:/usr/local/bin/startup.sh
       - ./app/php-fpm.conf:/etc/php/7.2/fpm/php-fpm.conf
-      - ./app/crontab:/etc/crontab
     expose:
       - 80
     ports:

@@ -35,6 +35,8 @@ COPY php.ini /etc/php/7.2/fpm/php.ini
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY crontab /etc/crontab
 
+RUN crontab /etc/crontab
+
 # Copy container entry point script.
 COPY startup.sh /usr/local/bin/startup.sh
 # Copy app files and set permissions.
