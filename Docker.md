@@ -11,11 +11,15 @@ cd docker
 
 ## Database 
 
-### Importing the DB
-
 You will do this the very first time you spin up the docker container.  
 
-`docker exec -i docker_admin-mysql_1 mysql -u root -p123 mpadmin < docker/app/sql/base.sql`
+```bash
+# Run Migrations
+cd docker
+./dev migrate migrate
+# Seed the Database
+./dev reset
+```
 
 ### Migrations
 

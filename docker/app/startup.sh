@@ -2,8 +2,6 @@
 
 # This script is executed when the container is brought up.
 
-## Fix Cron issues
-touch /etc/crontab /etc/cron.*/*
 # Place the environment variables in a script for CRON jobs to be able to access them.
 declare -p | grep -Ev 'BASHOPTS|BASH_VERSINFO|EUID|PPID|SHELLOPTS|UID' > /container.env
 
