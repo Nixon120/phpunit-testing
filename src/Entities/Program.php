@@ -40,6 +40,12 @@ class Program extends Base
 
     public $published = 0;
 
+    public $start_date;
+
+    public $end_date;
+
+    public $grace_period;
+
     /** @var AutoRedemption */
     private $autoRedemption;
 
@@ -325,6 +331,62 @@ class Program extends Base
     public function setDomain(?Domain $domain)
     {
         $this->domain = $domain;
+    }
+
+    /**
+     * @return string
+     */
+    public function getStartDate()
+    {
+        return $this->start_date;
+    }
+
+    /**
+     * @param string
+     */
+    public function setStartDate($start_date)
+    {
+        $this->start_date = $start_date;
+        if ($start_date) {
+            $start_date = new \DateTime($start_date);
+            $this->start_date = $start_date->format('Y-m-d');
+        }
+    }
+
+    /**
+     * @return string
+     */
+    public function getEndDate()
+    {
+        return $this->end_date;
+    }
+
+    /**
+     * @param string
+     */
+    public function setEndDate($end_date)
+    {
+        $this->end_date = $end_date;
+        if ($end_date) {
+            $end_date = new \DateTime($end_date);
+            $this->end_date = $end_date->format('Y-m-d');
+        }
+    }
+
+    /**
+     * @return string
+     */
+    public function getGracePeriod()
+    {
+        return $this->grace_period;
+    }
+
+    /**
+     * @param string
+     */
+    public function setGracePeriod($grace_period)
+    {
+        $this->grace_period = $grace_period;
     }
 
     /**
