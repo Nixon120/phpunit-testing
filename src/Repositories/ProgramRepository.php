@@ -594,6 +594,13 @@ SQL;
         return $sth->execute([$publish, $program]);
     }
 
+    public function cancelProgram($program)
+    {
+        $sql = "UPDATE Program SET published = 0, active = 0 WHERE unique_id = ?";
+        $sth = $this->database->prepare($sql);
+        return $sth->execute([$program]);
+    }
+
     /**
      * @param $cardName
      * @param $imageData

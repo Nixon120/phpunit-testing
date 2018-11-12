@@ -22,7 +22,7 @@ class ProgramCanceller
         $expiredPrograms = $this->getExpiredPrograms();
         if (count($expiredPrograms) > 0) {
             foreach($expiredPrograms as $program) {
-                $this->repository->updatePublishColumn($program->getUniqueId(), 0);
+                $this->repository->cancelProgram($program->getUniqueId());
             }
         }
     }
