@@ -39,12 +39,10 @@ class AdjustmentWebhookListener extends AbstractListener
 
     public function __construct(
         MessagePublisher $publisher,
-        TransactionService $transactionService,
         ParticipantService $participantService,
         WebhookRepository $webhookRepository
     ) {
         parent::__construct($publisher);
-        $this->transactionService = $transactionService;
         $this->webhookRepository = $webhookRepository;
         $this->participantService = $participantService;
     }
