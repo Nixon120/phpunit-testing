@@ -32,7 +32,6 @@ class BalanceRepository extends BaseRepository
             return null;
         }
 
-        $adjustment->setParticipant($adjustment->getParticipant());
         return $adjustment;
     }
 

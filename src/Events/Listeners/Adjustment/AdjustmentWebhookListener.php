@@ -55,7 +55,8 @@ class AdjustmentWebhookListener extends AbstractListener
         $this->event = $event;
 
         $adjustment = $this->getAdjustment();
-        $participant = $adjustment->getParticipant();
+        $participant = $this->getParticipant($adjustment->getParticipantId());
+        $adjustment->setParticipant($participant);
         $organization = $participant->getOrganization();
 
         if ($event->getName() == 'Adjustment.create') {
@@ -99,7 +100,7 @@ class AdjustmentWebhookListener extends AbstractListener
         Adjustment $adjustment
     ) {
         $outputNormalizer = new OutputNormalizer($adjustment);
-        $data = $outputNormalizer->get();
+        $data = $outputNormalizer->getAdjustment();
         
         // This is where we use a Webhook publishing service.
         $webhookPublisher = new WebhookPublisherService();
@@ -112,5 +113,14 @@ class AdjustmentWebhookListener extends AbstractListener
     private function getAdjustment()
     {
         return $this->balanceService->getAdjustmentForWebhook($this->event->getEntityId());
+    }
+
+    /**
+     * @param $id
+     * @return \Entities\Participant|null
+     */
+    private function getParticipant($id)
+    {
+        return $this->participantService->getById($id);
     }
 }

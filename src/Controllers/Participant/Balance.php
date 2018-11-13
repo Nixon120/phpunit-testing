@@ -53,6 +53,20 @@ class Balance
         return $this->returnJson(400, ['Resource does not exist']);
     }
 
+    public function single($organizationId, $uniqueId, $adjustmentId)
+    {
+        $participant = $this->service->participantRepository->getParticipantByOrganization($organizationId, $uniqueId);
+        $item = $this->service->getAdjustmentForWebhook($adjustmentId);
+        $item->setParticipant($participant);
+
+        if ($participant !== null && $item !== null) {
+            $output = new OutputNormalizer($item);
+            return $this->returnJson(200, $output->getAdjustment());
+        }
+
+        return $this->returnJson(400, ['Resource does not exist']);
+    }
+
     public function insert($organizationId, $uniqueId)
     {
         $participant = $this->service->participantRepository->getParticipantByOrganization($organizationId, $uniqueId);
