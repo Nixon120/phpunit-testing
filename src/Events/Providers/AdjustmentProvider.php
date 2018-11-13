@@ -95,6 +95,7 @@ class AdjustmentProvider extends AbstractProvider
         return new AdjustmentWebhookListener(
             $this->getMessagePublisher(),
             $this->participantServiceFactory->getService(),
+            $this->participantServiceFactory->getBalanceService(),
             $this->getWebhookRepository()
         );
     }

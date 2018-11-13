@@ -55,6 +55,23 @@ class OutputNormalizer extends AbstractOutputNormalizer
             'active'
         ]);
 
+        $participant = $adjustment->getParticipant();
+        $participantReturn = $participant->toArray();
+        $participantReturn['address'] = $this->prepareAddressOutput($participant->getAddress());
+        $participantReturn['program'] = $participant->getProgram()->getUniqueId();
+        $participantReturn['organization'] = $participant->getOrganization()->getUniqueId();
+        $participantReturn['meta'] = $participant->getMeta();
+        $participantReturn = $this->scrub($participantReturn, [
+            'address_reference',
+            'password',
+            'sso',
+            'id',
+            'organization_id',
+            'program_id'
+        ]);
+        $participantReturn['meta'] = $participant->getMeta();
+        $return['user'] = $participantReturn;
+
         return $return;
     }
 

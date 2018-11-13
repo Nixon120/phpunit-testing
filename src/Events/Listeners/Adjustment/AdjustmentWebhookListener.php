@@ -4,11 +4,13 @@ namespace Events\Listeners\Transaction;
 
 use AllDigitalRewards\AMQP\MessagePublisher;
 use Controllers\Participant\OutputNormalizer;
+use Entities\Adjustment;
 use Entities\Event;
 use Entities\Webhook;
 use Events\Listeners\AbstractListener;
 use League\Event\EventInterface;
 use Repositories\WebhookRepository;
+use Services\Participant\Balance;
 use Services\Participant\Participant as ParticipantService;
 use Services\Participant\Participant;
 use Services\Webhook\WebhookPublisherService;
@@ -27,15 +29,21 @@ class AdjustmentWebhookListener extends AbstractListener
      * @var ParticipantService
      */
     private $participantService;
+    /**
+     * @var Balance
+     */
+    private $balanceService;
 
     public function __construct(
         MessagePublisher $publisher,
         ParticipantService $participantService,
+        Balance $balance,
         WebhookRepository $webhookRepository
     ) {
         parent::__construct($publisher);
         $this->webhookRepository = $webhookRepository;
         $this->participantService = $participantService;
+        $this->balanceService = $balance;
     }
 
     /**
@@ -46,9 +54,8 @@ class AdjustmentWebhookListener extends AbstractListener
     {
         $this->event = $event;
 
-        $participant = $this->fetchParticipant();
-
-        // Determine the Organization the event belongs to.
+        $adjustment = $this->getAdjustment();
+        $participant = $adjustment->getParticipant();
         $organization = $participant->getOrganization();
 
         if ($event->getName() == 'Adjustment.create') {
@@ -62,7 +69,7 @@ class AdjustmentWebhookListener extends AbstractListener
 
             // Iterate thru the webhooks & execute.
             foreach ($webhooks as $webhook) {
-                $this->executeWebhook($webhook, $transaction);
+                $this->executeWebhook($webhook, $adjustment);
             }
         }
 
@@ -81,7 +88,7 @@ class AdjustmentWebhookListener extends AbstractListener
                 // This is bad, we should probably catch an exception here.
             }
 
-            $this->executeWebhook($webhook, $participant);
+            $this->executeWebhook($webhook, $adjustment);
         }
 
         return true;
@@ -89,10 +96,10 @@ class AdjustmentWebhookListener extends AbstractListener
 
     private function executeWebhook(
         Webhook $webhook,
-        \Entities\Participant $participant
+        Adjustment $adjustment
     ) {
-        $outputNormalizer = new OutputNormalizer($participant);
-        $data = $outputNormalizer->getAdjustment();
+        $outputNormalizer = new OutputNormalizer($adjustment);
+        $data = $outputNormalizer->get();
         
         // This is where we use a Webhook publishing service.
         $webhookPublisher = new WebhookPublisherService();
@@ -100,12 +107,10 @@ class AdjustmentWebhookListener extends AbstractListener
     }
 
     /**
-     * @return \Entities\Participant
+     * @return Adjustment|null
      */
-    private function fetchParticipant()
+    private function getAdjustment()
     {
-        return $this
-            ->participantService
-            ->getById($this->event->getEntityId());
+        return $this->balanceService->getAdjustmentForWebhook($this->event->getEntityId());
     }
 }

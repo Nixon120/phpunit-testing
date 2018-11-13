@@ -23,6 +23,19 @@ class BalanceRepository extends BaseRepository
         return $adjustment;
     }
 
+    public function getAdjustmentForWebhook(int $id)
+    {
+        $sql = "SELECT * FROM Adjustment WHERE id = ?";
+        $args = [$id];
+        /** @var Adjustment $adjustment */
+        if (!$adjustment = $this->query($sql, $args, Adjustment::class)) {
+            return null;
+        }
+
+        $adjustment->setParticipant($adjustment->getParticipant());
+        return $adjustment;
+    }
+
     public function getAdjustmentsByParticipant(Participant $participant)
     {
         $sql = "SELECT Adjustment.* "
