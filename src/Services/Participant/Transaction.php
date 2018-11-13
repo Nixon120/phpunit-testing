@@ -193,6 +193,8 @@ class Transaction
                     $transaction->getTotal(),
                     $transaction->getId()
                 );
+
+                $this->queueAdjustmentEvent('credit', $participant->getId());
             }
 
             //@TODO we should deduct credit first..
@@ -202,6 +204,8 @@ class Transaction
                 $transaction->getTotal(),
                 $transaction->getId()
             );
+
+            $this->queueAdjustmentEvent('debit', $participant->getId());
 
             // We'll approve the inventory hold through the Transaction.create webhook listener event
             $this->queueEvent($transactionId);
@@ -292,6 +296,16 @@ class Transaction
     {
         $event = new Event();
         $event->setName('Transaction.create');
+        $event->setEntityId($id);
+        $this
+            ->eventPublisher
+            ->publish(json_encode($event));
+    }
+
+    protected function queueAdjustmentEvent($type, $id)
+    {
+        $event = new Event();
+        $event->setName('Adjustment.' . $type);
         $event->setEntityId($id);
         $this
             ->eventPublisher

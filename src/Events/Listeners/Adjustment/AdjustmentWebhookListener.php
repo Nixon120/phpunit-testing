@@ -3,27 +3,18 @@
 namespace Events\Listeners\Transaction;
 
 use AllDigitalRewards\AMQP\MessagePublisher;
-use AllDigitalRewards\Services\Catalog\Entity\InventoryApproveRequest;
 use Controllers\Participant\OutputNormalizer;
 use Entities\Event;
-use Entities\Organization;
-use Entities\Transaction;
 use Entities\Webhook;
 use Events\Listeners\AbstractListener;
-use Factories\AuthenticationTokenFactory;
-use Firebase\JWT\JWT;
 use League\Event\EventInterface;
 use Repositories\WebhookRepository;
-use Services\Participant\Transaction as TransactionService;
 use Services\Participant\Participant as ParticipantService;
+use Services\Participant\Participant;
 use Services\Webhook\WebhookPublisherService;
 
 class AdjustmentWebhookListener extends AbstractListener
 {
-    /**
-     * @var Transaction
-     */
-    private $transactionService;
     /**
      * @var WebhookRepository
      */
@@ -47,33 +38,6 @@ class AdjustmentWebhookListener extends AbstractListener
         $this->participantService = $participantService;
     }
 
-    private function approveInventoryHold(Transaction $transaction): bool
-    {
-        $catalog = $this->transactionService->getTransactionRepository()
-            ->getCatalog();
-
-        $catalog->setToken(AuthenticationTokenFactory::getToken());
-
-        foreach($transaction->getItems() as $item) {
-            if($catalog->getInventoryHold($item->getGuid()) === true) {
-
-                $inventoryHoldApprove = new InventoryApproveRequest([
-                    'guid' => $item->getGuid()
-                ]);
-
-                $success = $catalog->setInventoryApproved($inventoryHoldApprove);
-                if($success === false) {
-                    // Any failures will just requeue the event, approving inventory twice
-                    // won't hurt anything
-                    return false;
-                }
-            }
-
-        }
-
-        return true;
-    }
-
     /**
      * @param EventInterface|Event $event
      * @return bool
@@ -82,25 +46,18 @@ class AdjustmentWebhookListener extends AbstractListener
     {
         $this->event = $event;
 
-        $transaction = $this->fetchTransaction();
-        $inventoryHoldsApproved = $this->approveInventoryHold($transaction);
-
-        if($inventoryHoldsApproved === false) {
-            $event->setName('Transaction.create');
-            $this->reQueueEvent($event);
-            return false;
-        }
+        $participant = $this->fetchParticipant();
 
         // Determine the Organization the event belongs to.
-        $organization = $this->fetchOrganization($transaction);
+        $organization = $participant->getOrganization();
 
-        if ($event->getName() == 'Transaction.create') {
-            // Get all configured Transaction.create Webhooks for Org & Parent Orgs.
+        if ($event->getName() == 'Adjustment.create') {
+            // Get all configured Adjustment.create Webhooks for Org & Parent Orgs.
             $webhooks = $this
                 ->webhookRepository
                 ->getOrganizationAndParentWebhooks(
                     $organization,
-                    'Transaction.create'
+                    'Adjustment.create'
                 );
 
             // Iterate thru the webhooks & execute.
@@ -109,10 +66,10 @@ class AdjustmentWebhookListener extends AbstractListener
             }
         }
 
-        if (strstr($event->getName(), 'Transaction.create.webhook.') !== false) {
+        if (strstr($event->getName(), 'Adjustment.create.webhook.') !== false) {
             // Get Single Webhook to Execute again.
             // This will only occur if it initially failed for some reason.
-            // Transaction.create.webhook.{webhookId}
+            // Adjustment.create.webhook.{webhookId}
             $webhookId = substr(
                 $event->getName(),
                 strrpos($event->getName(), '.')
@@ -124,7 +81,7 @@ class AdjustmentWebhookListener extends AbstractListener
                 // This is bad, we should probably catch an exception here.
             }
 
-            $this->executeWebhook($webhook, $transaction);
+            $this->executeWebhook($webhook, $participant);
         }
 
         return true;
@@ -132,11 +89,10 @@ class AdjustmentWebhookListener extends AbstractListener
 
     private function executeWebhook(
         Webhook $webhook,
-        Transaction $transaction
+        \Entities\Participant $participant
     ) {
-        // Use Webhook Transmittal service to POST the transactions.
-        $outputNormalizer = new OutputNormalizer($transaction);
-        $data = $outputNormalizer->getTransaction();
+        $outputNormalizer = new OutputNormalizer($participant);
+        $data = $outputNormalizer->getAdjustment();
         
         // This is where we use a Webhook publishing service.
         $webhookPublisher = new WebhookPublisherService();
@@ -144,45 +100,12 @@ class AdjustmentWebhookListener extends AbstractListener
     }
 
     /**
-     * @return Transaction
+     * @return \Entities\Participant
      */
-    private function fetchTransaction()
+    private function fetchParticipant()
     {
-        // Get the transaction.
-        $transaction = $this
-            ->getTransactionRepo()
-            ->getTransaction(
-                $this->event->getEntityId()
-            );
-
-        $participant = $this
+        return $this
             ->participantService
-            ->getById($transaction->getParticipantId());
-
-        // Return a fully hydrated Transaction
-        return $this
-            ->getTransactionRepo()
-            ->getParticipantTransaction($participant, $transaction->getId());
-    }
-
-    /**
-     * @param Transaction $transaction
-     * @return Organization
-     */
-    private function fetchOrganization(Transaction $transaction)
-    {
-        return $this
-            ->getTransactionRepo()
-            ->getTransactionOrganization($transaction);
-    }
-
-    /**
-     * @return \Repositories\TransactionRepository
-     */
-    private function getTransactionRepo()
-    {
-        return $this
-            ->transactionService
-            ->getTransactionRepository();
+            ->getById($this->event->getEntityId());
     }
 }
