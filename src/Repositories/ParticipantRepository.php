@@ -167,15 +167,25 @@ SQL;
 
     public function getParticipantsByMetaKeyValue($key, $value)
     {
-        $sql = "SELECT * FROM `ParticipantMeta` WHERE `key` = ? AND `value` = ?";
+        $sql = "
+SELECT * 
+FROM `Participant` 
+WHERE `Participant`.id IN (
+    SELECT `ParticipantMeta`.participant_id 
+    FROM `ParticipantMeta` 
+    WHERE `key` = ? AND `value` = ?
+)
+";
         $args = [$key, $value];
         $sth = $this->database->prepare($sql);
         $sth->execute($args);
-        if ($meta = $sth->fetchAll(PDO::FETCH_CLASS, ParticipantMeta::class)) {
-            return $this->getParticipantsWithMetaKeyValue($meta);
+        $participants = $sth->fetchAll(\PDO::FETCH_CLASS, $this->getRepositoryEntity());
+
+        if (empty($participants)) {
+            return [];
         }
 
-        return [];
+        return $participants;
     }
 
     private function getParticipantsWithMetaKeyValue($meta):array

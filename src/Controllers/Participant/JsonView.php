@@ -42,16 +42,16 @@ class JsonView extends AbstractViewController
         $get = $this->request->getQueryParams();
         $key = key($get);
         $value = $get[$key];
-        $participantIds = $this->service->repository->getParticipantsByMetaKeyValue(
+        $participants = $this->service->repository->getParticipantsByMetaKeyValue(
             $key,
             $value
         );
 
-        if (is_null($participantIds)) {
+        if (is_null($participants)) {
             return $this->renderJson404();
         }
         $response = $this->response->withStatus(200)
-            ->withJson($participantIds);
+            ->withJson($participants);
         return $response;
     }
 
