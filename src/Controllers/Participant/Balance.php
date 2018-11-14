@@ -53,6 +53,25 @@ class Balance
         return $this->returnJson(400, ['Resource does not exist']);
     }
 
+    public function listToAndFromDates($organizationId, $uniqueId)
+    {
+        $get = $this->request->getQueryParams();
+        $fromDate = $get['from_date'];
+        $toDate = $get['to_date'];
+        $participant = $this->service->participantRepository->getParticipantByOrganization($organizationId, $uniqueId);
+
+        $adjustments = $this->service->getParticipantAdjustments(
+            $participant,
+            $fromDate,
+            $toDate
+        );
+
+        $response = $this->response->withStatus(200)
+            ->withJson($adjustments);
+        return $response;
+
+    }
+
     public function single($organizationId, $uniqueId, $adjustmentId)
     {
         $participant = $this->service->participantRepository->getParticipantByOrganization($organizationId, $uniqueId);

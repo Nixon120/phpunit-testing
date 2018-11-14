@@ -165,6 +165,29 @@ SQL;
         return [];
     }
 
+    public function getParticipantsByMetaKeyValue($key, $value)
+    {
+        $sql = "SELECT * FROM `ParticipantMeta` WHERE `key` = ? AND `value` = ?";
+        $args = [$key, $value];
+        $sth = $this->database->prepare($sql);
+        $sth->execute($args);
+        if ($meta = $sth->fetchAll(PDO::FETCH_CLASS, ParticipantMeta::class)) {
+            return $this->getParticipantsWithMetaKeyValue($meta);
+        }
+
+        return [];
+    }
+
+    private function getParticipantsWithMetaKeyValue($meta):array
+    {
+        $participantContainer = [];
+        foreach ($meta as $key) {
+            $participantContainer[] = $key->getParticipantId();
+        }
+
+        return $participantContainer;
+    }
+
     private function prepareParticipantMeta($meta):array
     {
         $associative = [];

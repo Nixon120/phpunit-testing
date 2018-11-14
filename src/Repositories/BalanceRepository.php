@@ -35,11 +35,20 @@ class BalanceRepository extends BaseRepository
         return $adjustment;
     }
 
-    public function getAdjustmentsByParticipant(Participant $participant)
+    public function getAdjustmentsByParticipant(
+        Participant $participant,
+        string $fromDate = null,
+        string $toDate = null
+    )
     {
+        $datesBetween = '';
+        if (is_null($fromDate) === false && is_null($toDate) === false) {
+            $datesBetween = " AND created_at >= '$fromDate' AND created_at <= '$toDate'";
+        }
+
         $sql = "SELECT Adjustment.* "
             . " FROM Adjustment "
-            . " WHERE participant_id = ?"
+            . " WHERE participant_id = ? $datesBetween"
             . " ORDER BY created_at DESC";
 
         $args = [$participant->getId()];
