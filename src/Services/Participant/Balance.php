@@ -87,16 +87,23 @@ class Balance
         return $this->repository->getAdjustmentForWebhook($adjustmentId);
     }
 
-    public function getParticipantAdjustments(
+    public function getParticipantAdjustments(\Entities\Participant $participant)
+    {
+        return $this->repository->getAdjustmentsByParticipant($participant);
+    }
+
+    public function getParticipantCreditAdjustmentsByDate(
         \Entities\Participant $participant,
-        string $fromDate = null,
-        string $toDate = null
+        $fromDate,
+        $toDate,
+        $reference
     )
     {
-        return $this->repository->getAdjustmentsByParticipant(
+        return $this->repository->getCreditAdjustmentsByParticipant(
             $participant,
             $fromDate,
-            $toDate
+            $toDate,
+            $reference
         );
     }
 

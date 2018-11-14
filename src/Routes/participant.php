@@ -99,7 +99,7 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
         $auth = $this->get('authentication');
         $get = $this->request->getQueryParams();
 
-        if ($get['from_date'] && $get['to_date']) {
+        if (empty($get) === false) {
             return $balance->listToAndFromDates($auth->getUser()->getOrganizationId(), $uniqueId);
         }
         return $balance->list($auth->getUser()->getOrganizationId(), $uniqueId);

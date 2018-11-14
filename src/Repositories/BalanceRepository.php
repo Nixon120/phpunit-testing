@@ -35,20 +35,11 @@ class BalanceRepository extends BaseRepository
         return $adjustment;
     }
 
-    public function getAdjustmentsByParticipant(
-        Participant $participant,
-        string $fromDate = null,
-        string $toDate = null
-    )
+    public function getAdjustmentsByParticipant(Participant $participant)
     {
-        $datesBetween = '';
-        if (is_null($fromDate) === false && is_null($toDate) === false) {
-            $datesBetween = " AND created_at >= '$fromDate' AND created_at <= '$toDate'";
-        }
-
         $sql = "SELECT Adjustment.* "
             . " FROM Adjustment "
-            . " WHERE participant_id = ? $datesBetween"
+            . " WHERE participant_id = ?"
             . " ORDER BY created_at DESC";
 
         $args = [$participant->getId()];
@@ -64,6 +55,43 @@ class BalanceRepository extends BaseRepository
 
         foreach ($adjustments as $adjustment) {
             $adjustment->setParticipant($participant);
+        }
+
+        return $adjustments;
+    }
+
+    public function getCreditAdjustmentsByParticipant(
+        Participant $participant,
+        string $fromDate,
+        string $toDate,
+        string $reference = null
+    )
+    {
+        $datesBetween = '';
+        if (is_null($fromDate) === false && is_null($toDate) === false) {
+            $datesBetween = " AND created_at >= '$fromDate' AND created_at <= '$toDate'";
+        }
+
+        $byReference = '';
+        if (is_null($reference) === false) {
+            $byReference = " AND reference = '$reference'";
+        }
+
+        $sql = "SELECT Adjustment.* "
+            . " FROM Adjustment "
+            . " WHERE type = 1"
+            . " $datesBetween"
+            . " $byReference"
+            . " ORDER BY created_at DESC";
+
+        /** @var Adjustment $adjustment */
+        $sth = $this->database->prepare($sql);
+        $sth->execute();
+
+        $adjustments = $sth->fetchAll(\PDO::FETCH_CLASS, $this->getRepositoryEntity());
+
+        if (empty($adjustments)) {
+            return [];
         }
 
         return $adjustments;

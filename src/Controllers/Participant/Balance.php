@@ -58,12 +58,14 @@ class Balance
         $get = $this->request->getQueryParams();
         $fromDate = $get['from_date'];
         $toDate = $get['to_date'];
+        $reference = $get['reference'] ?? null;
         $participant = $this->service->participantRepository->getParticipantByOrganization($organizationId, $uniqueId);
 
-        $adjustments = $this->service->getParticipantAdjustments(
+        $adjustments = $this->service->getParticipantCreditAdjustmentsByDate(
             $participant,
             $fromDate,
-            $toDate
+            $toDate,
+            $reference
         );
 
         $response = $this->response->withStatus(200)
