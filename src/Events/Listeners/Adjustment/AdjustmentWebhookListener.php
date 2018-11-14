@@ -59,20 +59,23 @@ class AdjustmentWebhookListener extends AbstractListener
         $adjustment->setParticipant($participant);
         $organization = $participant->getOrganization();
 
-        if ($event->getName() == 'Adjustment.create') {
-            // Get all configured Adjustment.create Webhooks for Org & Parent Orgs.
-            $webhooks = $this
-                ->webhookRepository
-                ->getOrganizationAndParentWebhooks(
-                    $organization,
-                    'Adjustment.create'
-                );
+        $types = ['debit', 'credit'];
+        foreach ($types as $type) {
+            if ($event->getName() == 'Adjustment.' . $type) {
+                $webhooks = $this
+                    ->webhookRepository
+                    ->getOrganizationAndParentWebhooks(
+                        $organization,
+                        'Adjustment.' . $type
+                    );
 
-            // Iterate thru the webhooks & execute.
-            foreach ($webhooks as $webhook) {
-                $this->executeWebhook($webhook, $adjustment);
+                // Iterate thru the webhooks & execute.
+                foreach ($webhooks as $webhook) {
+                    $this->executeWebhook($webhook, $adjustment);
+                }
             }
         }
+
 
         if (strstr($event->getName(), 'Adjustment.create.webhook.') !== false) {
             // Get Single Webhook to Execute again.

@@ -187,7 +187,7 @@ class Transaction
                 );
 
             if ($issuePoints === true) {
-                $this->adjustPoints(
+                $adjustment = $this->adjustPoints(
                     $participant,
                     'credit',
                     $transaction->getTotal(),
@@ -196,7 +196,7 @@ class Transaction
             }
 
             //@TODO we should deduct credit first..
-            $this->adjustPoints(
+            $adjustment = $this->adjustPoints(
                 $participant,
                 'debit',
                 $transaction->getTotal(),
@@ -205,6 +205,7 @@ class Transaction
 
             // We'll approve the inventory hold through the Transaction.create webhook listener event
             $this->queueEvent($transactionId);
+            $this->queueAdjustmentEvent($adjustment);
 
             return $transaction;
         }
@@ -255,8 +256,6 @@ class Transaction
 
             $this->balanceRepository->updateParticipantCredit($adjustment);
 
-            $this->queueAdjustmentEvent($type, $adjustment);
-
             return $adjustment;
         }
     }
@@ -301,13 +300,12 @@ class Transaction
     }
 
     /**
-     * @param string $type
      * @param Adjustment $adjustment
      */
-    protected function queueAdjustmentEvent(string $type, Adjustment $adjustment)
+    protected function queueAdjustmentEvent(Adjustment $adjustment)
     {
         $event = new Event();
-        $event->setName('Adjustment.' . $type);
+        $event->setName('Adjustment.' . $adjustment->getType());
         $event->setEntityId($adjustment->getId());
         $this
             ->eventPublisher

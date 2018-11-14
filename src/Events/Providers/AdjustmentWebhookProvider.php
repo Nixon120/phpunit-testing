@@ -29,7 +29,7 @@ class AdjustmentWebhookProvider extends AbstractProvider
 
     private function addParticipantPointAdjustmentListeners()
     {
-        $events = ['Adjustment.credit', 'Adjustment.debit', 'Adjustment.create.webhook.*'];
+        $events = ['Adjustment.credit', 'Adjustment.debit'];
         array_map(function ($eventName) {
             $this->acceptor->addListener(
                 $eventName,
