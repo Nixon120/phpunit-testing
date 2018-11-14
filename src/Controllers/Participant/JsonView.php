@@ -40,7 +40,7 @@ class JsonView extends AbstractViewController
     public function listByMeta()
     {
         $get = $this->request->getQueryParams();
-        $key = array_keys($get)[0];
+        $key = key($get);
         $value = $get[$key];
         $participantIds = $this->service->repository->getParticipantsByMetaKeyValue(
             $key,
