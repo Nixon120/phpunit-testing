@@ -1,6 +1,6 @@
 <?php
 
-namespace Events\Listeners\Transaction;
+namespace Events\Listeners\Adjustment;
 
 use AllDigitalRewards\AMQP\MessagePublisher;
 use Controllers\Participant\OutputNormalizer;

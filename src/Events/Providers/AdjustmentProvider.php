@@ -4,9 +4,7 @@ namespace Events\Providers;
 
 use Events\Listeners\Adjustment\AutoRedemption;
 use Events\Listeners\Adjustment\SweepstakeEntry;
-use Events\Listeners\Transaction\AdjustmentWebhookListener;
 use League\Event\ListenerAcceptorInterface;
-use Repositories\WebhookRepository;
 use Services\Participant\ServiceFactory;
 
 class AdjustmentProvider extends AbstractProvider
@@ -28,7 +26,6 @@ class AdjustmentProvider extends AbstractProvider
 
         $this->addAutoRedemptionListeners();
         $this->addSweepstakeRedemptionListeners();
-        $this->addParticipantPointAdjustmentListeners();
     }
 
     private function addAutoRedemptionListeners()
@@ -55,17 +52,6 @@ class AdjustmentProvider extends AbstractProvider
         }, $events);
     }
 
-    private function addParticipantPointAdjustmentListeners()
-    {
-        $events = ['Adjustment.credit', 'Adjustment.debit', 'Adjustment.create.webhook.*'];
-        array_map(function ($eventName) {
-            $this->acceptor->addListener(
-                $eventName,
-                $this->getAdjustmentWebhookListener()
-            );
-        }, $events);
-    }
-
     private function getAutoRedemption()
     {
         return new AutoRedemption(
@@ -88,23 +74,5 @@ class AdjustmentProvider extends AbstractProvider
             $this->participantServiceFactory->getSweepstakeService(),
             $programService->getCatalogService()
         );
-    }
-
-    private function getAdjustmentWebhookListener()
-    {
-        return new AdjustmentWebhookListener(
-            $this->getMessagePublisher(),
-            $this->participantServiceFactory->getService(),
-            $this->participantServiceFactory->getBalanceService(),
-            $this->getWebhookRepository()
-        );
-    }
-
-    /**
-     * @return WebhookRepository
-     */
-    private function getWebhookRepository()
-    {
-        return new WebhookRepository($this->getContainer()->get('database'));
     }
 }
