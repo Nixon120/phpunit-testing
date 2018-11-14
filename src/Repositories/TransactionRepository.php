@@ -67,15 +67,14 @@ class TransactionRepository extends BaseRepository
         return $this->query($sql, [$id], Transaction::class);
     }
 
-    public function getTransactionsByDates($participantId, $fromDate, $toDate)
+    public function getTransactionsByDates($fromDate, $toDate)
     {
         $sql = "
 SELECT * 
-FROM Transaction 
-WHERE participant_id = ? 
-AND created_at >= ? AND created_at <= ?";
+FROM Transaction  
+WHERE created_at >= ? AND created_at <= ?";
 
-        $args = [$participantId, $fromDate, $toDate];
+        $args = [$fromDate, $toDate];
         $sth = $this->database->prepare($sql);
         $sth->execute($args);
 

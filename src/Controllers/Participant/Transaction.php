@@ -74,21 +74,15 @@ class Transaction
         $get = $this->request->getQueryParams();
         $fromDate = $get['from_date'];
         $toDate = $get['to_date'];
-        $participant = $this->service->participantRepository->getParticipantByOrganization($organizationId, $uniqueId);
 
-        if ($participant !== null) {
-            $adjustments = $this->service->listByToAndFromDates(
-                $participant->getId(),
-                $fromDate,
-                $toDate
-            );
+        $adjustments = $this->service->listByToAndFromDates(
+            $fromDate,
+            $toDate
+        );
 
-            $response = $this->response->withStatus(200)
-                ->withJson($adjustments);
-            return $response;
-        }
-
-        return $this->returnJson(400, ['Resource does not exist']);
+        $response = $this->response->withStatus(200)
+            ->withJson($adjustments);
+        return $response;
     }
 
     public function single($organizationId, $uniqueId, $transactionId)

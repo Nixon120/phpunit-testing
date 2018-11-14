@@ -285,9 +285,9 @@ class Transaction
         return $this->repository->getParticipantTransactionItem($guid);
     }
 
-    public function listByToAndFromDates($participantId, $fromDate, $toDate)
+    public function listByToAndFromDates($fromDate, $toDate)
     {
-        return $this->repository->getTransactionsByDates($participantId, $fromDate, $toDate);
+        return $this->repository->getTransactionsByDates($fromDate, $toDate);
     }
 
     public function getErrors()
