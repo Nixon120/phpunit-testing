@@ -93,14 +93,12 @@ class Balance
     }
 
     public function getParticipantCreditAdjustmentsByDate(
-        \Entities\Participant $participant,
         $fromDate,
         $toDate,
         $reference
     )
     {
         return $this->repository->getCreditAdjustmentsByParticipant(
-            $participant,
             $fromDate,
             $toDate,
             $reference

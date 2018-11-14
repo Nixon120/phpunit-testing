@@ -61,7 +61,6 @@ class BalanceRepository extends BaseRepository
     }
 
     public function getCreditAdjustmentsByParticipant(
-        Participant $participant,
         string $fromDate,
         string $toDate,
         string $reference = null
