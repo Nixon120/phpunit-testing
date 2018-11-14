@@ -57,6 +57,11 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
         $uniqueId = $args['id'];
         /** @var \Services\Authentication\Authenticate $auth */
         $auth = $this->get('authentication');
+        $get = $this->request->getQueryParams();
+
+        if ($get['from_date'] && $get['to_date']) {
+            return $transaction->listToAndFromDates($auth->getUser()->getOrganizationId(), $uniqueId);
+        }
         return $transaction->transactionList($auth->getUser()->getOrganizationId(), $uniqueId);
     });
 

@@ -67,6 +67,27 @@ class TransactionRepository extends BaseRepository
         return $this->query($sql, [$id], Transaction::class);
     }
 
+    public function getTransactionsByDates($participantId, $fromDate, $toDate)
+    {
+        $sql = "
+SELECT * 
+FROM Transaction 
+WHERE participant_id = ? 
+AND created_at >= ? AND created_at <= ?";
+
+        $args = [$participantId, $fromDate, $toDate];
+        $sth = $this->database->prepare($sql);
+        $sth->execute($args);
+
+        $transactions = $sth->fetchAll(\PDO::FETCH_CLASS, $this->getRepositoryEntity());
+
+        if (empty($transactions)) {
+            return [];
+        }
+
+        return $transactions;
+    }
+
     public function getCollectionQuery(): string
     {
         return <<<SQL
