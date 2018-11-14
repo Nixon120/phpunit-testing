@@ -193,6 +193,7 @@ class Transaction
                     $transaction->getTotal(),
                     $transaction->getId()
                 );
+                $this->queueAdjustmentEvent($adjustment);
             }
 
             //@TODO we should deduct credit first..
