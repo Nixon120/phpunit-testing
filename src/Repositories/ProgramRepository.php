@@ -11,6 +11,7 @@ use Entities\FeaturedProduct;
 use Entities\LayoutRow;
 use Entities\LayoutRowCard;
 use Entities\Organization;
+use Entities\Participant;
 use Entities\ProductCriteria;
 use Entities\Program;
 use Entities\Sweepstake;
@@ -95,6 +96,48 @@ SQL;
         }
 
         return $this->hydrateProgram($program);
+    }
+
+    public function getUsers($programId, $input)
+    {
+        $page = $input['page'] ?? 1;
+        $limit = $input['limit'] ?? 30;
+        $key = $input['meta_key'] ?? null;
+        $value = $input['meta_value'] ?? null;
+        $offset = $page === 1 ? 0 : ($page - 1) * $limit;
+        $paginationSql = "LIMIT {$limit} OFFSET {$offset} ";
+        $metaSql = '';
+        if (is_null($key) === false && is_null($value) === false) {
+            $metaSql .= <<<SQL
+AND Participant.id IN (
+  SELECT ParticipantMeta.participant_id 
+  FROM ParticipantMeta 
+  WHERE ParticipantMeta.key = '{$key}'
+  AND ParticipantMeta.value = '{$value}'
+)
+SQL;
+        }
+
+        $sql = <<<SQL
+SELECT Participant.* 
+FROM Participant 
+LEFT JOIN ParticipantMeta ON ParticipantMeta.participant_id = ParticipantMeta.id
+WHERE Participant.program_id = ? 
+{$metaSql}
+AND Participant.active = 1
+{$paginationSql}
+SQL;
+        $sth = $this->database->prepare($sql);
+        $sth->execute([$programId]);
+
+        $users = $sth->fetchAll(\PDO::FETCH_CLASS, Participant::class);
+
+        if (empty($users)) {
+            return [];
+        }
+
+        return $users;
+
     }
 
     private function hydrateProgram(Program $program)

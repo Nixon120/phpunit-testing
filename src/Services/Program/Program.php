@@ -54,6 +54,11 @@ class Program
         return null;
     }
 
+    public function getUsers($id, $input)
+    {
+        return $this->repository->getUsers($id, $input);
+    }
+
     public function get(Interfaces\InputNormalizer $input)
     {
         $filter = new FilterNormalizer($input->getInput());

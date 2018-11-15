@@ -28,6 +28,12 @@ $app->group('/api/program', function () use ($app, $createRoute, $updateRoute) {
         return $program->single($programId);
     });
 
+    $app->get('/{id}/user', function ($request, $response, $args) {
+        $program = new Controllers\JsonView($request, $response, $this->get('program'));
+        $programId = $args['id'];
+        return $program->listUsers($programId);
+    });
+
     $app->map(['post', 'get'], '/{id}/layout', function ($request, $response, $args) {
         $program = new Controllers\JsonView($request, $response, $this->get('program'));
         $programId = $args['id'];
