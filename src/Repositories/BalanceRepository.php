@@ -160,7 +160,7 @@ SQL;
 
         $validator = Validator::attribute('participant_id', Validator::notEmpty()->numeric()->setName('Participant'))
             ->attribute('type', Validator::notEmpty()->numeric()->length(1, 1))
-            ->attribute('reference', Validator::optional(Validator::alnum()->length(0, 45)))
+            ->attribute('reference', Validator::optional(Validator::notEmpty()))
             ->attribute('description', Validator::optional(Validator::stringType()->length(0, 255)));
 
         if ($adjustment->getType() === 'debit') {
