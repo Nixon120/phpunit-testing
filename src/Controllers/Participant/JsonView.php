@@ -37,24 +37,6 @@ class JsonView extends AbstractViewController
         return $response;
     }
 
-    public function listByMeta()
-    {
-        $get = $this->request->getQueryParams();
-        $key = key($get);
-        $value = $get[$key];
-        $participants = $this->service->repository->getParticipantsByMetaKeyValue(
-            $key,
-            $value
-        );
-
-        if (is_null($participants)) {
-            return $this->renderJson404();
-        }
-        $response = $this->response->withStatus(200)
-            ->withJson($participants);
-        return $response;
-    }
-
     public function single($id)
     {
         /** @var \Entities\Participant $participant */

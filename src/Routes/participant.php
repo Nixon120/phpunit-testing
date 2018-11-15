@@ -19,11 +19,6 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
         return $participant->list();
     });
 
-    $app->get('/meta', function ($request, $response) {
-        $participant = new Controllers\JsonView($request, $response, $this->get('participant'));
-        return $participant->listByMeta();
-    });
-
     $app->get('/{id}', function ($request, $response, $args) {
         $participant = new Controllers\JsonView($request, $response, $this->get('participant'));
         $participantId = $args['id'];
@@ -57,11 +52,6 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
         $uniqueId = $args['id'];
         /** @var \Services\Authentication\Authenticate $auth */
         $auth = $this->get('authentication');
-        $get = $this->request->getQueryParams();
-
-        if ($get['from_date'] && $get['to_date']) {
-            return $transaction->listToAndFromDates($auth->getUser()->getOrganizationId(), $uniqueId);
-        }
         return $transaction->transactionList($auth->getUser()->getOrganizationId(), $uniqueId);
     });
 
@@ -97,11 +87,6 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
         $uniqueId = $args['id'];
         /** @var \Services\Authentication\Authenticate $auth */
         $auth = $this->get('authentication');
-        $get = $this->request->getQueryParams();
-
-        if (empty($get) === false) {
-            return $balance->listToAndFromDates();
-        }
         return $balance->list($auth->getUser()->getOrganizationId(), $uniqueId);
     });
 

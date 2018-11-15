@@ -92,19 +92,6 @@ class Balance
         return $this->repository->getAdjustmentsByParticipant($participant);
     }
 
-    public function getParticipantCreditAdjustmentsByDate(
-        $fromDate,
-        $toDate,
-        $reference
-    )
-    {
-        return $this->repository->getCreditAdjustmentsByParticipant(
-            $fromDate,
-            $toDate,
-            $reference
-        );
-    }
-
     public function getErrors()
     {
         return $this->repository->getErrors();
