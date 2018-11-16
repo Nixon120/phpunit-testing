@@ -61,12 +61,12 @@ class AdjustmentWebhookListener extends AbstractListener
 
         $types = ['debit', 'credit'];
         foreach ($types as $type) {
-            if ($event->getName() == 'Adjustment.' . $type) {
+            if ($event->getName() == 'AdjustmentWebhook.' . $type) {
                 $webhooks = $this
                     ->webhookRepository
                     ->getOrganizationAndParentWebhooks(
                         $organization,
-                        'Adjustment.' . $type
+                        'AdjustmentWebhook.' . $type
                     );
 
                 // Iterate thru the webhooks & execute.
@@ -74,25 +74,6 @@ class AdjustmentWebhookListener extends AbstractListener
                     $this->executeWebhook($webhook, $adjustment);
                 }
             }
-        }
-
-
-        if (strstr($event->getName(), 'Adjustment.create.webhook.') !== false) {
-            // Get Single Webhook to Execute again.
-            // This will only occur if it initially failed for some reason.
-            // Adjustment.create.webhook.{webhookId}
-            $webhookId = substr(
-                $event->getName(),
-                strrpos($event->getName(), '.')
-            );
-
-            $webhook = $this->webhookRepository->getWebhook($webhookId);
-            if (!$webhook instanceof Webhook) {
-                // Webhook not found.
-                // This is bad, we should probably catch an exception here.
-            }
-
-            $this->executeWebhook($webhook, $adjustment);
         }
 
         return true;

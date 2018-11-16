@@ -55,6 +55,7 @@ class Balance
         if ($this->repository->validate($adjustment) && $this->repository->addAdjustment($adjustment)) {
             $adjustment = $this->repository->getAdjustment($participant, $this->repository->getLastInsertId());
             $this->repository->updateParticipantCredit($adjustment);
+            $this->queueAdjustmentWebhookEvent($adjustment);
             $this->queueAdjustmentEvent($adjustment->getType());
             return $adjustment;
         }
@@ -66,6 +67,19 @@ class Balance
         $event->setName('Adjustment.' . $type);
         $event->setEntityId($this->participant->getId());
         $this->eventPublisher->publishJson($event);
+    }
+
+    /**
+     * @param Adjustment $adjustment
+     */
+    protected function queueAdjustmentWebhookEvent(Adjustment $adjustment)
+    {
+        $event = new Event();
+        $event->setName('AdjustmentWebhook.' . $adjustment->getType());
+        $event->setEntityId($adjustment->getId());
+        $this
+            ->eventPublisher
+            ->publish(json_encode($event));
     }
 
     //@TODO clean up, be less vague.
