@@ -59,6 +59,16 @@ class Program
         return $this->repository->getUsers($id, $input);
     }
 
+    public function getTransactions($input)
+    {
+        return $this->repository->getTransactionsByParticipant($input);
+    }
+
+    public function getAdjustments($input)
+    {
+        return $this->repository->getCreditAdjustmentsByParticipant($input);
+    }
+
     public function get(Interfaces\InputNormalizer $input)
     {
         $filter = new FilterNormalizer($input->getInput());
