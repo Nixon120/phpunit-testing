@@ -88,17 +88,6 @@ class JsonView extends AbstractViewController
         return $response;
     }
 
-    public function listTransactions()
-    {
-        $get = $this->request->getQueryParams();
-        $transactions = $this->service->getTransactions($get);
-
-        $response = $this->response->withStatus(200)
-            ->withJson($transactions);
-
-        return $response;
-    }
-
     public function listCreditAdjustmentsByParticipant()
     {
         $get = $this->request->getQueryParams();

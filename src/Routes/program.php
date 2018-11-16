@@ -34,10 +34,6 @@ $app->group('/api/program', function () use ($app, $createRoute, $updateRoute) {
             $programId = $args['id'];
             return $program->listUsers($programId);
         });
-        $app->get('/transactions', function ($request, $response, $args) {
-            $program = new Controllers\JsonView($request, $response, $this->get('program'));
-            return $program->listTransactions();
-        });
         $app->get('/adjustments', function ($request, $response, $args) {
             $program = new Controllers\JsonView($request, $response, $this->get('program'));
             return $program->listCreditAdjustmentsByParticipant();
