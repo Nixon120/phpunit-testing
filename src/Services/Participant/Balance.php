@@ -55,8 +55,17 @@ class Balance
         if ($this->repository->validate($adjustment) && $this->repository->addAdjustment($adjustment)) {
             $adjustment = $this->repository->getAdjustment($participant, $this->repository->getLastInsertId());
             $this->repository->updateParticipantCredit($adjustment);
+            $this->queueAdjustmentEvent($adjustment->getType());
             return $adjustment;
         }
+    }
+
+    private function queueAdjustmentEvent($type)
+    {
+        $event = new Event();
+        $event->setName('Adjustment.' . $type);
+        $event->setEntityId($this->participant->getId());
+        $this->eventPublisher->publishJson($event);
     }
 
     //@TODO clean up, be less vague.
@@ -71,11 +80,6 @@ class Balance
     public function getSingle(\Entities\Participant $participant, $adjustmentId)
     {
         return $this->repository->getAdjustment($participant, $adjustmentId);
-    }
-
-    public function getAdjustmentForWebhook($adjustmentId)
-    {
-        return $this->repository->getAdjustmentForWebhook($adjustmentId);
     }
 
     public function getParticipantAdjustments(\Entities\Participant $participant)
