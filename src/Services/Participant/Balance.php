@@ -82,6 +82,11 @@ class Balance
         return $this->repository->getAdjustment($participant, $adjustmentId);
     }
 
+    public function getAdjustmentForWebhook($adjustmentId)
+    {
+        return $this->repository->getAdjustmentForWebhook($adjustmentId);
+    }
+
     public function getParticipantAdjustments(\Entities\Participant $participant)
     {
         return $this->repository->getAdjustmentsByParticipant($participant);
