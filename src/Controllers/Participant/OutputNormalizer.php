@@ -59,6 +59,7 @@ class OutputNormalizer extends AbstractOutputNormalizer
         $participantReturn = $participant->toArray();
         $participantReturn['address'] = $this->prepareAddressOutput($participant->getAddress());
         $participantReturn['program'] = $participant->getProgram()->getUniqueId();
+        $participantReturn['program_points'] = $participant->getProgram()->getPoint();
         $participantReturn['organization'] = $participant->getOrganization()->getUniqueId();
         $participantReturn['meta'] = $participant->getMeta();
         $participantReturn = $this->scrub($participantReturn, [
