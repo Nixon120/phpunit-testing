@@ -90,15 +90,6 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
         return $balance->list($auth->getUser()->getOrganizationId(), $uniqueId);
     });
 
-    $app->get('/{id}/adjustment/{adjustmentId}', function ($request, $response, $args) {
-        $balance = new Controllers\Balance($request, $response, $this->get('participant'));
-        $uniqueId = $args['id'];
-        $adjustmentId = $args['adjustmentId'];
-        /** @var \Services\Authentication\Authenticate $auth */
-        $auth = $this->get('authentication');
-        return $balance->single($auth->getUser()->getOrganizationId(), $uniqueId, $adjustmentId);
-    });
-
     $app->post('/{id}/adjustment', function ($request, $response, $args) {
         $balance = new Controllers\Balance($request, $response, $this->get('participant'));
         $uniqueId = $args['id'];

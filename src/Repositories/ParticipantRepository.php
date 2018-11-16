@@ -165,39 +165,6 @@ SQL;
         return [];
     }
 
-    public function getParticipantsByMetaKeyValue($key, $value)
-    {
-        $sql = "
-SELECT * 
-FROM `Participant` 
-WHERE `Participant`.id IN (
-    SELECT `ParticipantMeta`.participant_id 
-    FROM `ParticipantMeta` 
-    WHERE `key` = ? AND `value` = ?
-)
-";
-        $args = [$key, $value];
-        $sth = $this->database->prepare($sql);
-        $sth->execute($args);
-        $participants = $sth->fetchAll(\PDO::FETCH_CLASS, $this->getRepositoryEntity());
-
-        if (empty($participants)) {
-            return [];
-        }
-
-        return $participants;
-    }
-
-    private function getParticipantsWithMetaKeyValue($meta):array
-    {
-        $participantContainer = [];
-        foreach ($meta as $key) {
-            $participantContainer[] = $key->getParticipantId();
-        }
-
-        return $participantContainer;
-    }
-
     private function prepareParticipantMeta($meta):array
     {
         $associative = [];
