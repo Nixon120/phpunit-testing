@@ -55,17 +55,8 @@ class Balance
         if ($this->repository->validate($adjustment) && $this->repository->addAdjustment($adjustment)) {
             $adjustment = $this->repository->getAdjustment($participant, $this->repository->getLastInsertId());
             $this->repository->updateParticipantCredit($adjustment);
-            $this->queueAdjustmentEvent($adjustment);
             return $adjustment;
         }
-    }
-
-    private function queueAdjustmentEvent(Adjustment $adjustment)
-    {
-        $event = new Event();
-        $event->setName('Adjustment.' . $adjustment->getType());
-        $event->setEntityId($adjustment->getId());
-        $this->eventPublisher->publishJson($event);
     }
 
     //@TODO clean up, be less vague.
