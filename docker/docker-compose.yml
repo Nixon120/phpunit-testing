@@ -45,6 +45,7 @@ services:
       MONGO_HOST: mongodb://mongodb:27017
       MONGO_DB: marketplace-dev
       CATALOG_URL: http://product.catalog
+      PROGRAM_CATALOG_URL: http://product.program-catalog
       FILESYSTEM: local
       LOG_HOST: fluentd
       LOG_PORT: "24224"
@@ -188,12 +189,12 @@ services:
       RA_USERNAME: claim
       RA_PASSWORD: claim
       RA_ENDPOINT: https://ra.staging.alldigitalrewards.com/api/
-      TOKEN_ENDPOINT: "https://admin.qa.alldigitalrewards.com/token"
+      TOKEN_ENDPOINT: "https://admin/token"
       TOKEN_USERNAME: "test@alldigitalrewards.com"
       TOKEN_PASSWORD: "password"
       TRANSACTION_ITEM_CHANNEL: transaction-item
       CATALOG_URL: http://product.catalog
-      PROGRAM_CONFIG_URL: https://admin.qa.alldigitalrewards.com/api/program
+      PROGRAM_CONFIG_URL: http://admin/api/program
       MYSQL_DB_PASSWORD: 123
       MYSQL_DB_HOST: admin-mysql
       MYSQL_DB_DATABASE: transaction-email
