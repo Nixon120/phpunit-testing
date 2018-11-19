@@ -11,6 +11,7 @@ use Entities\TransactionItem;
 use Entities\TransactionMeta;
 use Entities\TransactionProduct;
 use Entities\Participant;
+use Factories\AuthenticationTokenFactory;
 use \PDO as PDO;
 use Respect\Validation\Exceptions\NestedValidationException;
 use Respect\Validation\Validator;
@@ -204,12 +205,22 @@ SQL;
 
     /**
      * @param $productContainer
+     * @param string|null $program
      * @return Product[]
      */
-    public function getProducts($productContainer)
+    public function getProducts($productContainer, $program = null)
     {
         if (!empty($productContainer)) {
-            $skuContainer = ['sku' => $productContainer];
+            $skuContainer = [
+                'sku' => $productContainer
+            ];
+
+            if($program !== null) {
+                $token = (new AuthenticationTokenFactory)->getToken();
+                $this->getCatalog()->setProgram($program);
+                $this->getCatalog()->setToken($token);
+                $this->getCatalog()->setUrl(getenv('PROGRAM_CATALOG_URL'));
+            }
 
             return $this->catalog->getProducts($skuContainer);
         }
