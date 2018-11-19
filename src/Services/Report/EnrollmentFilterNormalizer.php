@@ -43,7 +43,12 @@ class EnrollmentFilterNormalizer extends AbstractFilterNormalizer
 
     public function getStartDateFilterArgs($value)
     {
-        return $this->returnArg($value);
+        $value = $this->returnArg($value);
+        if (empty($value) === false) {
+            $value[0] = $value[0] . ' 00:00:00';
+        }
+
+        return $value;
     }
 
     public function getEndDateFilter($value)
@@ -53,9 +58,12 @@ class EnrollmentFilterNormalizer extends AbstractFilterNormalizer
 
     public function getEndDateFilterArgs($value)
     {
-        return $this->returnArg($value);
+        $value = $this->returnArg($value);
+        if (empty($value) === false) {
+            $value[0] = $value[0] . ' 23:59:59';
+        }
+        return $value;
     }
-
 
     public function getUniqueIdFilter($value)
     {
