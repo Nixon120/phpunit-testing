@@ -88,12 +88,14 @@ $container["JwtAuthentication"] = function (ContainerInterface $container) use (
             $roles = $container->get('roles');
             $authentication->getToken()->hydrate($arguments["decoded"]);
             $authentication->getUser();
-
-            $scope = $roles[$authentication->getUser()->getRole()];
-
-            $authentication->getToken()->setRequestedScopes($scope);
-            $redirect = $authRoutes[$authentication->getUser()->getRole()];
-            $authentication->setAuthRedirectUrl($redirect);
+            if ($authentication->getToken()->decoded->sub !== 'rewardstack@alldigitalrewards.com') {
+                $scope = $roles[$authentication->getUser()->getRole()];
+                $authentication->getToken()->setRequestedScopes($scope);
+                $redirect = $authRoutes[$authentication->getUser()->getRole()];
+                $authentication->setAuthRedirectUrl($redirect);
+            } else {
+                $authentication->getToken()->setRequestedScopes($roles['superadmin']);
+            }
         }
     ]);
 };

@@ -75,7 +75,8 @@ class Transaction
         $products = $data['products'] ?? null;
         $skuContainer = array_column($products, 'sku');
         $this->requestedProductContainer = $this->repository->getProducts(
-            $skuContainer
+            $skuContainer,
+            $transaction->getParticipant()->getProgram()->getUniqueId()
         );
 
         if (count($skuContainer) !== count($this->requestedProductContainer)) {
@@ -86,12 +87,11 @@ class Transaction
             foreach ($products as $product) {
                 if ($requestedProduct->getSku() === $product['sku']) {
                     $amount = $product['amount'] ?? null;
-                    $quantity = (int)$product['quantity'] ?? null;
-
+                    $quantity = $product['quantity'] ?? 1;
                     $transactionProduct = new TransactionProduct($requestedProduct, $amount);
                     $transactionItem = new TransactionItem;
                     $transactionItem->setGuid((string)Uuid::uuid1());
-                    $transactionItem->setQuantity($quantity);
+                    $transactionItem->setQuantity((int)$quantity);
                     $transactionItem->setReferenceId($transactionProduct->getReferenceId());
 
                     if (!$transactionProduct->isValid() || !$transactionItem->isValid()) {
