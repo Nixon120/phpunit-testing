@@ -14,12 +14,9 @@ use Repositories\BalanceRepository;
 use Repositories\TransactionRepository;
 use Repositories\ParticipantRepository;
 use Services\Participant\Exception\TransactionServiceException;
-use Traits\LoggerAwareTrait;
 
 class Transaction
 {
-    use LoggerAwareTrait;
-
     /**
      * @var TransactionRepository
      */
