@@ -14,9 +14,12 @@ use Repositories\BalanceRepository;
 use Repositories\TransactionRepository;
 use Repositories\ParticipantRepository;
 use Services\Participant\Exception\TransactionServiceException;
+use Traits\LoggerAwareTrait;
 
 class Transaction
 {
+    use LoggerAwareTrait;
+
     /**
      * @var TransactionRepository
      */
@@ -118,9 +121,8 @@ class Transaction
                             ->createInventoryHold($holdRequest);
 
                         if($success === false) {
-                            $errors = $this->getTransactionRepository()->getCatalog()->getErrors();
                             throw new TransactionServiceException(
-                                implode(', ', $errors)
+                                'Unable to obtain inventory hold for product '. $requestedProduct->getName(). ' ('. $requestedProduct->getSku() . ')'
                             );
                         }
                     }
