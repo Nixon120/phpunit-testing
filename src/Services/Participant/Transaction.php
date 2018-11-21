@@ -118,8 +118,9 @@ class Transaction
                             ->createInventoryHold($holdRequest);
 
                         if($success === false) {
+                            $errors = $this->getTransactionRepository()->getCatalog()->getErrors();
                             throw new TransactionServiceException(
-                                'Unable to obtain inventory hold for product '. $requestedProduct->getName(). ' ('. $requestedProduct->getSku() . ')'
+                                implode(', ', $errors)
                             );
                         }
                     }
