@@ -226,6 +226,9 @@ class Transaction
 
         if (is_null($participant)) {
             //@TODO change to api exception ?
+            $this->repository->setErrors([
+                'Participant does not exist.'
+            ]);
             return null;
         }
         unset($data['email_address']);
