@@ -28,6 +28,7 @@ class Redemption extends AbstractReport
             'Address.state' => 'State',
             'Address.zip' => 'Zip',
             'Participant.phone' => 'Phone',
+            'Participant.birthdate' => 'Date of Birth',
             'TransactionItem.quantity' => 'Item Qty',
             'TransactionProduct.vendor_code' => 'Item SKU',
             'TransactionProduct.name' => 'Item Description',

@@ -21,6 +21,7 @@ class PointBalance extends AbstractReport
             'Participant.unique_id' => 'Participant ID',
             'Participant.firstname' => 'First Name',
             'Participant.lastname' => 'Last Name',
+            'Participant.birthdate' => 'Date of Birth',
             'Address.address1' => 'Address1',
             'Address.address2' => 'Address2',
             'Address.city' => 'City',
