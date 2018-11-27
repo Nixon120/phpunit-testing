@@ -30,6 +30,7 @@ class Transaction extends AbstractReport
             'Address.state' => 'State',
             'Address.zip' => 'Zip',
             'Participant.phone' => 'Phone',
+            'Participant.birthdate' => 'Date of Birth',
             'Participant.email_address' => 'Email Address',
             'TransactionProduct.category as `Reward Type`' => 'Reward Type',
             'TransactionItem.quantity' => 'Item Qty',
