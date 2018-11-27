@@ -95,6 +95,16 @@ class EnrollmentFilterNormalizer extends AbstractFilterNormalizer
         return $this->returnArg($value);
     }
 
+    public function getBirthdateFilter($value)
+    {
+        return "`Participant`.`birthdate` = ?";
+    }
+
+    public function getBirthdateFilterArgs($value)
+    {
+        return $this->returnArg($value);
+    }
+
     public function getAddress1Filter($value)
     {
         return "`Address`.`address1` = ?";
