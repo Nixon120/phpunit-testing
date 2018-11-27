@@ -50,7 +50,7 @@ class Transaction
                     return $this->returnJson(400, $this->service->repository->getErrors());
                 }
             } catch (TransactionServiceException $e) {
-                return $this->returnJson(400, $e->getMessage());
+                return $this->returnJson(400, [$e->getMessage()]);
             }
         }
         return $this->returnJson(400, ['Resource does not exist']);
