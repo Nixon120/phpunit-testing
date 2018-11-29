@@ -76,7 +76,8 @@ class Sweepstake
                             'sku' => $sweepstake->getSku(),
                             'quantity' => $entryCount
                         ]
-                    ]
+                    ],
+                    'issue_points' => !empty($data['issue_points']) && $data['issue_points'] === true ? true : false
                 ]
             );
 
