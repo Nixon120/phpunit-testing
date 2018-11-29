@@ -39,6 +39,7 @@ class OutputNormalizer extends AbstractOutputNormalizer
         $categories = $program->getProductCriteria()->getCategories();
         $products = $program->getProductCriteria()->getProducts();
         $brands = $program->getProductCriteria()->getBrands();
+        $exclude = $program->getProductCriteria()->getExclude();
         $return['productCriteria'] = [
             'price' => [
                 'min' => $program->getProductCriteria()->getMinFilter(),
@@ -46,7 +47,8 @@ class OutputNormalizer extends AbstractOutputNormalizer
             ],
             'categories' => $categories,
             'products' => $products,
-            'brands' => $brands
+            'brands' => $brands,
+            'exclude' => $exclude,
         ];
 
         $return['featured_products'] = [];

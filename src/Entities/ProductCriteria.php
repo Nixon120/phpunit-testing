@@ -19,6 +19,8 @@ class ProductCriteria extends Base
 
     private $products;
 
+    private $exclude;
+
     private $minFilter;
 
     private $maxFilter;
@@ -26,6 +28,8 @@ class ProductCriteria extends Base
     private $productFilter;
 
     private $categoryFilter;
+
+    private $excludeFilter;
 
     private $brandFilter;
 
@@ -85,6 +89,19 @@ class ProductCriteria extends Base
     }
 
     /**
+     * @return Product[]|null
+     */
+    public function getExclude(): ?array
+    {
+        return $this->exclude;
+    }
+
+    public function setExclude(array $products)
+    {
+        $this->exclude = $products;
+    }
+
+    /**
      * @return mixed
      */
     public function getFilter()
@@ -114,6 +131,7 @@ class ProductCriteria extends Base
         $this->setMaxFilter($filters->price->max);
         $this->setProductFilter($filters->products);
         $this->setCategoryFilter($filters->category);
+        $this->setExcludeFilter($filters->exclude);
         $this->setBrandFilter($filters->brand);
     }
 
@@ -184,6 +202,22 @@ class ProductCriteria extends Base
     /**
      * @return mixed
      */
+    public function getExcludeFilter()
+    {
+        return $this->excludeFilter;
+    }
+
+    /**
+     * @param mixed $excludeFilter
+     */
+    public function setExcludeFilter($excludeFilter)
+    {
+        $this->excludeFilter = $excludeFilter;
+    }
+
+    /**
+     * @return mixed
+     */
     public function getBrandFilter()
     {
         return $this->brandFilter;
@@ -210,9 +244,11 @@ class ProductCriteria extends Base
                 'max' => ''
             ],
             'products' => [],
+            'exclude' => [],
             'category' => [],
             'brand' => []
         ];
+
         if (!empty($filters['max'])) {
             $filter['price']['max'] = $filters['max'];
         }
@@ -223,6 +259,9 @@ class ProductCriteria extends Base
 
         if (!empty($filters['products'])) {
             $filter['products'] = $filters['products'];
+        }
+        if (!empty($filters['exclude'])) {
+            $filter['exclude'] = $filters['exclude'];
         }
         if (!empty($filters['categories'])) {
             $filter['category'] = $filters['categories'];

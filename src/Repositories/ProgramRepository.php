@@ -379,6 +379,22 @@ SQL;
         return $return;
     }
 
+    private function getExcludedProducts($products)
+    {
+        $return = [];
+        if (!empty($products)) {
+            $skuContainer = ['sku' => $products];
+            $vendorProducts = $this->catalog->getProducts($skuContainer);
+            foreach ($vendorProducts as $product) {
+                if (in_array($product->getSku(), $products)) {
+                    $return[] = $product;
+                }
+            }
+        }
+
+        return $return;
+    }
+
     public function getProductCriteria(Program $program):?ProductCriteria
     {
         $sql = "SELECT * FROM `ProductCriteria` WHERE program_id = ?";
@@ -397,6 +413,7 @@ SQL;
         $criteria->setCategories($this->getCategories($criteria->getCategoryFilter()));
         $criteria->setBrands($this->getBrands($criteria->getBrandFilter()));
         $criteria->setProducts($this->getProducts($criteria->getProductFilter()));
+        $criteria->setExclude($this->getExcludedProducts($criteria->getExcludeFilter()));
         return $criteria;
     }
 
