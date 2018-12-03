@@ -363,6 +363,21 @@ SQL;
         return $return;
     }
 
+    private function getExcludedBrands($brands)
+    {
+        $return = [];
+        if (!empty($brands)) {
+            $vendorBrands = $this->catalog->getBrands();
+            foreach ($vendorBrands as $brand) {
+                if (in_array($brand->getUniqueId(), $brands)) {
+                    $return[] = $brand;
+                }
+            }
+        }
+
+        return $return;
+    }
+
     private function getProducts($products)
     {
         $return = [];
@@ -414,6 +429,7 @@ SQL;
         $criteria->setBrands($this->getBrands($criteria->getBrandFilter()));
         $criteria->setProducts($this->getProducts($criteria->getProductFilter()));
         $criteria->setExcludeProducts($this->getExcludedProducts($criteria->getExcludeProductsFilter()));
+        $criteria->setExcludeBrands($this->getExcludedBrands($criteria->getExcludeBrandsFilter()));
         return $criteria;
     }
 

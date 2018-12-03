@@ -21,6 +21,8 @@ class ProductCriteria extends Base
 
     private $exclude_products;
 
+    private $exclude_brands;
+
     private $minFilter;
 
     private $maxFilter;
@@ -30,6 +32,8 @@ class ProductCriteria extends Base
     private $categoryFilter;
 
     private $excludeProductsFilter;
+
+    private $excludeBrandsFilter;
 
     private $brandFilter;
 
@@ -102,6 +106,39 @@ class ProductCriteria extends Base
     }
 
     /**
+     * @return Brand[]
+     */
+    public function getExcludeBrands(): ?array
+    {
+        return $this->exclude_brands;
+    }
+
+    /**
+     * @param mixed $exclude_brands
+     */
+    public function setExcludeBrands(array $exclude_brands)
+    {
+        $this->exclude_brands = $exclude_brands;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getExcludeBrandsFilter()
+    {
+        return $this->excludeBrandsFilter;
+    }
+
+    /**
+     * @param mixed $excludeBrandsFilter
+     */
+    public function setExcludeBrandsFilter($excludeBrandsFilter)
+    {
+        $this->excludeBrandsFilter = $excludeBrandsFilter;
+    }
+
+
+    /**
      * @return mixed
      */
     public function getFilter()
@@ -132,6 +169,7 @@ class ProductCriteria extends Base
         $this->setProductFilter($filters->products);
         $this->setCategoryFilter($filters->category);
         $this->setExcludeProductsFilter($filters->exclude_products);
+        $this->setExcludeBrandsFilter($filters->exclude_brands);
         $this->setBrandFilter($filters->brand);
     }
 
@@ -245,6 +283,7 @@ class ProductCriteria extends Base
             ],
             'products' => [],
             'exclude_products' => [],
+            'exclude_brands' => [],
             'category' => [],
             'brand' => []
         ];
@@ -262,6 +301,9 @@ class ProductCriteria extends Base
         }
         if (!empty($filters['exclude_products'])) {
             $filter['exclude_products'] = $filters['exclude_products'];
+        }
+        if (!empty($filters['exclude_brands'])) {
+            $filter['exclude_brands'] = $filters['exclude_brands'];
         }
         if (!empty($filters['categories'])) {
             $filter['category'] = $filters['categories'];
