@@ -413,10 +413,9 @@ SQL;
         $criteria->setCategories($this->getCategories($criteria->getCategoryFilter()));
         $criteria->setBrands($this->getBrands($criteria->getBrandFilter()));
         $criteria->setProducts($this->getProducts($criteria->getProductFilter()));
-        $criteria->setExclude($this->getExcludedProducts($criteria->getExcludeFilter()));
+        $criteria->setExcludeProducts($this->getExcludedProducts($criteria->getExcludeProductsFilter()));
         return $criteria;
     }
-
 
     public function validate(\Entities\Program $program)
     {

@@ -19,7 +19,7 @@ class ProductCriteria extends Base
 
     private $products;
 
-    private $exclude;
+    private $exclude_products;
 
     private $minFilter;
 
@@ -29,7 +29,7 @@ class ProductCriteria extends Base
 
     private $categoryFilter;
 
-    private $excludeFilter;
+    private $excludeProductsFilter;
 
     private $brandFilter;
 
@@ -91,14 +91,14 @@ class ProductCriteria extends Base
     /**
      * @return Product[]|null
      */
-    public function getExclude(): ?array
+    public function getExcludeProducts(): ?array
     {
-        return $this->exclude;
+        return $this->exclude_products;
     }
 
-    public function setExclude(array $products)
+    public function setExcludeProducts(array $products)
     {
-        $this->exclude = $products;
+        $this->exclude_products = $products;
     }
 
     /**
@@ -131,7 +131,7 @@ class ProductCriteria extends Base
         $this->setMaxFilter($filters->price->max);
         $this->setProductFilter($filters->products);
         $this->setCategoryFilter($filters->category);
-        $this->setExcludeFilter($filters->exclude);
+        $this->setExcludeProductsFilter($filters->exclude_products);
         $this->setBrandFilter($filters->brand);
     }
 
@@ -202,17 +202,17 @@ class ProductCriteria extends Base
     /**
      * @return mixed
      */
-    public function getExcludeFilter()
+    public function getExcludeProductsFilter()
     {
-        return $this->excludeFilter;
+        return $this->excludeProductsFilter;
     }
 
     /**
-     * @param mixed $excludeFilter
+     * @param mixed $excludeProductsFilter
      */
-    public function setExcludeFilter($excludeFilter)
+    public function setExcludeProductsFilter($excludeProductsFilter)
     {
-        $this->excludeFilter = $excludeFilter;
+        $this->excludeProductsFilter = $excludeProductsFilter;
     }
 
     /**
@@ -244,7 +244,7 @@ class ProductCriteria extends Base
                 'max' => ''
             ],
             'products' => [],
-            'exclude' => [],
+            'exclude_products' => [],
             'category' => [],
             'brand' => []
         ];
@@ -260,8 +260,8 @@ class ProductCriteria extends Base
         if (!empty($filters['products'])) {
             $filter['products'] = $filters['products'];
         }
-        if (!empty($filters['exclude'])) {
-            $filter['exclude'] = $filters['exclude'];
+        if (!empty($filters['exclude_products'])) {
+            $filter['exclude_products'] = $filters['exclude_products'];
         }
         if (!empty($filters['categories'])) {
             $filter['category'] = $filters['categories'];
