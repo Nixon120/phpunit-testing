@@ -363,7 +363,38 @@ SQL;
         return $return;
     }
 
+    private function getExcludedBrands($brands)
+    {
+        $return = [];
+        if (!empty($brands)) {
+            $vendorBrands = $this->catalog->getBrands();
+            foreach ($vendorBrands as $brand) {
+                if (in_array($brand->getUniqueId(), $brands)) {
+                    $return[] = $brand;
+                }
+            }
+        }
+
+        return $return;
+    }
+
     private function getProducts($products)
+    {
+        $return = [];
+        if (!empty($products)) {
+            $skuContainer = ['sku' => $products];
+            $vendorProducts = $this->catalog->getProducts($skuContainer);
+            foreach ($vendorProducts as $product) {
+                if (in_array($product->getSku(), $products)) {
+                    $return[] = $product;
+                }
+            }
+        }
+
+        return $return;
+    }
+
+    private function getExcludedProducts($products)
     {
         $return = [];
         if (!empty($products)) {
@@ -397,9 +428,10 @@ SQL;
         $criteria->setCategories($this->getCategories($criteria->getCategoryFilter()));
         $criteria->setBrands($this->getBrands($criteria->getBrandFilter()));
         $criteria->setProducts($this->getProducts($criteria->getProductFilter()));
+        $criteria->setExcludeProducts($this->getExcludedProducts($criteria->getExcludeProductsFilter()));
+        $criteria->setExcludeBrands($this->getExcludedBrands($criteria->getExcludeBrandsFilter()));
         return $criteria;
     }
-
 
     public function validate(\Entities\Program $program)
     {

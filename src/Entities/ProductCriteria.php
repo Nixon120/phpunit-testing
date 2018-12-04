@@ -19,6 +19,10 @@ class ProductCriteria extends Base
 
     private $products;
 
+    private $exclude_products;
+
+    private $exclude_brands;
+
     private $minFilter;
 
     private $maxFilter;
@@ -26,6 +30,10 @@ class ProductCriteria extends Base
     private $productFilter;
 
     private $categoryFilter;
+
+    private $excludeProductsFilter;
+
+    private $excludeBrandsFilter;
 
     private $brandFilter;
 
@@ -85,6 +93,52 @@ class ProductCriteria extends Base
     }
 
     /**
+     * @return Product[]|null
+     */
+    public function getExcludeProducts(): ?array
+    {
+        return $this->exclude_products;
+    }
+
+    public function setExcludeProducts(array $products)
+    {
+        $this->exclude_products = $products;
+    }
+
+    /**
+     * @return Brand[]
+     */
+    public function getExcludeBrands(): ?array
+    {
+        return $this->exclude_brands;
+    }
+
+    /**
+     * @param mixed $exclude_brands
+     */
+    public function setExcludeBrands(array $exclude_brands)
+    {
+        $this->exclude_brands = $exclude_brands;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getExcludeBrandsFilter()
+    {
+        return $this->excludeBrandsFilter;
+    }
+
+    /**
+     * @param mixed $excludeBrandsFilter
+     */
+    public function setExcludeBrandsFilter($excludeBrandsFilter)
+    {
+        $this->excludeBrandsFilter = $excludeBrandsFilter;
+    }
+
+
+    /**
      * @return mixed
      */
     public function getFilter()
@@ -114,6 +168,8 @@ class ProductCriteria extends Base
         $this->setMaxFilter($filters->price->max);
         $this->setProductFilter($filters->products);
         $this->setCategoryFilter($filters->category);
+        $this->setExcludeProductsFilter($filters->exclude_products);
+        $this->setExcludeBrandsFilter($filters->exclude_brands);
         $this->setBrandFilter($filters->brand);
     }
 
@@ -184,6 +240,22 @@ class ProductCriteria extends Base
     /**
      * @return mixed
      */
+    public function getExcludeProductsFilter()
+    {
+        return $this->excludeProductsFilter;
+    }
+
+    /**
+     * @param mixed $excludeProductsFilter
+     */
+    public function setExcludeProductsFilter($excludeProductsFilter)
+    {
+        $this->excludeProductsFilter = $excludeProductsFilter;
+    }
+
+    /**
+     * @return mixed
+     */
     public function getBrandFilter()
     {
         return $this->brandFilter;
@@ -210,9 +282,12 @@ class ProductCriteria extends Base
                 'max' => ''
             ],
             'products' => [],
+            'exclude_products' => [],
+            'exclude_brands' => [],
             'category' => [],
             'brand' => []
         ];
+
         if (!empty($filters['max'])) {
             $filter['price']['max'] = $filters['max'];
         }
@@ -223,6 +298,12 @@ class ProductCriteria extends Base
 
         if (!empty($filters['products'])) {
             $filter['products'] = $filters['products'];
+        }
+        if (!empty($filters['exclude_products'])) {
+            $filter['exclude_products'] = $filters['exclude_products'];
+        }
+        if (!empty($filters['exclude_brands'])) {
+            $filter['exclude_brands'] = $filters['exclude_brands'];
         }
         if (!empty($filters['categories'])) {
             $filter['category'] = $filters['categories'];

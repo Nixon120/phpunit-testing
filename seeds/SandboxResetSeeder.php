@@ -29,7 +29,6 @@ class SandboxResetSeeder extends AbstractSeed
         $programId = $this->seedProgram();
         $this->seedLayoutRows();
         $this->seedLayoutRowCards();
-        $this->seedFaqs();
         $this->seedSweepstake();
         $this->seedUser();
         $this->seedParticipant();
