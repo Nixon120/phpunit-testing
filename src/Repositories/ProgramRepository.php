@@ -384,8 +384,8 @@ SQL;
         if (!empty($vendors)) {
             $vendorList = $this->catalog->getVendors();
             foreach ($vendorList as $item) {
-                if (in_array($item, $vendors)) {
-                    $return[] = $item;
+                if (in_array($item->getUniqueId(), $vendors)) {
+                    $return[] = $item->getUniqueId();
                 }
             }
         }
