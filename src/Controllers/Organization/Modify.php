@@ -82,15 +82,15 @@ class Modify extends AbstractModifyController
 
     public function deleteDomain($id)
     {
-        //Don't delete the domain if it is tied to a Program
-        if ($this->factory->getProgramRepository()->isDomainDeletable($id)) {
-            if ($this->service->deleteDomain($id)) {
-                return $this->returnJson(204);
-            }
-
-            return $this->returnJson(400, ['Something went wrong']);
+        if (!$this->factory->getProgramRepository()->isDomainDeletable($id)) {
+            //Don't delete the domain if it is tied to a Program
+            return $this->returnJson(400, ['Domain cannot be deleted. It is being used by a marketplace.']);
         }
 
-        return $this->returnJson(204);
+        if ($this->service->deleteDomain($id)) {
+            return $this->returnJson(204);
+        }
+
+        return $this->returnJson(400, ['Something went wrong.']);
     }
 }
