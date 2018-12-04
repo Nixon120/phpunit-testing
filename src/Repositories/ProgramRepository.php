@@ -232,6 +232,18 @@ SQL;
         return $this->hydrateProgram($program);
     }
 
+    public function getProgramByDomainId(int $id):?Program
+    {
+        $sql = "SELECT * FROM Program WHERE domain_id = ?";
+        $args = [$id];
+
+        if (!$program = $this->query($sql, $args, Program::class)) {
+            return null;
+        }
+
+        return $this->hydrateProgram($program);
+    }
+
     public function getProgramOrganization(?string $id, $unique = false):?Organization
     {
         $sql = "SELECT * FROM `Organization` WHERE ";
@@ -318,6 +330,19 @@ SQL;
         $this->table = 'Program';
 
         return $result;
+    }
+
+    public function isDomainDeletable($domainId)
+    {
+        $exists = $this->getProgramByDomainId($domainId);
+
+        if (is_null($exists)) {
+            return true;
+        }
+
+        $error = 'Unable to delete this Domain. It is assigned to a Program.';
+        array_push($this->errors, $error);
+        return false;
     }
 
     public function isProgramIdUnique($uniqueId)
