@@ -114,8 +114,11 @@ class Transaction
                             'quantity' => $quantity
                         ]);
 
-                        $success = $this->getTransactionRepository()->getCatalog()
-                            ->createInventoryHold($holdRequest);
+                        $catalog = clone $this
+                            ->getTransactionRepository()
+                            ->getCatalog();
+                        $catalog->setUrl(getenv('CATALOG_URL'));
+                        $success = $catalog->createInventoryHold($holdRequest);
 
                         if($success === false) {
                             throw new TransactionServiceException(
