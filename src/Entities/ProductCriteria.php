@@ -23,6 +23,8 @@ class ProductCriteria extends Base
 
     private $exclude_brands;
 
+    private $exclude_vendors;
+
     private $minFilter;
 
     private $maxFilter;
@@ -34,6 +36,8 @@ class ProductCriteria extends Base
     private $excludeProductsFilter;
 
     private $excludeBrandsFilter;
+
+    private $excludeVendorsFilter;
 
     private $brandFilter;
 
@@ -122,6 +126,22 @@ class ProductCriteria extends Base
     }
 
     /**
+     * @return array
+     */
+    public function getExcludeVendors(): ?array
+    {
+        return $this->exclude_vendors;
+    }
+
+    /**
+     * @param array $exclude_vendors
+     */
+    public function setExcludeVendors(array $exclude_vendors)
+    {
+        $this->exclude_vendors = $exclude_vendors;
+    }
+
+    /**
      * @return mixed
      */
     public function getExcludeBrandsFilter()
@@ -137,6 +157,21 @@ class ProductCriteria extends Base
         $this->excludeBrandsFilter = $excludeBrandsFilter;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getExcludeVendorsFilter()
+    {
+        return $this->excludeVendorsFilter;
+    }
+
+    /**
+     * @param mixed $excludeVendorsFilter
+     */
+    public function setExcludeVendorsFilter($excludeVendorsFilter)
+    {
+        $this->excludeVendorsFilter = $excludeVendorsFilter;
+    }
 
     /**
      * @return mixed
@@ -170,6 +205,7 @@ class ProductCriteria extends Base
         $this->setCategoryFilter($filters->category);
         $this->setExcludeProductsFilter($filters->exclude_products);
         $this->setExcludeBrandsFilter($filters->exclude_brands);
+        $this->setExcludeVendorsFilter($filters->exclude_vendors);
         $this->setBrandFilter($filters->brand);
     }
 
@@ -284,6 +320,7 @@ class ProductCriteria extends Base
             'products' => [],
             'exclude_products' => [],
             'exclude_brands' => [],
+            'exclude_vendors' => [],
             'category' => [],
             'brand' => []
         ];
@@ -304,6 +341,9 @@ class ProductCriteria extends Base
         }
         if (!empty($filters['exclude_brands'])) {
             $filter['exclude_brands'] = $filters['exclude_brands'];
+        }
+        if (!empty($filters['exclude_vendors'])) {
+            $filter['exclude_vendors'] = $filters['exclude_vendors'];
         }
         if (!empty($filters['categories'])) {
             $filter['category'] = $filters['categories'];
