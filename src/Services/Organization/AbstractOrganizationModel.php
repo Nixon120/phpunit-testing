@@ -145,8 +145,18 @@ abstract class AbstractOrganizationModel
     {
         $domains = [];
 
+        $existingDomains = array();
+        $orgDomains = $this->repository->getOrganizationDomains($this->organization->getUniqueId());
+        foreach ($orgDomains as $domain) {
+            $existingDomains[] = $domain->url;
+        }
+
         $oDomain = new \Entities\Domain;
         foreach ($input as $url) {
+            if (in_array($url, $existingDomains)) {
+                continue;
+            }
+
             $domain = clone $oDomain;
             $domain->setUrl(strtolower($url));
             $domains[] = $domain;
