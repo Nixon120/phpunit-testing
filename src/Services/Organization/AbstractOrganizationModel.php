@@ -62,6 +62,11 @@ abstract class AbstractOrganizationModel
      */
     protected $errors = [];
 
+    /**
+     * @var array
+     */
+    protected $existingDomains = [];
+
     public function __construct(
         OrganizationRepository $repository,
         DomainRepository $domainRepository,
@@ -141,25 +146,31 @@ abstract class AbstractOrganizationModel
         $this->organization->exchange($data);
     }
 
+    protected function setExistingDomains()
+    {
+        $orgDomains = $this->repository->getOrganizationDomains($this->organization->getUniqueId());
+        foreach ($orgDomains as $domain) {
+            $this->existingDomains[] = $domain->url;
+        }
+    }
+
+    protected function urlExists($url)
+    {
+        return in_array($url, $this->existingDomains);
+    }
+
     protected function buildDomainEntities($input):?array
     {
         $domains = [];
-
-        $existingDomains = array();
-        $orgDomains = $this->repository->getOrganizationDomains($this->organization->getUniqueId());
-        foreach ($orgDomains as $domain) {
-            $existingDomains[] = $domain->url;
-        }
+        $this->setExistingDomains();
 
         $oDomain = new \Entities\Domain;
         foreach ($input as $url) {
-            if (in_array($url, $existingDomains)) {
-                continue;
+            if (!$this->urlExists($url)) {
+                $domain = clone $oDomain;
+                $domain->setUrl(strtolower($url));
+                $domains[] = $domain;
             }
-
-            $domain = clone $oDomain;
-            $domain->setUrl(strtolower($url));
-            $domains[] = $domain;
         }
 
         return $domains;
