@@ -107,7 +107,7 @@ SQL;
         );
 
         if (is_null($programUrl) === false) {
-            if ($this->getCacheService()->cachedItemExists($programUrl)) {
+            if ($this->getCacheService()->cachedItemExists($programUrl) === true) {
                 $this->getCacheService()->clearItem($programUrl);
             }
         }
