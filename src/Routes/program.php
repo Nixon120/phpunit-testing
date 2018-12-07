@@ -44,20 +44,20 @@ $app->group('/api/program', function () use ($app, $createRoute, $updateRoute) {
         $program = new Controllers\JsonView($request, $response, $this->get('program'));
         $programId = $args['id'];
         return $program->layout($programId);
-    })->add(new \Middleware\ProgramModifiedCacheClearMiddleware($app->getContainer()));
+    });
 
     $app->map(['post', 'get'], '/{id}/faqs', function ($request, $response, $args) {
         $program = new Controllers\JsonView($request, $response, $this->get('program'));
         $programId = $args['id'];
         return $program->faqs($programId);
-    })->add(new \Middleware\ProgramModifiedCacheClearMiddleware($app->getContainer()));
+    });
 
     $app->delete('/{id}/layout/remove/{row_id}', function ($request, $response, $args) {
         $program = new Controllers\GuiView($request, $response, $this->get('renderer'), $this->get('program'));
         $programId = $args['id'];
         $rowId = $args['row_id'];
         return $program->deleteProgramLayoutRow($programId, $rowId);
-    })->add(new \Middleware\ProgramModifiedCacheClearMiddleware($app->getContainer()));
+    });
 
     $app->get('/{id}/metrics', function ($request, $response, $args) {
         $program = new Controllers\JsonView($request, $response, $this->get('program'));
@@ -101,13 +101,13 @@ $app->group('/api/program', function () use ($app, $createRoute, $updateRoute) {
         $program = new Controllers\Product($request, $response, $this->get('renderer'), $this->get('program'));
         $programId = $args['id'];
         return $program->saveProductCriteria($programId);
-    })->add(new \Middleware\ProgramModifiedCacheClearMiddleware($app->getContainer()));
+    });
 
     $app->map(['post'], '/{id}/product/management/featured', function ($request, $response, $args) {
         $program = new Controllers\Product($request, $response, $this->get('renderer'), $this->get('program'));
         $programId = $args['id'];
         return $program->saveFeaturedProducts($programId);
-    })->add(new \Middleware\ProgramModifiedCacheClearMiddleware($app->getContainer()));
+    });
 
     $app->map(['post', 'get'], '/{id}/sweepstake', function ($request, $response, $args) {
         $program = new Controllers\SweepstakeJsonView($request, $response, $this->get('program'));
@@ -125,8 +125,8 @@ $app->group('/api/program', function () use ($app, $createRoute, $updateRoute) {
         $rowId = $args['publish'];
 
         return $program->updateProgramPublishSetting($programId, $rowId);
-    })->add(new \Middleware\ProgramModifiedCacheClearMiddleware($app->getContainer()));
-});
+    });
+})->add(new \Middleware\ProgramModifiedCacheClearMiddleware($app->getContainer()));
 
 $app->group('/program', function () use ($app, $createRoute, $updateRoute) {
     $app->get('', function ($request, $response) {
