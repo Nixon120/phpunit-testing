@@ -106,8 +106,10 @@ SQL;
             $route->getArgument('id')
         );
 
-        if ($this->getCacheService()->cachedItemExists($programUrl)) {
-            $this->getCacheService()->clearItem($programUrl);
+        if (is_null($programUrl) === false) {
+            if ($this->getCacheService()->cachedItemExists($programUrl) === true) {
+                $this->getCacheService()->clearItem($programUrl);
+            }
         }
     }
 }
