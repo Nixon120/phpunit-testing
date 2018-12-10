@@ -29,7 +29,8 @@ class Report extends Base
      * 3 = Redemption,
      * 4 = Participant Summary,
      * 5 = Point Balance,
-     * 6 = Sweepstake Drawing
+     * 6 = Sweepstake Drawing,
+     * 7 = Program Summary
      *
      * @var int
      */
@@ -161,6 +162,9 @@ class Report extends Base
             case 6:
                 return 'Sweepstake Drawings';
                 break;
+            case 7:
+                return 'Program Summary';
+                break;
             default:
                 return 'Unknown';
                 break;
@@ -191,6 +195,9 @@ class Report extends Base
                 break;
             case 6: //'Sweepstake Drawings':
                 return 'Sweepstake';
+                break;
+            case 7: //'Program Summary':
+                return 'ProgramSummary';
                 break;
             default:
                 throw new \Exception('Invalid report specification');

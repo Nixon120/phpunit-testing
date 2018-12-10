@@ -61,6 +61,11 @@ class ServiceFactory extends AbstractServiceFactory
         return new Sweepstake($this->getContainer()->get('report'));
     }
 
+    public function getProgramSummaryReport()
+    {
+        return new ProgramSummary($this->getContainer()->get('report'));
+    }
+
     private function getContactRepository()
     {
         return new ContactRepository($this->getDatabase());
