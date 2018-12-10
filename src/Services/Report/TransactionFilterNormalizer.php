@@ -123,4 +123,15 @@ class TransactionFilterNormalizer extends AbstractFilterNormalizer
     {
         return $this->returnArg($value);
     }
+
+    public function getSkusFilter($value)
+    {
+        $placeholders = rtrim(str_repeat('?,', count($value)), ',');
+        return "`TransactionProduct`.`vendor_code` IN ({$placeholders})";
+    }
+
+    public function getSkusFilterArgs($value)
+    {
+        return $this->returnArg($value);
+    }
 }
