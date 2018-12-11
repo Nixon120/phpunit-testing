@@ -69,6 +69,7 @@ SQL;
             $meta = [
                 'transaction' => $this->getAvailableMetaFields('transaction'),
                 'participant' => $this->getAvailableMetaFields('participant')
+
             ];
         } catch (\Exception $e) {
             // Log failure
