@@ -99,9 +99,14 @@ class UserInvite
     {
         /** @var PhpRenderer $renderer */
         $renderer = $this->factory->getContainer()->get('renderer');
+        $baseUrl = $this->factory->getContainer()->get('settings')['baseUrl'];
+
         $emailBody = $renderer->fetch(
             'user/invite/invite-email.phtml',
-            ['user' => $user]
+            [
+                'user' => $user,
+                'baseUrl' => $baseUrl
+            ]
         );
 
         return new Email(
