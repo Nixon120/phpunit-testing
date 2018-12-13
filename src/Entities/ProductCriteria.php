@@ -325,6 +325,17 @@ class ProductCriteria extends Base
             'brand' => []
         ];
 
+        //need to handle undefined property error
+        if (isset($filters['exclude_products']) === false) {
+            $filters['exclude_products'] = [];
+        }
+        if (isset($filters['exclude_brands']) === false) {
+            $filters['exclude_brands'] = [];
+        }
+        if (isset($filters['exclude_vendors']) === false) {
+            $filters['exclude_vendors'] = [];
+        }
+
         if (!empty($filters['max'])) {
             $filter['price']['max'] = $filters['max'];
         }
