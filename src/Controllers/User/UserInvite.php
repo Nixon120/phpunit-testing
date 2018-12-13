@@ -94,7 +94,7 @@ class UserInvite extends AbstractViewController
 
         if ($savedUser) {
             // Redirect to logged in session.
-            return $this->logUserIn();
+            return $this->redirectToLogin();
         }
 
         $errors = $this
@@ -103,22 +103,6 @@ class UserInvite extends AbstractViewController
             ->getErrors();
 
         return $this->failWithErrors($user, $errors);
-    }
-
-    private function logUserIn()
-    {
-        /** @var Authenticate $auth */
-        $auth = $this->factory->getContainer()->get('authentication');
-        $authRoutes = $this->factory->getContainer()->get('defaultRoutes');
-
-        $auth->validate();
-
-        $redirect = $authRoutes[$auth->getUser()->getRole()];
-        $auth->setAuthRedirectUrl($redirect);
-        $roles = $this->factory->getContainer()->get('roles');
-        $scope = $roles[$auth->getUser()->getRole()];
-
-        return $auth->establishUserIsAuthenticated($scope);
     }
 
     private function failWithErrors($user, $errors)
@@ -140,7 +124,7 @@ class UserInvite extends AbstractViewController
         return $this
             ->response
             ->withRedirect(
-                '/login',
+                '/#/login',
                 302
             );
     }

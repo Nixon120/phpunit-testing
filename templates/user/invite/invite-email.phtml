@@ -23,10 +23,10 @@
                                     <td valign="top" align="left"
                                         style="display: inline-block; padding: 0px 0px 20px; margin: 0px;"
                                         class="tdBlock">
-                                        <img src="/resources/app/images/email-header.png"
+                                        <img src="<?= $baseUrl; ?>/resources/app/images/email-header.png"
                                              width="600"
-                                             data-src="/resources/app/images/email-header.png"
-                                             data-origsrc="/resources/app/images/email-header.png"
+                                             data-src="<?= $baseUrl; ?>/resources/app/images/email-header.png"
+                                             data-origsrc="<?= $baseUrl; ?>/resources/app/images/email-header.png"
                                              style="border-width: 0px; border-style: none; border-color: transparent; font-size: 12px; display: block; width: 100%; max-width: 100% !important;">
                                     </td>
                                 </tr>
@@ -85,7 +85,7 @@
                                     <tr>
                                         <td valign="top" align="center" class="tdBlock"
                                             style="display: inline-block; padding: 13px 25px; margin: 0px; background-color: rgb(30, 183, 154); border-radius: 0px; width: 287px;">
-                                            <a href="/invite?token=<?= $user->getInviteToken(); ?>"
+                                            <a href="<?= $baseUrl; ?>/invite?token=<?= $user->getInviteToken(); ?>"
                                                style="font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; color: rgb(255, 255, 255); font-size: 18px; text-decoration: none; font-weight: bold;"
                                                target="_blank">Set Up My Admin</a>
                                         </td>
