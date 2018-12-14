@@ -204,31 +204,67 @@ SQL;
     }
 
     /**
-     * @param $productContainer
+     * @param array $productContainer
      * @param string|null $program
      * @return Product[]
      */
     public function getProducts($productContainer, $program = null)
     {
-        if (!empty($productContainer)) {
-            $skuContainer = [
-                'sku' => $productContainer
-            ];
 
-            if($program !== null) {
-                $token = (new AuthenticationTokenFactory)->getToken();
-                $this->getCatalog()->setProgram($program);
-                $this->getCatalog()->setToken($token);
-                $this->getCatalog()->setUrl(getenv('PROGRAM_CATALOG_URL'));
-            }
-
-            return $this->catalog->getProducts($skuContainer);
+        if (empty($productContainer)) {
+            return [];
         }
 
-        return [];
+        if ($program === null) {
+            return $this->catalog->getProducts(['sku' => $productContainer]);
+        }
+
+        $products = $this->getProductFromProgramCatalog(['sku' => $productContainer], $program);
+
+        if ($products === false) {
+            $products = [];
+        }
+
+        if (count($products) !== count($productContainer)) {
+            // If a product is not found within the program product criteria
+            // we augment it directly from the catalog.
+            $productContainer = array_filter(
+                $productContainer,
+                function ($sku) use ($products) {
+                    foreach ($products as $found_product) {
+                        /**
+                         * @var Product $found_product
+                         */
+                        if ($found_product->getSku() == $sku) {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                }
+            );
+
+            $products = array_merge(
+                $products,
+                $this->catalog->getProducts(['sku' => $productContainer])
+            );
+        }
+
+        return $products;
     }
 
-    public function getParticipantTransaction(Participant $participant, int $transactionId):?Transaction
+    private function getProductFromProgramCatalog($sku_container, $program_id)
+    {
+        $catalog = clone $this->getCatalog();
+        $token = (new AuthenticationTokenFactory)->getToken();
+        $catalog->setProgram($program_id);
+        $catalog->setToken($token);
+        $catalog->setUrl(getenv('PROGRAM_CATALOG_URL'));
+
+        return $catalog->getProducts($sku_container);
+    }
+
+    public function getParticipantTransaction(Participant $participant, int $transactionId): ?Transaction
     {
         $sql = "SELECT Transaction.*"
             . " FROM `Transaction`"
@@ -273,7 +309,7 @@ SQL;
         return null;
     }
 
-    public function getParticipantTransactionItem($guid):?array
+    public function getParticipantTransactionItem($guid): ?array
     {
         $sql = <<<SQL
 SELECT TransactionItem.quantity, TransactionItem.guid, TransactionItem.transaction_id, TransactionProduct.vendor_code as sku
@@ -292,7 +328,7 @@ SQL;
         return null;
     }
 
-    public function getParticipantTransactions(Participant $participant):?array
+    public function getParticipantTransactions(Participant $participant): ?array
     {
         $sql = "SELECT Transaction.* FROM `Transaction`"
             . " LEFT JOIN Participant ON Participant.id = Transaction.participant_id"
@@ -309,7 +345,7 @@ SQL;
         return $transactions;
     }
 
-    private function getParticipantTransactionProducts($transactionId):?array
+    private function getParticipantTransactionProducts($transactionId): ?array
     {
         $sql = "SELECT TransactionProduct.*, TransactionItem.quantity, TransactionItem.guid FROM `TransactionItem`"
             . " JOIN TransactionProduct ON TransactionProduct.reference_id = TransactionItem.reference_id"
@@ -325,7 +361,7 @@ SQL;
         return null;
     }
 
-    private function getParticipantTransactionShipping(Participant $participant, $reference):?Address
+    private function getParticipantTransactionShipping(Participant $participant, $reference): ?Address
     {
         $sql = "SELECT * FROM `Address`"
             . " WHERE Address.participant_id = ? AND Address.reference_id = ?";
