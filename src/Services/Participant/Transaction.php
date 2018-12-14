@@ -47,7 +47,6 @@ class Transaction
         BalanceRepository $balanceRepository,
         MessagePublisher $eventPublisher
     ) {
-
         $this->repository = $repository;
         $this->participantRepository = $participantRepository;
         $this->balanceRepository = $balanceRepository;
@@ -95,14 +94,17 @@ class Transaction
                     $transactionItem->setReferenceId($transactionProduct->getReferenceId());
 
                     if (!$transactionProduct->isValid() || !$transactionItem->isValid()) {
-                        $errors = array_merge($transactionProduct->getValidationErrors(), $transactionItem->getValidationErrors());
+                        $errors = array_merge(
+                            $transactionProduct->getValidationErrors(),
+                            $transactionItem->getValidationErrors()
+                        );
                         throw new TransactionServiceException(implode(', ', $errors));
                     }
 
                     // Check inventory
-                    if($requestedProduct->isInventoryManaged()) {
+                    if ($requestedProduct->isInventoryManaged()) {
                         $adjustedInventory = $requestedProduct->getInventoryCount() - $quantity;
-                        if($adjustedInventory < 0) {
+                        if ($adjustedInventory < 0) {
                             throw new TransactionServiceException(
                                 $requestedProduct->getName() . ' (' . $requestedProduct->getSku() . ') has insufficient inventory'
                             );
@@ -120,7 +122,7 @@ class Transaction
                         $catalog->setUrl(getenv('CATALOG_URL'));
                         $success = $catalog->createInventoryHold($holdRequest);
 
-                        if($success === false) {
+                        if ($success === false) {
                             throw new TransactionServiceException(
                                 'Unable to obtain inventory hold for product '. $requestedProduct->getName(). ' ('. $requestedProduct->getSku() . ')'
                             );
@@ -155,7 +157,7 @@ class Transaction
 
         try {
             $this->addTransactionItems($transaction, $data);
-        }catch (TransactionServiceException $e) {
+        } catch (TransactionServiceException $e) {
             $this->repository->setErrors([
                 $e->getMessage()
             ]);
