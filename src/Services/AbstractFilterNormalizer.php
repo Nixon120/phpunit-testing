@@ -73,6 +73,12 @@ abstract class AbstractFilterNormalizer implements FilterNormalizer
                     //@TODO and or separation here.. we can check to see if, getFilterCondition, which would return
                     //AND on default, or the value of the method exist
                     $argFilterMethod = $filter . 'Args';
+                    if (is_array($value)) {
+                        foreach($value as $element) {
+                            $args = array_merge($args, $this->$argFilterMethod($element));
+                        }
+                        continue;
+                    }
                     $args = array_merge($args, $this->$argFilterMethod($value));
                 }
             }
