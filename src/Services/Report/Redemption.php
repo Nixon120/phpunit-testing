@@ -29,9 +29,9 @@ class Redemption extends AbstractReport
             'Address.zip' => 'Zip',
             'Participant.phone' => 'Phone',
             'Participant.birthdate' => 'Date of Birth',
-            'TransactionItem.quantity' => 'Item Qty',
-            'TransactionProduct.vendor_code' => 'Item SKU',
-            'TransactionProduct.name' => 'Item Description',
+            'TransactionItem.quantity' => 'Transaction Count',
+            'TransactionProduct.vendor_code' => 'Product SKU',
+            'TransactionProduct.name' => 'Product Name',
             '((TransactionProduct.retail + IFNULL(TransactionProduct.shipping,0) + IFNULL(TransactionProduct.handling,0)) * TransactionItem.quantity) as Total' => 'Total'
         ]);
     }
