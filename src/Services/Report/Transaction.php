@@ -33,9 +33,9 @@ class Transaction extends AbstractReport
             'Participant.birthdate' => 'Date of Birth',
             'Participant.email_address' => 'Email Address',
             'TransactionProduct.category as `Reward Type`' => 'Reward Type',
-            'TransactionItem.quantity' => 'Item Qty',
-            'TransactionProduct.vendor_code' => 'Item SKU',
-            'TransactionProduct.name' => 'Item Description',
+            'TransactionItem.quantity' => 'Transaction Count',
+            'TransactionProduct.vendor_code' => 'Product SKU',
+            'TransactionProduct.name' => 'Product Name',
             '((TransactionProduct.retail + IFNULL(TransactionProduct.shipping,0) + IFNULL(TransactionProduct.handling,0)) * TransactionItem.quantity) as Total' => 'Total'
         ]);
     }
