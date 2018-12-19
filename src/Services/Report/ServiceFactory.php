@@ -56,6 +56,11 @@ class ServiceFactory extends AbstractServiceFactory
         return new PointBalance($this->getContainer()->get('report'));
     }
 
+    public function getTaxReport()
+    {
+        return new Tax($this->getContainer()->get('report'));
+    }
+
     public function getSweepstakeReport()
     {
         return new Sweepstake($this->getContainer()->get('report'));
