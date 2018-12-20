@@ -21,38 +21,32 @@ class ProgramSummary extends AbstractReport
             'Program.start_date as `Program Start Date`' => 'Program Start Date',
             'Program.end_date as `Program End Date`' => 'Program End Date',
             'Program.grace_period as `Grace Period`' => 'Grace Period',
-            'COUNT(DISTINCT Participant.id) as `Participant Count`' => 'Participant Count',
-            'SUM(Adjustment.adjustment_total) as `Total Participant Points`' => 'Total Participant Points',
-            'SUM(`Transaction`.transCount) as `Transaction Count`' => 'Transaction Count',
-            'SUM(`Transaction`.transCount) as `Total Redemptions`' => 'Total Redemptions',
-            'SUM(`Transaction`.transaction_total) as `Total Redemption Value`' => 'Total Redemption Value'
+            'ParticipantSub.`Participant Count`' => 'Participant Count',
+            'AdjustmentSub.`Total Particpant Points`' => 'Total Participant Points',
+            'COUNT(distinct Transaction.id) as `Transaction Count`' => 'Transaction Count',
+            'SUM(TransactionItem.quantity) as `Total Redemptions`' => 'Total Redemptions',
+            'SUM(((TransactionProduct.retail + IFNULL(TransactionProduct.shipping,0) + IFNULL(TransactionProduct.handling,0)) * TransactionItem.quantity)) as `Total`' => 'Total Redemption Value'
         ]);
     }
 
     public function getReportData(): ReportDataResponse
     {
         $selection = implode(', ', $this->getFields());
-        $selection .= $this->getMetaSelectionSql();
+        $participantSub = $this->getParticipantSubquerySQL();
+        $adjustmentSub = $this->getAdjustmentSubquerySQL();
 
         $query = <<<SQL
 SELECT SQL_CALC_FOUND_ROWS {$selection}
-FROM Participant
-LEFT JOIN Organization ON Organization.id = Participant.organization_id
-LEFT JOIN Program ON Participant.program_id = Program.id
-LEFT JOIN (
-   SELECT participant_id, SUM(amount) AS adjustment_total
-   FROM Adjustment 
-   WHERE `type` = 1   
-   GROUP BY participant_id   
-   ) Adjustment ON Participant.id = Adjustment.participant_id
-LEFT JOIN (
-   SELECT participant_id, SUM(total) AS transaction_total, COUNT(id) AS transCount
-   FROM `Transaction`
-   GROUP BY participant_id
-   ) `Transaction` ON Participant.id = `Transaction`.participant_id
-WHERE 1=1 
+FROM `TransactionItem`
+{$participantSub}
+{$adjustmentSub} 
+JOIN `Transaction` ON `Transaction`.id = `TransactionItem`.transaction_id 
+JOIN `TransactionProduct` ON `TransactionItem`.reference_id = `TransactionProduct`.reference_id 
+JOIN `Participant` ON `Transaction`.participant_id = `Participant`.id 
+JOIN `Program` ON `Program`.id = `Participant`.program_id 
+JOIN `Organization` ON `Organization`.id = `Participant`.organization_id 
+WHERE 1=1  
 {$this->getFilter()->getFilterConditionSql()}
-GROUP BY Program.unique_id, Program.name
 SQL;
 
         return $this->fetchDataForReport($query, $this->getFilter()->getFilterConditionArgs());
