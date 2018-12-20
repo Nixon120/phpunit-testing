@@ -548,10 +548,12 @@ SQL;
         }
 
         if ($startDate !== null && $startDate != '') {
+            $startDate .= ' 00:00:00';
             $where .= " AND created_at >= ".$db->quote($startDate);
         }
 
         if ($endDate !== null && $endDate != '') {
+            $endDate .= ' 23:59:59';
             $where .= " AND created_at <= ".$db->quote($endDate);
         }
 
