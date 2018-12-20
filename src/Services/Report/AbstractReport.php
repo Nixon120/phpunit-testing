@@ -534,4 +534,69 @@ SQL;
 
         return $this->fetchMetaForReport($query, $args);
     }
+
+    public function getParticipantSubquerySQL()
+    {
+        $program = $this->getFilter()->getInput()['program'] ?? null;
+        $startDate = $this->getFilter()->getInput()['start_date'] ?? null;
+        $endDate = $this->getFilter()->getInput()['end_date'] ?? null;
+        $where = '';
+        $db = $this->getFactory()->getDatabase();
+
+        if ($program !== null && $program != '') {
+            $where .= " AND program_id = (SELECT id FROM program WHERE unique_id = ".$db->quote($program).")";
+        }
+
+        if ($startDate !== null && $startDate != '') {
+            $where .= " AND created_at >= ".$db->quote($startDate);
+        }
+
+        if ($endDate !== null && $endDate != '') {
+            $where .= " AND created_at <= ".$db->quote($endDate);
+        }
+
+        $query = <<<SQL
+JOIN (
+  SELECT COUNT(*) AS 'Participant Count' FROM participant 
+  WHERE 1=1 
+  {$where}
+) ParticipantSub
+SQL;
+
+        return $query;
+    }
+
+    public function getAdjustmentSubquerySQL()
+    {
+        $program = $this->getFilter()->getInput()['program'] ?? null;
+        $startDate = $this->getFilter()->getInput()['start_date'] ?? null;
+        $endDate = $this->getFilter()->getInput()['end_date'] ?? null;
+        $where = '';
+        $db = $this->getFactory()->getDatabase();
+
+        if ($program !== null && $program != '') {
+            $where .= " AND participant_id IN (SELECT id FROM participant WHERE program_id = (SELECT id FROM program WHERE unique_id = ".$db->quote($program)."))";
+        }
+
+        if ($startDate !== null && $startDate != '') {
+            $startDate .= ' 00:00:00';
+            $where .= " AND created_at >= ".$db->quote($startDate);
+        }
+
+        if ($endDate !== null && $endDate != '') {
+            $endDate .= ' 23:59:59';
+            $where .= " AND created_at <= ".$db->quote($endDate);
+        }
+
+        $query = <<<SQL
+JOIN (
+  SELECT SUM(amount) AS 'Total Particpant Points' FROM adjustment 
+  WHERE 1=1   
+   AND `type` = 1
+   {$where}
+) AdjustmentSub
+SQL;
+
+        return $query;
+    }
 }
