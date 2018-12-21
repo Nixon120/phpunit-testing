@@ -21,6 +21,8 @@ class Adjustment extends Base
 
     public $description;
 
+    public $completed_at;
+
     /**
      * @var Participant|null
      */
@@ -170,5 +172,21 @@ class Adjustment extends Base
     public function setDescription(?string $description = null)
     {
         $this->description = $description;
+    }
+
+    /**
+     * @param mixed $completed_at
+     */
+    public function setCompletedAt($completed_at)
+    {
+        $this->completed_at = $completed_at;
+    }
+
+    /**
+     * @param Mixed_
+     */
+    public function getCompletedAt()
+    {
+        return $this->completed_at;
     }
 }
