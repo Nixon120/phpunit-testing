@@ -31,7 +31,8 @@ class Report extends Base
      * 5 = Point Balance,
      * 6 = Sweepstake Drawing,
      * 7 = Program Summary,
-     * 8 = Tax
+     * 8 = Tax,
+     * 9 = Adjustment Point Credit
      *
      * @var int
      */
@@ -169,6 +170,9 @@ class Report extends Base
             case 8:
                 return 'Tax';
                 break;
+            case 9:
+                return 'Adjustment Point Credit';
+                break;
             default:
                 return 'Unknown';
                 break;
@@ -205,6 +209,9 @@ class Report extends Base
                 break;
             case 8: //'Tax':
                 return 'Tax';
+                break;
+            case 9: //'Adjustment Point Credit':
+                return 'AdjustmentPointCredit';
                 break;
             default:
                 throw new \Exception('Invalid report specification');
