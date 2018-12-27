@@ -26,7 +26,7 @@ class AdjustmentPointCredit extends AbstractReport
             'Address.state' => 'State',
             'Address.zip' => 'Zip',
             'Adjustment.description' => 'Description',
-            'Adjustment.amount' => 'Points Earned',
+            '(Adjustment.amount * Program.point) as points_earned' => 'Points Earned',
             'Program.start_date' => 'Program Start Date',
             'Program.end_date' => 'Program End Date',
             'Adjustment.completed_at' => 'Incentive Completed Date',
