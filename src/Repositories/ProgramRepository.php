@@ -374,7 +374,7 @@ SQL;
         $sth->execute();
         $total = $sth->fetch();
 
-        if (empty($total['programs']) && $total['programs'] > 0) {
+        if (!empty($total['programs']) && $total['programs'] > 0) {
             if ($mode === 'insert') {
                 $error = 'Program subdomain ' . $subdomain . ' has already been assigned to another Program.';
                 array_push($this->errors, $error);
