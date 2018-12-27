@@ -20,6 +20,7 @@ class Tax extends AbstractReport
             'Participant.unique_id' => 'Participant ID',
             'IFNULL(Address.firstname, Participant.firstname) as firstname' => 'First Name',
             'IFNULL(Address.lastname, Participant.lastname) as lastname' => 'Last Name',
+            'Participant.birthdate' => 'Date of Birth',
             'Address.address1' => 'Address1',
             'Address.address2' => 'Address2',
             'Address.city' => 'City',
