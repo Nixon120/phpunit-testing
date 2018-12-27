@@ -195,7 +195,7 @@ class Program
             return false;
         }
 
-        if (!$this->repository->isProgramSubdomainUnique($this->program->getUrl())) {
+        if (!$this->repository->isProgramSubdomainUnique($this->program->getUrl(), $this->program->getDomainId())) {
             return false;
         }
 
@@ -235,7 +235,9 @@ class Program
 
         $url = explode('.', $data['url']);
         $subdomain = $url[0];
-        if ($subdomain != $this->program->getUrl() && !$this->repository->isProgramSubdomainUnique($subdomain, 'update')) {
+        $domainName = implode('.', [$url[1], $url[2]]);
+        $domain = $this->repository->getProgramDomainByDomainName($domainName);
+        if (!$this->repository->isProgramSubdomainUnique($subdomain, $domain->getId(), 'update')) {
             $this->repository->setErrors([
                 _('Program subdomain ' . $subdomain . ' has already been assigned to another Program.')
             ]);

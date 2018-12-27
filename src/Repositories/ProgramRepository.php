@@ -221,9 +221,14 @@ SQL;
 
     public function getProgramByDomain(string $domain):?Program
     {
-        $domain = $this->splitDomain($domain);
-        $sql = "SELECT * FROM Program WHERE url = ?";
-        $args = [$domain->url];
+        $domainParts = $this->splitDomain($domain);
+
+        if (!$domain = $this->getProgramDomainByDomainName($domainParts->domain)) {
+            return null;
+        }
+        
+        $sql = "SELECT * FROM Program WHERE url = ? AND domain_id = ?";
+        $args = [$domainParts->url, $domain->getId()];
 
         if (!$program = $this->query($sql, $args, Program::class)) {
             return null;
@@ -358,18 +363,18 @@ SQL;
         return false;
     }
 
-    public function isProgramSubdomainUnique($subdomain, $mode = 'insert')
+    public function isProgramSubdomainUnique($subdomain, $domainId, $mode = 'insert')
     {
-        // check if subdomain is unique
+        // check if subdomain is unique on domain
         $sql = <<<SQL
-SELECT COUNT(id) AS programs FROM program WHERE url = '{$subdomain}';
+SELECT COUNT(id) AS programs FROM program WHERE url = '{$subdomain}' AND domain_id = '{$domainId}';
 SQL;
         
         $sth = $this->getDatabase()->prepare($sql);
         $sth->execute();
         $total = $sth->fetch();
-        
-        if ($total['programs'] > 0) {
+
+        if (empty($total['programs']) && $total['programs'] > 0) {
             if ($mode === 'insert') {
                 $error = 'Program subdomain ' . $subdomain . ' has already been assigned to another Program.';
                 array_push($this->errors, $error);
