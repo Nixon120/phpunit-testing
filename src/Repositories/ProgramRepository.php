@@ -221,9 +221,14 @@ SQL;
 
     public function getProgramByDomain(string $domain):?Program
     {
-        $domain = $this->splitDomain($domain);
-        $sql = "SELECT * FROM Program WHERE url = ?";
-        $args = [$domain->url];
+        $domainParts = $this->splitDomain($domain);
+
+        if (!$domain = $this->getProgramDomainByDomainName($domainParts->domain)) {
+            return null;
+        }
+        
+        $sql = "SELECT * FROM Program WHERE url = ? AND domain_id = ?";
+        $args = [$domainParts->url, $domain->getId()];
 
         if (!$program = $this->query($sql, $args, Program::class)) {
             return null;
