@@ -195,10 +195,6 @@ class Program
             return false;
         }
 
-        if (!$this->repository->isProgramSubdomainUnique($this->program->getUrl(), $this->program->getDomainId())) {
-            return false;
-        }
-
         if (!$this->entitiesAreValid()) {
             // At least one entity failed to validate.
             return false;
@@ -231,17 +227,6 @@ class Program
                 _('The marketplace URL provided is invalid. Please ensure the URL is a proper subdomain')
             ]);
             return false;
-        }
-
-        $url = explode('.', $data['url']);
-        $subdomain = $url[0];
-        $domainName = implode('.', [$url[1], $url[2]]);
-        $domain = $this->repository->getProgramDomainByDomainName($domainName);
-        if (!$this->repository->isProgramSubdomainUnique($subdomain, $domain->getId(), 'update')) {
-            $this->repository->setErrors([
-                _('Program subdomain ' . $subdomain . ' has already been assigned to another Program.')
-            ]);
-            return false; 
         }
 
         $this->buildEntities($data);

@@ -363,28 +363,6 @@ SQL;
         return false;
     }
 
-    public function isProgramSubdomainUnique($subdomain, $domainId, $mode = 'insert')
-    {
-        // check if subdomain is unique on domain
-        $sql = <<<SQL
-SELECT COUNT(id) AS programs FROM program WHERE url = '{$subdomain}' AND domain_id = '{$domainId}';
-SQL;
-        
-        $sth = $this->getDatabase()->prepare($sql);
-        $sth->execute();
-        $total = $sth->fetch();
-
-        if (!empty($total['programs']) && $total['programs'] > 0) {
-            if ($mode === 'insert') {
-                $error = 'Program subdomain ' . $subdomain . ' has already been assigned to another Program.';
-                array_push($this->errors, $error);
-            }
-             return false;
-        }
-
-        return true;
-    }
-
     private function getCategories($categories)
     {
         $return = [];
