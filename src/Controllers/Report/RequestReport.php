@@ -106,6 +106,10 @@ class RequestReport
         try {
             $reportable = $this->getReportService($input);
 
+            if (is_null($sftp = $input->getSftp()) === false) {
+                return $this->requestReportFile($reportable);
+            }
+
             if ($input->getReportOutput() === 'file') {
                 return $this->requestReportFile($reportable);
             }
