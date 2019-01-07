@@ -39,10 +39,10 @@ class SftpDelete
     ) {
         $this->request = $request;
         $this->response = $response;
-        return $this->update($args['id']);
+        return $this->delete($args['id']);
     }
 
-    public function update($id)
+    public function delete($id)
     {
         $deleted = $this->factory->getSftpRepository()
             ->delete($id);
