@@ -12,6 +12,9 @@ class SftpRepository extends BaseRepository
         return Sftp::class;
     }
 
+    /**
+     * @return string
+     */
     public function getCollectionQuery(): string
     {
         $this->orderBy = ' ORDER BY id DESC';
@@ -31,6 +34,10 @@ LEFT JOIN `Program` ON `Program`.`unique_id` = `Sftp`.`program`
 SQL;
     }
 
+    /**
+     * @param $id
+     * @return Sftp|null
+     */
     public function getSftpById($id): ?Sftp
     {
         $sql = <<<SQL
@@ -47,7 +54,12 @@ SQL;
         return $sftp;
     }
 
-    public function update($id, $data)
+    /**
+     * @param $id
+     * @param $data
+     * @return bool
+     */
+    public function update($id, $data): bool
     {
         $sql = 'UPDATE Sftp SET host = ?, port = ?, file_path = ?, username = ?, password = ?,  `key` = ? WHERE id = ?';
         $args = [
