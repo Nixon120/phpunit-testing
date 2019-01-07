@@ -16,6 +16,7 @@ class AddSftpTable extends AbstractMigration
             ->addColumn('username', 'string')
             ->addColumn('password', 'string')
             ->addColumn('key', 'text')
+            ->addIndex(['program'], ['unique' => true])
             ->addTimestamps()
             ->create();
     }

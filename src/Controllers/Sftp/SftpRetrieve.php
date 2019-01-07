@@ -9,7 +9,7 @@ use Services\Report\ServiceFactory;
 use Slim\Http\Request;
 use Slim\Http\Response;
 
-class SftpList
+class SftpRetrieve
 {
     /**
      * @var Request
@@ -37,17 +37,35 @@ class SftpList
     ) {
         $this->request = $request;
         $this->response = $response;
+        $get = $this->request->getQueryParams();
 
-        return $this->getReportList();
+        if (isset($get['id']) === true) {
+            return $this->getSingle($get['id']);
+        }
+
+        return $this->getSftpList($get);
     }
 
-    public function getReportList()
+    public function getSftpList($get)
     {
+        $page = isset($get['page']) ? $get['page'] : 0;
+        $offset = isset($get['offset']) ? $get['offset'] : 30;
         $collection = $this->factory->getSftpRepository()
-            ->getCollection();
+            ->getCollection(null, $page, $offset);
 
         $response = $this->response->withStatus(200)
             ->withJson($collection);
+
+        return $response;
+    }
+
+    public function getSingle($id)
+    {
+        $single = $this->factory->getSftpRepository()
+            ->getSftpById($id);
+
+        $response = $this->response->withStatus(200)
+            ->withJson($single);
 
         return $response;
     }

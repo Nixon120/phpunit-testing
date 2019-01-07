@@ -24,9 +24,9 @@ SQL;
         }
 
         return <<<SQL
-SELECT Sftp.*
-FROM Sftp
-LEFT JOIN Program ON Program.unique_id = Sftp.program
+SELECT `Sftp`.*
+FROM `Sftp`
+LEFT JOIN `Program` ON `Program`.`unique_id` = `Sftp`.`program`
 {$where}
 SQL;
     }
@@ -45,5 +45,29 @@ SQL;
         }
 
         return $sftp;
+    }
+
+    public function update($id, $data)
+    {
+        $sql = 'UPDATE Sftp SET host = ?, port = ?, file_path = ?, username = ?, password = ?,  `key` = ? WHERE id = ?';
+        $args = [
+          $data['host'],
+          $data['port'],
+          $data['file_path'],
+          $data['username'],
+          $data['password'],
+          $data['key'],
+          $id,
+        ];
+        $sth = $this->database->prepare($sql);
+        $this->database->beginTransaction();
+
+        try {
+            $sth->execute($args);
+        } catch (\PDOException $e) {
+            $this->errors[] = $e->getMessage();
+        }
+        $commit = $this->database->commit();
+        return $commit;
     }
 }

@@ -10,7 +10,7 @@ use Services\Report\ServiceFactory;
 use Slim\Http\Request;
 use Slim\Http\Response;
 
-class PublishReportSftp
+class SftpCreate
 {
     /**
      * @var Request
@@ -39,21 +39,18 @@ class PublishReportSftp
         $this->request = $request;
         $this->response = $response;
 
-        return $this->getReportList();
+        return $this->create();
     }
 
-    public function getReportList()
+    public function create()
     {
-        $get = $this->request->getQueryParams();
-        $page = $get['page'] ?? 1;
-        $limit = $get['limit'] ?? 30;
-        $offset = $page === 1 ? 0 : ($page-1) * $limit;
-        $filterNormalizer = new ReportFilterNormalizer($get);
-        $collection = $this->factory->getReportRepository()
-            ->getReportList($filterNormalizer, $offset, $limit);
+        $get = $this->request->getParsedBody();
+
+        $saved = $this->factory->getSftpRepository()
+            ->insert($get);
 
         $response = $this->response->withStatus(200)
-            ->withJson($collection);
+            ->withJson($saved);
 
         return $response;
     }
