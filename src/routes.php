@@ -16,3 +16,4 @@ require __DIR__ . '/Routes/product.php';
 require __DIR__ . '/Routes/organization.php';
 require __DIR__ . '/Routes/program.php';
 require __DIR__ . '/Routes/report.php';
+require __DIR__ . '/Routes/sftp.php';
