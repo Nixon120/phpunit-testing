@@ -143,9 +143,28 @@ class InputNormalizer extends AbstractInputNormalizer
         $output = $input['sftp'] ?? null;
 
         if (is_null($output) === false) {
-            return json_decode($input['sftp'], true);
+            $this->setSftpIsProcessed(0);
+            return $input['sftp'];
         }
 
         return null;
+    }
+
+    public function getSftpProcessed()
+    {
+        $input = $this->getInput();
+        $output = $input['sftp_processed'] ?? null;
+
+        if (is_null($output) === false) {
+            return $input['sftp_processed'];
+        }
+
+        return 0;
+    }
+
+    public function setSftpIsProcessed(int $processed)
+    {
+        $input = $this->getInput();
+        $input['sftp_processed'] = $processed;
     }
 }

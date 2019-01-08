@@ -67,7 +67,7 @@ class RequestReport
     {
         // Request report
         $entity = $report->request();
-        // Publish report if request is generated
+        // Publish report if request is generated$processed
         if ($entity instanceof Base) {
             $this->response = $this->response->withStatus(200)
                 ->withJson($entity->toArray());
@@ -79,6 +79,14 @@ class RequestReport
             ->withJson([]);
 
         return false;
+    }
+
+    private function publishReportToSftp($id, Reportable $report)
+    {
+        //publish to sftp
+        //set sftp_published to true/1
+        $sftpConfig = $this->getSftpConfig($id);
+        var_dump($sftpConfig);die;
     }
 
     private function requestPaginatedReport(Reportable $report): bool
@@ -107,7 +115,7 @@ class RequestReport
             $reportable = $this->getReportService($input);
 
             if (is_null($sftp = $input->getSftp()) === false) {
-                return $this->requestReportFile($reportable);
+                return $this->publishReportToSftp($input->getSftp(), $reportable);
             }
 
             if ($input->getReportOutput() === 'file') {
@@ -149,5 +157,11 @@ class RequestReport
         }
 
         return $this->reportService;
+    }
+
+    public function getSftpConfig($id)
+    {
+        return $this->factory->getSftpRepository()
+            ->getSftpById($id);
     }
 }
