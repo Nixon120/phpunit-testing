@@ -1,6 +1,7 @@
 <?php
 namespace Controllers\Report;
 
+use Services\Sftp\SftpPublisher;
 use Controllers\AbstractViewController;
 use Entities\Base;
 use Entities\Report;
@@ -83,10 +84,25 @@ class RequestReport
 
     private function publishReportToSftp($id, Reportable $report)
     {
-        //publish to sftp
-        //set sftp_published to true/1
-        $sftpConfig = $this->getSftpConfig($id);
-        var_dump($sftpConfig);die;
+        $entity = $report->request();
+
+        if ($entity instanceof Base) {
+            //publish to sftp
+            //set sftp_published to true/1
+            $sftpConfig = $this->getSftpConfig($id);
+            $sftpPublisher = new SftpPublisher($sftpConfig, $report->getReportName());
+            $sftpPublisher->publish();
+
+            $this->response = $this->response->withStatus(200)
+                ->withJson($entity->toArray());
+
+            return true;
+        }
+
+        $this->response = $this->response->withStatus(400)
+            ->withJson([]);
+
+        return false;
     }
 
     private function requestPaginatedReport(Reportable $report): bool
