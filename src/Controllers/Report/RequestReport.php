@@ -96,7 +96,6 @@ class RequestReport
                 $this->getSftpPublisher($input, $report)->publish();
                 $this->response = $this->response->withStatus(200)
                     ->withJson($entity->toArray());
-
                 return true;
             } catch (\Exception $exception) {
                 $this->response = $this->response->withStatus(400)
