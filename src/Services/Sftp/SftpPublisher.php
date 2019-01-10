@@ -38,6 +38,7 @@ class SftpPublisher
 
     /**
      * @return bool
+     * @throws \Exception
      */
     public function publish(): bool
     {
@@ -45,8 +46,15 @@ class SftpPublisher
             $this->getMappedSftpConfig()
         );
         $filesystem = new Filesystem($adapter);
-        $path = '/' . $this->sftpConfig->getFilePath() . '/2019-01-10-134302_sharecare_sharecare_42_Participant Enrollment.pdf';
-        $fileName = __DIR__ . '/../../../public/resources/app/reports/2019-01-10-134302_sharecare_sharecare_42_Participant Enrollment.pdf';
+        $path = '/' . $this->sftpConfig->getFilePath() . '/Participant_Enrollment.pdf';
+        $fileName = __DIR__ . '/../../../public/resources/app/reports/Participant_Enrollment.pdf';
+
+        set_error_handler(
+            create_function(
+                '$severity, $message, $file, $line',
+                'throw new ErrorException($message, $severity, $severity, $file, $line);'
+            )
+        );
 
         try {
             return $filesystem->putStream($path, fopen($fileName, 'r+'));
@@ -65,7 +73,9 @@ class SftpPublisher
                 ]
             );
 
-            return false;
+            restore_error_handler();
+
+            throw new \Exception('Something went wrong. Could not connect to SFTP.');
         }
     }
 

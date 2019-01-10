@@ -82,24 +82,26 @@ class RequestReport
         return false;
     }
 
-    private function publishReportToSftp(InputNormalizer $input, Reportable $report)
+    /**
+     * @param InputNormalizer $input
+     * @param Reportable $report
+     * @return bool
+     */
+    private function publishReportToSftp(InputNormalizer $input, Reportable $report): bool
     {
         $entity = $report->request();
 
         if ($entity instanceof Base) {
-            $sftpConfig = $this->getSftpConfig($input->getSftp());
-            $sftpPublisher = new SftpPublisher(
-                $sftpConfig,
-                $report->getReportName(),
-                $input->getOrganzationUuid(),
-                $input->getProgramUuid()
-            );
-
-            if ($sftpPublisher->publish() === true) {
+            try {
+                $this->getSftpPublisher($input, $report)->publish();
                 $this->response = $this->response->withStatus(200)
                     ->withJson($entity->toArray());
 
                 return true;
+            } catch (\Exception $exception) {
+                $this->response = $this->response->withStatus(400)
+                    ->withJson([$exception->getMessage()]);
+                return false;
             }
         }
 
@@ -183,5 +185,22 @@ class RequestReport
     {
         return $this->factory->getSftpRepository()
             ->getSftpById($id);
+    }
+
+    /**
+     * @param InputNormalizer $input
+     * @param Reportable $report
+     * @return SftpPublisher
+     */
+    private function getSftpPublisher(InputNormalizer $input, Reportable $report): SftpPublisher
+    {
+        $sftpConfig = $this->getSftpConfig($input->getSftp());
+        $sftpPublisher = new SftpPublisher(
+            $sftpConfig,
+            $report->getReportName(),
+            $input->getOrganzationUuid(),
+            $input->getProgramUuid()
+        );
+        return $sftpPublisher;
     }
 }
