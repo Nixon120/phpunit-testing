@@ -24,27 +24,30 @@ class SftpPublisher
 
     public function publish()
     {
-        // Push generated file to Sharecare SFTP.
+        // Push generated file to SFTP.
         $adapter = new SftpAdapter(
             $this->getMappedSftpConfig()
         );
-        //$path = $this->sftpConfig->getFilePath() . '/' . $this->reportName;
-        //$fileName = getenv('MP_ADMIN_HOST') . '/resources/app/reports/' . $this->reportName;
-        $path = $this->sftpConfig->getFilePath() . '/2019-01-08-221347_sharecare_sharecare_2_Participant Point Balance.xlsx';
-        $fileName = '../../../public/resources/app/reports/2019-01-08-221347_sharecare_sharecare_2_Participant Point Balance.xlsx';
         $filesystem = new Filesystem($adapter);
-        //Create or overwrite if exists
+        $path = '/home/devsftp/Reports/' . $this->sftpConfig->getFilePath() . '/2019-01-10-134302_sharecare_sharecare_42_Participant Enrollment.pdf';
+        $fileName = __DIR__ . '/../../../public/resources/app/reports/2019-01-10-134302_sharecare_sharecare_42_Participant Enrollment.pdf';
 
         try {
-            $published = $filesystem->putStream(
-                $path,
-                fopen($fileName, 'r+')
+            return $filesystem->putStream($path, fopen($fileName, 'r+'));
+        } catch (\Exception $exception) {
+            $this->getLogger()->error(
+                'SFTP Report Publish Failure',
+                [
+                    'subsystem' => 'SFTP Publisher',
+                    'action' => 'publish',
+                    'success' => false,
+                    'organization' => 'sharecare',
+                    'program' => 'sharecare',
+                    'report' => $this->reportName,
+                    'sftpConfig' => $this->getMappedSftpConfig(),
+                    'error' => $exception->getMessage(),
+                ]
             );
-
-            var_dump($published);die;
-        }catch (\Exception $exception) {
-            //log exception
-            var_dump($exception->getMessage());die;
 
             return false;
         }
@@ -58,8 +61,8 @@ class SftpPublisher
             'port' => $this->sftpConfig->getPort(), //22,
             'username' => $this->sftpConfig->getUsername(), //'devsftp',
             'password' => $this->sftpConfig->getPassword(), //'',
-            'privateKey' => $this->sftpConfig->getKey(), //__DIR__ . '/DEV_SFTP_PRIVATE_KEY.PEM',
-            'root' => $this->sftpConfig->getFilePath(), //'/home/devsftp/Reports',
+            'privateKey' => strip_tags($this->sftpConfig->getKey()),
+            'root' => '/home/devsftp/Reports',
             'timeout' => 10,
             'directoryPerm' => 0755
         ];

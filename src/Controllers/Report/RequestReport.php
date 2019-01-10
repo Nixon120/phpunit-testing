@@ -87,16 +87,15 @@ class RequestReport
         $entity = $report->request();
 
         if ($entity instanceof Base) {
-            //publish to sftp
-            //set sftp_published to true/1
             $sftpConfig = $this->getSftpConfig($id);
             $sftpPublisher = new SftpPublisher($sftpConfig, $report->getReportName());
-            $sftpPublisher->publish();
 
-            $this->response = $this->response->withStatus(200)
-                ->withJson($entity->toArray());
+            if ($sftpPublisher->publish() === true) {
+                $this->response = $this->response->withStatus(200)
+                    ->withJson($entity->toArray());
 
-            return true;
+                return true;
+            }
         }
 
         $this->response = $this->response->withStatus(400)
@@ -131,7 +130,7 @@ class RequestReport
             $reportable = $this->getReportService($input);
 
             if (is_null($sftp = $input->getSftp()) === false) {
-                return $this->publishReportToSftp($input->getSftp(), $reportable);
+                return $this->publishReportToSftp($sftp, $reportable);
             }
 
             if ($input->getReportOutput() === 'file') {
