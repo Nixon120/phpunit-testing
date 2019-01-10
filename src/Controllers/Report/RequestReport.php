@@ -68,7 +68,7 @@ class RequestReport
     {
         // Request report
         $entity = $report->request();
-        // Publish report if request is generated$processed
+        // Publish report if request is generated
         if ($entity instanceof Base) {
             $this->response = $this->response->withStatus(200)
                 ->withJson($entity->toArray());
