@@ -9,27 +9,43 @@ use Traits\LoggerAwareTrait;
 class SftpPublisher
 {
     use LoggerAwareTrait;
-
     /**
      * @var Sftp
      */
     private $sftpConfig;
-    private $reportName;
+    private $reportName = '';
+    private $organization = '';
+    private $program = '';
 
-    public function __construct(Sftp $sftpConfig, string $reportName)
-    {
+    /**
+     * SftpPublisher constructor.
+     * @param Sftp $sftpConfig
+     * @param string $reportName
+     * @param string $organization
+     * @param string $program
+     */
+    public function __construct(
+        Sftp $sftpConfig,
+        string $reportName,
+        string $organization,
+        string $program
+    ) {
         $this->sftpConfig = $sftpConfig;
         $this->reportName = $reportName;
+        $this->organization = $organization;
+        $this->program = $program;
     }
 
-    public function publish()
+    /**
+     * @return bool
+     */
+    public function publish(): bool
     {
-        // Push generated file to SFTP.
         $adapter = new SftpAdapter(
             $this->getMappedSftpConfig()
         );
         $filesystem = new Filesystem($adapter);
-        $path = '/home/devsftp/Reports/' . $this->sftpConfig->getFilePath() . '/2019-01-10-134302_sharecare_sharecare_42_Participant Enrollment.pdf';
+        $path = '/' . $this->sftpConfig->getFilePath() . '/2019-01-10-134302_sharecare_sharecare_42_Participant Enrollment.pdf';
         $fileName = __DIR__ . '/../../../public/resources/app/reports/2019-01-10-134302_sharecare_sharecare_42_Participant Enrollment.pdf';
 
         try {
@@ -41,8 +57,8 @@ class SftpPublisher
                     'subsystem' => 'SFTP Publisher',
                     'action' => 'publish',
                     'success' => false,
-                    'organization' => 'sharecare',
-                    'program' => 'sharecare',
+                    'organization' => $this->organization,
+                    'program' => $this->program,
                     'report' => $this->reportName,
                     'sftpConfig' => $this->getMappedSftpConfig(),
                     'error' => $exception->getMessage(),
@@ -51,18 +67,20 @@ class SftpPublisher
 
             return false;
         }
-
     }
 
-    private function getMappedSftpConfig()
+    /**
+     * @return array
+     */
+    private function getMappedSftpConfig(): array
     {
         return [
-            'host' => $this->sftpConfig->getHost(), //'sftp.staging.alldigitalrewards.com',
-            'port' => $this->sftpConfig->getPort(), //22,
-            'username' => $this->sftpConfig->getUsername(), //'devsftp',
-            'password' => $this->sftpConfig->getPassword(), //'',
+            'host' => $this->sftpConfig->getHost(),
+            'port' => $this->sftpConfig->getPort(),
+            'username' => $this->sftpConfig->getUsername(),
+            'password' => $this->sftpConfig->getPassword(),
             'privateKey' => strip_tags($this->sftpConfig->getKey()),
-            'root' => '/home/devsftp/Reports',
+            'root' => SFTP_ROOT_DIR,
             'timeout' => 10,
             'directoryPerm' => 0755
         ];

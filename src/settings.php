@@ -1,5 +1,7 @@
 <?php
 
+const SFTP_ROOT_DIR = '/home/devsftp/Reports';
+
 return [
     'settings' => [
         'baseUrl' => ((!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') ? 'https' : 'http')

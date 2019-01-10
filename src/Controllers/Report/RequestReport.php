@@ -82,13 +82,18 @@ class RequestReport
         return false;
     }
 
-    private function publishReportToSftp($id, Reportable $report)
+    private function publishReportToSftp(InputNormalizer $input, Reportable $report)
     {
         $entity = $report->request();
 
         if ($entity instanceof Base) {
-            $sftpConfig = $this->getSftpConfig($id);
-            $sftpPublisher = new SftpPublisher($sftpConfig, $report->getReportName());
+            $sftpConfig = $this->getSftpConfig($input->getSftp());
+            $sftpPublisher = new SftpPublisher(
+                $sftpConfig,
+                $report->getReportName(),
+                $input->getOrganzationUuid(),
+                $input->getProgramUuid()
+            );
 
             if ($sftpPublisher->publish() === true) {
                 $this->response = $this->response->withStatus(200)
@@ -129,8 +134,8 @@ class RequestReport
         try {
             $reportable = $this->getReportService($input);
 
-            if (is_null($sftp = $input->getSftp()) === false) {
-                return $this->publishReportToSftp($sftp, $reportable);
+            if (is_null($input->getSftp()) === false) {
+                return $this->publishReportToSftp($input, $reportable);
             }
 
             if ($input->getReportOutput() === 'file') {
