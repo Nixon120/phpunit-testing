@@ -40,7 +40,6 @@ class SftpPublisher
      */
     public function publish(): bool
     {
-        $path = '/' . $this->sftpConfig->getFilePath() . '/' . $this->report->getAttachment();
         $fileName = __DIR__ . '/../../../public/resources/app/reports/' . $this->report->getAttachment();
 
         set_error_handler(
@@ -51,7 +50,7 @@ class SftpPublisher
         );
 
         try {
-            return $this->getFileSystem()->putStream($path, fopen($fileName, 'r+'));
+            return $this->getFileSystem()->putStream($this->getPath(), fopen($fileName, 'r+'));
         } catch (\Exception $exception) {
             $this->getLogger()->error(
                 'SFTP Report Publish Failure',
@@ -100,5 +99,24 @@ class SftpPublisher
         );
         $filesystem = new Filesystem($adapter);
         return $filesystem;
+    }
+
+    /**
+     * @return string
+     */
+    private function getPath(): string
+    {
+        $now = new \DateTime('now');
+        $filePath =
+            $this->report->getOrganization()
+            . '_'
+            . $this->report->getProgram()
+            . '_'
+            . str_replace(" ", "", $this->report->getReportName())
+            . '_'
+            . $now->format('Ymd');
+
+        $path = '/' . $this->sftpConfig->getFilePath() . '/' . $filePath;
+        return $path;
     }
 }
