@@ -17,12 +17,6 @@ class SftpPublisher
     private $sftpConfig;
     /**
      * @var ReportRepository
-     */
-    private $reportRepository;
-    /**
-     * @var int
-     */
-    private $reportId;
     /**
      * @var Report
      */
@@ -31,17 +25,14 @@ class SftpPublisher
     /**
      * SftpPublisher constructor.
      * @param Sftp $sftpConfig
-     * @param ReportRepository $reportRepository
-     * @param int $reportId
+     * @param Report $report
      */
     public function __construct(
         Sftp $sftpConfig,
-        ReportRepository $reportRepository,
-        int $reportId
+        Report $report
     ) {
         $this->sftpConfig = $sftpConfig;
-        $this->reportRepository = $reportRepository;
-        $this->reportId = $reportId;
+        $this->report = $report;
     }
 
     /**
@@ -49,8 +40,8 @@ class SftpPublisher
      */
     public function publish(): bool
     {
-        $path = '/' . $this->sftpConfig->getFilePath() . '/' . $this->getReport()->getAttachment();
-        $fileName = __DIR__ . '/../../../public/resources/app/reports/' . $this->getReport()->getAttachment();
+        $path = '/' . $this->sftpConfig->getFilePath() . '/' . $this->report->getAttachment();
+        $fileName = __DIR__ . '/../../../public/resources/app/reports/' . $this->report->getAttachment();
 
         set_error_handler(
             create_function(
@@ -68,9 +59,9 @@ class SftpPublisher
                     'subsystem' => 'SFTP Publisher',
                     'action' => 'publish',
                     'success' => false,
-                    'organization' => $this->getReport()->getOrganization(),
-                    'program' => $this->getReport()->getProgram(),
-                    'report' => $this->getReport()->getId(),
+                    'organization' => $this->report->getOrganization(),
+                    'program' => $this->report->getProgram(),
+                    'report' => $this->report->getId(),
                     'sftpConfig' => $this->getMappedSftpConfig(),
                     'error' => $exception->getMessage(),
                 ]
@@ -109,18 +100,5 @@ class SftpPublisher
         );
         $filesystem = new Filesystem($adapter);
         return $filesystem;
-    }
-
-    /**
-     * @return \Entities\Report|null
-     */
-    public function getReport(): ?Report
-    {
-        if (is_null($this->report) === true) {
-            $this->report = $this->reportRepository
-                ->getReportById($this->reportId);
-        }
-
-        return $this->report;
     }
 }

@@ -337,7 +337,7 @@ class Request extends AbstractListener
 
         //if SFTP publish it here!
         if (is_null($sftpId = $report->getParameters()['sftp']) === false) {
-            $published = $this->getSftpPublisher($sftpId, $report->getId())->publish();
+            $published = $this->getSftpPublisher($sftpId, $report)->publish();
 
             $parameters = $report->getParameters();
             $parameters['sftp_published'] = $published === true ? 1 : 0;
@@ -348,28 +348,18 @@ class Request extends AbstractListener
     }
 
     /**
-     * @param $id
-     * @return \Entities\Sftp|null
-     */
-    public function getSftpConfig($id)
-    {
-        return $this->reportFactory->getSftpRepository()
-            ->getSftpById($id);
-    }
-
-    /**
      * @param string $sftpId
-     * @param int $reportId
+     * @param ReportEntity $report
      * @return SftpPublisher
      */
-    private function getSftpPublisher(string $sftpId, int $reportId): SftpPublisher
+    private function getSftpPublisher(string $sftpId, ReportEntity $report): SftpPublisher
     {
-        $sftpConfig = $this->getSftpConfig($sftpId);
+        $sftpConfig = $this->reportFactory->getSftpRepository()
+            ->getSftpById($sftpId);
 
         $sftpPublisher = new SftpPublisher(
             $sftpConfig,
-            $this->reportFactory->getReportRepository(),
-            $reportId
+            $report
         );
         return $sftpPublisher;
     }
