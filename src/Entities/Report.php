@@ -250,6 +250,9 @@ class Report extends Base
      */
     public function getAttachment(): string
     {
+        if (is_null($this->attachment) === true) {
+            return '';
+        }
         return $this->attachment;
     }
 

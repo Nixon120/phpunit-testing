@@ -1,7 +1,6 @@
 <?php
 namespace Controllers\Report;
 
-use Services\Sftp\SftpPublisher;
 use Controllers\AbstractViewController;
 use Entities\Base;
 use Entities\Report;
@@ -68,40 +67,13 @@ class RequestReport
     {
         // Request report
         $entity = $report->request();
+
         // Publish report if request is generated
         if ($entity instanceof Base) {
             $this->response = $this->response->withStatus(200)
                 ->withJson($entity->toArray());
 
             return true;
-        }
-
-        $this->response = $this->response->withStatus(400)
-            ->withJson([]);
-
-        return false;
-    }
-
-    /**
-     * @param InputNormalizer $input
-     * @param Reportable $report
-     * @return bool
-     */
-    private function publishReportToSftp(InputNormalizer $input, Reportable $report): bool
-    {
-        $entity = $report->request();
-
-        if ($entity instanceof Base) {
-            try {
-                $this->getSftpPublisher($input, $report)->publish();
-                $this->response = $this->response->withStatus(200)
-                    ->withJson($entity->toArray());
-                return true;
-            } catch (\Exception $exception) {
-                $this->response = $this->response->withStatus(400)
-                    ->withJson([$exception->getMessage()]);
-                return false;
-            }
         }
 
         $this->response = $this->response->withStatus(400)
@@ -135,11 +107,7 @@ class RequestReport
         try {
             $reportable = $this->getReportService($input);
 
-            if (is_null($input->getSftp()) === false) {
-                return $this->publishReportToSftp($input, $reportable);
-            }
-
-            if ($input->getReportOutput() === 'file') {
+            if ($input->getReportOutput() === 'file' || is_null($sftpId = $input->getSftp()) === false) {
                 return $this->requestReportFile($reportable);
             }
 
@@ -178,28 +146,5 @@ class RequestReport
         }
 
         return $this->reportService;
-    }
-
-    public function getSftpConfig($id)
-    {
-        return $this->factory->getSftpRepository()
-            ->getSftpById($id);
-    }
-
-    /**
-     * @param InputNormalizer $input
-     * @param Reportable $report
-     * @return SftpPublisher
-     */
-    private function getSftpPublisher(InputNormalizer $input, Reportable $report): SftpPublisher
-    {
-        $sftpConfig = $this->getSftpConfig($input->getSftp());
-        $sftpPublisher = new SftpPublisher(
-            $sftpConfig,
-            $report->getReportName(),
-            $input->getOrganzationUuid(),
-            $input->getProgramUuid()
-        );
-        return $sftpPublisher;
     }
 }

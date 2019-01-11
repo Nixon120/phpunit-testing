@@ -1,6 +1,6 @@
 <?php
 
-const SFTP_ROOT_DIR = '/home/devsftp/Reports';
+const SFTP_ROOT_DIR = '/home/devsftp';
 
 return [
     'settings' => [

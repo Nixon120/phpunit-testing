@@ -13,6 +13,7 @@ use PhpOffice\PhpSpreadsheet\Worksheet\PageSetup;
 use PhpOffice\PhpSpreadsheet\Writer\IWriter;
 use PhpOffice\PhpSpreadsheet\Writer\Pdf\Dompdf;
 use Services\Report as Report;
+use Services\Sftp\SftpPublisher;
 use Traits\LoggerAwareTrait;
 
 class Request extends AbstractListener
@@ -333,6 +334,44 @@ class Request extends AbstractListener
         $report->setAttachment($this->getReportFileName());
         $this->reportFactory->getReportRepository()
             ->update($report->getId(), $report->toArray());
+
+        //if SFTP publish it here!
+        if (is_null($sftpId = $report->getParameters()['sftp']) === false) {
+            $published = $this->getSftpPublisher($sftpId, $report->getId())->publish();
+
+            $parameters = $report->getParameters();
+            $parameters['sftp_published'] = $published === true ? 1 : 0;
+            $report->setParameters(json_encode($parameters));
+            $this->reportFactory->getReportRepository()
+                ->update($report->getId(), $report->toArray());
+        }
+    }
+
+    /**
+     * @param $id
+     * @return \Entities\Sftp|null
+     */
+    public function getSftpConfig($id)
+    {
+        return $this->reportFactory->getSftpRepository()
+            ->getSftpById($id);
+    }
+
+    /**
+     * @param string $sftpId
+     * @param int $reportId
+     * @return SftpPublisher
+     */
+    private function getSftpPublisher(string $sftpId, int $reportId): SftpPublisher
+    {
+        $sftpConfig = $this->getSftpConfig($sftpId);
+
+        $sftpPublisher = new SftpPublisher(
+            $sftpConfig,
+            $this->reportFactory->getReportRepository(),
+            $reportId
+        );
+        return $sftpPublisher;
     }
 
     /**

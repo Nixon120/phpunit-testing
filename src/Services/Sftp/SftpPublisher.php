@@ -1,9 +1,11 @@
 <?php
 namespace Services\Sftp;
 
+use Entities\Report;
 use Entities\Sftp;
 use League\Flysystem\Filesystem;
 use League\Flysystem\Sftp\SftpAdapter;
+use Repositories\ReportRepository;
 use Traits\LoggerAwareTrait;
 
 class SftpPublisher
@@ -13,41 +15,42 @@ class SftpPublisher
      * @var Sftp
      */
     private $sftpConfig;
-    private $reportName = '';
-    private $organization = '';
-    private $program = '';
+    /**
+     * @var ReportRepository
+     */
+    private $reportRepository;
+    /**
+     * @var int
+     */
+    private $reportId;
+    /**
+     * @var Report
+     */
+    private $report;
 
     /**
      * SftpPublisher constructor.
      * @param Sftp $sftpConfig
-     * @param string $reportName
-     * @param string $organization
-     * @param string $program
+     * @param ReportRepository $reportRepository
+     * @param int $reportId
      */
     public function __construct(
         Sftp $sftpConfig,
-        string $reportName,
-        string $organization,
-        string $program
+        ReportRepository $reportRepository,
+        int $reportId
     ) {
         $this->sftpConfig = $sftpConfig;
-        $this->reportName = $reportName;
-        $this->organization = $organization;
-        $this->program = $program;
+        $this->reportRepository = $reportRepository;
+        $this->reportId = $reportId;
     }
 
     /**
      * @return bool
-     * @throws \Exception
      */
     public function publish(): bool
     {
-        $adapter = new SftpAdapter(
-            $this->getMappedSftpConfig()
-        );
-        $filesystem = new Filesystem($adapter);
-        $path = '/' . $this->sftpConfig->getFilePath() . '/Participant_Enrollment.pdf';
-        $fileName = __DIR__ . '/../../../public/resources/app/reports/Participant_Enrollment.pdf';
+        $path = '/' . $this->sftpConfig->getFilePath() . '/' . $this->getReport()->getAttachment();
+        $fileName = __DIR__ . '/../../../public/resources/app/reports/' . $this->getReport()->getAttachment();
 
         set_error_handler(
             create_function(
@@ -57,7 +60,7 @@ class SftpPublisher
         );
 
         try {
-            return $filesystem->putStream($path, fopen($fileName, 'r+'));
+            return $this->getFileSystem()->putStream($path, fopen($fileName, 'r+'));
         } catch (\Exception $exception) {
             $this->getLogger()->error(
                 'SFTP Report Publish Failure',
@@ -65,9 +68,9 @@ class SftpPublisher
                     'subsystem' => 'SFTP Publisher',
                     'action' => 'publish',
                     'success' => false,
-                    'organization' => $this->organization,
-                    'program' => $this->program,
-                    'report' => $this->reportName,
+                    'organization' => $this->getReport()->getOrganization(),
+                    'program' => $this->getReport()->getProgram(),
+                    'report' => $this->getReport()->getId(),
                     'sftpConfig' => $this->getMappedSftpConfig(),
                     'error' => $exception->getMessage(),
                 ]
@@ -75,7 +78,7 @@ class SftpPublisher
 
             restore_error_handler();
 
-            throw new \Exception('Something went wrong. Could not connect to SFTP.');
+            return false;
         }
     }
 
@@ -94,5 +97,30 @@ class SftpPublisher
             'timeout' => 10,
             'directoryPerm' => 0755
         ];
+    }
+
+    /**
+     * @return Filesystem
+     */
+    private function getFileSystem(): Filesystem
+    {
+        $adapter = new SftpAdapter(
+            $this->getMappedSftpConfig()
+        );
+        $filesystem = new Filesystem($adapter);
+        return $filesystem;
+    }
+
+    /**
+     * @return \Entities\Report|null
+     */
+    public function getReport(): ?Report
+    {
+        if (is_null($this->report) === true) {
+            $this->report = $this->reportRepository
+                ->getReportById($this->reportId);
+        }
+
+        return $this->report;
     }
 }
