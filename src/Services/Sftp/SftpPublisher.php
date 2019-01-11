@@ -84,7 +84,7 @@ class SftpPublisher
             'username' => $this->sftpConfig->getUsername(),
             'password' => $this->sftpConfig->getPassword(),
             'privateKey' => strip_tags($this->sftpConfig->getKey()),
-            'root' => SFTP_ROOT_DIR,
+            'root' => '/home/devsftp',
             'timeout' => 10,
             'directoryPerm' => 0755
         ];
