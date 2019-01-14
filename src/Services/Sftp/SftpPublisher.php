@@ -114,7 +114,9 @@ class SftpPublisher
             . '_'
             . str_replace(" ", "", $this->report->getReportName())
             . '_'
-            . $now->format('Ymd');
+            . $now->format('Ymd')
+            . '.'
+            . $this->report->getFormatExtension();
 
         $path = '/' . $this->sftpConfig->getFilePath() . '/' . $filePath;
         return $path;
