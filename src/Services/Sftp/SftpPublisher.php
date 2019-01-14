@@ -50,7 +50,7 @@ class SftpPublisher
         try {
             return $this->getFileSystem()->putStream(
                 $this->getPath(),
-                fopen($this->getFileName(), 'r+')
+                fopen($this->getFileName(), 'rb')
             );
         } catch (\Exception $exception) {
             $this->getLogger()->error(
@@ -132,6 +132,6 @@ class SftpPublisher
             return __DIR__ . '/../../../public/resources/app/reports/' . $this->report->getAttachment();
         }
 
-        return 'https://storage.googleapis.com/adrcdn/reports/' . $this->report->getAttachment();
+        return 'https://storage.googleapis.com/adrcdn/reports/' . rawurlencode($this->report->getAttachment());
     }
 }
