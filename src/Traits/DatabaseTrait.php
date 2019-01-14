@@ -34,7 +34,6 @@ trait DatabaseTrait
      */
     private function getFields($data):array
     {
-//        $anEntityArray = $entity->toArray();
         foreach ($this->skip as $skip) {
             if (array_key_exists($skip, $data)) {
                 unset($data[$skip]);
@@ -115,8 +114,6 @@ trait DatabaseTrait
 
     public function generateUpdateParameters($id, $data)
     {
-//        $array = $entity->toArray();
-
         foreach ($this->skip as $skip) {
             if (array_key_exists($skip, $data)) {
                 unset($data[$skip]);

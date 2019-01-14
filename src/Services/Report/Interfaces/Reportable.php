@@ -8,7 +8,6 @@ use Services\Interfaces\FilterNormalizer;
 
 interface Reportable
 {
-
     public function getReportName(): string;
 
     public function setInputNormalizer(InputNormalizer $input);

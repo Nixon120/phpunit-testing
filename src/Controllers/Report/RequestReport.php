@@ -67,6 +67,7 @@ class RequestReport
     {
         // Request report
         $entity = $report->request();
+
         // Publish report if request is generated
         if ($entity instanceof Base) {
             $this->response = $this->response->withStatus(200)
@@ -106,7 +107,7 @@ class RequestReport
         try {
             $reportable = $this->getReportService($input);
 
-            if ($input->getReportOutput() === 'file') {
+            if ($input->getReportOutput() === 'file' || is_null($sftpId = $input->getSftp()) === false) {
                 return $this->requestReportFile($reportable);
             }
 

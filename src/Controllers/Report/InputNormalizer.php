@@ -136,4 +136,14 @@ class InputNormalizer extends AbstractInputNormalizer
 
         return $user;
     }
+
+    /**
+     * @return null|string
+     */
+    public function getSftp()
+    {
+        $input = $this->getInput();
+
+        return $input['sftp'] ?? null;
+    }
 }

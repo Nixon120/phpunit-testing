@@ -7,6 +7,7 @@ use Repositories\DomainRepository;
 use Repositories\OrganizationRepository;
 use Repositories\ProgramRepository;
 use Repositories\ReportRepository;
+use Repositories\SftpRepository;
 use Services\AbstractServiceFactory;
 use Services\Organization\Domain;
 use Services\Organization\NestedSet\NestedSet;
@@ -84,6 +85,11 @@ class ServiceFactory extends AbstractServiceFactory
     public function getReportRepository()
     {
         return new ReportRepository($this->getDatabase());
+    }
+
+    public function getSftpRepository()
+    {
+        return new SftpRepository($this->getDatabase());
     }
 
     public function getNestedSet(): NestedSet
