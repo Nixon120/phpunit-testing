@@ -40,8 +40,6 @@ class SftpPublisher
      */
     public function publish(): bool
     {
-        $fileName = __DIR__ . '/../../../public/resources/app/reports/' . $this->report->getAttachment();
-
         set_error_handler(
             create_function(
                 '$severity, $message, $file, $line',
@@ -50,7 +48,10 @@ class SftpPublisher
         );
 
         try {
-            return $this->getFileSystem()->putStream($this->getPath(), fopen($fileName, 'r+'));
+            return $this->getFileSystem()->putStream(
+                $this->getPath(),
+                fopen($this->getFileName(), 'r+')
+            );
         } catch (\Exception $exception) {
             $this->getLogger()->error(
                 'SFTP Report Publish Failure',
@@ -120,5 +121,17 @@ class SftpPublisher
 
         $path = '/' . $this->sftpConfig->getFilePath() . '/' . $filePath;
         return $path;
+    }
+
+    /**
+     * @return string
+     */
+    private function getFileName(): string
+    {
+        if (getenv('FILESYSTEM') === 'local') {
+            return __DIR__ . '/../../../public/resources/app/reports/' . $this->report->getAttachment();
+        }
+
+        return 'https://storage.googleapis.com/adrcdn/reports/' . $this->report->getAttachment();
     }
 }
