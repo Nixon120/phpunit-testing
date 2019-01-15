@@ -586,7 +586,7 @@ class SandboxResetSeeder extends AbstractSeed
                 'active' => 1,
                 'unique_id' => 'sharecare',
                 'invoice_to' => 'Top Level Client',
-                'domain_id' => 2
+                'domain_id' => 1
             ]
         ];
 
