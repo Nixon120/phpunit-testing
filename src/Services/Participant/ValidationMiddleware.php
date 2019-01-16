@@ -217,7 +217,9 @@ class ValidationMiddleware
             $context->optional('lastname')->allowEmpty(false)->lengthBetween(1, 50);
             $context->optional('email_address')->allowEmpty(false)->email();
             $context->optional('birthdate')->datetime('Y-m-d');
-            $context->optional('password_confirm')->equals($this->input['password']);
+            if (isset($this->input['password']) === true) {
+                $context->optional('password_confirm')->equals($this->input['password']);
+            }
             $context->optional('address.country_code')->alpha(false)->length(2);
         });
     }
