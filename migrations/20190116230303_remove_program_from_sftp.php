@@ -9,6 +9,7 @@ class RemoveProgramFromSftp extends AbstractMigration
     {
         $table = $this->table('Sftp');
         $table->removeColumn('program')
+            ->addIndex(['file_path'], ['unique' => true])
             ->save();
     }
 }

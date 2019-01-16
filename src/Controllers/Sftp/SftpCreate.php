@@ -47,7 +47,7 @@ class SftpCreate
         $get = $this->request->getParsedBody();
 
         $saved = $this->factory->getSftpRepository()
-            ->insert($get);
+            ->insert($get, true);
 
         $response = $this->response->withStatus(200)
             ->withJson($saved);
