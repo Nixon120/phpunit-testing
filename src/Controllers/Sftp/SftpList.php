@@ -44,11 +44,11 @@ class SftpList
     public function getList()
     {
         $get = $this->request->getQueryParams();
-        $page = isset($get['page']) ? $get['page'] : 0;
-        $offset = isset($get['offset']) ? $get['offset'] : 30;
+        $page = isset($get['page']) ? $get['page'] : 30;
+        $offset = isset($get['offset']) ? $get['offset'] : 0;
 
         $collection = $this->factory->getSftpRepository()
-            ->getCollection(null, $page, $offset);
+            ->list($page, $offset);
 
         $response = $this->response->withStatus(200)
             ->withJson($collection);

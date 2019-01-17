@@ -13,25 +13,26 @@ class SftpRepository extends BaseRepository
     }
 
     /**
-     * @return string
+     * @param $limit
+     * @param $offset
+     * @return array
      */
-    public function getCollectionQuery(): string
+    public function list($limit, $offset): array
     {
-        $this->orderBy = ' ORDER BY id DESC';
-        $where = " WHERE 1 = 1 ";
-        if (!empty($this->getProgramIdContainer())) {
-            $programIdString = implode(',', $this->getProgramIdContainer());
-            $where = <<<SQL
-WHERE Program.unique_id IN ({$programIdString})
+        $sql = <<<SQL
+SELECT Sftp.* 
+FROM `Sftp` 
+ORDER BY `Sftp`.id DESC
+LIMIT $limit OFFSET $offset
 SQL;
-        }
 
-        return <<<SQL
-SELECT `Sftp`.*
-FROM `Sftp`
-LEFT JOIN `Program` ON `Program`.`unique_id` = `Sftp`.`program`
-{$where}
-SQL;
+        $sth = $this->database->prepare($sql);
+        $sth->execute();
+
+        return $sth->fetchAll(
+            \PDO::FETCH_CLASS,
+            $this->getRepositoryEntity()
+        );
     }
 
     /**

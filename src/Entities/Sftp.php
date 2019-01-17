@@ -11,10 +11,6 @@ class Sftp extends Base
     /**
      * @var string
      */
-    public $program;
-    /**
-     * @var string
-     */
     public $host;
     /**
      * the filename
@@ -46,22 +42,6 @@ class Sftp extends Base
      * @var string
      */
     public $key;
-
-    /**
-     * @return string
-     */
-    public function getProgram(): string
-    {
-        return $this->program;
-    }
-
-    /**
-     * @param string $program
-     */
-    public function setProgram(string $program)
-    {
-        $this->program = $program;
-    }
 
     /**
      * @return string
