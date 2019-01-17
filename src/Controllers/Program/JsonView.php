@@ -130,6 +130,30 @@ class JsonView extends AbstractViewController
         return $response;
     }
 
+    public function autoRedemption($id) 
+    {
+        $repository = $this->factory->getProgramRepository();
+
+        $program = $this->service->getSingle($id);
+
+        if (is_null($program)) {
+            // Failing that, lookup up by domain.
+            $program = $this->service->repository->getProgramByDomain($id);
+        }
+
+        if (is_null($program)) {
+            return $this->renderJson404();
+        }
+
+        if ($this->request->getParsedBody() !== null
+        ) {
+            $autoRedemption = $this->request->getParsedBody() ?? null;
+            $repository->saveProgramAutoRedemption($program, $autoRedemption);
+            return $response = $this->response->withStatus(200)
+                ->withJson([]);
+        }
+    }
+
     public function faqs($id)
     {
         $repository = $this->factory->getProgramRepository();

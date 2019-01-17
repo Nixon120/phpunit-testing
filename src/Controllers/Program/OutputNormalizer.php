@@ -64,6 +64,7 @@ class OutputNormalizer extends AbstractOutputNormalizer
             }
         }
         $return['auto_redemption']=$program->getAutoRedemption();
+        $return['one_time_auto_redemptions']=$program->getOneTimeAutoRedemptions();
         return $return;
     }
 

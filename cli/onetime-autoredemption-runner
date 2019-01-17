@@ -1,0 +1,9 @@
+#!/usr/bin/env php
+<?php
+require __DIR__ . "/../cli-bootstrap.php";
+/** @var \Interop\Container\ContainerInterface $container */
+$factory = new \Services\Program\ServiceFactory($container);
+$programRepo = $factory->getProgramRepository();
+
+$oneTimeAutoRedemptionProcessor = new \Services\Program\OneTimeAutoRedemptionProcessor($programRepo, $container);
+$oneTimeAutoRedemptionProcessor->run();

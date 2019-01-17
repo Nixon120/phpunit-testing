@@ -11,6 +11,7 @@ use Entities\Faqs;
 use Entities\FeaturedProduct;
 use Entities\LayoutRow;
 use Entities\LayoutRowCard;
+use Entities\OneTimeAutoRedemption;
 use Entities\Organization;
 use Entities\Participant;
 use Entities\ProductCriteria;
@@ -178,6 +179,7 @@ SQL;
         $domain = $this->getProgramDomain($program->getDomainId());
         $program->setDomain($domain);
         $program->setAutoRedemption($this->getAutoRedemption($program));
+        $program->setOneTimeAutoRedemptions($this->getOneTimeAutoRedemptions($program));
         $program->setContact($this->getContact($program));
         $program->setAccountingContact($this->getAccountingContact($program));
         $program->setProductCriteria($this->getProductCriteria($program));
@@ -288,6 +290,26 @@ SQL;
         /** @var AutoRedemption $autoRedemption */
         $autoRedemption->setProgram($program);
         return $this->hydrateAutoRedemption($autoRedemption);
+    }
+
+    public function getOneTimeAutoRedemptions(Program $program)
+    {
+        $sql = "SELECT * FROM `OneTimeAutoRedemption` WHERE program_id = ?";
+        $args = [$program->getUniqueId()];
+        $sth = $this->database->prepare($sql);
+        $sth->execute($args);
+
+        $oneTimeAutoRedemptions = $sth->fetchAll(PDO::FETCH_CLASS, OneTimeAutoRedemption::class);
+        if (empty($oneTimeAutoRedemptions)) {
+            return [];
+        }
+
+        // $hydratedOneTimeAutoRedemptions = [];
+        // foreach($oneTimeAutoRedemptions as $oneTimeAutoRedemption) {
+        //     $hydratedOneTimeAutoRedemptions[] = $this->hydrateAutoRedemption($autoRedemption);
+        // }
+
+        return $oneTimeAutoRedemptions;
     }
 
     public function getContact(Program $program)
@@ -645,6 +667,23 @@ SQL;
         }
 
         return $rows;
+    }
+
+    public function saveProgramAutoRedemption(Program $program, array $autoRedemption): bool
+    {
+        if (!empty($autoRedemption)) {
+            $oneTimeAutoRedemption = new OneTimeAutoRedemption($autoRedemption);
+            $oneTimeAutoRedemption->setProgramId($program->getUniqueId());
+            $this->table = 'OneTimeAutoRedemption';
+            
+            if ($oneTimeAutoRedemption->getId() === NULL) {
+                $this->place($oneTimeAutoRedemption);
+                return true;
+            }
+            $this->update($oneTimeAutoRedemption->getId(), $oneTimeAutoRedemption->toArray());
+            return true;
+        }
+        throw new \Exception('failed to save auto redemption.');
     }
 
     public function saveProgramFaqs(Program $program, array $faqs): bool
