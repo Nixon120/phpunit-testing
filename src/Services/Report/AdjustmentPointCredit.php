@@ -43,7 +43,8 @@ class AdjustmentPointCredit extends AbstractReport
         $query = <<<SQL
 SELECT SQL_CALC_FOUND_ROWS {$selection}
 FROM `Adjustment`
-JOIN `Participant` ON `Adjustment`.participant_id = `Participant`.id 
+JOIN `Participant` ON `Adjustment`.participant_id = `Participant`.id
+JOIN `Organization` ON `Organization`.id = `Participant`.organization_id 
 JOIN `Program` ON `Program`.id = `Participant`.program_id 
 LEFT JOIN `Address` ON `Participant`.address_reference = `Address`.reference_id AND `Participant`.id = `Address`.participant_id 
 WHERE 1=1 

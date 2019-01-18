@@ -15,6 +15,16 @@ class AdjustmentPointCreditFilterNormalizer extends AbstractFilterNormalizer
         return $this->returnArg($value);
     }
 
+    public function getOrganizationFilter($value)
+    {
+        return "`Organization`.`unique_id` = ?";
+    }
+
+    public function getOrganizationFilterArgs($value)
+    {
+        return $this->returnArg($value);
+    }
+
     public function getProgramFilter($value)
     {
         return "`Program`.`unique_id` = ?";
