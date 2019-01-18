@@ -304,11 +304,6 @@ SQL;
             return [];
         }
 
-        // $hydratedOneTimeAutoRedemptions = [];
-        // foreach($oneTimeAutoRedemptions as $oneTimeAutoRedemption) {
-        //     $hydratedOneTimeAutoRedemptions[] = $this->hydrateAutoRedemption($autoRedemption);
-        // }
-
         return $oneTimeAutoRedemptions;
     }
 

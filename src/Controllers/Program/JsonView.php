@@ -136,7 +136,7 @@ class JsonView extends AbstractViewController
 
         $program = $this->service->getSingle($id);
 
-        if (is_null($program)) {
+        if (is_null($program) === true) {
             // Failing that, lookup up by domain.
             $program = $this->service->repository->getProgramByDomain($id);
         }
