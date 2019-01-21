@@ -5,6 +5,7 @@ use AllDigitalRewards\AMQP\MessagePublisher;
 use Controllers\Report\InputNormalizer;
 use Entities\Event;
 use Entities\Report as ReportEntity;
+use Entities\Sftp;
 use Events\Listeners\AbstractListener;
 use League\Event\EventInterface;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -13,7 +14,7 @@ use PhpOffice\PhpSpreadsheet\Worksheet\PageSetup;
 use PhpOffice\PhpSpreadsheet\Writer\IWriter;
 use PhpOffice\PhpSpreadsheet\Writer\Pdf\Dompdf;
 use Services\Report as Report;
-use Services\Sftp\SftpPublisher;
+use Services\Sftp\SftpService;
 use Traits\LoggerAwareTrait;
 
 class Request extends AbstractListener
@@ -350,18 +351,40 @@ class Request extends AbstractListener
     /**
      * @param string $sftpId
      * @param ReportEntity $report
-     * @return SftpPublisher
+     * @return SftpService
      */
-    private function getSftpPublisher(string $sftpId, ReportEntity $report): SftpPublisher
+    private function getSftpPublisher(string $sftpId, ReportEntity $report): SftpService
     {
         $sftpConfig = $this->reportFactory->getSftpRepository()
             ->getSftpById($sftpId);
 
-        $sftpPublisher = new SftpPublisher(
-            $sftpConfig,
-            $report
-        );
+        $sftpPublisher = new SftpService;
+        $sftpPublisher->setSftpConfig($sftpConfig);
+        $sftpPublisher->setPath($this->buildSftpReportFilePath($sftpConfig, $report));
+        $sftpPublisher->setReport($report);
         return $sftpPublisher;
+    }
+
+    /**
+     * @param Sftp $sftpConfig
+     * @param ReportEntity $report
+     * @return string
+     */
+    private function buildSftpReportFilePath(Sftp $sftpConfig, ReportEntity $report): string
+    {
+        $now = new \DateTime('now');
+        $filePath =
+            $report->getOrganization()
+            . '_'
+            . $report->getProgram()
+            . '_'
+            . str_replace(" ", "", $report->getReportName())
+            . '_'
+            . $now->format('Ymd')
+            . '.'
+            . $report->getFormatExtension();
+
+        return $sftpConfig->getFilePath() . '/' . $filePath;
     }
 
     /**
