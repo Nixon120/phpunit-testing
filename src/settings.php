@@ -84,7 +84,8 @@ return [
             'participant.all',
 //            'user.read',
             'report.all',
-            'administrators.read'
+            'administrators.read',
+            'sftp.all'
         ],
         'reports' => [
             'report.all',
