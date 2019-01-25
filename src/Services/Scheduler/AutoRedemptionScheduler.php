@@ -100,7 +100,7 @@ class AutoRedemptionScheduler
 
         $tasks = $this
             ->repository
-            ->getCollection($filter, 0, 100);
+            ->getCollection($filter, 0, 1000);
 
         if (empty($tasks)) {
             return;
