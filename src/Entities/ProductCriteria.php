@@ -203,10 +203,18 @@ class ProductCriteria extends Base
         $this->setMaxFilter($filters->price->max);
         $this->setProductFilter($filters->products);
         $this->setCategoryFilter($filters->category);
-        $this->setExcludeProductsFilter($filters->exclude_products);
-        $this->setExcludeBrandsFilter($filters->exclude_brands);
-        $this->setExcludeVendorsFilter($filters->exclude_vendors);
         $this->setBrandFilter($filters->brand);
+
+        if(!empty($filters->exclude_products)) {
+            $this->setExcludeProductsFilter($filters->exclude_products);
+        }
+        if(!empty($filters->exclude_brands)) {
+            $this->setExcludeBrandsFilter($filters->exclude_brands);
+        }
+        if(!empty($filters->exclude_vendors)) {
+            $this->setExcludeVendorsFilter($filters->exclude_vendors);
+        }
+
     }
 
     /**

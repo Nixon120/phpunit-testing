@@ -28,7 +28,7 @@ abstract class AbstractListener implements ListenerInterface
         return $listener === $this;
     }
 
-    protected function getError(): string
+    protected function getError(): ?string
     {
         return $this->error;
     }

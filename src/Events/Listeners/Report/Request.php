@@ -337,7 +337,8 @@ class Request extends AbstractListener
             ->update($report->getId(), $report->toArray());
 
         //if SFTP publish it here!
-        if (is_null($sftpId = $report->getParameters()['sftp']) === false) {
+        if (is_null($report->getParameters()['sftp'] ?? null) === false) {
+            $sftpId = $report->getParameters()['sftp'];
             $published = $this->getSftpPublisher($sftpId, $report)->publish();
 
             $parameters = $report->getParameters();
