@@ -52,7 +52,7 @@
     "robmorgan/phinx": "^0.9.1",
     "pmill/php-scheduler": "^0.1.3",
     "danielstjules/stringy": "^3.1",
-    "alldigitalrewards/amqp": "^1.1",
+    "alldigitalrewards/amqp": "^1.2",
     "league/event": "^2.1",
     "alldigitalrewards/rap": "^1.0",
     "phpoffice/phpexcel": "^1.8",
