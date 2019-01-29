@@ -17,4 +17,6 @@ $consumer = new \AllDigitalRewards\AMQP\Consumer(
     $channelConfig['maxConsumerRuntime']
 );
 
+$consumer->getChannel()->basic_qos(0, 50, false);
+
 $consumer->run();
