@@ -49,17 +49,4 @@ class ProcessScheduledReports
         return $service;
     }
 
-    /**
-     * @param Report $report
-     */
-    // private function queueReportEvent(Report $report)
-    // {
-    //     $event = new Event;
-    //     $event->setName('Report.request');
-    //     $event->setEntityId($report->getId());
-    //     $this->getFactory()
-    //         ->getEventPublisher()
-    //         ->publish(json_encode($event));
-    // }
-
 }
