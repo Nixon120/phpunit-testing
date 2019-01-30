@@ -322,4 +322,24 @@ class Report extends Base
     {
         $this->result_count = $result_count;
     }
+
+    /**
+     * @return string
+     */
+    public function getReportDate()
+    {
+        return $this->report_date;
+    }
+
+    /**
+     * @param string
+     */
+    public function setReportDate($report_date)
+    {
+        $this->report_date = $report_date;
+        if ($report_date) {
+            $report_date = new \DateTime($report_date);
+            $this->report_date = $report_date->format('Y-m-d');
+        }
+    }
 }

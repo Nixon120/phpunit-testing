@@ -1,0 +1,9 @@
+#!/usr/bin/env php
+<?php
+require __DIR__ . "/../cli-bootstrap.php";
+/** @var \Interop\Container\ContainerInterface $container */
+$factory = new \Services\Report\ServiceFactory($container);
+$reportRepo = $factory->getReportRepository();
+
+$reportProcessor = new \Services\Report\ProcessScheduledReports($factory);
+$reportProcessor->processReports();

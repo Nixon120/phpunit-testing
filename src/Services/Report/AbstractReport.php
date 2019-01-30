@@ -185,6 +185,22 @@ abstract class AbstractReport implements Reportable
     }
 
     /**
+     * @return string
+     */
+    public function getReportDate(): string
+    {
+        return $this->report_date;
+    }
+
+    /**
+     * @param string
+     */
+    public function setReportDate(string $report_date)
+    {
+        $this->report_date = $report_date;
+    }
+
+    /**
      * @return bool
      */
     public function isLimitResultCount(): bool
@@ -436,6 +452,7 @@ SQL;
         $program = $this->getInputNormalizer()->getInput()['program'] ?? null;
         $user = $this->getInputNormalizer()->getInput()['user'] ?? null;
         $format = $this->getInputNormalizer()->getInput()['report_format'] ?? 'csv';
+        $report_date = $this->getInputNormalizer()->getInput()['report_date'] ?? null;
 
         $report->setOrganization($organization);
         $report->setProgram($program);
@@ -446,18 +463,23 @@ SQL;
         $report->setParameters(json_encode($this->getInputNormalizer()->getInput()));
         $report->setCreatedAt($date);
         $report->setUpdatedAt($date);
+        $report->setReportDate($report_date);
 
         $repository = $this->getFactory()->getReportRepository();
         $repository->place($report);
         $entity = $repository->getReportById($repository->getLastInsertId());
-        $this->queueReportEvent($entity);
+        
+        if (is_null($entity->getReportDate()) === true) {
+            $this->queueReportEvent($entity);
+        }
+
         return $entity;
     }
 
     /**
      * @param Report $report
      */
-    private function queueReportEvent(Report $report)
+    public function queueReportEvent(Report $report)
     {
         $event = new Event;
         $event->setName('Report.request');
