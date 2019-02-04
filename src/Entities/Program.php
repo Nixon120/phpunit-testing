@@ -49,6 +49,9 @@ class Program extends Base
     /** @var AutoRedemption */
     private $autoRedemption;
 
+    /** @var OneTimeAutoRedemptions */
+    private $oneTimeAutoRedemptions;
+
     /** @var ProductCriteria */
     private $productCriteria;
 
@@ -446,6 +449,26 @@ class Program extends Base
     public function getAutoRedemption():?AutoRedemption
     {
         return $this->autoRedemption;
+    }
+
+    /**
+     * @return $oneTimeAutoRedemptions[]
+     */
+    public function getOneTimeAutoRedemptions(): array
+    {
+        if ($this->oneTimeAutoRedemptions === null) {
+            $this->oneTimeAutoRedemptions = [];
+        }
+
+        return $this->oneTimeAutoRedemptions;
+    }
+
+    /**
+     * @param $oneTimeAutoRedemptions[]
+     */
+    public function setOneTimeAutoRedemptions(?array $oneTimeAutoRedemptions = null)
+    {
+        $this->oneTimeAutoRedemptions = $oneTimeAutoRedemptions;
     }
 
     public function setProductCriteria(?ProductCriteria $criteria)

@@ -46,7 +46,6 @@ class Program
     public function getSingle($id, $uniqueLookup = true): ?\Entities\Program
     {
         $program = $this->repository->getProgram($id, $uniqueLookup);
-
         if ($program) {
             return $program;
         }
