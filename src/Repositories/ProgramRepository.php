@@ -664,18 +664,25 @@ SQL;
         return $rows;
     }
 
-    public function saveProgramAutoRedemption(Program $program, array $autoRedemption): bool
+    public function saveProgramAutoRedemption(Program $program): bool
     {
-        if (!empty($autoRedemption)) {
-            $oneTimeAutoRedemption = new OneTimeAutoRedemption($autoRedemption);
-            $oneTimeAutoRedemption->setProgramId($program->getUniqueId());
-            $this->table = 'OneTimeAutoRedemption';
-            
-            if ($oneTimeAutoRedemption->getId() === NULL) {
-                $this->place($oneTimeAutoRedemption);
-                return true;
+        if (!empty($program->getOneTimeAutoRedemptions())) {
+            // Purge one time autoredemptions to save only the those sent in request
+            try {
+                $sql = "DELETE FROM `onetimeautoredemption` WHERE program_id = ?";
+                $sth = $this->database->prepare($sql);
+                $sth->execute([$program->getUniqueId()]);
+            } catch (\PDOException $e) {
+                throw new \Exception('could not purge autoredemptions.');
             }
-            $this->update($oneTimeAutoRedemption->getId(), $oneTimeAutoRedemption->toArray());
+
+            foreach($program->getOneTimeAutoRedemptions() as $autoRedemption) {
+                $oneTimeAutoRedemption = new OneTimeAutoRedemption($autoRedemption);
+                $oneTimeAutoRedemption->setProgramId($program->getUniqueId());
+
+                $this->table = 'OneTimeAutoRedemption';
+                $this->place($oneTimeAutoRedemption);
+            }
             return true;
         }
         throw new \Exception('failed to save auto redemption.');
