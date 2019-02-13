@@ -67,6 +67,17 @@ class InputNormalizer extends AbstractInputNormalizer
         return $this->getDate('end_date')->format('Y-m-d');
     }
 
+    public function getReportDate()
+    {
+        $input = $this->getInput();
+
+        if (empty($input['report_date'])) {
+            return '';
+        }
+
+        return $this->getDate('report_date')->format('Y-m-d');
+    }
+
     /**
      * @param $range
      * @return \DateTime

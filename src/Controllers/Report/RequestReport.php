@@ -140,6 +140,7 @@ class RequestReport
 
             $service->setOffset($normalizer->getOffset());
             $service->setPage($normalizer->getPage());
+            $service->setReportDate($normalizer->getReportDate());
             $service->setInputNormalizer($normalizer);
 
             $this->reportService = $service;
