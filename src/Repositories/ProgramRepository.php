@@ -11,6 +11,7 @@ use Entities\Faqs;
 use Entities\FeaturedProduct;
 use Entities\LayoutRow;
 use Entities\LayoutRowCard;
+use Entities\OneTimeAutoRedemption;
 use Entities\Organization;
 use Entities\Participant;
 use Entities\ProductCriteria;
@@ -178,6 +179,7 @@ SQL;
         $domain = $this->getProgramDomain($program->getDomainId());
         $program->setDomain($domain);
         $program->setAutoRedemption($this->getAutoRedemption($program));
+        $program->setOneTimeAutoRedemptions($this->getOneTimeAutoRedemptions($program));
         $program->setContact($this->getContact($program));
         $program->setAccountingContact($this->getAccountingContact($program));
         $program->setProductCriteria($this->getProductCriteria($program));
@@ -288,6 +290,21 @@ SQL;
         /** @var AutoRedemption $autoRedemption */
         $autoRedemption->setProgram($program);
         return $this->hydrateAutoRedemption($autoRedemption);
+    }
+
+    public function getOneTimeAutoRedemptions(Program $program)
+    {
+        $sql = "SELECT * FROM `OneTimeAutoRedemption` WHERE program_id = ?";
+        $args = [$program->getUniqueId()];
+        $sth = $this->database->prepare($sql);
+        $sth->execute($args);
+
+        $oneTimeAutoRedemptions = $sth->fetchAll(PDO::FETCH_CLASS, OneTimeAutoRedemption::class);
+        if (empty($oneTimeAutoRedemptions)) {
+            return [];
+        }
+
+        return $oneTimeAutoRedemptions;
     }
 
     public function getContact(Program $program)
@@ -645,6 +662,30 @@ SQL;
         }
 
         return $rows;
+    }
+
+    public function saveProgramAutoRedemption(Program $program): bool
+    {
+        if (!empty($program->getOneTimeAutoRedemptions())) {
+            // Purge one time autoredemptions to save only the those sent in request
+            try {
+                $sql = "DELETE FROM `onetimeautoredemption` WHERE program_id = ?";
+                $sth = $this->database->prepare($sql);
+                $sth->execute([$program->getUniqueId()]);
+            } catch (\PDOException $e) {
+                throw new \Exception('could not purge autoredemptions.');
+            }
+
+            foreach($program->getOneTimeAutoRedemptions() as $autoRedemption) {
+                $oneTimeAutoRedemption = new OneTimeAutoRedemption($autoRedemption);
+                $oneTimeAutoRedemption->setProgramId($program->getUniqueId());
+
+                $this->table = 'OneTimeAutoRedemption';
+                $this->place($oneTimeAutoRedemption);
+            }
+            return true;
+        }
+        throw new \Exception('failed to save auto redemption.');
     }
 
     public function saveProgramFaqs(Program $program, array $faqs): bool

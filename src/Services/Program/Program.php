@@ -46,7 +46,6 @@ class Program
     public function getSingle($id, $uniqueLookup = true): ?\Entities\Program
     {
         $program = $this->repository->getProgram($id, $uniqueLookup);
-
         if ($program) {
             return $program;
         }
@@ -104,6 +103,10 @@ class Program
             $this->program->setAutoRedemption($autoRedemption);
         }
 
+        if (!empty($data['one_time_auto_redemptions'])) {
+            $this->program->setOneTimeAutoRedemptions($data['one_time_auto_redemptions']);
+        }
+
         if (!empty($data['url']) && $this->isUrlValid($data['url']) === true) {
             $url = explode('.', $data['url']);
             $subdomain = $url[0];
@@ -139,6 +142,10 @@ class Program
             $this->repository->placeSettings($autoRedemption);
         }
 
+        if (!empty($this->program->getOneTimeAutoRedemptions())) {
+            $this->repository->saveProgramAutoRedemption($this->program);
+        }
+
         $this->queueEvent('Program.create', $programId);
     }
 
@@ -167,6 +174,9 @@ class Program
                 $autoRedemption = $this->program->getAutoRedemption();
                 $autoRedemption->setProgramId($this->program->getId());
                 $this->repository->placeSettings($autoRedemption);
+            }
+            if (!empty($this->program->getOneTimeAutoRedemptions())) {
+                $this->repository->saveProgramAutoRedemption($this->program);
             }
         }
 

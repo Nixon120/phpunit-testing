@@ -230,7 +230,7 @@ class Request extends AbstractListener
                 . $this->getReport()->getFormatExtension();
         }
 
-        return $this->reportFileName;
+        return str_replace(' ', '_', $this->reportFileName);
     }
 
     /**
@@ -384,6 +384,8 @@ class Request extends AbstractListener
             . $now->format('Ymd')
             . '.'
             . $report->getFormatExtension();
+
+        $filePath = str_replace(' ', '_' ,$filePath);
 
         return $sftpConfig->getFilePath() . '/' . $filePath;
     }
