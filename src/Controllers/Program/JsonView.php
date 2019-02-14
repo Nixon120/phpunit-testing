@@ -147,8 +147,8 @@ class JsonView extends AbstractViewController
 
         if ($this->request->getParsedBody() !== null
         ) {
-            $autoRedemption = $this->request->getParsedBody() ?? null;
-            $repository->saveProgramAutoRedemption($program, $autoRedemption);
+            $data = $this->request->getParsedBody() ?? null;
+            $repository->saveProgramAutoRedemption($program, $data);
             return $response = $this->response->withStatus(200)
                 ->withJson([]);
         }

@@ -664,24 +664,41 @@ SQL;
         return $rows;
     }
 
-    public function saveProgramAutoRedemption(Program $program): bool
+    public function saveProgramAutoRedemption(Program $program, Array $data): bool
     {
-        if (!empty($program->getOneTimeAutoRedemptions())) {
-            // Purge one time autoredemptions to save only the those sent in request
-            try {
-                $sql = "DELETE FROM `onetimeautoredemption` WHERE program_id = ?";
-                $sth = $this->database->prepare($sql);
-                $sth->execute([$program->getUniqueId()]);
-            } catch (\PDOException $e) {
-                throw new \Exception('could not purge autoredemptions.');
+        if (!empty($data)) {
+            if (!empty($data['auto_redemption'])) {
+                // Purge one time autoredemptions to save only the those sent in request
+                try {
+                    $sql = "DELETE FROM `autoredemption` WHERE program_id = ?";
+                    $sth = $this->database->prepare($sql);
+                    $sth->execute([$program->getId()]);
+                } catch (\PDOException $e) {
+                    throw new \Exception('could not purge autoredemptions.');
+                }
+                $autoRedemption = new AutoRedemption;
+                $autoRedemption->exchange($data['auto_redemption']);
+                $autoRedemption->setAllParticipant(1);
+                $autoRedemption->setProgramId($program->getId());
+                $this->placeSettings($autoRedemption);
             }
+            if (!empty($data['one_time_auto_redemptions'])) {
+                // Purge one time autoredemptions to save only the those sent in request
+                try {
+                    $sql = "DELETE FROM `onetimeautoredemption` WHERE program_id = ?";
+                    $sth = $this->database->prepare($sql);
+                    $sth->execute([$program->getUniqueId()]);
+                } catch (\PDOException $e) {
+                    throw new \Exception('could not purge autoredemptions.');
+                }
 
-            foreach($program->getOneTimeAutoRedemptions() as $autoRedemption) {
-                $oneTimeAutoRedemption = new OneTimeAutoRedemption($autoRedemption);
-                $oneTimeAutoRedemption->setProgramId($program->getUniqueId());
+                foreach($data['one_time_auto_redemptions'] as $autoRedemption) {
+                    $oneTimeAutoRedemption = new OneTimeAutoRedemption($autoRedemption);
+                    $oneTimeAutoRedemption->setProgramId($program->getUniqueId());
 
-                $this->table = 'OneTimeAutoRedemption';
-                $this->place($oneTimeAutoRedemption);
+                    $this->table = 'OneTimeAutoRedemption';
+                    $this->place($oneTimeAutoRedemption);
+                }
             }
             return true;
         }
