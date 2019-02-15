@@ -17,7 +17,7 @@ class Transaction extends AbstractReport
             'Organization.name as organization_name' => 'Organization Name',
             'Program.unique_id as program_uuid' => 'Program ID',
             'Program.name as program_name' => 'Program Name',
-            'Adjustment.created_at' => 'Date',
+            'Adjustment.created_at' => 'Transaction Date',
             'Adjustment.id as `Adjustment ID`' => 'Adjustment ID',
             'Transaction.id as `Transaction ID`' => 'Transaction ID',
             "IF(Adjustment.type = 1, 'Credit', 'Debit') as `Transaction Type`" => 'Transaction Type',
@@ -36,7 +36,9 @@ class Transaction extends AbstractReport
             'TransactionItem.quantity' => 'Transaction Count',
             'TransactionProduct.vendor_code' => 'Product SKU',
             'TransactionProduct.name' => 'Product Name',
-            '((TransactionProduct.retail + IFNULL(TransactionProduct.shipping,0) + IFNULL(TransactionProduct.handling,0)) * TransactionItem.quantity) as Total' => 'Total'
+            '((TransactionProduct.retail + IFNULL(TransactionProduct.shipping,0) + IFNULL(TransactionProduct.handling,0)) * TransactionItem.quantity) as Total' => 'Award Amount',
+            '\'\' as shipping_reference' => 'Shipping Reference',
+            'Program.unique_id as portal_name' => 'Portal Name',
         ]);
     }
 

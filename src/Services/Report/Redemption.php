@@ -17,7 +17,7 @@ class Redemption extends AbstractReport
             'Organization.name as organization_name' => 'Organization Name',
             'Program.unique_id as program_uuid' => 'Program ID',
             'Program.name as program_name' => 'Program Name',
-            'Transaction.created_at' => 'Date',
+            'Transaction.created_at' => 'Transaction Date',
             'Transaction.id' => 'Transaction ID',
             'Participant.unique_id' => 'Participant ID',
             'IFNULL(Address.firstname, Participant.firstname) as firstname' => 'First Name',
@@ -32,7 +32,7 @@ class Redemption extends AbstractReport
             'TransactionItem.quantity' => 'Transaction Count',
             'TransactionProduct.vendor_code' => 'Product SKU',
             'TransactionProduct.name' => 'Product Name',
-            '((TransactionProduct.retail + IFNULL(TransactionProduct.shipping,0) + IFNULL(TransactionProduct.handling,0)) * TransactionItem.quantity) as Total' => 'Total'
+            '((TransactionProduct.retail + IFNULL(TransactionProduct.shipping,0) + IFNULL(TransactionProduct.handling,0)) * TransactionItem.quantity) as Total' => 'Award Amount'
         ]);
     }
 
