@@ -49,6 +49,7 @@ services:
       FILESYSTEM: local
       LOG_HOST: fluentd
       LOG_PORT: "24224"
+      GOOGLE_CDN_BUCKET: "adrcdn"
     networks:
       - adrnet
   ng-admin:

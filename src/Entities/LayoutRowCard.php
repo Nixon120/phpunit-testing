@@ -26,7 +26,8 @@ class LayoutRowCard extends Base
     {
         parent::__construct();
         if (getenv('FILESYSTEM') !== 'local') {
-            $this->cdnUrl = 'https://storage.googleapis.com/adrcdn/layout';
+            $bucket = getenv('GOOGLE_CDN_BUCKET');
+            $this->cdnUrl = 'https://storage.googleapis.com/'. $bucket . '/layout';
         }
 
         if ($this->image !== null) {
