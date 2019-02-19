@@ -9,7 +9,8 @@ $successUpdateMessage = _('Product layout updated. This page will refresh within
 $rowSuccessDeleteMessage = _("Row has been deleted");
 $imageUrl = '/resources/app/layout';
 if (getenv('FILESYSTEM') !== 'local') {
-    $imageUrl = 'https://storage.googleapis.com/adrcdn/layout';
+    $bucket = getenv('GOOGLE_CDN_BUCKET');
+    $imageUrl = 'https://storage.googleapis.com/'. $bucket . '/layout';
 }
 ?>
 <!-- Content Header (Page header) -->

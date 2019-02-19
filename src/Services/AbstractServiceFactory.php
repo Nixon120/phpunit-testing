@@ -92,8 +92,9 @@ abstract class AbstractServiceFactory
                 'projectId' => getenv('GOOGLE_PROJECT_ID'),
                 'keyFile' => json_decode(getenv('GOOGLE_CDN_KEY'), true),
             ]);
-            $bucket = $storageClient->bucket('adrcdn');
 
+            $bucketName = getenv('GOOGLE_CDN_BUCKET');
+            $bucket = $storageClient->bucket($bucketName);
 
             $this->storageAdapter = new GoogleStorageAdapter($storageClient, $bucket);
             $this->storageAdapter ->setPathPrefix($folder . '/');

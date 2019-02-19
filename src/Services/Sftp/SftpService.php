@@ -185,6 +185,7 @@ class SftpService
             return __DIR__ . '/../../../public/resources/app/reports/' . $this->getReport()->getAttachment();
         }
 
-        return 'https://storage.googleapis.com/adrcdn/reports/' . rawurlencode($this->getReport()->getAttachment());
+        $bucket = getenv('GOOGLE_CDN_BUCKET');
+        return 'https://storage.googleapis.com/'. $bucket .'/reports/' . rawurlencode($this->getReport()->getAttachment());
     }
 }
