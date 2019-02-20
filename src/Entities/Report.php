@@ -336,7 +336,7 @@ class Report extends Base
      */
     public function setReportDate($report_date)
     {
-        $this->report_date = $report_date;
+        $this->report_date = null;
         if ($report_date) {
             $report_date = new \DateTime($report_date);
             $this->report_date = $report_date->format('Y-m-d');
