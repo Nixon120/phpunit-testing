@@ -1,6 +1,24 @@
 #!/usr/bin/env php
 <?php
 require __DIR__ . "/../cli-bootstrap.php";
+
+// Establish JWT Auth Token for Product Catalog access...
+$requestedScopes = $container->get('roles')['superadmin'];
+$authentication = $container->get('authentication');
+$user = new \Entities\User([
+    'email_address' => 'rewardstack@alldigitalrewards.com',
+    'id' => 0,
+    'firstname' => 'Autoredemption',
+    'lastname' => 'System'
+]);
+/**
+ * @var \Services\Authentication\Token $token
+ */
+$token = $authentication->getToken();
+$token->setRequestedScopes($requestedScopes);
+$token->setToken($token->generateUserToken($user)['token']);
+
+
 /** @var \Interop\Container\ContainerInterface $container */
 $factory = new \Services\Program\ServiceFactory($container);
 $programRepo = $factory->getProgramRepository();
