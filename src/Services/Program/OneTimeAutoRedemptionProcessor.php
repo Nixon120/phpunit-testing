@@ -41,7 +41,7 @@ class OneTimeAutoRedemptionProcessor
     private function getOneTimeAutoRedmeptions() {
         $database = $this->repository->getDatabase();
         $today = date("Y-m-d");
-        $sql = "SELECT * FROM onetimeautoredemption WHERE redemption_date = '" . $today . "';";
+        $sql = "SELECT * FROM onetimeautoredemption WHERE redemption_date = '" . $today . "' AND active = 1;";
         $sth = $database->prepare($sql);
         $sth->execute();
         return $sth->fetchAll(PDO::FETCH_CLASS, OneTimeAutoRedemption::class);
