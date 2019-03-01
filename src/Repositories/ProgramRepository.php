@@ -320,7 +320,28 @@ SQL;
             return [];
         }
 
+        //fetch/set products with approved skus
+        $skus = json_decode($offlineRedemptions[0]->getSkus());
+        $products = $this->getOfflineRedemptionProducts($skus);
+        $offlineRedemptions[0]->setSkus($products);
+
         return $offlineRedemptions;
+    }
+
+    private function getOfflineRedemptionProducts($products)
+    {
+        $return = [];
+        if (!empty($products)) {
+            $skuContainer = ['sku' => $products];
+            $vendorProducts = $this->catalog->getProducts($skuContainer);
+            foreach ($vendorProducts as $product) {
+                if (in_array($product->getSku(), $products)) {
+                    $return[] = $product;
+                }
+            }
+        }
+
+        return $return;
     }
 
     public function getContact(Program $program)
