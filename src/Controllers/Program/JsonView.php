@@ -171,7 +171,7 @@ class JsonView extends AbstractViewController
                 ->withJson([]);
         }
 
-        $offlineRedemptions = $repository->getOneTimeAutoRedemptions($program);
+        $offlineRedemptions = $repository->getOfflineRedemptions($program);
         $response = $this->response->withStatus(200)
             ->withJson($offlineRedemptions);
 

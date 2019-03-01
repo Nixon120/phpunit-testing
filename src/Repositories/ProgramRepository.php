@@ -311,7 +311,7 @@ SQL;
     public function getOfflineRedemptions(Program $program)
     {
         $sql = "SELECT * FROM `OfflineRedemption` WHERE program_id = ?";
-        $args = [$program->getUniqueId()];
+        $args = [$program->getId()];
         $sth = $this->database->prepare($sql);
         $sth->execute($args);
 
