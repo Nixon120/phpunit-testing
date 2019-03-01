@@ -154,6 +154,30 @@ class JsonView extends AbstractViewController
         }
     }
 
+    public function offlineRedemption($id)
+    {
+        $repository = $this->factory->getProgramRepository();
+
+        $program = $this->service->getSingle($id);
+
+        if (is_null($program) === true) {
+            return $this->renderJson404();
+        }
+
+        if ($this->request->getParsedBody() !== null) {
+            $data = $this->request->getParsedBody();
+            $repository->saveProgramOfflineRedemption($program, $data);
+            return $response = $this->response->withStatus(200)
+                ->withJson([]);
+        }
+
+        $offlineRedemptions = $repository->getOfflineRedemptions($program);
+        $response = $this->response->withStatus(200)
+            ->withJson($offlineRedemptions);
+
+        return $response;
+    }
+
     public function faqs($id)
     {
         $repository = $this->factory->getProgramRepository();

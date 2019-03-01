@@ -58,6 +58,12 @@ $app->group('/api/program', function () use ($app, $createRoute, $updateRoute) {
         return $program->autoRedemption($programId);
     });
 
+    $app->map(['post', 'get'], '/{id}/offlineredemption', function ($request, $response, $args) {
+        $program = new Controllers\JsonView($request, $response, $this->get('program'));
+        $programId = $args['id'];
+        return $program->offlineRedemption($programId);
+    });
+
     $app->delete('/{id}/layout/remove/{row_id}', function ($request, $response, $args) {
         $program = new Controllers\GuiView($request, $response, $this->get('renderer'), $this->get('program'));
         $programId = $args['id'];

@@ -11,6 +11,7 @@ use Entities\Faqs;
 use Entities\FeaturedProduct;
 use Entities\LayoutRow;
 use Entities\LayoutRowCard;
+use Entities\OfflineRedemption;
 use Entities\OneTimeAutoRedemption;
 use Entities\Organization;
 use Entities\Participant;
@@ -305,6 +306,42 @@ SQL;
         }
 
         return $oneTimeAutoRedemptions;
+    }
+
+    public function getOfflineRedemptions(Program $program)
+    {
+        $sql = "SELECT * FROM `OfflineRedemption` WHERE program_id = ?";
+        $args = [$program->getId()];
+        $sth = $this->database->prepare($sql);
+        $sth->execute($args);
+
+        $offlineRedemptions = $sth->fetchAll(PDO::FETCH_CLASS, OfflineRedemption::class);
+        if (empty($offlineRedemptions) === true) {
+            return [];
+        }
+
+        //fetch/set products with approved skus
+        $skus = json_decode($offlineRedemptions[0]->getSkus());
+        $products = $this->getOfflineRedemptionProducts($skus);
+        $offlineRedemptions[0]->setSkus($products);
+
+        return $offlineRedemptions;
+    }
+
+    private function getOfflineRedemptionProducts($products)
+    {
+        $return = [];
+        if (!empty($products)) {
+            $skuContainer = ['sku' => $products];
+            $vendorProducts = $this->catalog->getProducts($skuContainer);
+            foreach ($vendorProducts as $product) {
+                if (in_array($product->getSku(), $products)) {
+                    $return[] = $product;
+                }
+            }
+        }
+
+        return $return;
     }
 
     public function getContact(Program $program)
@@ -703,6 +740,36 @@ SQL;
             return true;
         }
         throw new \Exception('failed to save auto redemption.');
+    }
+
+    /**
+     * @param Program $program
+     * @param array $data
+     * @return bool
+     * @throws \Exception
+     */
+    public function saveProgramOfflineRedemption(Program $program, array $data): bool
+    {
+        if (!empty($data)) {
+            try {
+                $sql = "DELETE FROM `OfflineRedemption` WHERE program_id = ?";
+                $sth = $this->database->prepare($sql);
+                $sth->execute([$program->getId()]);
+            } catch (\PDOException $e) {
+                throw new \Exception('could not purge offline redemptions.');
+            }
+
+            $offlineRedemption = new OfflineRedemption;
+            $offlineRedemption->setActive($data['active']);
+            $offlineRedemption->setSkus(json_encode($data['skus']));
+            $offlineRedemption->setProgramId($program->getId());
+            $this->table = 'OfflineRedemption';
+            if ($saved = $this->place($offlineRedemption) === true) {
+                return $saved;
+            }
+        }
+
+        throw new \Exception('failed to save offline redemption.');
     }
 
     public function saveProgramFaqs(Program $program, array $faqs): bool
