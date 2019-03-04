@@ -82,6 +82,15 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
         return $transaction->addTransaction($auth->getUser()->getOrganizationId(), $uniqueId);
     });
 
+    $app->post('/{id}/customerservice_transaction', function ($request, $response, $args) {
+        $transaction = new Controllers\Transaction($request, $response, $this->get('participant'));
+        $uniqueId = $args['id'];
+        /** @var \Services\Authentication\Authenticate $auth */
+        $auth = $this->get('authentication');
+
+        return $transaction->customerServiceTransaction($auth->getUser()->getOrganizationId(), $uniqueId);
+    });
+
     $app->get('/{id}/adjustment', function ($request, $response, $args) {
         $balance = new Controllers\Balance($request, $response, $this->get('participant'));
         $uniqueId = $args['id'];
