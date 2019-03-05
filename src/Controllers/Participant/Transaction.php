@@ -56,6 +56,34 @@ class Transaction
         return $this->returnJson(400, ['Resource does not exist']);
     }
 
+    public function customerServiceTransaction($organizationId, $uniqueId)
+    {
+        $participant = $this->service->participantRepository->getParticipantByOrganization($organizationId, $uniqueId);
+
+        if ($participant !== null) {
+            $post = $this->request->getParsedBody() ?? [];
+            $post['issue_points'] = false;
+            $offlineRedemptions = $this->service->participantRepository->getOfflineRedemptions($participant->getProgram());
+            $selectedProduct = $post['products'][0]['sku'];
+
+            if (in_array($selectedProduct, $offlineRedemptions) === false) {
+                return $this->returnJson(404, ['Product does not match allowable offline redemption products for this program.']);
+            }
+
+            try {
+                if ($transaction = $this->service->insert($organizationId, $uniqueId, $post)) {
+                    //@TODO: Make sure domains do not include HTTPS / HTTP on entry or here ?
+                    $output = new OutputNormalizer($transaction);
+                    return $this->returnJson(201, $output->getTransaction());
+                } else {
+                    return $this->returnJson(400, $this->service->repository->getErrors());
+                }
+            } catch (TransactionServiceException $e) {
+                return $this->returnJson(400, [$e->getMessage()]);
+            }
+        }
+    }
+
     public function transactionList($organizationId, $uniqueId)
     {
         $participant = $this->service->participantRepository->getParticipantByOrganization($organizationId, $uniqueId);

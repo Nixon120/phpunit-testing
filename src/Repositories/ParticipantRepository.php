@@ -5,6 +5,7 @@ use AllDigitalRewards\Services\Catalog\Client;
 use Entities\AutoRedemption;
 use Entities\Contact;
 use Entities\Domain;
+use Entities\OfflineRedemption;
 use Entities\Organization;
 use Entities\Program;
 use Entities\Address;
@@ -281,6 +282,24 @@ SQL;
 
         $args = [$id];
         return $this->query($sql, $args, Organization::class);
+    }
+
+    public function getOfflineRedemptions(Program $program)
+    {
+        $sql = "SELECT * FROM `OfflineRedemption` WHERE program_id = ?";
+        $args = [$program->getId()];
+        $sth = $this->database->prepare($sql);
+        $sth->execute($args);
+
+        $offlineRedemptions = $sth->fetchAll(PDO::FETCH_CLASS, OfflineRedemption::class);
+        if (empty($offlineRedemptions) === true) {
+            return [];
+        }
+
+        //fetch approved skus
+        $skus = json_decode($offlineRedemptions[0]->getSkus());
+
+        return $skus;
     }
 
     public function getProgramSweepstake(Program $program)
