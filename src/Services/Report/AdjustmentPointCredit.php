@@ -48,7 +48,7 @@ JOIN `Organization` ON `Organization`.id = `Participant`.organization_id
 JOIN `Program` ON `Program`.id = `Participant`.program_id 
 LEFT JOIN `Address` ON `Participant`.address_reference = `Address`.reference_id AND `Participant`.id = `Address`.participant_id 
 WHERE 1=1 
-AND Adjustment.type = 1 
+AND (Adjustment.type = 1 OR (Adjustment.type = 2 AND Adjustment.transaction_id IS NULL))
 {$this->getFilter()->getFilterConditionSql()}
 SQL;
 
