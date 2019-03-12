@@ -32,13 +32,11 @@ class ParticipantStatusValidator
 
     public function __construct(ContainerInterface $container)
     {
-
         $this->container = $container;
         $this->auth = $this->container->get('authentication');
     }
 
     /**
-     * Kicks off token signing and authorization confirmation
      *
      * @param ServerRequestInterface $request
      * @param Response $response
