@@ -4,7 +4,7 @@ namespace Middleware;
 
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Services\Authentication\Authenticate;
+use Services\Participant\ServiceFactory;
 use Slim\Http\Request;
 use Slim\Http\Response;
 
@@ -21,9 +21,9 @@ class ParticipantStatusValidator
     private $response;
 
     /**
-     * @var Authenticate
+     * @var ServiceFactory
      */
-    private $auth;
+    private $participantService;
 
     /**
      * @var ContainerInterface
@@ -33,11 +33,10 @@ class ParticipantStatusValidator
     public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
-        $this->auth = $this->container->get('authentication');
+        $this->participantService = $this->container->get('participant');
     }
 
     /**
-     *
      * @param ServerRequestInterface $request
      * @param Response $response
      * @param callable|null $next
@@ -48,11 +47,14 @@ class ParticipantStatusValidator
         Response $response,
         callable $next = null
     ) {
-    
         $this->request = $request;
         $this->response = $response;
+        $args = ($request->getAttribute('route'))->getArguments();
 
-        if ($this->auth->getUser()->getActive() == false) {
+        $participant = $this->participantService->getService()->getSingle($args['id']);
+        if (is_null($participant) === false
+            && $participant->getActive() == false
+        ) {
             return $response->withJson([
                 'message' => 'Participant not active'
             ], 403);

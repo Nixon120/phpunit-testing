@@ -30,7 +30,7 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
     $app->put('/{id}', $updateRoute)->add(Services\Participant\ValidationMiddleware::class);
     ;
 
-    $app->post('/{id}/sso', function ($request, \Psr\Http\Message\ResponseInterface $response, $args) {
+    $app->post('/{id}/sso', function ($request, $response, $args) {
         $participant = new Controllers\Sso($request, $response, $this->get('participant'));
         $uniqueId = $args['id'];
         /** @var \Services\Authentication\Authenticate $auth */
