@@ -69,7 +69,7 @@ SQL;
 
         $sql = <<<SQL
 SELECT Program.id, Program.unique_id, Program.organization_id, Program.name, Program.point, Program.url, 
-Program.domain_id, Program.meta, Program.logo, Program.active, Program.updated_at, Program.created_at, Program.published, 
+Program.domain_id, Program.meta, Program.active, Program.updated_at, Program.created_at, Program.published, 
 Organization.unique_id AS organization_reference 
 FROM Program 
 JOIN Organization ON Program.organization_id = Organization.id
