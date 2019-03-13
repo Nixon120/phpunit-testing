@@ -129,6 +129,7 @@ SQL;
 
         if ($adjustment->getType() === 'debit') {
             $validator->attribute('amount', Validator::max($credit)->notEmpty()->floatVal());
+            $validator->attribute('amount', Validator::min(1)->notEmpty()->floatVal());
         } else {
             $validator->attribute('amount', Validator::notEmpty()->floatVal());
         }
