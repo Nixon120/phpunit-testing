@@ -36,8 +36,6 @@ class Program extends Base
 
     private $domain;
 
-    public $logo;
-
     public $published = 0;
 
     public $start_date;
@@ -390,22 +388,6 @@ class Program extends Base
     public function setGracePeriod($grace_period)
     {
         $this->grace_period = $grace_period;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getLogo()
-    {
-        return $this->logo;
-    }
-
-    /**
-     * @param mixed $logo
-     */
-    public function setLogo($logo)
-    {
-        $this->logo = $logo;
     }
 
     /**

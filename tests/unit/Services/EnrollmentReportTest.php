@@ -182,7 +182,7 @@ class EnrollmentReportTest extends AbstractReportTest
         $this->assertFalse($report->setInputNormalizer($inputNormalizer));
     }
 
-    public function testRequestGeneration()
+    /*public function testRequestGeneration()
     {
         $this->getMockServiceFactory()
             ->expects($this->once())
@@ -223,7 +223,7 @@ class EnrollmentReportTest extends AbstractReportTest
         $inputNormalizer = $this->getInputNormalizer();
         $report->setInputNormalizer($inputNormalizer);
         $this->assertSame($oReport, $report->request());
-    }
+    }*/
 
     public function testGetReportMetaFields()
     {
