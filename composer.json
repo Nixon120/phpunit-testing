@@ -50,7 +50,7 @@
     "slim/flash": "^0.2.0",
     "dflydev/fig-cookies": "^1.0",
     "robmorgan/phinx": "^0.9.1",
-    "pmill/php-scheduler": "^0.1.3",
+    "pmill/php-scheduler": "^0.1.5",
     "danielstjules/stringy": "^3.1",
     "alldigitalrewards/amqp": "^1.2",
     "league/event": "^2.1",
@@ -89,6 +89,10 @@
     "catalog-wrapper": {
       "type": "vcs",
       "url": "git@bitbucket.org:alldigitalrewards/catalog-wrapper.git"
+    },
+    "php-scheduler": {
+      "type": "vcs",
+      "url": "https://github.com/pmill/php-scheduler.git"
     }
   }
 }
