@@ -64,7 +64,8 @@ class Participant
     ) {
         $filter = new FilterNormalizer([
             'program' => $program_unique_id,
-            'points_greater_than' => $points
+            'points_greater_than' => $points,
+            'status' => 1,
         ]);
 
         $participants = $this

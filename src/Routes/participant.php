@@ -13,7 +13,6 @@ $createRoute = function ($request, $response) {
 };
 
 $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
-
     $app->get('', function ($request, $response) {
         $participant = new Controllers\JsonView($request, $response, $this->get('participant'));
         return $participant->list();
@@ -37,7 +36,7 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
         /** @var \Services\Authentication\Authenticate $auth */
         $auth = $this->get('authentication');
         return $participant->generateSso($auth->getUser()->getOrganizationId(), $uniqueId);
-    });
+    })->add(\Middleware\ParticipantStatusValidator::class);
 
     $app->get('/{id}/sso', function ($request, $response, $args) {
         $participant = new Controllers\Sso($request, $response, $this->get('participant'));
@@ -80,7 +79,7 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
         $auth = $this->get('authentication');
 
         return $transaction->addTransaction($auth->getUser()->getOrganizationId(), $uniqueId);
-    });
+    })->add(\Middleware\ParticipantStatusValidator::class);
 
     $app->post('/{id}/customerservice_transaction', function ($request, $response, $args) {
         $transaction = new Controllers\Transaction($request, $response, $this->get('participant'));
@@ -89,7 +88,7 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
         $auth = $this->get('authentication');
 
         return $transaction->customerServiceTransaction($auth->getUser()->getOrganizationId(), $uniqueId);
-    });
+    })->add(\Middleware\ParticipantStatusValidator::class);
 
     $app->get('/{id}/adjustment', function ($request, $response, $args) {
         $balance = new Controllers\Balance($request, $response, $this->get('participant'));
@@ -105,7 +104,7 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
         /** @var \Services\Authentication\Authenticate $auth */
         $auth = $this->get('authentication');
         return $balance->insert($auth->getUser()->getOrganizationId(), $uniqueId);
-    });
+    })->add(\Middleware\ParticipantStatusValidator::class);
 
     $app->post('/{id}/sweepstake', function ($request, $response, $args) {
         $sweepstake = new Controllers\SweepstakeEntry($request, $response, $this->get('participant'));
