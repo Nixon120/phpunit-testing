@@ -52,12 +52,13 @@ class ParticipantStatusValidator
         $args = ($request->getAttribute('route'))->getArguments();
 
         $participant = $this->participantService->getService()->getSingle($args['id']);
-        if (is_null($participant) === false
-            && $participant->getActive() == false
-        ) {
-            return $response->withJson([
-                'message' => 'Participant not active'
-            ], 403);
+
+        if (is_null($participant) === true) {
+            return $response->withJson(['Resource does not exist'], 400);
+        }
+
+        if ($participant->getActive() == false) {
+            return $response->withJson(['message' => 'Participant not active'], 403);
         }
 
         return $next($this->request, $this->response);
