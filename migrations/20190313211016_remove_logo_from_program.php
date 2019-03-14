@@ -11,4 +11,11 @@ class RemoveLogoFromProgram extends AbstractMigration
         $table->removeColumn('logo')
             ->save();
     }
+
+    public function down()
+    {
+        $table = $this->table('Program');
+        $table->addColumn('logo', 'blob')
+            ->save();
+    }
 }
