@@ -69,7 +69,7 @@ SQL;
 
         $sql = <<<SQL
 SELECT Program.id, Program.unique_id, Program.organization_id, Program.name, Program.point, Program.url, 
-Program.domain_id, Program.meta, Program.logo, Program.active, Program.updated_at, Program.created_at, Program.published, 
+Program.domain_id, Program.meta, Program.active, Program.updated_at, Program.created_at, Program.published, 
 Organization.unique_id AS organization_reference 
 FROM Program 
 JOIN Organization ON Program.organization_id = Organization.id
@@ -559,10 +559,6 @@ SQL;
     private function getValidator(Program $program)
     {
         $validator = Validator::attribute('name', Validator::notEmpty()->setName('Name'))
-            ->attribute('logo', Validator::oneOf(
-                Validator::stringType()->setName('Logo'),
-                Validator::nullType()
-            ))
             ->attribute('point', Validator::numeric()->min(1)->setName('Point'))
             ->attribute('unique_id', Validator::notEmpty()->alnum('_ -')->noWhitespace()->setName('Unique Id'))
             ->attribute('organization_id', Validator::notEmpty()->setName('Organization'))

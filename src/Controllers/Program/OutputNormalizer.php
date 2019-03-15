@@ -73,7 +73,6 @@ class OutputNormalizer extends AbstractOutputNormalizer
         $list = parent::get();
 
         $return = $this->scrubList($list, [
-            'logo',
             'id',
             'address1',
             'address2',

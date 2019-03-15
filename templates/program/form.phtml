@@ -339,32 +339,6 @@
                     </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-lg-1">
-                    <div class="form-group">
-                        <label>Logo</label>
-                        <a class="btn btn-success form-control add-logo" data-toggle="tooltip" data-placement="left" title="Upload logo"><i class="fa fa-fw fa-plus"></i></a>
-                        <a class="btn btn-danger form-control del-logo" data-toggle="tooltip" data-placement="left" title="Delete uploaded logo"><i class="fa fa-fw fa-trash"></i></a>
-                        <input type="file" name="logo_dummy" class="hide"/>
-                        <input type="hidden"
-                               name="logo"
-                               value="<?= $program->getLogo(); ?>"
-                               class="hide"/>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-3">
-                    <?php if ($program->getLogo() !== "" && $program->getLogo() !== null): ?>
-                        <img src="<?= $program->getLogo(); ?>"
-                             class="preview-logo img-responsive img-thumbnail"/>
-                    <?php else: ?>
-                        <img src="http://via.placeholder.com/350x150"
-                             class="preview-logo img-responsive img-thumbnail"/>
-                    <?php endif; ?>
-                </div>
-            </div>
-
         </fieldset>
         <br/>
         <fieldset>
