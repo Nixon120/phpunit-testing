@@ -76,21 +76,12 @@ class JsonView extends AbstractViewController
         return $response;
     }
 
-    public function listUsers($id)
+    public function listCreditAdjustmentsByMeta($id)
     {
-        $program = $this->service->getSingle($id, true);
+        $program = $this->service->getSingle($id);
         $get = $this->request->getQueryParams();
-        $users = $this->service->getUsers($program->getId(), $get);
+        $get['program'] = $program->getId();
 
-        $response = $this->response->withStatus(200)
-            ->withJson($users);
-
-        return $response;
-    }
-
-    public function listCreditAdjustmentsByParticipant()
-    {
-        $get = $this->request->getQueryParams();
         $adjustments = $this->service->getAdjustments($get);
 
         $response = $this->response->withStatus(200)
