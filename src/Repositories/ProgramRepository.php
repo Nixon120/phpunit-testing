@@ -102,76 +102,34 @@ SQL;
         return $this->hydrateProgram($program);
     }
 
-    public function getUsers($programId, $input)
+    public function getCreditAdjustmentsByMeta($input)
     {
         $page = $input['page'] ?? 1;
         $limit = $input['limit'] ?? 30;
+        $offset = $page === 1 ? 0 : ($page - 1) * $limit;
+        $paginationSql = "LIMIT {$limit} OFFSET {$offset}";
         $key = $input['meta_key'];
         $value = $input['meta_value'];
-        $offset = $page === 1 ? 0 : ($page - 1) * $limit;
-        $paginationSql = "LIMIT {$limit} OFFSET {$offset} ";
+        $program = $input['program'];
 
         $sql = <<<SQL
-SELECT Participant.* 
-FROM Participant 
-LEFT JOIN ParticipantMeta ON ParticipantMeta.participant_id = ParticipantMeta.id
-WHERE Participant.program_id = ? 
-AND Participant.id IN (
-  SELECT ParticipantMeta.participant_id 
-  FROM ParticipantMeta 
-  WHERE ParticipantMeta.key = '{$key}'
-  AND ParticipantMeta.value = '{$value}'
-)
-AND Participant.active = 1
-{$paginationSql}
-SQL;
-        $sth = $this->database->prepare($sql);
-        $sth->execute([$programId]);
-
-        $users = $sth->fetchAll(\PDO::FETCH_CLASS, Participant::class);
-
-        if (empty($users)) {
-            return [];
-        }
-
-        return $users;
-
-    }
-
-    public function getCreditAdjustmentsByParticipant($input)
-    {
-        $fromDate = $input['from_date'] ?? null;
-        $toDate = $input['to_date'] ?? null;
-        $page = $input['page'] ?? 1;
-        $limit = $input['limit'] ?? 30;
-        $offset = $page === 1 ? 0 : ($page - 1) * $limit;
-        $paginationSql = "LIMIT {$limit} OFFSET {$offset} ";
-
-        $datesBetween = '';
-        if (is_null($fromDate) === false && is_null($toDate) === false) {
-            $datesBetween = " AND created_at >= '$fromDate' AND created_at <= '$toDate'";
-        }
-
-        $sql =<<<SQL
-SELECT Adjustment.*
+SELECT *
 FROM Adjustment
-WHERE type = 1
-{$datesBetween}
-ORDER BY created_at DESC
+WHERE Adjustment.participant_id IN (
+  SELECT ParticipantMeta.participant_id
+  FROM ParticipantMeta
+  LEFT JOIN Participant ON Participant.id = ParticipantMeta.participant_id
+  WHERE ParticipantMeta.`key` = '$key' AND ParticipantMeta.value = '$value'
+   AND Participant.program_id = $program
+)
+AND Adjustment.reference IS NOT NULL 
 {$paginationSql}
 SQL;
 
-        /** @var Adjustment $adjustment */
         $sth = $this->database->prepare($sql);
         $sth->execute();
 
-        $adjustments = $sth->fetchAll(\PDO::FETCH_CLASS, Adjustment::class);
-
-        if (empty($adjustments)) {
-            return [];
-        }
-
-        return $adjustments;
+        return $sth->fetchAll(\PDO::FETCH_CLASS, Adjustment::class);
     }
 
     private function hydrateProgram(Program $program)
