@@ -328,14 +328,19 @@ SQL;
         return null;
     }
 
-    public function getParticipantTransactions(Participant $participant, $transactionUniqueId = null): ?array
+    public function getParticipantTransactions(Participant $participant, $transactionUniqueIds = null): ?array
     {
         $where =  " WHERE Participant.program_id = ? AND Participant.unique_id = ?";
         $params = [$participant->getProgramId(), $participant->getUniqueId()];
 
-        if ($transactionUniqueId !== null) {
-            $where =  " WHERE Participant.unique_id = ? AND Transaction.unique_id = ?";
-            $params = [$participant->getUniqueId(), $transactionUniqueId];
+        if ($transactionUniqueIds !== null) {
+            $placeholder = rtrim(str_repeat('?, ', count($transactionUniqueIds)), ', ');
+            $where =  " WHERE Participant.unique_id = ? AND Transaction.unique_id IN ({$placeholder})";
+            $params = [$participant->getUniqueId()];
+
+            foreach ($transactionUniqueIds as $transactionUniqueId) {
+                $params[] = "$transactionUniqueId";
+            }
         }
 
         $sql = "SELECT Transaction.* FROM `Transaction`"

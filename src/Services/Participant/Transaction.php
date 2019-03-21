@@ -267,9 +267,9 @@ class Transaction
         }
     }
 
-    public function get(\Entities\Participant $participant, $transactionUniqueId = null)
+    public function get(\Entities\Participant $participant, $transactionUniqueIds = null)
     {
-        return $this->repository->getParticipantTransactions($participant, $transactionUniqueId);
+        return $this->repository->getParticipantTransactions($participant, $transactionUniqueIds);
     }
 
     public function getTransactionOrganization(
