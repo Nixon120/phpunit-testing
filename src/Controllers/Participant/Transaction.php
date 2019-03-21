@@ -89,12 +89,13 @@ class Transaction
     public function transactionList($organizationId, $uniqueId)
     {
         $participant = $this->service->participantRepository->getParticipantByOrganization($organizationId, $uniqueId);
+        $transactionUniqueId = $this->request->getQueryParam('unique_id');
 
         if ($participant !== null) {
             //@TODO: Make sure domains do not include HTTPS / HTTP on entry or here ?
-            $transactions = $this->service->get($participant);
+            $transactions = $this->service->get($participant, $transactionUniqueId);
             $output = new OutputNormalizer($transactions);
-            return $this->returnJson(200, $output->getTransactionList($participant));
+            return $this->returnJson(200, $output->getTransactionList());
         }
         return $this->returnJson(400, ['Resource does not exist']);
     }

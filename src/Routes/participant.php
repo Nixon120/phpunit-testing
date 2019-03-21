@@ -48,10 +48,13 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
 
     $app->get('/{id}/transaction', function ($request, $response, $args) {
         $transaction = new Controllers\Transaction($request, $response, $this->get('participant'));
-        $uniqueId = $args['id'];
+        $userUniqueId = $args['id'];
         /** @var \Services\Authentication\Authenticate $auth */
         $auth = $this->get('authentication');
-        return $transaction->transactionList($auth->getUser()->getOrganizationId(), $uniqueId);
+        return $transaction->transactionList(
+            $auth->getUser()->getOrganizationId(),
+            $userUniqueId
+        );
     });
 
     $app->get('/{id}/transaction/{transaction_id}', function ($request, $response, $args) {

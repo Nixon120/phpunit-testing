@@ -328,14 +328,22 @@ SQL;
         return null;
     }
 
-    public function getParticipantTransactions(Participant $participant): ?array
+    public function getParticipantTransactions(Participant $participant, $transactionUniqueId = null): ?array
     {
+        $where =  " WHERE Participant.program_id = ? AND Participant.unique_id = ?";
+        $params = [$participant->getProgramId(), $participant->getUniqueId()];
+
+        if ($transactionUniqueId !== null) {
+            $where =  " WHERE Participant.unique_id = ? AND Transaction.unique_id = ?";
+            $params = [$participant->getUniqueId(), $transactionUniqueId];
+        }
+
         $sql = "SELECT Transaction.* FROM `Transaction`"
             . " LEFT JOIN Participant ON Participant.id = Transaction.participant_id"
-            . " WHERE Participant.program_id = ? AND Participant.unique_id = ?";
+            . $where;
 
         $sth = $this->database->prepare($sql);
-        $sth->execute([$participant->getProgramId(), $participant->getUniqueId()]);
+        $sth->execute($params);
 
         $transactions = $sth->fetchAll(PDO::FETCH_CLASS, Transaction::class, [$participant]);
         if (empty($transactions)) {
