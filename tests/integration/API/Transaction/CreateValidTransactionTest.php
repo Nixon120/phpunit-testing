@@ -130,6 +130,50 @@ class CreateValidTransactionTest extends AbstractAPITestCase
         $this->assertSame(201, $response->getStatusCode());
     }
 
+    public function testFetchTransactionByOneUniqueIdReturnsOneInArray()
+    {
+        $this->addPointsToParticipant();
+        $this->createTransactionsWithUniqueId();
+
+        $uniqueIds = ['someuniqueidhere1', 'someuniqueidhere2', 'someuniqueidhere3'];
+
+        foreach ($uniqueIds as $uniqueId) {
+            //lets call each unique id
+            $uri = 'api/user/TESTPARTICIPANT1/transaction?unique_id[]=' . $uniqueId;
+            $response = $this->getApiClient()->request(
+                'GET',
+                $uri,
+                [
+                    'headers' => $this->getHeaders()
+                ]
+            );
+            $responseObj = json_decode($response->getBody());
+
+            $this->assertSame($uniqueId, $responseObj[0]->unique_id);
+        }
+    }
+
+    public function testFetchTransactionByNonExistingUniqueIdsReturns404()
+    {
+        $uniqueIds = ['idontexist1', 'idontexist2', 'idontexist3'];
+
+        foreach ($uniqueIds as $uniqueId) {
+            //lets call each unique id
+            $uri = 'api/user/TESTPARTICIPANT1/transaction?unique_id[]=' . $uniqueId;
+            $response = $this->getApiClient()->request(
+                'GET',
+                $uri,
+                [
+                    'headers' => $this->getHeaders()
+                ]
+            );
+            $responseObj = json_decode($response->getBody());
+
+            $this->assertSame(404, $response->getStatusCode());
+            $this->assertSame('Unique Ids Not Found', $responseObj[0]);
+        }
+    }
+
     /**
      * Transaction Object must include an array of products.
      */
@@ -165,5 +209,38 @@ class CreateValidTransactionTest extends AbstractAPITestCase
 
         // Response MUST be status code 201
         $this->assertTrue(is_array($responseObj->products));
+    }
+
+    private function createTransactionsWithUniqueId()
+    {
+        $uniqueIds = ['someuniqueidhere1', 'someuniqueidhere2', 'someuniqueidhere3'];
+
+        foreach ($uniqueIds as $uniqueId) {
+            $response = $this->getApiClient()->request(
+                'POST',
+                'api/user/TESTPARTICIPANT1/transaction',
+                [
+                    'headers' => $this->getHeaders(),
+                    'body' => json_encode([
+                        'unique_id' => "$uniqueId",
+                        'shipping' => [
+                            'firstname' => 'Test Firstname',
+                            'lastname' => 'Test Lastname',
+                            'address1' => '123 Anywhere Street',
+                            'city' => 'Denver',
+                            'state' => 'CO',
+                            'zip' => '80202'
+                        ],
+                        'products' => [
+                            [
+                                'sku' => 'HRA01',
+                                'quantity' => 1,
+                                'amount' => 10
+                            ],
+                        ],
+                    ]),
+                ]
+            );
+        }
     }
 }

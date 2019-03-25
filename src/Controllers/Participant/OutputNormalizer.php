@@ -148,7 +148,7 @@ class OutputNormalizer extends AbstractOutputNormalizer
         return $return;
     }
 
-    public function getTransactionList(Participant $participant): array
+    public function getTransactionList(): array
     {
         $list = parent::get();
 
