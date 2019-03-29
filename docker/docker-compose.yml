@@ -26,6 +26,7 @@ services:
     environment:
       XDEBUG_CONFIG: "remote_host=${XDEBUG_HOST}"
       PHP_IDE_CONFIG: "serverName=admin"
+      ENVIRONMENT: development
       MYSQL_ROOT_PASSWORD: 123
       MYSQL_HOST: admin-mysql
       MYSQL_DATABASE: mpadmin
@@ -50,6 +51,7 @@ services:
       LOG_HOST: fluentd
       LOG_PORT: "24224"
       GOOGLE_CDN_BUCKET: "adrcdn"
+      ENABLE_CRON: "1"
     networks:
       - adrnet
   ng-admin:
