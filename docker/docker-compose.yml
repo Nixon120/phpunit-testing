@@ -24,7 +24,7 @@ services:
     ports:
       - 81:80
     environment:
-      XDEBUG_CONFIG: "remote_host=${XDEBUG_HOST}"
+      XDEBUG_CONFIG: "remote_host=${HOST_IP}"
       PHP_IDE_CONFIG: "serverName=admin"
       MYSQL_ROOT_PASSWORD: 123
       MYSQL_HOST: admin-mysql
@@ -171,7 +171,7 @@ services:
     environment:
       ENVIRONMENT: development
       JWT_SECRET: password
-      XDEBUG_CONFIG: "remote_host=${XDEBUG_HOST}"
+      XDEBUG_CONFIG: "remote_host=${HOST_IP}"
       PHP_IDE_CONFIG: "serverName=transaction-email"
       LOG_HOST: fluentd
       LOG_PORT: "24224"
@@ -196,7 +196,6 @@ services:
       TRANSACTION_ITEM_CHANNEL: transaction-item
       CATALOG_URL: http://product.catalog
       PROGRAM_CONFIG_URL: http://admin/api/program
-      MYSQL_DB_PASSWORD: 123
       MYSQL_DB_HOST: admin-mysql
       MYSQL_DB_DATABASE: transaction-email
       MYSQL_DB_USERNAME: root
