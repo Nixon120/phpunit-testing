@@ -19,6 +19,7 @@ class PointBalance extends AbstractReport
             'Program.name as program_name' => 'Program Name',
             'Participant.email_address' => 'Email',
             'Participant.unique_id' => 'Participant ID',
+            'IF(Participant.active = 1, \'Active\', \'Inactive\') as status' => 'Status',
             'Participant.firstname' => 'First Name',
             'Participant.lastname' => 'Last Name',
             'Participant.birthdate' => 'Date of Birth',

@@ -20,6 +20,8 @@ class Redemption extends AbstractReport
             'Transaction.created_at' => 'Transaction Date',
             'Transaction.id' => 'Transaction ID',
             'Participant.unique_id' => 'Participant ID',
+            'Participant.email_address' => 'Email',
+            'IF(Participant.active = 1, \'Active\', \'Inactive\') as status' => 'Status',
             'IFNULL(Address.firstname, Participant.firstname) as firstname' => 'First Name',
             'IFNULL(Address.lastname, Participant.lastname) as lastname' => 'Last Name',
             'Address.address1' => 'Address1',
