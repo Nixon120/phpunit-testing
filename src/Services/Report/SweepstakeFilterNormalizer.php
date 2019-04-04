@@ -5,6 +5,16 @@ use Services\AbstractFilterNormalizer;
 
 class SweepstakeFilterNormalizer extends AbstractFilterNormalizer
 {
+    public function getStatusFilter($value)
+    {
+        return "`Participant`.`active` = ?";
+    }
+
+    public function getStatusFilterArgs($value)
+    {
+        return $this->returnArg($value);
+    }
+
     public function getOrganizationFilter($value)
     {
         return "`Organization`.`unique_id` = ?";
