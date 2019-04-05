@@ -308,11 +308,28 @@ class Request extends AbstractListener
     private function generate()
     {
         $reportFileNameWithExtension = $this->getReportFileName();
+        $date = new \DateTime('now');
+
+        $this->getSpreadsheet()->getActiveSheet()->mergeCells("A1:G1")->setCellValue('A1', ucfirst($this->getReport()->getProgram()));
+        $this->getSpreadsheet()->getActiveSheet()->mergeCells("A2:G2")->setCellValue('A2', $this->getReport()->getReportName());
+        $this->getSpreadsheet()->getActiveSheet()->mergeCells("A3:G3")->setCellValue('A3', 'As of ' . $date->format('M d, Y'));
+        $this->getSpreadsheet()
+            ->getActiveSheet()
+            ->getStyle("A1:G3")
+            ->getAlignment()
+            ->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+
+        $this->getSpreadsheet()
+            ->getActiveSheet()
+            ->getStyle("A1:G3")
+            ->getFont()
+            ->setBold( true )
+            ->setSize(16);
 
         /** Load report data into sheet */
         $this->getSpreadsheet()
             ->getActiveSheet()
-            ->fromArray($this->getReportData(), null, 'A1');
+            ->fromArray($this->getReportData(), null, 'A5');
 
         ob_start();
         $this->getWriter()->save('php://output');
