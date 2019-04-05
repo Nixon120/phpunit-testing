@@ -308,11 +308,12 @@ class Request extends AbstractListener
     private function generate()
     {
         $reportFileNameWithExtension = $this->getReportFileName();
-        $date = new \DateTime('now');
+        $endDate = $this->getReport()->getParameters()['end_date'] ?? 'now';
+        $endDate = new \DateTime($endDate);
 
         $this->getSpreadsheet()->getActiveSheet()->mergeCells("A1:G1")->setCellValue('A1', ucfirst($this->getReport()->getProgram()));
         $this->getSpreadsheet()->getActiveSheet()->mergeCells("A2:G2")->setCellValue('A2', $this->getReport()->getReportName());
-        $this->getSpreadsheet()->getActiveSheet()->mergeCells("A3:G3")->setCellValue('A3', 'As of ' . $date->format('M d, Y'));
+        $this->getSpreadsheet()->getActiveSheet()->mergeCells("A3:G3")->setCellValue('A3', 'As of ' . $endDate->format('M d, Y'));
         $this->getSpreadsheet()
             ->getActiveSheet()
             ->getStyle("A1:G3")
@@ -330,6 +331,22 @@ class Request extends AbstractListener
         $this->getSpreadsheet()
             ->getActiveSheet()
             ->fromArray($this->getReportData(), null, 'A5');
+
+        $date = new \DateTime('now');
+        $highestRow = $this->getSpreadsheet()->getActiveSheet()->getHighestRow();
+        $highestRow += 2;
+        $this->getSpreadsheet()->getActiveSheet()->mergeCells("A$highestRow:G$highestRow")->setCellValue("A$highestRow", $date->format('l, M d, Y h:i:s A'));
+        $this->getSpreadsheet()
+            ->getActiveSheet()
+            ->getStyle("A$highestRow:G$highestRow")
+            ->getAlignment()
+            ->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+
+        $this->getSpreadsheet()
+            ->getActiveSheet()
+            ->getStyle("A$highestRow:G$highestRow")
+            ->getFont()
+            ->setSize(10);
 
         ob_start();
         $this->getWriter()->save('php://output');
