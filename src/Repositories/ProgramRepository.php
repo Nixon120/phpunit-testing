@@ -438,17 +438,18 @@ SQL;
     private function getProducts($products)
     {
         $return = [];
-        $page = 1;
+
         if (!empty($products)) {
-            $skuContainer = ['sku' => $products];
-            while (!empty($vendorProducts = $this->catalog->getProducts($skuContainer, $page))) {
+            foreach (array_chunk($products, 50) as $skuSet) {
+                $skuContainer = ['sku' => $skuSet];
+                $vendorProducts = $this->catalog->getProducts($skuContainer);
                 foreach ($vendorProducts as $product) {
                     if (in_array($product->getSku(), $products)) {
                         $return[] = $product;
                     }
                 }
-                $page++;
             }
+
         }
 
         return $return;
