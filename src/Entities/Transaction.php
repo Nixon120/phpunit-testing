@@ -43,7 +43,7 @@ class Transaction extends Base
     /**
      * @var Participant|null
      */
-    private $participant;
+    public $participant;
 
     /**
      * @var Address|null
