@@ -152,6 +152,11 @@ class OutputNormalizer extends AbstractOutputNormalizer
     {
         $list = parent::get();
 
+        $meta = [];
+        foreach ($list as $transaction) {
+            $meta[] = $transaction->getMeta();
+        }
+
         $return = $this->scrubList($list, [
             'participant_id',
             'verified',
@@ -163,7 +168,13 @@ class OutputNormalizer extends AbstractOutputNormalizer
             'bypass_conditions'
         ]);
 
-        return $return;
+        $transactions = [];
+        foreach ($return as $key => $transaction) {
+            $transactions[$key] = $transaction;
+            $transactions[$key]['meta'] = $meta[$key];
+        }
+
+        return $transactions;
     }
 
     public function getList(): array

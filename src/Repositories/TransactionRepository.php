@@ -351,8 +351,13 @@ SQL;
         $sth->execute($params);
 
         $transactions = $sth->fetchAll(PDO::FETCH_CLASS, Transaction::class, [$participant]);
+
         if (empty($transactions)) {
             return [];
+        }
+
+        foreach ($transactions as $transaction) {
+            $transaction->setMeta($this->getTransactionMeta($transaction->getId()));
         }
 
         return $transactions;
