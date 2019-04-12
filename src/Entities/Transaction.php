@@ -43,7 +43,7 @@ class Transaction extends Base
     /**
      * @var Participant|null
      */
-    public $participant;
+    private $participant;
 
     /**
      * @var Address|null
@@ -370,7 +370,14 @@ class Transaction extends Base
      */
     public function getMeta()
     {
-        return $this->meta;
+        $container = [];
+
+        if ($this->meta !== null) {
+            foreach ($this->meta as $key => $meta) {
+                $container[] = [$key => $meta];
+            }
+        }
+        return $container;
     }
 
     /**

@@ -42,7 +42,7 @@ class Participant extends \Entities\Base
     /**
      * @var ParticipantMeta[]
      */
-    public $meta;
+    private $meta;
 
     /**
      * @var Address|null
