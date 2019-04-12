@@ -165,8 +165,7 @@ class OutputNormalizer extends AbstractOutputNormalizer
             'notes',
             'shipping_reference',
             'active',
-            'bypass_conditions',
-            'meta'
+            'bypass_conditions'
         ]);
 
         $transactions = [];
