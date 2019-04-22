@@ -75,9 +75,7 @@ class TransactionMeta extends Base
         //tests associative array
         foreach ($transactionMeta as $meta) {
             foreach ($meta as $key => $value) {
-                if (empty($key) === true
-                    || empty($value) === true
-                ) {
+                if (empty($key) === true) {
                     $valid = false;
                 }
             }

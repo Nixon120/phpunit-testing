@@ -187,7 +187,6 @@ class Transaction
                 'Transaction Meta is not valid, please provide valid key:value non-empty pairs.'
             ]);
             return null;
-
         }
 
         if ($this->repository->validate($transaction)
