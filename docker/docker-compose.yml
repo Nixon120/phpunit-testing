@@ -261,6 +261,25 @@ services:
       LOG_PORT: "24224"
     networks:
       - adrnet
+  redemption-campaigns-service:
+    image: gcr.io/green-talent-129607/redemption-campaigns-service:latest
+    ports:
+    - "88:80"
+    environment:
+      JWT_SECRET: password
+      ENVIRONMENT: development
+      MYSQL_HOST: admin-mysql
+      MYSQL_DATABASE: rcs_admin
+      MYSQL_USERNAME: root
+      MYSQL_PASSWORD: 123
+      LOG_HOST: fluentd
+      LOG_PORT: "24224"
+      FILESYSTEM: local
+      PROGRAM_CONTENT_URL: program.content
+      GOOGLE_IMAGE_PATH: "https://storage.googleapis.com/adrcdn/programcontent"
+      GOOGLE_CDN_BUCKET: "adrcdn"
+    networks:
+    - adrnet
 volumes:
   mpadmindb:
     driver: local
