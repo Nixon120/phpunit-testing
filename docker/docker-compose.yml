@@ -262,7 +262,7 @@ services:
     networks:
       - adrnet
   redemption-campaigns-service:
-    image: gcr.io/green-talent-129607/redemption-campaigns-service:latest
+    image: gcr.io/green-talent-129607/redemption-campaign-service:latest
     ports:
     - "88:80"
     environment:
