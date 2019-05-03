@@ -21,8 +21,6 @@ services:
       - ./app/php-fpm.conf:/etc/php/7.2/fpm/php-fpm.conf
     expose:
       - 80
-    ports:
-      - 81:80
     environment:
       XDEBUG_CONFIG: "remote_host=${HOST_IP}"
       PHP_IDE_CONFIG: "serverName=admin"
