@@ -81,7 +81,7 @@ SQL;
     }
 
     //@TODO change this to getByUnique or getById
-    public function getProgram($id, $uniqueLookup = true):?Program
+    public function getProgram($id, $uniqueLookup = true): ?Program
     {
         $field = $uniqueLookup === false ? 'id' : 'unique_id';
         $sql = "SELECT * FROM Program WHERE {$field} = ?";
@@ -180,14 +180,14 @@ SQL;
         ];
     }
 
-    public function getProgramByDomain(string $domain):?Program
+    public function getProgramByDomain(string $domain): ?Program
     {
         $domainParts = $this->splitDomain($domain);
 
         if (!$domain = $this->getProgramDomainByDomainName($domainParts->domain)) {
             return null;
         }
-        
+
         $sql = "SELECT * FROM Program WHERE url = ? AND domain_id = ?";
         $args = [$domainParts->url, $domain->getId()];
 
@@ -198,7 +198,7 @@ SQL;
         return $this->hydrateProgram($program);
     }
 
-    public function getProgramByDomainId(int $id):?Program
+    public function getProgramByDomainId(int $id): ?Program
     {
         $sql = "SELECT * FROM Program WHERE domain_id = ?";
         $args = [$id];
@@ -210,7 +210,7 @@ SQL;
         return $this->hydrateProgram($program);
     }
 
-    public function getProgramOrganization(?string $id, $unique = false):?Organization
+    public function getProgramOrganization(?string $id, $unique = false): ?Organization
     {
         $sql = "SELECT * FROM `Organization` WHERE ";
 
@@ -224,21 +224,21 @@ SQL;
         return $this->query($sql, $args, Organization::class);
     }
 
-    public function getProgramDomain(?string $id):?Domain
+    public function getProgramDomain(?string $id): ?Domain
     {
         $sql = "SELECT * FROM `Domain` WHERE id = ?";
         $args = [$id];
         return $this->query($sql, $args, Domain::class);
     }
 
-    public function getProgramDomainByDomainName(string $domain):?Domain
+    public function getProgramDomainByDomainName(string $domain): ?Domain
     {
         $sql = "SELECT * FROM `Domain` WHERE url = ?";
         $args = [$domain];
         return $this->query($sql, $args, Domain::class);
     }
 
-    public function getAutoRedemption(Program $program):?AutoRedemption
+    public function getAutoRedemption(Program $program): ?AutoRedemption
     {
         $sql = "SELECT * FROM `AutoRedemption` WHERE program_id = ?";
         $args = [$program->getId()];
@@ -471,7 +471,7 @@ SQL;
         return $return;
     }
 
-    public function getProductCriteria(Program $program):?ProductCriteria
+    public function getProductCriteria(Program $program): ?ProductCriteria
     {
         $sql = "SELECT * FROM `ProductCriteria` WHERE program_id = ?";
         $args = [$program->getUniqueId()];
@@ -687,7 +687,7 @@ SQL;
                     throw new \Exception('could not purge autoredemptions.');
                 }
 
-                foreach($data['one_time_auto_redemptions'] as $autoRedemption) {
+                foreach ($data['one_time_auto_redemptions'] as $autoRedemption) {
                     $oneTimeAutoRedemption = new OneTimeAutoRedemption($autoRedemption);
                     $oneTimeAutoRedemption->setProgramId($program->getUniqueId());
 
@@ -785,7 +785,7 @@ SQL;
         } catch (\PDOException $e) {
             throw new \Exception('could not purge row cards.');
         }
-        
+
         foreach ($cards as $cardPriority => $card) {
             $entity = new LayoutRowCard;
             if (!empty($card['image'])) {
@@ -849,7 +849,7 @@ SQL;
             $imageData = substr($imageData, strpos($imageData, ',') + 1);
             $type = strtolower($type[1]); // jpg, png, gif
 
-            if (!in_array($type, [ 'jpg', 'jpeg', 'gif', 'png' ])) {
+            if (!in_array($type, ['jpg', 'jpeg', 'gif', 'png'])) {
                 throw new \Exception('invalid image type');
             }
 
@@ -857,6 +857,11 @@ SQL;
 
             if ($imageData === false) {
                 throw new \Exception('base64_decode failed');
+            }
+        } elseif (substr($imageData, 0, 4) === 'http') {
+            $imageData = @file_get_contents($imageData);
+            if (empty($imageData) === true) {
+                throw new \Exception('Image is not valid');
             }
         } else {
             throw new \Exception('did not match data URI with image data');
