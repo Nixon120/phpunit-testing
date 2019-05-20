@@ -43,6 +43,7 @@ services:
       AMQP_USERNAME: guest
       AMQP_PASSWORD: guest
       AMQP_EVENT_CHANNEL: mp-admin-events
+      AMQP_REPORT_CHANNEL: mp-admin-reports
       MONGO_HOST: mongodb://mongodb:27017
       MONGO_DB: marketplace-dev
       CATALOG_URL: http://product.catalog
