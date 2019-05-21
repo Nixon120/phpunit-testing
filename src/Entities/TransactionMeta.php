@@ -65,8 +65,6 @@ class TransactionMeta extends Base
 
     public function validate($transactionMeta)
     {
-        $valid = true;
-
         //return true if they dont pass meta
         if (empty($transactionMeta) === true) {
             return true;
