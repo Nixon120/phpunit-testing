@@ -65,8 +65,6 @@ class TransactionMeta extends Base
 
     public function validate($transactionMeta)
     {
-        $valid = true;
-
         //return true if they dont pass meta
         if (empty($transactionMeta) === true) {
             return true;
@@ -74,13 +72,17 @@ class TransactionMeta extends Base
 
         //tests associative array
         foreach ($transactionMeta as $meta) {
+            if(is_array($meta) === false) {
+                // Not valid meta;
+                return false;
+            }
             foreach ($meta as $key => $value) {
                 if (empty($key) === true) {
-                    $valid = false;
+                    return false;
                 }
             }
         }
 
-        return $valid;
+        return true;
     }
 }
