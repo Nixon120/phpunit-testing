@@ -76,16 +76,16 @@ class TransactionMeta extends Base
         foreach ($transactionMeta as $meta) {
             if(is_array($meta) === false) {
                 // Not valid meta;
-                $valid = false;
+                return false;
                 break;
             }
             foreach ($meta as $key => $value) {
                 if (empty($key) === true) {
-                    $valid = false;
+                    return false;
                 }
             }
         }
 
-        return $valid;
+        return true;
     }
 }
