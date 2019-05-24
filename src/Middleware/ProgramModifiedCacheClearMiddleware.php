@@ -3,7 +3,6 @@
 namespace Middleware;
 
 use Psr\Container\ContainerInterface;
-use Psr\Http\Message\ServerRequestInterface;
 use Services\CacheService;
 use Slim\Http\Request;
 use Slim\Http\Response;
@@ -93,7 +92,6 @@ SQL;
     private function getDb(): \PDO
     {
         return $this->container->get('database');
-
     }
 
     private function clearClientSiteCacheIfExists(): void

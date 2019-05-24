@@ -244,6 +244,8 @@ services:
       MYSQL_DATABASE: program-content
       MYSQL_USERNAME: root
       MYSQL_PASSWORD: 123
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
       LOG_HOST: fluentd
       LOG_PORT: "24224"
       FILESYSTEM: local
