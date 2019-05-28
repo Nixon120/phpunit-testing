@@ -131,16 +131,6 @@ class Program
         $this->repository->insert($this->program->toArray());
         $programId = $this->repository->getLastInsertId();
 
-        if ($this->program->getAutoRedemption()) {
-            $autoRedemption = $this->program->getAutoRedemption();
-            $autoRedemption->setProgramId($programId);
-            $this->repository->placeSettings($autoRedemption);
-        }
-
-        if (!empty($this->program->getOneTimeAutoRedemptions())) {
-            $this->repository->saveProgramAutoRedemption($this->program);
-        }
-
         $this->queueEvent('Program.create', $programId);
     }
 
@@ -164,16 +154,7 @@ class Program
             $this->contactRepository->place($this->program->getAccountingContact());
         }
 
-        if ($this->repository->update($this->program->getId(), $this->program->toArray())) {
-            if ($this->program->getAutoRedemption()) {
-                $autoRedemption = $this->program->getAutoRedemption();
-                $autoRedemption->setProgramId($this->program->getId());
-                $this->repository->placeSettings($autoRedemption);
-            }
-            if (!empty($this->program->getOneTimeAutoRedemptions())) {
-                $this->repository->saveProgramAutoRedemption($this->program);
-            }
-        }
+        $this->repository->update($this->program->getId(), $this->program->toArray());
 
         $this->queueEvent('Program.update', $this->program->getId());
     }

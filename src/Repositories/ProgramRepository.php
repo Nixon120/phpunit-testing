@@ -143,7 +143,6 @@ SQL;
         $program->setAccountingContact($this->getAccountingContact($program));
         $program->setProductCriteria($this->getProductCriteria($program));
         $program->setLayoutRows($this->getProgramLayout($program));
-        $program->setFaqs($this->getProgramFaqs($program));
         $program->setSweepstake($this->getProgramSweepstake($program));
         $program->setFeaturedProducts($this->getProgramFeaturedProducts($program));
         return $program;
@@ -449,7 +448,6 @@ SQL;
                     }
                 }
             }
-
         }
 
         return $return;
@@ -546,7 +544,7 @@ SQL;
     {
         $this->table = 'FeaturedProduct';
 
-        $this->deleteAllProgramFeaturedProducts($program, $productSkuContainer);
+        $this->deleteAllProgramFeaturedProducts($program);
 
         if (!empty($productSkuContainer)) {
             foreach ($productSkuContainer as $sku) {
@@ -561,31 +559,13 @@ SQL;
         return true;
     }
 
-    private function deleteProgramFeaturedProductsWhereNotIn(Program $program, array $skuContainer)
-    {
-        if (!empty($skuContainer)) {
-            $placeholder = rtrim(str_repeat('?, ', count($skuContainer)), ', ');
-            $sql = <<<SQL
-DELETE FROM FeaturedProduct WHERE FeaturedProduct.sku NOT IN ({$placeholder}) AND FeaturedProduct.program_id = ?
-SQL;
-            $skuContainer[] = $program->getUniqueId();
-            $sth = $this->getDatabase()->prepare($sql);
-            return $sth->execute($skuContainer);
-        }
-
-        return true;
-    }
-
-    private function deleteAllProgramFeaturedProducts(Program $program, array $skuContainer)
+    private function deleteAllProgramFeaturedProducts(Program $program)
     {
         $sql = <<<SQL
 DELETE FROM FeaturedProduct WHERE FeaturedProduct.program_id = '{$program->getUniqueId()}'
 SQL;
         $sth = $this->getDatabase()->prepare($sql);
         return $sth->execute();
-
-
-        return false;
     }
 
     public function saveProductCriteria(Program $program, $filterData): bool
@@ -659,45 +639,49 @@ SQL;
         return $rows;
     }
 
-    public function saveProgramAutoRedemption(Program $program, Array $data): bool
+    /**
+     * @param Program $program
+     * @param array $data
+     * @return bool
+     */
+    public function saveProgramAutoRedemption(Program $program, array $data): bool
     {
-        if (!empty($data)) {
-            if (!empty($data['auto_redemption'])) {
-                // Purge one time autoredemptions to save only the those sent in request
-                try {
-                    $sql = "DELETE FROM `autoredemption` WHERE program_id = ?";
-                    $sth = $this->database->prepare($sql);
-                    $sth->execute([$program->getId()]);
-                } catch (\PDOException $e) {
-                    throw new \Exception('could not purge autoredemptions.');
-                }
-                $autoRedemption = new AutoRedemption;
-                $autoRedemption->exchange($data['auto_redemption']);
-                $autoRedemption->setAllParticipant(1);
-                $autoRedemption->setProgramId($program->getId());
-                $this->placeSettings($autoRedemption);
+        if (!empty($data['auto_redemption'])) {
+            // Purge one time autoredemptions to save only the those sent in request
+            try {
+                $sql = "DELETE FROM `autoredemption` WHERE program_id = ?";
+                $sth = $this->database->prepare($sql);
+                $sth->execute([$program->getId()]);
+            } catch (\PDOException $e) {
+                $this->setErrors(['could not purge autoredemptions.']);
+                return false;
             }
-            if (!empty($data['one_time_auto_redemptions'])) {
-                // Purge one time autoredemptions to save only the those sent in request
-                try {
-                    $sql = "DELETE FROM `onetimeautoredemption` WHERE program_id = ?";
-                    $sth = $this->database->prepare($sql);
-                    $sth->execute([$program->getUniqueId()]);
-                } catch (\PDOException $e) {
-                    throw new \Exception('could not purge autoredemptions.');
-                }
-
-                foreach ($data['one_time_auto_redemptions'] as $autoRedemption) {
-                    $oneTimeAutoRedemption = new OneTimeAutoRedemption($autoRedemption);
-                    $oneTimeAutoRedemption->setProgramId($program->getUniqueId());
-
-                    $this->table = 'OneTimeAutoRedemption';
-                    $this->place($oneTimeAutoRedemption);
-                }
-            }
-            return true;
+            $autoRedemption = new AutoRedemption;
+            $autoRedemption->exchange($data['auto_redemption']);
+            $autoRedemption->setAllParticipant(1);
+            $autoRedemption->setProgramId($program->getId());
+            $this->placeSettings($autoRedemption);
         }
-        throw new \Exception('failed to save auto redemption.');
+        if (!empty($data['one_time_auto_redemptions'])) {
+            // Purge one time autoredemptions to save only the those sent in request
+            try {
+                $sql = "DELETE FROM `onetimeautoredemption` WHERE program_id = ?";
+                $sth = $this->database->prepare($sql);
+                $sth->execute([$program->getUniqueId()]);
+            } catch (\PDOException $e) {
+                $this->setErrors(['could not purge autoredemptions.']);
+                return false;
+            }
+
+            foreach ($data['one_time_auto_redemptions'] as $autoRedemption) {
+                $oneTimeAutoRedemption = new OneTimeAutoRedemption($autoRedemption);
+                $oneTimeAutoRedemption->setProgramId($program->getUniqueId());
+
+                $this->table = 'OneTimeAutoRedemption';
+                $this->place($oneTimeAutoRedemption);
+            }
+        }
+        return true;
     }
 
     /**
@@ -728,30 +712,6 @@ SQL;
         }
 
         throw new \Exception('failed to save offline redemption.');
-    }
-
-    public function saveProgramFaqs(Program $program, array $faqs): bool
-    {
-        if (!empty($faqs)) {
-            try {
-                // Purge faqs to save only the faqs sent in request
-                $sql = "DELETE FROM `Faqs` WHERE program_id = ?";
-                $sth = $this->database->prepare($sql);
-                $sth->execute([$program->getUniqueId()]);
-            } catch (\PDOException $e) {
-                throw new \Exception('could not purge row faqs.');
-            }
-            foreach ($faqs as $faq) {
-                $faqs = new Faqs;
-                $faqs->setProgramId($program->getUniqueId());
-                $faqs->setQuestion($faq['question']);
-                $faqs->setAnswer($faq['answer']);
-                $this->table = 'Faqs';
-                $this->place($faqs);
-                $this->table = 'Program';
-            }
-        }
-        return true;
     }
 
     public function saveProgramLayout(Program $program, array $layoutRows): bool

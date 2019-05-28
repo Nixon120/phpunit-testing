@@ -18,16 +18,18 @@ class ProgramCanceller
         $this->repository = $repository;
     }
 
-    public function cancelExpiredPrograms() {
+    public function cancelExpiredPrograms()
+    {
         $expiredPrograms = $this->getExpiredPrograms();
         if (count($expiredPrograms) > 0) {
-            foreach($expiredPrograms as $program) {
+            foreach ($expiredPrograms as $program) {
                 $this->repository->cancelProgram($program->getUniqueId());
             }
         }
     }
 
-    private function getExpiredPrograms() {
+    private function getExpiredPrograms()
+    {
         $database = $this->repository->getDatabase();
         $today = date("Y-m-d");
         $sql = "SELECT * FROM program WHERE DATE_ADD(end_date, INTERVAL grace_period DAY) < '" . $today . "';";
@@ -35,5 +37,4 @@ class ProgramCanceller
         $sth->execute();
         return $sth->fetchAll(PDO::FETCH_CLASS, $this->repository->getRepositoryEntity());
     }
-
 }

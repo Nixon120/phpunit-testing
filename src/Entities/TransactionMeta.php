@@ -72,7 +72,7 @@ class TransactionMeta extends Base
 
         //tests associative array
         foreach ($transactionMeta as $meta) {
-            if(is_array($meta) === false) {
+            if (is_array($meta) === false) {
                 // Not valid meta;
                 return false;
             }

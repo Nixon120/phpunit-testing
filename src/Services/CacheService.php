@@ -50,7 +50,7 @@ class CacheService
     {
         try {
             return $this->getCache()->deleteItem($key);
-        }catch (CacheException $exception) {
+        } catch (CacheException $exception) {
             return false;
         }
     }

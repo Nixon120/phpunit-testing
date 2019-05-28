@@ -324,7 +324,7 @@ class Request extends AbstractListener
             ->getActiveSheet()
             ->getStyle("A1:G3")
             ->getFont()
-            ->setBold( true )
+            ->setBold(true)
             ->setSize(16);
 
         /** Load report data into sheet */
@@ -419,7 +419,7 @@ class Request extends AbstractListener
             . '.'
             . $report->getFormatExtension();
 
-        $filePath = str_replace(' ', '_' ,$filePath);
+        $filePath = str_replace(' ', '_', $filePath);
 
         return $sftpConfig->getFilePath() . '/' . $filePath;
     }
