@@ -68,6 +68,7 @@
     "phpseclib/phpseclib": "^2.0",
     "league/flysystem-sftp": "^1.0",
     "ext-pdo": "*",
+    "ext-bcmath": "*",
     "ext-json": "*"
   },
   "require-dev": {
