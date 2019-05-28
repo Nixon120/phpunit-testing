@@ -193,5 +193,4 @@ class Address extends Base
     {
         $this->country_code = $country_code;
     }
-
 }

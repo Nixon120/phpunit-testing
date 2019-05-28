@@ -28,9 +28,10 @@ class OneTimeAutoRedemptionProcessor
         $this->container = $container;
     }
 
-    public function run() {
+    public function run()
+    {
         $oneTimeAutoRedemptions = $this->getOneTimeAutoRedmeptions();
-        foreach($oneTimeAutoRedemptions as $redemption) {
+        foreach ($oneTimeAutoRedemptions as $redemption) {
             $scheduledRedemptionTask = new OneTimeScheduledRedemption();
             $scheduledRedemptionTask->setAutoRedemption($redemption);
             $scheduledRedemptionTask->setContainer($this->container);
@@ -38,7 +39,8 @@ class OneTimeAutoRedemptionProcessor
         }
     }
 
-    private function getOneTimeAutoRedmeptions() {
+    private function getOneTimeAutoRedmeptions()
+    {
         $database = $this->repository->getDatabase();
         $today = date("Y-m-d");
         $sql = "SELECT * FROM onetimeautoredemption WHERE redemption_date = '" . $today . "' AND active = 1;";
@@ -46,5 +48,4 @@ class OneTimeAutoRedemptionProcessor
         $sth->execute();
         return $sth->fetchAll(PDO::FETCH_CLASS, OneTimeAutoRedemption::class);
     }
-
 }

@@ -205,16 +205,15 @@ class ProductCriteria extends Base
         $this->setCategoryFilter($filters->category);
         $this->setBrandFilter($filters->brand);
 
-        if(!empty($filters->exclude_products)) {
+        if (!empty($filters->exclude_products)) {
             $this->setExcludeProductsFilter($filters->exclude_products);
         }
-        if(!empty($filters->exclude_brands)) {
+        if (!empty($filters->exclude_brands)) {
             $this->setExcludeBrandsFilter($filters->exclude_brands);
         }
-        if(!empty($filters->exclude_vendors)) {
+        if (!empty($filters->exclude_vendors)) {
             $this->setExcludeVendorsFilter($filters->exclude_vendors);
         }
-
     }
 
     /**

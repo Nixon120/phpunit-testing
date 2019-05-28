@@ -107,7 +107,7 @@ class RaCreate extends AbstractListener
             return true;
         }
 
-        if($this->getError() === null) {
+        if ($this->getError() === null) {
             $this->setError('Unknown error');
         }
         $event->setName('Organization.create.RaCreate');

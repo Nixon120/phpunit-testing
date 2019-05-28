@@ -52,4 +52,3 @@ SQL;
         return $this->fetchDataForReport($query, $this->getFilter()->getFilterConditionArgs());
     }
 }
-

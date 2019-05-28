@@ -56,21 +56,19 @@ class TransactionWebhookListener extends AbstractListener
 
         $catalog->setToken(AuthenticationTokenFactory::getToken());
 
-        foreach($transaction->getItems() as $item) {
-            if($catalog->getInventoryHold($item->getGuid()) === true) {
-
+        foreach ($transaction->getItems() as $item) {
+            if ($catalog->getInventoryHold($item->getGuid()) === true) {
                 $inventoryHoldApprove = new InventoryApproveRequest([
                     'guid' => $item->getGuid()
                 ]);
 
                 $success = $catalog->setInventoryApproved($inventoryHoldApprove);
-                if($success === false) {
+                if ($success === false) {
                     // Any failures will just requeue the event, approving inventory twice
                     // won't hurt anything
                     return false;
                 }
             }
-
         }
 
         return true;
@@ -87,7 +85,7 @@ class TransactionWebhookListener extends AbstractListener
         $transaction = $this->fetchTransaction();
         $inventoryHoldsApproved = $this->approveInventoryHold($transaction);
 
-        if($inventoryHoldsApproved === false) {
+        if ($inventoryHoldsApproved === false) {
             $event->setName('Transaction.create');
             $this->reQueueEvent($event);
             return false;

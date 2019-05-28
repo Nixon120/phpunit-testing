@@ -14,7 +14,6 @@ class AuthenticationTokenFactory
     public static function getToken()
     {
         if (self::$token === null) {
-
             $now = new \DateTime();
             $future = new \DateTime("now +2 hours");
             $jti = base64_encode(random_bytes(16));

@@ -94,7 +94,7 @@ class Sweepstake extends \Entities\Base
      */
     public function setType(string $type)
     {
-        if($type === 'automatic') {
+        if ($type === 'automatic') {
             $type = 'auto';
         }
 
