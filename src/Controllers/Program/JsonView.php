@@ -138,9 +138,16 @@ class JsonView extends AbstractViewController
 
         if ($data !== null) {
             $saved = $repository->saveProgramAutoRedemption($program, $data);
-            return $response = $this->response->withStatus(200)
-                ->withJson([]);
+            if ($saved === true) {
+                return $response = $this->response->withStatus(200)
+                    ->withJson([]);
+            }
+            return $response = $this->response->withStatus(400)
+                ->withJson($repository->getErrors());
         }
+
+        return $response = $this->response->withStatus(400)
+            ->withJson(['data is not valid']);
     }
 
     public function offlineRedemption($id)

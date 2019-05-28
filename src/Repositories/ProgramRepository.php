@@ -643,7 +643,6 @@ SQL;
      * @param Program $program
      * @param array $data
      * @return bool
-     * @throws \Exception
      */
     public function saveProgramAutoRedemption(Program $program, array $data): bool
     {
@@ -654,7 +653,8 @@ SQL;
                 $sth = $this->database->prepare($sql);
                 $sth->execute([$program->getId()]);
             } catch (\PDOException $e) {
-                throw new \Exception('could not purge autoredemptions.');
+                $this->setErrors(['could not purge autoredemptions.']);
+                return false;
             }
             $autoRedemption = new AutoRedemption;
             $autoRedemption->exchange($data['auto_redemption']);
@@ -669,7 +669,8 @@ SQL;
                 $sth = $this->database->prepare($sql);
                 $sth->execute([$program->getUniqueId()]);
             } catch (\PDOException $e) {
-                throw new \Exception('could not purge autoredemptions.');
+                $this->setErrors(['could not purge autoredemptions.']);
+                return false;
             }
 
             foreach ($data['one_time_auto_redemptions'] as $autoRedemption) {

@@ -40,7 +40,7 @@ $app->group('/api/program', function () use ($app, $createRoute, $updateRoute) {
         return $program->layout($programId);
     });
 
-    $app->map(['post'], '/{id}/autoredemption', function ($request, $response, $args) {
+    $app->post('/{id}/autoredemption', function ($request, $response, $args) {
         $program = new Controllers\JsonView($request, $response, $this->get('program'));
         $programId = $args['id'];
         return $program->autoRedemption($programId);
