@@ -61,7 +61,8 @@ class Participant
     public function getProgramParticipantsWithPointsGreaterThan(
         $program_unique_id,
         $points
-    ) {
+    )
+    {
         $filter = new FilterNormalizer([
             'program' => $program_unique_id,
             'points_greater_than' => $points,
@@ -90,39 +91,58 @@ class Participant
         return null;
     }
 
-    public function generateSso($organization, $uniqueId):?array
+    public function generateSso($organization, $uniqueId): ?array
     {
         $participant = $this->repository->getParticipantByOrganization($organization, $uniqueId);
 
-        if ($participant !== null || $participant->isActive() === true) {
-            $participant->setSso($participant->generateSsoToken());
-            $aParticipantUpdateRequest = ['sso' => $participant->getSso()];
-            if ($this->update($participant->getUniqueId(), $aParticipantUpdateRequest)) {
-                $program = $participant->getProgram();
-                $domain = $program->getDomain();
-                if (is_null($domain)) {
-                    return [
-                        'error' => true,
-                        'message' => 'No URL is configured for SSO'
-                    ];
-                };
-                $exchange = implode('.', [$program->getUrl(), $domain->getUrl()]);
-                $exchange .= '/?authenticate='
-                    . $participant->getSso()
-                    . '&' . 'participant='
-                    . $participant->getUniqueId();
+        if ($participant === null) {
+            return [
+                'error' => true,
+                'message' => 'Resource does not exist'
+            ];
+        }
+
+        if ($participant->isActive() === false) {
+            return [
+                'error' => true,
+                'message' => 'Participant ' . $participant->getUniqueId() . ' is not active'
+            ];
+        }
+
+        $program = $participant->getProgram();
+        if ($program->isPublished() === false) {
+            return [
+                'error' => true,
+                'message' => 'Program ' . $program->getName() . '[' . $program->getUniqueId() . '] is not published'
+            ];
+        }
+        $participant->setSso($participant->generateSsoToken());
+        $aParticipantUpdateRequest = ['sso' => $participant->getSso()];
+        if ($this->update($participant->getUniqueId(), $aParticipantUpdateRequest)) {
+            $program = $participant->getProgram();
+            $domain = $program->getDomain();
+            if (is_null($domain)) {
                 return [
-                    'token' => $participant->getSso(),
-                    'participant' => $participant->getUniqueId(),
-                    'domain' => $domain->getUrl(),
-                    'exchange' => 'https://' . $exchange
+                    'error' => true,
+                    'message' => 'No URL is configured for SSO'
                 ];
-            }
+            };
+            $exchange = implode('.', [$program->getUrl(), $domain->getUrl()]);
+            $exchange .= '/?authenticate='
+                . $participant->getSso()
+                . '&' . 'participant='
+                . $participant->getUniqueId();
+            return [
+                'token' => $participant->getSso(),
+                'participant' => $participant->getUniqueId(),
+                'domain' => $domain->getUrl(),
+                'exchange' => 'https://' . $exchange
+            ];
         }
 
         return [
             'error' => true,
-            'message' => 'Resource does not exist'
+            'message' => 'There was a problem with your request'
         ];
     }
 
