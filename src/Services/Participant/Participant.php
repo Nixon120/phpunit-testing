@@ -13,6 +13,11 @@ class Participant
      */
     public $repository;
 
+    /**
+     * @var string
+     */
+    private $errorMessage;
+
     public function __construct(ParticipantRepository $repository)
     {
         $this->repository = $repository;
@@ -91,47 +96,53 @@ class Participant
         return null;
     }
 
-    public function generateSso($organization, $uniqueId): ?array
+    private function isSsoRequestValid(?\Entities\Participant $participant): bool
     {
-        $participant = $this->repository->getParticipantByOrganization($organization, $uniqueId);
-
         if ($participant === null) {
-            return [
-                'error' => true,
-                'message' => 'Resource does not exist'
-            ];
+            $this->errorMessage = 'Resource does not exist';
+            return false;
         }
 
         if ($participant->isActive() === false) {
-            return [
-                'error' => true,
-                'message' => 'Participant ' . $participant->getUniqueId() . ' is not active'
-            ];
+            $this->errorMessage = 'Participant ' . $participant->getUniqueId() . ' is not active';
+            return false;
         }
 
         $program = $participant->getProgram();
         if ($program->isPublished() === false) {
+            $this->errorMessage = 'Program ' . $program->getName() . '[' . $program->getUniqueId() . '] is not published';
+            return false;
+        }
+
+        if ($program->getDomain() === null) {
+            $this->errorMessage = 'No URL is configured for SSO';
+            return false;
+        };
+
+        return true;
+    }
+
+    public function generateSso($organization, $uniqueId): ?array
+    {
+        $participant = $this->repository->getParticipantByOrganization($organization, $uniqueId);
+        if($this->isSsoRequestValid($participant) === false) {
             return [
                 'error' => true,
-                'message' => 'Program ' . $program->getName() . '[' . $program->getUniqueId() . '] is not published'
+                'message' => $this->errorMessage
             ];
         }
+
         $participant->setSso($participant->generateSsoToken());
         $aParticipantUpdateRequest = ['sso' => $participant->getSso()];
         if ($this->update($participant->getUniqueId(), $aParticipantUpdateRequest)) {
             $program = $participant->getProgram();
             $domain = $program->getDomain();
-            if (is_null($domain)) {
-                return [
-                    'error' => true,
-                    'message' => 'No URL is configured for SSO'
-                ];
-            };
             $exchange = implode('.', [$program->getUrl(), $domain->getUrl()]);
             $exchange .= '/?authenticate='
                 . $participant->getSso()
                 . '&' . 'participant='
                 . $participant->getUniqueId();
+
             return [
                 'token' => $participant->getSso(),
                 'participant' => $participant->getUniqueId(),
