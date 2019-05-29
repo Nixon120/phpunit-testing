@@ -109,13 +109,14 @@ class Participant
         }
 
         $program = $participant->getProgram();
+        $programNameString = 'Program ' . $program->getName() . '[' . $program->getUniqueId() . ']';
         if ($program->isPublished() === false) {
-            $this->errorMessage = 'Program ' . $program->getName() . '[' . $program->getUniqueId() . '] is not published';
+            $this->errorMessage = $programNameString . ' is not published';
             return false;
         }
 
         if ($program->getDomain() === null) {
-            $this->errorMessage = 'No URL is configured for SSO';
+            $this->errorMessage = $programNameString . ' does not have a marketplace domain configured';
             return false;
         };
 
@@ -125,7 +126,7 @@ class Participant
     public function generateSso($organization, $uniqueId): ?array
     {
         $participant = $this->repository->getParticipantByOrganization($organization, $uniqueId);
-        if($this->isSsoRequestValid($participant) === false) {
+        if ($this->isSsoRequestValid($participant) === false) {
             return [
                 'error' => true,
                 'message' => $this->errorMessage
