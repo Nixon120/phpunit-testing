@@ -179,12 +179,8 @@ class Participant
             $data['birthdate'] = null;
         }
 
-        if (isset($data['active'])) {
-            $data['deactivated_at'] = null;
-
-            if ((int) $data['active'] === 0) {
-                $data['deactivated_at'] = (new \DateTime)->format('Y-m-d H:i:s');
-            }
+        if (isset($data['active']) && (int) $data['active'] === 0) {
+            $data['deactivated_at'] = (new \DateTime)->format('Y-m-d H:i:s');
         }
 
         $participant = new \Entities\Participant;
@@ -230,6 +226,7 @@ class Participant
      */
     public function update($id, $data)
     {
+        $participant = $this->getSingle($id);
         //@TODO this sucks.. fix it someway
         //@TODO API Exceptions
         if (!empty($data['program'])) {
@@ -249,9 +246,10 @@ class Participant
         }
 
         if (isset($data['active'])) {
-            $data['deactivated_at'] = null;
-
-            if ((int) $data['active'] === 0) {
+            $statusFlag = (int) $data['active'];
+            if ($statusFlag === 1) {
+                $data['deactivated_at'] = null;
+            } elseif ($statusFlag === 0 && $participant->getDeactivatedAt() === null) {
                 $data['deactivated_at'] = (new \DateTime)->format('Y-m-d H:i:s');
             }
         }
@@ -260,7 +258,6 @@ class Participant
         $meta = $data['meta'] ?? null;
         unset($data['program'], $data['organization'], $data['password'], $data['address'], $data['meta'], $data['password_confirm'], $data['unique_id']);
 
-        $participant = $this->getSingle($id);
         $participant->exchange($data);
         if ($address !== null) {
             $participant->setAddress($address);
