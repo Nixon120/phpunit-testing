@@ -179,6 +179,14 @@ class Participant
             $data['birthdate'] = null;
         }
 
+        if (isset($data['active'])) {
+            $data['deactivated_at'] = null;
+
+            if ((int) $data['active'] === 0) {
+                $data['deactivated_at'] = (new \DateTime)->format('Y-m-d H:i:s');
+            }
+        }
+
         $participant = new \Entities\Participant;
         $participant->exchange($data);
         if ($address !== null) {
@@ -238,6 +246,14 @@ class Participant
                 ->format('Y-m-d');
         } else {
             $data['birthdate'] = null;
+        }
+
+        if (isset($data['active'])) {
+            $data['deactivated_at'] = null;
+
+            if ((int) $data['active'] === 0) {
+                $data['deactivated_at'] = (new \DateTime)->format('Y-m-d H:i:s');
+            }
         }
 
         $address = $data['address'] ?? null;
