@@ -162,8 +162,9 @@ class Product extends AbstractViewController
         }
 
         $skuContainer = $this->request->getParsedBody()['products'] ?? [];
+        $featuredPageTitle = $this->request->getParsedBody()['featured_page_title'] ?? null;
         if ($this->request->getParsedBody() !== null
-            && $repository->saveFeaturedProducts($program, $skuContainer)
+            && $repository->saveFeaturedProducts($program, $skuContainer, $featuredPageTitle)
         ) {
             return $response = $this->response->withStatus(200)
                 ->withJson([]);

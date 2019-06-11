@@ -17,6 +17,7 @@ class LayoutRowCard extends Base
     public $product_row;
     public $link;
     public $text_markdown;
+    public $title;
     public $card_show;
     private $image_url;
     private $image_data;
@@ -98,6 +99,22 @@ class LayoutRowCard extends Base
     public function setType(string $type)
     {
         $this->type = $type;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTitle(): string
+    {
+        return $this->title;
+    }
+
+    /**
+     * @param string $title
+     */
+    public function setTitle(string $title)
+    {
+        $this->title = $title;
     }
 
     /**
