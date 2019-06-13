@@ -484,7 +484,7 @@ SQL;
     {
         // force hydration.. maybe look at a different approach. This is confusing
         $criteria->setFilter($criteria->getFilter());
-        $criteria->setFeaturedPageTitle($criteria->getFeaturedPageTitle());
+        $criteria->setFeaturedPageTitle($criteria->getFeaturedPageTitle() ?? '');
         $criteria->setCategories($this->getCategories($criteria->getCategoryFilter()));
         $criteria->setBrands($this->getBrands($criteria->getBrandFilter()));
         $criteria->setProducts($this->getProducts($criteria->getProductFilter()));
