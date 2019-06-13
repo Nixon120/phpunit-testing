@@ -13,6 +13,8 @@ class ProductCriteria extends Base
 
     public $filter;
 
+    public $featured_page_title;
+
     private $categories;
 
     private $brands;
@@ -55,6 +57,22 @@ class ProductCriteria extends Base
     public function setProgramId($programId)
     {
         $this->program_id = $programId;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFeaturedPageTitle()
+    {
+        return $this->featured_page_title;
+    }
+
+    /**
+     * @param string $featuredPageTitle
+     */
+    public function setFeaturedPageTitle(string $featuredPageTitle)
+    {
+        $this->featured_page_title = $featuredPageTitle;
     }
 
     /**

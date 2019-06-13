@@ -484,6 +484,7 @@ SQL;
     {
         // force hydration.. maybe look at a different approach. This is confusing
         $criteria->setFilter($criteria->getFilter());
+        $criteria->setFeaturedPageTitle($criteria->getFeaturedPageTitle());
         $criteria->setCategories($this->getCategories($criteria->getCategoryFilter()));
         $criteria->setBrands($this->getBrands($criteria->getBrandFilter()));
         $criteria->setProducts($this->getProducts($criteria->getProductFilter()));
@@ -540,7 +541,7 @@ SQL;
         return Validator::attribute('product_sku', Validator::notEmpty()->setName('Product'));
     }
 
-    public function saveFeaturedProducts(Program $program, array $productSkuContainer): bool
+    public function saveFeaturedProducts(Program $program, array $productSkuContainer, string $featuredPageTitle): bool
     {
         $this->table = 'FeaturedProduct';
 
@@ -555,6 +556,11 @@ SQL;
             }
             $this->table = 'Program';
         }
+        
+        $sql = "UPDATE `ProductCriteria` SET featured_page_title = ? WHERE program_id = ?";
+        $args = [$featuredPageTitle, $program->getUniqueId()];
+        $sth = $this->database->prepare($sql);
+        $sth->execute($args);
 
         return true;
     }
@@ -768,6 +774,7 @@ SQL;
             $entity->setProductRow($productRow);
             $entity->setTextMarkdown($textMarkdown);
             $entity->setCardShow($card['card_show']);
+            $entity->setTitle($card['title']);
             $entity->setLink($card['link'] === null || trim($card['link']) === '' ? null : $card['link']);
 
             $this->table = 'LayoutRowCard';
