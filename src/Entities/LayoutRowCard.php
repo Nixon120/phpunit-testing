@@ -106,13 +106,16 @@ class LayoutRowCard extends Base
      */
     public function getTitle(): string
     {
+        if ($this->title === null) {
+            return '';
+        }
         return $this->title;
     }
 
     /**
-     * @param string $title
+     * @param null|string $title
      */
-    public function setTitle(string $title)
+    public function setTitle(?string $title)
     {
         $this->title = $title;
     }
