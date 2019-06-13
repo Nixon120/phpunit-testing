@@ -60,17 +60,21 @@ class ProductCriteria extends Base
     }
 
     /**
-     * @return null|string
+     * @return string
      */
-    public function getFeaturedPageTitle(): ?string
+    public function getFeaturedPageTitle()
     {
+        if($this->featured_page_title === null) {
+            return '';
+        }
+        
         return $this->featured_page_title;
     }
 
     /**
-     * @param null|string $featuredPageTitle
+     * @param string $featuredPageTitle
      */
-    public function setFeaturedPageTitle(?string $featuredPageTitle)
+    public function setFeaturedPageTitle(string $featuredPageTitle)
     {
         $this->featured_page_title = $featuredPageTitle;
     }
