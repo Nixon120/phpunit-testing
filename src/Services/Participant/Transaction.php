@@ -73,6 +73,12 @@ class Transaction
         array $data
     ) {
         $autoRedemption = $data['auto_redemption'] ?? false;
+        $sweepstakeRedemption = $data['sweepstake'] ?? false;
+        $bypassProgramCatalogWhenApplicable = false;
+
+        if($autoRedemption === true || $sweepstakeRedemption === true) {
+            $bypassProgramCatalogWhenApplicable = true;
+        }
 
         $products = $data['products'] ?? null;
         $skuContainer = array_column($products, 'sku');
@@ -80,7 +86,7 @@ class Transaction
             $this->requestedProductContainer = $this->repository->getProducts(
                 $skuContainer,
                 $transaction->getParticipant()->getProgram()->getUniqueId(),
-                $autoRedemption
+                $bypassProgramCatalogWhenApplicable
             );
         } catch(\Exception $e) {
             throw new TransactionServiceException('One or more of the requested products are unavailable');

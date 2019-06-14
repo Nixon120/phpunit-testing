@@ -227,11 +227,11 @@ SQL;
     /**
      * @param $productContainer
      * @param $program
-     * @param bool $isRequestingOriginAnAutoRedemption
+     * @param bool $bypassProgramProductCatalogWhenApplicable
      * @return Product[]|bool
      * @throws \Exception
      */
-    public function getProducts($productContainer, $program, bool $isRequestingOriginAnAutoRedemption = false)
+    public function getProducts($productContainer, $program, bool $bypassProgramProductCatalogWhenApplicable = false)
     {
         if (empty($productContainer)) {
             return [];
@@ -245,7 +245,7 @@ SQL;
 
         if (count($products) !== count($productContainer)) {
             // throw exception, unless auto redemption
-            if($isRequestingOriginAnAutoRedemption === false) {
+            if($bypassProgramProductCatalogWhenApplicable === false) {
                 throw new \Exception('Product discovery does not match transaction product request count');
             }
 
