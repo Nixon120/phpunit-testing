@@ -32,14 +32,14 @@ class TransactionRepository extends BaseRepository
     /**
      * @var Client
      */
-    private $programCatalog;
+    private $programProductCatalog;
 
-    public function __construct(PDO $database, Client $client, Client $programClient)
+    public function __construct(PDO $database, Client $productCatalog, Client $programProductCatalog)
     {
         parent::__construct($database);
 
-        $this->productCatalog = $client;
-        $this->programCatalog = $programClient;
+        $this->productCatalog = $productCatalog;
+        $this->programProductCatalog = $programProductCatalog;
     }
 
     /**
@@ -61,17 +61,17 @@ class TransactionRepository extends BaseRepository
     /**
      * @return Client
      */
-    public function getProgramCatalog(): Client
+    public function getProgramProductCatalog(): Client
     {
-        return $this->programCatalog;
+        return $this->programProductCatalog;
     }
 
     /**
-     * @param Client $programCatalog
+     * @param Client $programProductCatalog
      */
-    public function setProgramCatalog(Client $programCatalog): void
+    public function setProgramProductCatalog(Client $programProductCatalog): void
     {
-        $this->programCatalog = $programCatalog;
+        $this->programProductCatalog = $programProductCatalog;
     }
 
     public function getRepositoryEntity()
@@ -275,8 +275,8 @@ SQL;
 
     private function getProductFromProgramCatalog($sku_container, $program_id)
     {
-        $this->getProgramCatalog()->setProgram($program_id);
-        return $this->getProgramCatalog()->getProducts($sku_container);
+        $this->getProgramProductCatalog()->setProgram($program_id);
+        return $this->getProgramProductCatalog()->getProducts($sku_container);
     }
 
     public function getParticipantTransaction(Participant $participant, int $transactionId): ?Transaction
