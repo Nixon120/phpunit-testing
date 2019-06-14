@@ -72,20 +72,14 @@ class Transaction
         \Entities\Transaction $transaction,
         array $data
     ) {
-        $source = $data['source'] ?? false;
-        $isProductCatalogSourceInvalid = false;
-
-        if($source !== false && $source === 'program') {
-            $isProductCatalogSourceInvalid = true;
-        }
-
+        $source = $data['source'] ?? 'unknown';
         $products = $data['products'] ?? null;
         $skuContainer = array_column($products, 'sku');
         try {
             $this->requestedProductContainer = $this->repository->getProducts(
                 $skuContainer,
                 $transaction->getParticipant()->getProgram()->getUniqueId(),
-                $isProductCatalogSourceInvalid
+                $source === 'program'
             );
         } catch(\Exception $e) {
             throw new TransactionServiceException('One or more of the requested products are unavailable');
