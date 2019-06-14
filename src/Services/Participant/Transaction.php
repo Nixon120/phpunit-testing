@@ -72,12 +72,19 @@ class Transaction
         \Entities\Transaction $transaction,
         array $data
     ) {
+        $autoRedemption = $data['auto_redemption'] ?? false;
+
         $products = $data['products'] ?? null;
         $skuContainer = array_column($products, 'sku');
-        $this->requestedProductContainer = $this->repository->getProducts(
-            $skuContainer,
-            $transaction->getParticipant()->getProgram()->getUniqueId()
-        );
+        try {
+            $this->requestedProductContainer = $this->repository->getProducts(
+                $skuContainer,
+                $transaction->getParticipant()->getProgram()->getUniqueId(),
+                $autoRedemption
+            );
+        } catch(\Exception $e) {
+            throw new TransactionServiceException('One or more of the requested products are unavailable');
+        }
 
         if (count($skuContainer) !== count($this->requestedProductContainer)) {
             throw new TransactionServiceException('One or more of the requested products are unavailable');

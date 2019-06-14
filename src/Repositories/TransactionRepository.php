@@ -225,11 +225,13 @@ SQL;
     }
 
     /**
-     * @param array $productContainer
-     * @param string $program
-     * @return Product[]
+     * @param $productContainer
+     * @param $program
+     * @param bool $isRequestingOriginAnAutoRedemption
+     * @return Product[]|bool
+     * @throws \Exception
      */
-    public function getProducts($productContainer, $program)
+    public function getProducts($productContainer, $program, bool $isRequestingOriginAnAutoRedemption = false)
     {
         if (empty($productContainer)) {
             return [];
@@ -242,31 +244,40 @@ SQL;
         }
 
         if (count($products) !== count($productContainer)) {
+            // throw exception, unless auto redemption
+            if($isRequestingOriginAnAutoRedemption === false) {
+                throw new \Exception('Product discovery does not match transaction product request count');
+            }
+
             // If a product is not found within the program product criteria
             // we augment it directly from the catalog.
-            $productContainer = array_filter(
-                $productContainer,
-                function ($sku) use ($products) {
-                    foreach ($products as $found_product) {
-                        /**
-                         * @var Product $found_product
-                         */
-                        if ($found_product->getSku() == $sku) {
-                            return false;
-                        }
-                    }
-
-                    return true;
-                }
-            );
-
-            $products = array_merge(
-                $products,
-                $this->getProductCatalog()->getProducts(['sku' => $productContainer])
-            );
+            $products = $this->supplementMissingProductsFromProductCatalog($productContainer, $products);
         }
 
         return $products;
+    }
+
+    private function supplementMissingProductsFromProductCatalog(array $productContainer, $products): array
+    {
+        $productContainer = array_filter(
+            $productContainer,
+            function ($sku) use ($products) {
+                foreach ($products as $found_product) {
+                    /**
+                     * @var Product $found_product
+                     */
+                    if ($found_product->getSku() == $sku) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        );
+
+        return array_merge(
+            $products,
+            $this->getProductCatalog()->getProducts(['sku' => $productContainer])
+        );
     }
 
     private function getProductFromProgramCatalog($sku_container, $program_id)
