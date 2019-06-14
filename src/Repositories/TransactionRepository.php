@@ -226,17 +226,13 @@ SQL;
 
     /**
      * @param array $productContainer
-     * @param string|null $program
+     * @param string $program
      * @return Product[]
      */
-    public function getProducts($productContainer, $program = null)
+    public function getProducts($productContainer, $program)
     {
         if (empty($productContainer)) {
             return [];
-        }
-
-        if ($program === null) {
-            return $this->getProductCatalog()->getProducts(['sku' => $productContainer]);
         }
 
         $products = $this->getProductFromProgramCatalog(['sku' => $productContainer], $program);
