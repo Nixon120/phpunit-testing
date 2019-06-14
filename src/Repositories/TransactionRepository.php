@@ -227,11 +227,11 @@ SQL;
     /**
      * @param $productContainer
      * @param $program
-     * @param bool $bypassProgramProductCatalogWhenApplicable
+     * @param bool $isProductCatalogSourceInvalid
      * @return Product[]|bool
      * @throws \Exception
      */
-    public function getProducts($productContainer, $program, bool $bypassProgramProductCatalogWhenApplicable = false)
+    public function getProducts($productContainer, $program, bool $isProductCatalogSourceInvalid = false)
     {
         if (empty($productContainer)) {
             return [];
@@ -245,7 +245,7 @@ SQL;
 
         if (count($products) !== count($productContainer)) {
             // throw exception, unless auto redemption
-            if($bypassProgramProductCatalogWhenApplicable === false) {
+            if($isProductCatalogSourceInvalid === true) {
                 throw new \Exception('Product discovery does not match transaction product request count');
             }
 

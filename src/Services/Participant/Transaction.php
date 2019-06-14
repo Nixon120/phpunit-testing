@@ -72,12 +72,11 @@ class Transaction
         \Entities\Transaction $transaction,
         array $data
     ) {
-        $autoRedemption = $data['auto_redemption'] ?? false;
-        $sweepstakeRedemption = $data['sweepstake'] ?? false;
-        $bypassProgramCatalogWhenApplicable = false;
+        $source = $data['source'] ?? false;
+        $isProductCatalogSourceInvalid = false;
 
-        if($autoRedemption === true || $sweepstakeRedemption === true) {
-            $bypassProgramCatalogWhenApplicable = true;
+        if($source !== false && $source === 'program') {
+            $isProductCatalogSourceInvalid = true;
         }
 
         $products = $data['products'] ?? null;
@@ -86,7 +85,7 @@ class Transaction
             $this->requestedProductContainer = $this->repository->getProducts(
                 $skuContainer,
                 $transaction->getParticipant()->getProgram()->getUniqueId(),
-                $bypassProgramCatalogWhenApplicable
+                $isProductCatalogSourceInvalid
             );
         } catch(\Exception $e) {
             throw new TransactionServiceException('One or more of the requested products are unavailable');
