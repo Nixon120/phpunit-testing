@@ -257,6 +257,11 @@ SQL;
         return $products;
     }
 
+    /**
+     * @param array $productContainer
+     * @param $products
+     * @return Product[]
+     */
     private function supplementMissingProductsFromProductCatalog(array $productContainer, $products): array
     {
         $productContainer = array_filter(
