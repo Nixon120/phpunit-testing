@@ -156,6 +156,13 @@ class Transaction
         //@TODO let's make a transaction service/repository to pass around?
         $transaction = new \Entities\Transaction($participant);
 
+        if ($transaction->getParticipant()->getProgram()->getUniqueId() === null) {
+            $this->repository->setErrors([
+                'Program Id not found.'
+            ]);
+            return null;
+        }
+
         try {
             $this->addTransactionItems($transaction, $data);
         } catch (TransactionServiceException $e) {

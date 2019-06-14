@@ -210,7 +210,6 @@ SQL;
      */
     public function getProducts($productContainer, $program = null)
     {
-
         if (empty($productContainer)) {
             return [];
         }
