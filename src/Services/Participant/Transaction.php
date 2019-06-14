@@ -119,7 +119,7 @@ class Transaction
 
                         $catalog = clone $this
                             ->getTransactionRepository()
-                            ->getCatalog();
+                            ->getProductCatalog();
                         $catalog->setUrl(getenv('CATALOG_URL'));
                         $success = $catalog->createInventoryHold($holdRequest);
 

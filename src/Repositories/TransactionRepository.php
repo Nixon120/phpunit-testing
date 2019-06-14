@@ -28,29 +28,50 @@ class TransactionRepository extends BaseRepository
     /**
      * @var Client
      */
-    private $catalog;
+    private $productCatalog;
+    /**
+     * @var Client
+     */
+    private $programCatalog;
 
-    public function __construct(PDO $database, Client $client)
+    public function __construct(PDO $database, Client $client, Client $programClient)
     {
         parent::__construct($database);
 
-        $this->catalog = $client;
+        $this->productCatalog = $client;
+        $this->programCatalog = $programClient;
     }
 
     /**
      * @return Client
      */
-    public function getCatalog(): Client
+    public function getProductCatalog(): Client
     {
-        return $this->catalog;
+        return $this->productCatalog;
     }
 
     /**
-     * @param Client $catalog
+     * @param Client $productCatalog
      */
-    public function setCatalog(Client $catalog): void
+    public function setProductCatalog(Client $productCatalog): void
     {
-        $this->catalog = $catalog;
+        $this->productCatalog = $productCatalog;
+    }
+
+    /**
+     * @return Client
+     */
+    public function getProgramCatalog(): Client
+    {
+        return $this->programCatalog;
+    }
+
+    /**
+     * @param Client $programCatalog
+     */
+    public function setProgramCatalog(Client $programCatalog): void
+    {
+        $this->programCatalog = $programCatalog;
     }
 
     public function getRepositoryEntity()
@@ -215,7 +236,7 @@ SQL;
         }
 
         if ($program === null) {
-            return $this->catalog->getProducts(['sku' => $productContainer]);
+            return $this->getProductCatalog()->getProducts(['sku' => $productContainer]);
         }
 
         $products = $this->getProductFromProgramCatalog(['sku' => $productContainer], $program);
@@ -245,7 +266,7 @@ SQL;
 
             $products = array_merge(
                 $products,
-                $this->catalog->getProducts(['sku' => $productContainer])
+                $this->getProductCatalog()->getProducts(['sku' => $productContainer])
             );
         }
 
@@ -254,13 +275,8 @@ SQL;
 
     private function getProductFromProgramCatalog($sku_container, $program_id)
     {
-        $catalog = clone $this->getCatalog();
-        $token = (new AuthenticationTokenFactory)->getToken();
-        $catalog->setProgram($program_id);
-        $catalog->setToken($token);
-        $catalog->setUrl(getenv('PROGRAM_CATALOG_URL'));
-
-        return $catalog->getProducts($sku_container);
+        $this->getProgramCatalog()->setProgram($program_id);
+        return $this->getProgramCatalog()->getProducts($sku_container);
     }
 
     public function getParticipantTransaction(Participant $participant, int $transactionId): ?Transaction

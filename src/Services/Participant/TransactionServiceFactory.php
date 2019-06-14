@@ -15,7 +15,11 @@ class TransactionServiceFactory extends AbstractServiceFactory
     public function __invoke()
     {
         return new Transaction(
-            new TransactionRepository($this->getContainer()->get('database'), $this->getCatalogService()),
+            new TransactionRepository(
+                $this->getContainer()->get('database'),
+                $this->getCatalogService(),
+                $this->getProgramCatalogService()
+            ),
             new ParticipantRepository($this->getContainer()->get('database'), $this->getCatalogService()),
             new BalanceRepository($this->getContainer()->get('database')),
             $this->getEventPublisher()

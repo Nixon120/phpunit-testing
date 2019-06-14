@@ -180,6 +180,15 @@ abstract class AbstractServiceFactory
         return $client;
     }
 
+    public function getProgramCatalogService(): Client
+    {
+        $client = new \AllDigitalRewards\Services\Catalog\Client;
+        $client->setUrl(getenv('PROGRAM_CATALOG_URL'));
+        $client->setToken($this->getAuthenticatedTokenString());
+
+        return $client;
+    }
+
     public function getAuthenticatedTokenString(): ?string
     {
         /** @var Authenticate $auth */

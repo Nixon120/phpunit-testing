@@ -52,7 +52,7 @@ class TransactionWebhookListener extends AbstractListener
     private function approveInventoryHold(Transaction $transaction): bool
     {
         $catalog = $this->transactionService->getTransactionRepository()
-            ->getCatalog();
+            ->getProductCatalog();
 
         $catalog->setToken(AuthenticationTokenFactory::getToken());
 
