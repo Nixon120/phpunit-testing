@@ -79,8 +79,7 @@ class AutoRedemption extends AbstractListener
                 [
                     'description' => 'AutoRedemption for ' . $product->getName()
                 ]
-            ],
-            'auto_redemption' => true
+            ]
         ];
 
         if ($participant->getAddress() !== null) {
