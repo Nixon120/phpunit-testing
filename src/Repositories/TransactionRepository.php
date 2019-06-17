@@ -289,18 +289,7 @@ SQL;
             $transaction->setWholesale(0);
             $transaction->setSubtotal(0);
             $transaction->setTotal(0);
-            $items = $this->getParticipantTransactionProducts($transaction->getId());
-            foreach ($items as $item) {
-                /** @var TransactionProduct $item */
-                $transactionProduct = new TransactionProduct;
-                $transactionProduct->exchange($item->toArray());
-                $transactionItem = new TransactionItem;
-                $transactionItem->setQuantity($item->getQuantity());
-                $transactionItem->setTransactionId($transaction->getId());
-                $transactionItem->setReferenceId($item->getReferenceId());
-                $transactionItem->setGuid($item->getGuid());
-                $transaction->setItem($transactionItem, $transactionProduct);
-            }
+            $this->setTransactionProducts($transaction);
             $transaction->setMeta($this->getTransactionMeta($transactionId));
 
             return $transaction;
@@ -358,8 +347,8 @@ SQL;
 
         foreach ($transactions as $transaction) {
             $transaction->setMeta($this->getTransactionMeta($transaction->getId()));
+            $this->setTransactionProducts($transaction);
         }
-
         return $transactions;
     }
 
@@ -474,5 +463,24 @@ SQL;
             ->attribute('wholesale', Validator::notEmpty()->floatVal())
             ->attribute('subtotal', Validator::notEmpty()->floatVal())
             ->attribute('total', Validator::notEmpty()->floatVal());
+    }
+
+    /**
+     * @param Transaction|null $transaction
+     */
+    private function setTransactionProducts(?Transaction &$transaction): void
+    {
+        $items = $this->getParticipantTransactionProducts($transaction->getId());
+        foreach ($items as $item) {
+            /** @var TransactionProduct $item */
+            $transactionProduct = new TransactionProduct;
+            $transactionProduct->exchange($item->toArray());
+            $transactionItem = new TransactionItem;
+            $transactionItem->setQuantity($item->getQuantity());
+            $transactionItem->setTransactionId($transaction->getId());
+            $transactionItem->setReferenceId($item->getReferenceId());
+            $transactionItem->setGuid($item->getGuid());
+            $transaction->setItem($transactionItem, $transactionProduct);
+        }
     }
 }
