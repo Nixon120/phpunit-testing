@@ -163,8 +163,15 @@ class OutputNormalizer extends AbstractOutputNormalizer
             foreach ($items as $item) {
                 /** @var TransactionItem $item */
                 $product = $transaction->getProduct($item->getReferenceId());
+                $total = bcmul($product->getPrice(), $item->getQuantity(), 2);
+                $points = bcmul($total, $programPoint, 2);
                 $products[$key][] = [
                     'name' => $product->getName(),
+                    'sku' => $product->getUniqueId(),
+                    'quantity' => $item->getQuantity(),
+                    'total' => $total,
+                    'points' => $points,
+                    'guid' => $item->getGuid()
                 ];
             }
         }
