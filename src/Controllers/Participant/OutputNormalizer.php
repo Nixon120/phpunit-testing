@@ -150,11 +150,23 @@ class OutputNormalizer extends AbstractOutputNormalizer
 
     public function getTransactionList(): array
     {
+        /** @var \Entities\Transaction[] $list */
         $list = parent::get();
 
         $meta = [];
-        foreach ($list as $transaction) {
+        $products = [];
+        $programPoint = $list[0]->getParticipant()->getProgram()->getPoint();
+
+        foreach ($list as $key => $transaction) {
             $meta[] = $transaction->getMeta();
+            $items = $transaction->getItems();
+            foreach ($items as $item) {
+                /** @var TransactionItem $item */
+                $product = $transaction->getProduct($item->getReferenceId());
+                $products[$key][] = [
+                    'name' => $product->getName(),
+                ];
+            }
         }
 
         $return = $this->scrubList($list, [
@@ -169,9 +181,17 @@ class OutputNormalizer extends AbstractOutputNormalizer
         ]);
 
         $transactions = [];
+
         foreach ($return as $key => $transaction) {
             $transactions[$key] = $transaction;
             $transactions[$key]['meta'] = $meta[$key];
+            $transactions[$key]['products'] = $products[$key];
+            $transactions[$key]['total'] = bcmul(
+                $transactions[$key]['total'],
+                $programPoint,
+                2
+            );
+
         }
 
         return $transactions;
