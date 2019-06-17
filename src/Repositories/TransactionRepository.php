@@ -468,7 +468,7 @@ SQL;
     /**
      * @param Transaction|null $transaction
      */
-    private function setTransactionProducts(?Transaction &$transaction): void
+    private function setTransactionProducts(?Transaction $transaction): void
     {
         $items = $this->getParticipantTransactionProducts($transaction->getId());
         foreach ($items as $item) {
