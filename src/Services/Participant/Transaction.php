@@ -8,6 +8,7 @@ use AllDigitalRewards\Services\Catalog\Entity\InventoryHoldRequest;
 use Entities\Adjustment;
 use Entities\Event;
 use Entities\TransactionItem;
+use Entities\TransactionMeta;
 use Entities\TransactionProduct;
 use Ramsey\Uuid\Uuid;
 use Repositories\BalanceRepository;
@@ -175,6 +176,15 @@ class Transaction
         if ($credit < $pointTotal && $issuePoints === false) {
             $this->repository->setErrors([
                 'Participant does not have enough points for this transaction.'
+            ]);
+            return null;
+        }
+
+        //is TransactionMeta well-formed
+        $transactionMeta = new TransactionMeta();
+        if ($isValid = $transactionMeta->validate($meta) === false) {
+            $this->repository->setErrors([
+                'Transaction Meta is not valid, please provide valid key:value non-empty pairs.'
             ]);
             return null;
         }

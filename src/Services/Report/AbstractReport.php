@@ -485,7 +485,7 @@ SQL;
         $event->setName('Report.request');
         $event->setEntityId($report->getId());
         $this->getFactory()
-            ->getEventPublisher()
+            ->getReportPublisher()
             ->publish(json_encode($event));
     }
 

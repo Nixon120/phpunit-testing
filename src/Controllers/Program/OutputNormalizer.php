@@ -33,6 +33,7 @@ class OutputNormalizer extends AbstractOutputNormalizer
         if ($program->getDomain() !== null) {
             $return['url'] = $return['url'] . '.' . $program->getDomain()->getUrl();
         }
+
         $return['organization'] = $program->getOrganization()->getUniqueId();
         $return['contact'] = $program->getContact();
         $return['accounting_contact'] = $program->getAccountingContact();
@@ -42,6 +43,7 @@ class OutputNormalizer extends AbstractOutputNormalizer
         $excludeProducts = $program->getProductCriteria()->getExcludeProducts();
         $excludeBrands = $program->getProductCriteria()->getExcludeBrands();
         $excludeVendors = $program->getProductCriteria()->getExcludeVendors();
+        $featuredPageTitle = $program->getProductCriteria()->getFeaturedPageTitle();
         $return['productCriteria'] = [
             'price' => [
                 'min' => $program->getProductCriteria()->getMinFilter(),
@@ -53,6 +55,7 @@ class OutputNormalizer extends AbstractOutputNormalizer
             'exclude_products' => $excludeProducts,
             'exclude_brands' => $excludeBrands,
             'exclude_vendors' => $excludeVendors,
+            'featured_page_title' => $featuredPageTitle
         ];
 
         $return['featured_products'] = [];

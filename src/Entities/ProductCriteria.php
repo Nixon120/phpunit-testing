@@ -13,6 +13,8 @@ class ProductCriteria extends Base
 
     public $filter;
 
+    public $featured_page_title;
+
     private $categories;
 
     private $brands;
@@ -55,6 +57,26 @@ class ProductCriteria extends Base
     public function setProgramId($programId)
     {
         $this->program_id = $programId;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFeaturedPageTitle()
+    {
+        if($this->featured_page_title === null) {
+            return '';
+        }
+
+        return $this->featured_page_title;
+    }
+
+    /**
+     * @param null|string $featuredPageTitle
+     */
+    public function setFeaturedPageTitle(?string $featuredPageTitle)
+    {
+        $this->featured_page_title = $featuredPageTitle;
     }
 
     /**
@@ -205,16 +227,15 @@ class ProductCriteria extends Base
         $this->setCategoryFilter($filters->category);
         $this->setBrandFilter($filters->brand);
 
-        if(!empty($filters->exclude_products)) {
+        if (!empty($filters->exclude_products)) {
             $this->setExcludeProductsFilter($filters->exclude_products);
         }
-        if(!empty($filters->exclude_brands)) {
+        if (!empty($filters->exclude_brands)) {
             $this->setExcludeBrandsFilter($filters->exclude_brands);
         }
-        if(!empty($filters->exclude_vendors)) {
+        if (!empty($filters->exclude_vendors)) {
             $this->setExcludeVendorsFilter($filters->exclude_vendors);
         }
-
     }
 
     /**

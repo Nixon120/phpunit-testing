@@ -20,17 +20,19 @@ class ProcessScheduledReports
         $this->repository = $this->factory->getReportRepository();
     }
 
-    public function processReports() {
+    public function processReports()
+    {
         $reports = $this->getReportsToBeProcessed();
         if (count($reports) > 0) {
-            foreach($reports as $report) {
+            foreach ($reports as $report) {
                 $service = $this->getReportService($report);
                 $service->queueReportEvent($report);
             }
         }
     }
 
-    private function getReportsToBeProcessed() {
+    private function getReportsToBeProcessed()
+    {
         $database = $this->repository->getDatabase();
         $today = date("Y-m-d");
         $sql = "SELECT * FROM report 
@@ -42,11 +44,11 @@ class ProcessScheduledReports
         return $sth->fetchAll(PDO::FETCH_CLASS, $this->repository->getRepositoryEntity());
     }
 
-    function getReportService($report) {
+    function getReportService($report)
+    {
         $reportClass = '\\Services\\Report\\' . $report->getReportClass();
         /** @var Reportable $service */
         $service = new $reportClass($this->factory);
         return $service;
     }
-
 }

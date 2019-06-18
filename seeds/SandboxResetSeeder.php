@@ -23,10 +23,10 @@ class SandboxResetSeeder extends AbstractSeed
     public function run()
     {
         $this->prepareInformationForSeeders();
-        $orgId = $this->seedOrganization();
+        $this->seedOrganization();
         $this->seedWebhook();
         $this->seedDomain();
-        $programId = $this->seedProgram();
+        $this->seedProgram();
         $this->seedLayoutRows();
         $this->seedLayoutRowCards();
         $this->seedSweepstake();

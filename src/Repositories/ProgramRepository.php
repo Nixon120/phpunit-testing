@@ -81,7 +81,7 @@ SQL;
     }
 
     //@TODO change this to getByUnique or getById
-    public function getProgram($id, $uniqueLookup = true):?Program
+    public function getProgram($id, $uniqueLookup = true): ?Program
     {
         $field = $uniqueLookup === false ? 'id' : 'unique_id';
         $sql = "SELECT * FROM Program WHERE {$field} = ?";
@@ -143,7 +143,6 @@ SQL;
         $program->setAccountingContact($this->getAccountingContact($program));
         $program->setProductCriteria($this->getProductCriteria($program));
         $program->setLayoutRows($this->getProgramLayout($program));
-        $program->setFaqs($this->getProgramFaqs($program));
         $program->setSweepstake($this->getProgramSweepstake($program));
         $program->setFeaturedProducts($this->getProgramFeaturedProducts($program));
         return $program;
@@ -180,14 +179,14 @@ SQL;
         ];
     }
 
-    public function getProgramByDomain(string $domain):?Program
+    public function getProgramByDomain(string $domain): ?Program
     {
         $domainParts = $this->splitDomain($domain);
 
         if (!$domain = $this->getProgramDomainByDomainName($domainParts->domain)) {
             return null;
         }
-        
+
         $sql = "SELECT * FROM Program WHERE url = ? AND domain_id = ?";
         $args = [$domainParts->url, $domain->getId()];
 
@@ -198,7 +197,7 @@ SQL;
         return $this->hydrateProgram($program);
     }
 
-    public function getProgramByDomainId(int $id):?Program
+    public function getProgramByDomainId(int $id): ?Program
     {
         $sql = "SELECT * FROM Program WHERE domain_id = ?";
         $args = [$id];
@@ -210,7 +209,7 @@ SQL;
         return $this->hydrateProgram($program);
     }
 
-    public function getProgramOrganization(?string $id, $unique = false):?Organization
+    public function getProgramOrganization(?string $id, $unique = false): ?Organization
     {
         $sql = "SELECT * FROM `Organization` WHERE ";
 
@@ -224,21 +223,21 @@ SQL;
         return $this->query($sql, $args, Organization::class);
     }
 
-    public function getProgramDomain(?string $id):?Domain
+    public function getProgramDomain(?string $id): ?Domain
     {
         $sql = "SELECT * FROM `Domain` WHERE id = ?";
         $args = [$id];
         return $this->query($sql, $args, Domain::class);
     }
 
-    public function getProgramDomainByDomainName(string $domain):?Domain
+    public function getProgramDomainByDomainName(string $domain): ?Domain
     {
         $sql = "SELECT * FROM `Domain` WHERE url = ?";
         $args = [$domain];
         return $this->query($sql, $args, Domain::class);
     }
 
-    public function getAutoRedemption(Program $program):?AutoRedemption
+    public function getAutoRedemption(Program $program): ?AutoRedemption
     {
         $sql = "SELECT * FROM `AutoRedemption` WHERE program_id = ?";
         $args = [$program->getId()];
@@ -438,12 +437,15 @@ SQL;
     private function getProducts($products)
     {
         $return = [];
+
         if (!empty($products)) {
-            $skuContainer = ['sku' => $products];
-            $vendorProducts = $this->catalog->getProducts($skuContainer);
-            foreach ($vendorProducts as $product) {
-                if (in_array($product->getSku(), $products)) {
-                    $return[] = $product;
+            foreach (array_chunk($products, 50) as $skuSet) {
+                $skuContainer = ['sku' => $skuSet];
+                $vendorProducts = $this->catalog->getProducts($skuContainer);
+                foreach ($vendorProducts as $product) {
+                    if (in_array($product->getSku(), $products)) {
+                        $return[] = $product;
+                    }
                 }
             }
         }
@@ -467,7 +469,7 @@ SQL;
         return $return;
     }
 
-    public function getProductCriteria(Program $program):?ProductCriteria
+    public function getProductCriteria(Program $program): ?ProductCriteria
     {
         $sql = "SELECT * FROM `ProductCriteria` WHERE program_id = ?";
         $args = [$program->getUniqueId()];
@@ -482,6 +484,7 @@ SQL;
     {
         // force hydration.. maybe look at a different approach. This is confusing
         $criteria->setFilter($criteria->getFilter());
+        $criteria->setFeaturedPageTitle($criteria->getFeaturedPageTitle());
         $criteria->setCategories($this->getCategories($criteria->getCategoryFilter()));
         $criteria->setBrands($this->getBrands($criteria->getBrandFilter()));
         $criteria->setProducts($this->getProducts($criteria->getProductFilter()));
@@ -538,11 +541,11 @@ SQL;
         return Validator::attribute('product_sku', Validator::notEmpty()->setName('Product'));
     }
 
-    public function saveFeaturedProducts(Program $program, array $productSkuContainer): bool
+    public function saveFeaturedProducts(Program $program, array $productSkuContainer, string $featuredPageTitle): bool
     {
         $this->table = 'FeaturedProduct';
 
-        $this->deleteAllProgramFeaturedProducts($program, $productSkuContainer);
+        $this->deleteAllProgramFeaturedProducts($program);
 
         if (!empty($productSkuContainer)) {
             foreach ($productSkuContainer as $sku) {
@@ -553,35 +556,22 @@ SQL;
             }
             $this->table = 'Program';
         }
+        
+        $sql = "UPDATE `ProductCriteria` SET featured_page_title = ? WHERE program_id = ?";
+        $args = [$featuredPageTitle, $program->getUniqueId()];
+        $sth = $this->database->prepare($sql);
+        $sth->execute($args);
 
         return true;
     }
 
-    private function deleteProgramFeaturedProductsWhereNotIn(Program $program, array $skuContainer)
-    {
-        if (!empty($skuContainer)) {
-            $placeholder = rtrim(str_repeat('?, ', count($skuContainer)), ', ');
-            $sql = <<<SQL
-DELETE FROM FeaturedProduct WHERE FeaturedProduct.sku NOT IN ({$placeholder}) AND FeaturedProduct.program_id = ?
-SQL;
-            $skuContainer[] = $program->getUniqueId();
-            $sth = $this->getDatabase()->prepare($sql);
-            return $sth->execute($skuContainer);
-        }
-
-        return true;
-    }
-
-    private function deleteAllProgramFeaturedProducts(Program $program, array $skuContainer)
+    private function deleteAllProgramFeaturedProducts(Program $program)
     {
         $sql = <<<SQL
 DELETE FROM FeaturedProduct WHERE FeaturedProduct.program_id = '{$program->getUniqueId()}'
 SQL;
         $sth = $this->getDatabase()->prepare($sql);
         return $sth->execute();
-
-
-        return false;
     }
 
     public function saveProductCriteria(Program $program, $filterData): bool
@@ -655,45 +645,49 @@ SQL;
         return $rows;
     }
 
-    public function saveProgramAutoRedemption(Program $program, Array $data): bool
+    /**
+     * @param Program $program
+     * @param array $data
+     * @return bool
+     */
+    public function saveProgramAutoRedemption(Program $program, array $data): bool
     {
-        if (!empty($data)) {
-            if (!empty($data['auto_redemption'])) {
-                // Purge one time autoredemptions to save only the those sent in request
-                try {
-                    $sql = "DELETE FROM `autoredemption` WHERE program_id = ?";
-                    $sth = $this->database->prepare($sql);
-                    $sth->execute([$program->getId()]);
-                } catch (\PDOException $e) {
-                    throw new \Exception('could not purge autoredemptions.');
-                }
-                $autoRedemption = new AutoRedemption;
-                $autoRedemption->exchange($data['auto_redemption']);
-                $autoRedemption->setAllParticipant(1);
-                $autoRedemption->setProgramId($program->getId());
-                $this->placeSettings($autoRedemption);
+        if (!empty($data['auto_redemption'])) {
+            // Purge one time autoredemptions to save only the those sent in request
+            try {
+                $sql = "DELETE FROM `autoredemption` WHERE program_id = ?";
+                $sth = $this->database->prepare($sql);
+                $sth->execute([$program->getId()]);
+            } catch (\PDOException $e) {
+                $this->setErrors(['could not purge autoredemptions.']);
+                return false;
             }
-            if (!empty($data['one_time_auto_redemptions'])) {
-                // Purge one time autoredemptions to save only the those sent in request
-                try {
-                    $sql = "DELETE FROM `onetimeautoredemption` WHERE program_id = ?";
-                    $sth = $this->database->prepare($sql);
-                    $sth->execute([$program->getUniqueId()]);
-                } catch (\PDOException $e) {
-                    throw new \Exception('could not purge autoredemptions.');
-                }
-
-                foreach($data['one_time_auto_redemptions'] as $autoRedemption) {
-                    $oneTimeAutoRedemption = new OneTimeAutoRedemption($autoRedemption);
-                    $oneTimeAutoRedemption->setProgramId($program->getUniqueId());
-
-                    $this->table = 'OneTimeAutoRedemption';
-                    $this->place($oneTimeAutoRedemption);
-                }
-            }
-            return true;
+            $autoRedemption = new AutoRedemption;
+            $autoRedemption->exchange($data['auto_redemption']);
+            $autoRedemption->setAllParticipant(1);
+            $autoRedemption->setProgramId($program->getId());
+            $this->placeSettings($autoRedemption);
         }
-        throw new \Exception('failed to save auto redemption.');
+        if (!empty($data['one_time_auto_redemptions'])) {
+            // Purge one time autoredemptions to save only the those sent in request
+            try {
+                $sql = "DELETE FROM `onetimeautoredemption` WHERE program_id = ?";
+                $sth = $this->database->prepare($sql);
+                $sth->execute([$program->getUniqueId()]);
+            } catch (\PDOException $e) {
+                $this->setErrors(['could not purge autoredemptions.']);
+                return false;
+            }
+
+            foreach ($data['one_time_auto_redemptions'] as $autoRedemption) {
+                $oneTimeAutoRedemption = new OneTimeAutoRedemption($autoRedemption);
+                $oneTimeAutoRedemption->setProgramId($program->getUniqueId());
+
+                $this->table = 'OneTimeAutoRedemption';
+                $this->place($oneTimeAutoRedemption);
+            }
+        }
+        return true;
     }
 
     /**
@@ -724,30 +718,6 @@ SQL;
         }
 
         throw new \Exception('failed to save offline redemption.');
-    }
-
-    public function saveProgramFaqs(Program $program, array $faqs): bool
-    {
-        if (!empty($faqs)) {
-            try {
-                // Purge faqs to save only the faqs sent in request
-                $sql = "DELETE FROM `Faqs` WHERE program_id = ?";
-                $sth = $this->database->prepare($sql);
-                $sth->execute([$program->getUniqueId()]);
-            } catch (\PDOException $e) {
-                throw new \Exception('could not purge row faqs.');
-            }
-            foreach ($faqs as $faq) {
-                $faqs = new Faqs;
-                $faqs->setProgramId($program->getUniqueId());
-                $faqs->setQuestion($faq['question']);
-                $faqs->setAnswer($faq['answer']);
-                $this->table = 'Faqs';
-                $this->place($faqs);
-                $this->table = 'Program';
-            }
-        }
-        return true;
     }
 
     public function saveProgramLayout(Program $program, array $layoutRows): bool
@@ -781,7 +751,7 @@ SQL;
         } catch (\PDOException $e) {
             throw new \Exception('could not purge row cards.');
         }
-        
+
         foreach ($cards as $cardPriority => $card) {
             $entity = new LayoutRowCard;
             if (!empty($card['image'])) {
@@ -804,6 +774,7 @@ SQL;
             $entity->setProductRow($productRow);
             $entity->setTextMarkdown($textMarkdown);
             $entity->setCardShow($card['card_show']);
+            $entity->setTitle($card['title']);
             $entity->setLink($card['link'] === null || trim($card['link']) === '' ? null : $card['link']);
 
             $this->table = 'LayoutRowCard';
@@ -845,7 +816,7 @@ SQL;
             $imageData = substr($imageData, strpos($imageData, ',') + 1);
             $type = strtolower($type[1]); // jpg, png, gif
 
-            if (!in_array($type, [ 'jpg', 'jpeg', 'gif', 'png' ])) {
+            if (!in_array($type, ['jpg', 'jpeg', 'gif', 'png'])) {
                 throw new \Exception('invalid image type');
             }
 
@@ -853,6 +824,11 @@ SQL;
 
             if ($imageData === false) {
                 throw new \Exception('base64_decode failed');
+            }
+        } elseif (substr($imageData, 0, 4) === 'http') {
+            $imageData = @file_get_contents($imageData);
+            if (empty($imageData) === true) {
+                throw new \Exception('Image is not valid');
             }
         } else {
             throw new \Exception('did not match data URI with image data');

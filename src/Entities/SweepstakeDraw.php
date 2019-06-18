@@ -99,5 +99,4 @@ class SweepstakeDraw extends \Entities\Base
     {
         $this->alt_entry = $alt_entry;
     }
-
 }

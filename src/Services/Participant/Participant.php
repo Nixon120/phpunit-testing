@@ -152,7 +152,7 @@ class Participant
         if (!empty($data['program'])) {
             $program = $this->repository->getParticipantProgram($data['program'], true);
 
-            if($program === null) {
+            if ($program === null) {
                 $this->repository->setErrors(
                     [
                         'program' => [

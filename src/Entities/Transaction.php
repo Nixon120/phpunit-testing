@@ -370,7 +370,14 @@ class Transaction extends Base
      */
     public function getMeta()
     {
-        return $this->meta;
+        $container = [];
+
+        if ($this->meta !== null) {
+            foreach ($this->meta as $key => $meta) {
+                $container[] = [$key => $meta];
+            }
+        }
+        return $container;
     }
 
     /**

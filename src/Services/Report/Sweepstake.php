@@ -22,7 +22,7 @@ class Sweepstake extends AbstractReport
             'Participant.lastname' => 'Last Name',
             'Participant.email_address' => 'Email',
             'Participant.birthdate' => 'Date of Birth',
-            'CASE Participant.active WHEN 1 THEN \'active\' ELSE \'inactive\' END' => 'Status',
+            'IF(Participant.active = 1, \'Active\', \'Inactive\') as status' => 'Status',
             'Address.zip' => 'Zip Code',
             'SweepstakeEntry.created_at' => 'Entered Date/Time'
         ]);

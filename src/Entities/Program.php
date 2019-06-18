@@ -47,7 +47,7 @@ class Program extends Base
     /** @var AutoRedemption */
     private $autoRedemption;
 
-    /** @var OneTimeAutoRedemptions */
+    /** @var OneTimeAutoRedemption[] */
     private $oneTimeAutoRedemptions;
 
     /** @var ProductCriteria */
@@ -60,10 +60,6 @@ class Program extends Base
      * @var LayoutRow[]
      */
     private $layoutRows;
-    /**
-     * @var Faqs[]
-     */
-    private $faqs;
 
     /**
      * @var FeaturedProduct[]
@@ -434,7 +430,7 @@ class Program extends Base
     }
 
     /**
-     * @return $oneTimeAutoRedemptions[]
+     * @return OneTimeAutoRedemption[]
      */
     public function getOneTimeAutoRedemptions(): array
     {
@@ -446,7 +442,7 @@ class Program extends Base
     }
 
     /**
-     * @param $oneTimeAutoRedemptions[]
+     * @param array|null $oneTimeAutoRedemptions
      */
     public function setOneTimeAutoRedemptions(?array $oneTimeAutoRedemptions = null)
     {
@@ -496,26 +492,6 @@ class Program extends Base
         }
 
         return $this->layoutRows;
-    }
-
-    /**
-     * @return Faqs[]
-     */
-    public function getFaqs(): array
-    {
-        if ($this->faqs === null) {
-            $this->faqs = [];
-        }
-
-        return $this->faqs;
-    }
-
-    /**
-     * @param Faqs[] $faqs
-     */
-    public function setFaqs(?array $faqs = null)
-    {
-        $this->faqs = $faqs;
     }
 
     public function setFeaturedProducts(?array $products = null)

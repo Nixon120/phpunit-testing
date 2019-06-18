@@ -22,6 +22,7 @@ class Transaction extends AbstractReport
             'Transaction.id as `Transaction ID`' => 'Transaction ID',
             "IF(Adjustment.type = 1, 'Credit', 'Debit') as `Transaction Type`" => 'Transaction Type',
             'Participant.unique_id' => 'Participant ID',
+            'IF(Participant.active = 1, \'Active\', \'Inactive\') as status' => 'Status',
             'IFNULL(Address.firstname, Participant.firstname) as firstname' => 'First Name',
             'IFNULL(Address.lastname, Participant.lastname) as lastname' => 'Last Name',
             'Address.address1' => 'Address1',

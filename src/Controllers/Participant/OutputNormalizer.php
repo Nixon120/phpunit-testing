@@ -150,7 +150,31 @@ class OutputNormalizer extends AbstractOutputNormalizer
 
     public function getTransactionList(): array
     {
+        /** @var \Entities\Transaction[] $list */
         $list = parent::get();
+
+        $meta = [];
+        $products = [];
+        $programPoint = $list[0]->getParticipant()->getProgram()->getPoint();
+
+        foreach ($list as $key => $transaction) {
+            $meta[] = $transaction->getMeta();
+            $items = $transaction->getItems();
+            foreach ($items as $item) {
+                /** @var TransactionItem $item */
+                $product = $transaction->getProduct($item->getReferenceId());
+                $total = bcmul($product->getPrice(), $item->getQuantity(), 2);
+                $points = bcmul($total, $programPoint, 2);
+                $products[$key][] = [
+                    'name' => $product->getName(),
+                    'sku' => $product->getUniqueId(),
+                    'quantity' => $item->getQuantity(),
+                    'total' => $total,
+                    'points' => $points,
+                    'guid' => $item->getGuid()
+                ];
+            }
+        }
 
         $return = $this->scrubList($list, [
             'participant_id',
@@ -163,7 +187,21 @@ class OutputNormalizer extends AbstractOutputNormalizer
             'bypass_conditions'
         ]);
 
-        return $return;
+        $transactions = [];
+
+        foreach ($return as $key => $transaction) {
+            $transactions[$key] = $transaction;
+            $transactions[$key]['meta'] = $meta[$key];
+            $transactions[$key]['products'] = $products[$key];
+            $transactions[$key]['total'] = bcmul(
+                $transactions[$key]['total'],
+                $programPoint,
+                2
+            );
+
+        }
+
+        return $transactions;
     }
 
     public function getList(): array

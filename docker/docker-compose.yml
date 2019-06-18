@@ -24,6 +24,7 @@ services:
     environment:
       XDEBUG_CONFIG: "remote_host=${HOST_IP}"
       PHP_IDE_CONFIG: "serverName=admin"
+      ENVIRONMENT: development
       MYSQL_ROOT_PASSWORD: 123
       MYSQL_HOST: admin-mysql
       MYSQL_DATABASE: mpadmin
@@ -40,6 +41,7 @@ services:
       AMQP_USERNAME: guest
       AMQP_PASSWORD: guest
       AMQP_EVENT_CHANNEL: mp-admin-events
+      AMQP_REPORT_CHANNEL: mp-admin-reports
       MONGO_HOST: mongodb://mongodb:27017
       MONGO_DB: marketplace-dev
       CATALOG_URL: http://product.catalog
@@ -48,6 +50,7 @@ services:
       LOG_HOST: fluentd
       LOG_PORT: "24224"
       GOOGLE_CDN_BUCKET: "adrcdn"
+      ENABLE_CRON: "1"
     networks:
       - adrnet
   ng-admin:
@@ -238,6 +241,8 @@ services:
       MYSQL_DATABASE: program-content
       MYSQL_USERNAME: root
       MYSQL_PASSWORD: 123
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
       LOG_HOST: fluentd
       LOG_PORT: "24224"
       FILESYSTEM: local

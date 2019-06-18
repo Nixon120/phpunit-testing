@@ -2,6 +2,8 @@
 namespace Entities;
 
 use Entities\Traits\TimestampTrait;
+use Respect\Validation\Exceptions\NestedValidationException;
+use Respect\Validation\Validator;
 
 class TransactionMeta extends Base
 {
@@ -59,5 +61,28 @@ class TransactionMeta extends Base
     public function setValue($value)
     {
         $this->value = $value;
+    }
+
+    public function validate($transactionMeta)
+    {
+        //return true if they dont pass meta
+        if (empty($transactionMeta) === true) {
+            return true;
+        }
+
+        //tests associative array
+        foreach ($transactionMeta as $meta) {
+            if (is_array($meta) === false) {
+                // Not valid meta;
+                return false;
+            }
+            foreach ($meta as $key => $value) {
+                if (empty($key) === true) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 }

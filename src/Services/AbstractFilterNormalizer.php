@@ -74,7 +74,7 @@ abstract class AbstractFilterNormalizer implements FilterNormalizer
                     //AND on default, or the value of the method exist
                     $argFilterMethod = $filter . 'Args';
                     if (is_array($value)) {
-                        foreach($value as $element) {
+                        foreach ($value as $element) {
                             $args = array_merge($args, $this->$argFilterMethod($element));
                         }
                         continue;
