@@ -188,17 +188,10 @@ class OutputNormalizer extends AbstractOutputNormalizer
         ]);
 
         $transactions = [];
-
         foreach ($return as $key => $transaction) {
             $transactions[$key] = $transaction;
             $transactions[$key]['meta'] = $meta[$key];
             $transactions[$key]['products'] = $products[$key];
-            $transactions[$key]['total'] = bcmul(
-                $transactions[$key]['total'],
-                $programPoint,
-                2
-            );
-
         }
 
         return $transactions;
