@@ -1,18 +1,17 @@
 <?php
+
 namespace Events\Listeners\Report;
 
 use AllDigitalRewards\AMQP\MessagePublisher;
+use Box\Spout\Writer\Common\Creator\Style\StyleBuilder;
+use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
+use Box\Spout\Writer\WriterInterface;
 use Controllers\Report\InputNormalizer;
 use Entities\Event;
 use Entities\Report as ReportEntity;
 use Entities\Sftp;
 use Events\Listeners\AbstractListener;
 use League\Event\EventInterface;
-use PhpOffice\PhpSpreadsheet\IOFactory;
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Worksheet\PageSetup;
-use PhpOffice\PhpSpreadsheet\Writer\IWriter;
-use PhpOffice\PhpSpreadsheet\Writer\Pdf\Dompdf;
 use Services\Report as Report;
 use Services\Sftp\SftpService;
 use Traits\LoggerAwareTrait;
@@ -52,25 +51,21 @@ class Request extends AbstractListener
     private $reportFileName;
 
     /**
-     * @var Spreadsheet
-     */
-    private $spreadsheet;
-
-    /**
      * @var int
      */
     private $reportCount;
 
     /**
-     * @var \PhpOffice\PhpSpreadsheet\Writer\IWriter
+     * @var WriterInterface
      */
     private $writer;
 
     public function __construct(
         MessagePublisher $publisher,
         Report\ServiceFactory $factory
-    ) {
-    
+    )
+    {
+
         parent::__construct($publisher);
         $this->reportFactory = $factory;
     }
@@ -151,52 +146,49 @@ class Request extends AbstractListener
         return $this->report;
     }
 
-    /**
-     * @return Spreadsheet
-     */
-    public function getSpreadsheet(): Spreadsheet
+    private function getReportTitleSegment()
     {
-        if ($this->spreadsheet === null) {
-            $this->spreadsheet = new Spreadsheet;
-        }
+        $endDate = $this->getReport()->getParameters()['end_date'] ?? 'now';
+        $endDate = new \DateTime($endDate);
+        $style = (new StyleBuilder)
+            ->setFontBold()
+            ->setFontSize(16)
+            ->build();
 
-        return $this->spreadsheet;
+        return [
+            WriterEntityFactory::createRow([
+                WriterEntityFactory::createCell(ucfirst($this->getReport()->getProgram()), $style),
+            ]),
+            WriterEntityFactory::createRow([
+                WriterEntityFactory::createCell($this->getReport()->getReportName(), $style),
+            ]),
+            WriterEntityFactory::createRow([
+                WriterEntityFactory::createCell('As of ' . $endDate->format('M d, Y'), $style),
+            ]),
+            WriterEntityFactory::createRow([
+                WriterEntityFactory::createCell('', $style),
+            ])
+        ];
     }
 
     /**
-     * @param Spreadsheet $spreadsheet
-     */
-    public function setSpreadsheet(Spreadsheet $spreadsheet)
-    {
-        $this->spreadsheet = $spreadsheet;
-    }
-
-    /**
-     * @return IWriter
+     * @return WriterInterface|null
+     * @throws \Box\Spout\Common\Exception\IOException
+     * @throws \Box\Spout\Common\Exception\InvalidArgumentException
+     * @throws \Box\Spout\Writer\Exception\WriterNotOpenedException
      */
     private function getWriter()
     {
         if ($this->writer === null) {
-            if ($this->getReport()->getFormat() === 'pdf') {
-                $this->initializePdfWriter();
-            }
-
-            $writer = IOFactory::createWriter(
-                $this->getSpreadsheet(),
-                ucfirst($this->getReport()->getFormatExtension())
-            );
 
             if ($this->getReport()->getFormat() === 'csv') {
-                $this->setCsvOptionsOnWriter($writer);
+                $writer = WriterEntityFactory::createCSVWriter();
+            } else {
+                $writer = WriterEntityFactory::createXLSXWriter();
             }
 
-            $this->getSpreadsheet()
-                ->getActiveSheet()
-                ->getPageSetup()
-                ->setOrientation(PageSetup::ORIENTATION_LANDSCAPE)
-                ->setFitToWidth(1)
-                ->setFitToHeight(0);
-
+            $writer->openToFile('php://output');
+            $writer->addRows($this->getReportTitleSegment());
             $this->setWriter($writer);
         }
 
@@ -204,9 +196,9 @@ class Request extends AbstractListener
     }
 
     /**
-     * @param IWriter $writer
+     * @param WriterInterface $writer
      */
-    private function setWriter(IWriter $writer)
+    private function setWriter(WriterInterface $writer)
     {
         $this->writer = $writer;
     }
@@ -302,59 +294,19 @@ class Request extends AbstractListener
         return false;
     }
 
-    /**
-     * @return bool
-     */
     private function generate()
     {
-        $reportFileNameWithExtension = $this->getReportFileName();
-        $endDate = $this->getReport()->getParameters()['end_date'] ?? 'now';
-        $endDate = new \DateTime($endDate);
-
-        $this->getSpreadsheet()->getActiveSheet()->mergeCells("A1:G1")->setCellValue('A1', ucfirst($this->getReport()->getProgram()));
-        $this->getSpreadsheet()->getActiveSheet()->mergeCells("A2:G2")->setCellValue('A2', $this->getReport()->getReportName());
-        $this->getSpreadsheet()->getActiveSheet()->mergeCells("A3:G3")->setCellValue('A3', 'As of ' . $endDate->format('M d, Y'));
-        $this->getSpreadsheet()
-            ->getActiveSheet()
-            ->getStyle("A1:G3")
-            ->getAlignment()
-            ->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
-
-        $this->getSpreadsheet()
-            ->getActiveSheet()
-            ->getStyle("A1:G3")
-            ->getFont()
-            ->setBold(true)
-            ->setSize(16);
-
-        /** Load report data into sheet */
-        $this->getSpreadsheet()
-            ->getActiveSheet()
-            ->fromArray($this->getReportData(), null, 'A5');
-
-        $date = new \DateTime('now');
-        $highestRow = $this->getSpreadsheet()->getActiveSheet()->getHighestRow();
-        $highestRow += 2;
-        $this->getSpreadsheet()->getActiveSheet()->mergeCells("A$highestRow:G$highestRow")->setCellValue("A$highestRow", $date->format('l, M d, Y h:i:s A'));
-        $this->getSpreadsheet()
-            ->getActiveSheet()
-            ->getStyle("A$highestRow:G$highestRow")
-            ->getAlignment()
-            ->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
-
-        $this->getSpreadsheet()
-            ->getActiveSheet()
-            ->getStyle("A$highestRow:G$highestRow")
-            ->getFont()
-            ->setSize(10);
-
         ob_start();
-        $this->getWriter()->save('php://output');
-        $output = ob_get_clean();
+        $reportFileNameWithExtension = $this->getReportFileName();
+        foreach ($this->getReportData() as $data) {
+            $this->getWriter()->addRow(WriterEntityFactory::createRowFromArray($data));
+        }
 
+        $this->getWriter()->close();
+        $report = ob_get_clean();
         return $this->reportFactory
             ->getFilesystem('reports')
-            ->put($reportFileNameWithExtension, $output);
+            ->put($reportFileNameWithExtension, $report);
     }
 
     /**
@@ -387,6 +339,7 @@ class Request extends AbstractListener
      * @param string $sftpId
      * @param ReportEntity $report
      * @return SftpService
+     * @throws \Exception
      */
     private function getSftpPublisher(string $sftpId, ReportEntity $report): SftpService
     {
@@ -404,6 +357,7 @@ class Request extends AbstractListener
      * @param Sftp $sftpConfig
      * @param ReportEntity $report
      * @return string
+     * @throws \Exception
      */
     private function buildSftpReportFilePath(Sftp $sftpConfig, ReportEntity $report): string
     {
@@ -422,45 +376,5 @@ class Request extends AbstractListener
         $filePath = str_replace(' ', '_', $filePath);
 
         return $sftpConfig->getFilePath() . '/' . $filePath;
-    }
-
-    /**
-     * Initialize PDF writer
-     */
-    private function initializePdfWriter()
-    {
-        $sheet = $this->getSpreadsheet()
-            ->getActiveSheet();
-
-        /** Dompdf */
-        $sheet->setShowGridLines(false);
-
-        $sheet->getPageSetup()
-            ->setFitToWidth(1);
-
-        $sheet->getPageSetup()
-            ->setFitToHeight(0);
-
-        $sheet->getPageMargins()
-            ->setTop(0.25)
-            ->setBottom(0.25)
-            ->setLeft(0.1)
-            ->setRight(0.1);
-
-        $className = Dompdf::class;
-        IOFactory::registerWriter('Pdf', $className);
-    }
-
-    /**
-     * Set custom CSV options on writer
-     *
-     * @param IWriter $writer
-     */
-    private function setCsvOptionsOnWriter(IWriter $writer)
-    {
-        $writer
-            ->setDelimiter(',')
-            ->setEnclosure('"')
-            ->setSheetIndex(0);
     }
 }
