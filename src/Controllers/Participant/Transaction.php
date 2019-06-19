@@ -94,10 +94,12 @@ class Transaction
         if ($participant !== null) {
             //@TODO: Make sure domains do not include HTTPS / HTTP on entry or here ?
             $transactions = $this->service->get($participant, $transactionUniqueIds);
-
             //The unique id passed in was bad
             if (empty($transactions) === true && $transactionUniqueIds !== null) {
                 return $this->returnJson(404, ['Unique Ids Not Found']);
+            }
+            if (empty($transactions) === true) {
+                return $this->returnJson(200, []);
             }
             $output = new OutputNormalizer($transactions);
             return $this->returnJson(200, $output->getTransactionList());
