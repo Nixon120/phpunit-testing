@@ -347,6 +347,9 @@ SQL;
 
         foreach ($transactions as $transaction) {
             $transaction->setMeta($this->getTransactionMeta($transaction->getId()));
+            $transaction->setWholesale(0);
+            $transaction->setSubtotal(0);
+            $transaction->setTotal(0);
             $this->setTransactionProducts($transaction);
         }
         return $transactions;
