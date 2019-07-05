@@ -34,7 +34,7 @@ class Tax extends AbstractReport
             'TransactionProduct.name' => 'Product Name',
             'SUM(((TransactionProduct.retail + IFNULL(TransactionProduct.shipping,0) + IFNULL(TransactionProduct.handling,0)) * TransactionItem.quantity)) as `Award Amount`' => 'Award Amount',
             '(SUM(((TransactionProduct.retail + IFNULL(TransactionProduct.shipping,0) + IFNULL(TransactionProduct.handling,0)) * TransactionItem.quantity)) * Program.point) as `Shipped Points Redeemed`' => 'Shipped Points Redeemed',
-            'ROUND(SUM(IF(Adjustment.type = 1, Adjustment.amount, 0) * Program.point), 2) as `Points Earned`' => 'Points Earned',
+            'ROUND(SUM(IF(Adjustment.type = 1 AND Adjustment.created_at >= ? AND Adjustment.created_at <= ?, Adjustment.amount, 0) * Program.point), 2) as `Points Earned`' => 'Points Earned',
         ]);
     }
 
@@ -43,6 +43,11 @@ class Tax extends AbstractReport
     {
         $selection = implode(', ', $this->getFields());
         $selection .= $this->getMetaSelectionSql();
+        $args = $this->getFilter()->getFilterConditionArgs();
+        $startDate = isset($args[2]) === true ? $args[2] : date("Y-m-d 00:00:00");
+        $endDate = isset($args[3]) === true ? $args[3] : date("Y-m-d 00:00:00");
+        $selection = $this->stringReplaceFirst('?', $startDate, $selection);
+        $selection = $this->stringReplaceFirst('?', $endDate, $selection);
 
         $query = "SELECT SQL_CALC_FOUND_ROWS {$selection} FROM `TransactionItem` "
             . "JOIN `Transaction` ON `Transaction`.id = `TransactionItem`.transaction_id "
@@ -58,6 +63,13 @@ class Tax extends AbstractReport
             . " GROUP BY `Participant`.unique_id";
 
         return $this->fetchDataForReport($query, $this->getFilter()->getFilterConditionArgs());
+    }
+
+    private function stringReplaceFirst($from, $to, $content)
+    {
+        $from = '/'.preg_quote($from, '/').'/';
+
+        return preg_replace($from, '"'.$to.'"', $content, 1);
     }
 
     public function getReportMetaFields(): array
