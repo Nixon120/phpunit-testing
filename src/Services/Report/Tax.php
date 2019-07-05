@@ -34,7 +34,7 @@ class Tax extends AbstractReport
             'TransactionProduct.name' => 'Product Name',
             'SUM(((TransactionProduct.retail + IFNULL(TransactionProduct.shipping,0) + IFNULL(TransactionProduct.handling,0)) * TransactionItem.quantity)) as `Award Amount`' => 'Award Amount',
             '(SUM(((TransactionProduct.retail + IFNULL(TransactionProduct.shipping,0) + IFNULL(TransactionProduct.handling,0)) * TransactionItem.quantity)) * Program.point) as `Shipped Points Redeemed`' => 'Shipped Points Redeemed',
-            'SUM(IF(Adjustment.type = 1, Adjustment.amount, 0) * Program.point) as `Points Earned`' => 'Points Earned',
+            'ROUND(SUM(IF(Adjustment.type = 1, Adjustment.amount, 0) * Program.point), 2) as `Points Earned`' => 'Points Earned',
         ]);
     }
 
