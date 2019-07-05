@@ -45,7 +45,7 @@ class Tax extends AbstractReport
         $selection .= $this->getMetaSelectionSql();
         $args = $this->getFilter()->getFilterConditionArgs();
         $startDate = isset($args[2]) === true ? $args[2] : date("Y-m-d 00:00:00");
-        $endDate = isset($args[3]) === true ? $args[3] : date("Y-m-d 00:00:00");
+        $endDate = isset($args[3]) === true ? $args[3] : date("Y-m-d 23:59:59");
         $selection = $this->stringReplaceFirst('?', $startDate, $selection);
         $selection = $this->stringReplaceFirst('?', $endDate, $selection);
 
