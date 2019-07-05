@@ -33,7 +33,8 @@ class Tax extends AbstractReport
             'TransactionProduct.vendor_code' => 'Product SKU',
             'TransactionProduct.name' => 'Product Name',
             'SUM(((TransactionProduct.retail + IFNULL(TransactionProduct.shipping,0) + IFNULL(TransactionProduct.handling,0)) * TransactionItem.quantity)) as `Award Amount`' => 'Award Amount',
-            'SUM(((TransactionProduct.retail + IFNULL(TransactionProduct.shipping,0) + IFNULL(TransactionProduct.handling,0)) * TransactionItem.quantity)) as `Shipped Points Redeemed`' => 'Shipped Points Redeemed'
+            '(SUM(((TransactionProduct.retail + IFNULL(TransactionProduct.shipping,0) + IFNULL(TransactionProduct.handling,0)) * TransactionItem.quantity)) * Program.point) as `Shipped Points Redeemed`' => 'Shipped Points Redeemed',
+            'ROUND(SUM(IF(Adjustment.type = 1, Adjustment.amount, 0) * Program.point), 2) as `Points Earned`' => 'Points Earned',
         ]);
     }
 
@@ -51,6 +52,7 @@ class Tax extends AbstractReport
             . "JOIN `Organization` ON `Organization`.id = `Participant`.organization_id "
             . "LEFT JOIN `Address` ON `Transaction`.shipping_reference = `Address`.reference_id "
             . "  AND Participant.id = Address.participant_id "
+            . "JOIN `Adjustment` ON `Adjustment`.participant_id = `Participant`.id "
             . "WHERE 1=1 "
             . $this->getFilter()->getFilterConditionSql()
             . " GROUP BY `Participant`.unique_id";
