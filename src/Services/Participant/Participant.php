@@ -13,6 +13,11 @@ class Participant
      */
     public $repository;
 
+    /**
+     * @var string
+     */
+    private $errorMessage;
+
     public function __construct(ParticipantRepository $repository)
     {
         $this->repository = $repository;
@@ -61,7 +66,8 @@ class Participant
     public function getProgramParticipantsWithPointsGreaterThan(
         $program_unique_id,
         $points
-    ) {
+    )
+    {
         $filter = new FilterNormalizer([
             'program' => $program_unique_id,
             'points_greater_than' => $points,
@@ -90,39 +96,65 @@ class Participant
         return null;
     }
 
-    public function generateSso($organization, $uniqueId):?array
+    private function isSsoRequestValid(?\Entities\Participant $participant): bool
+    {
+        if ($participant === null) {
+            $this->errorMessage = 'Resource does not exist';
+            return false;
+        }
+
+        if ($participant->isActive() === false) {
+            $this->errorMessage = 'Participant ' . $participant->getUniqueId() . ' is not active';
+            return false;
+        }
+
+        $program = $participant->getProgram();
+        $programNameString = 'Program ' . $program->getName() . '[' . $program->getUniqueId() . ']';
+        if ($program->isPublished() === false) {
+            $this->errorMessage = $programNameString . ' is not published';
+            return false;
+        }
+
+        if ($program->getDomain() === null) {
+            $this->errorMessage = $programNameString . ' does not have a marketplace domain configured';
+            return false;
+        };
+
+        return true;
+    }
+
+    public function generateSso($organization, $uniqueId): ?array
     {
         $participant = $this->repository->getParticipantByOrganization($organization, $uniqueId);
+        if ($this->isSsoRequestValid($participant) === false) {
+            return [
+                'error' => true,
+                'message' => $this->errorMessage
+            ];
+        }
 
-        if ($participant !== null || $participant->isActive() === true) {
-            $participant->setSso($participant->generateSsoToken());
-            $aParticipantUpdateRequest = ['sso' => $participant->getSso()];
-            if ($this->update($participant->getUniqueId(), $aParticipantUpdateRequest)) {
-                $program = $participant->getProgram();
-                $domain = $program->getDomain();
-                if (is_null($domain)) {
-                    return [
-                        'error' => true,
-                        'message' => 'No URL is configured for SSO'
-                    ];
-                };
-                $exchange = implode('.', [$program->getUrl(), $domain->getUrl()]);
-                $exchange .= '/?authenticate='
-                    . $participant->getSso()
-                    . '&' . 'participant='
-                    . $participant->getUniqueId();
-                return [
-                    'token' => $participant->getSso(),
-                    'participant' => $participant->getUniqueId(),
-                    'domain' => $domain->getUrl(),
-                    'exchange' => 'https://' . $exchange
-                ];
-            }
+        $participant->setSso($participant->generateSsoToken());
+        $aParticipantUpdateRequest = ['sso' => $participant->getSso()];
+        if ($this->update($participant->getUniqueId(), $aParticipantUpdateRequest)) {
+            $program = $participant->getProgram();
+            $domain = $program->getDomain();
+            $exchange = implode('.', [$program->getUrl(), $domain->getUrl()]);
+            $exchange .= '/?authenticate='
+                . $participant->getSso()
+                . '&' . 'participant='
+                . $participant->getUniqueId();
+
+            return [
+                'token' => $participant->getSso(),
+                'participant' => $participant->getUniqueId(),
+                'domain' => $domain->getUrl(),
+                'exchange' => 'https://' . $exchange
+            ];
         }
 
         return [
             'error' => true,
-            'message' => 'Resource does not exist'
+            'message' => 'There was a problem with your request'
         ];
     }
 

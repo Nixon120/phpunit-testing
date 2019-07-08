@@ -386,6 +386,11 @@ class Program extends Base
         $this->grace_period = $grace_period;
     }
 
+    public function isPublished(): bool
+    {
+        return $this->published == 1;
+    }
+
     /**
      * @param mixed $published
      */
