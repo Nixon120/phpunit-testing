@@ -301,6 +301,11 @@ class Transaction
         return $this->repository->getParticipantTransactionItem($guid);
     }
 
+    public function updateSingleItemMeta($transactionId, $meta)
+    {
+        $this->repository->saveTransactionMeta($transactionId, $meta);
+    }
+
     public function getErrors()
     {
         return $this->repository->getErrors();

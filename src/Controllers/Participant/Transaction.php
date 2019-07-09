@@ -133,6 +133,22 @@ class Transaction
         return $this->returnJson(400, ['Resource does not exist']);
     }
 
+    public function updateMeta($organizationId, $uniqueId, $guid)
+    {
+        $participant = $this->service->participantRepository->getParticipantByOrganization($organizationId, $uniqueId);
+        $transaction = $this->service->getSingleItem($guid);
+        $data = $this->request->getParsedBody() ?? [];
+        $meta = $data['meta'] ?? null;
+
+        if ($participant === null && $transaction === null) {
+            return $this->returnJson(400, ['Resource does not exist']);
+        }
+
+        $this->service->updateSingleItemMeta($transaction['transaction_id'], $meta);
+
+        return $this->returnJson(201, ['Transaction Meta updated']);
+    }
+
     private function returnJson($statusCode, $return = [])
     {
         return $this->response->withStatus($statusCode)
