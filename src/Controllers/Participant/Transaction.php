@@ -146,7 +146,7 @@ class Transaction
 
         $this->service->updateSingleItemMeta($transaction['transaction_id'], $meta);
 
-        return $this->returnJson(201, ['Transaction Meta updated']);
+        return $this->returnJson(201);
     }
 
     private function returnJson($statusCode, $return = [])
