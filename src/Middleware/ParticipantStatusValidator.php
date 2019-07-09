@@ -58,7 +58,7 @@ class ParticipantStatusValidator
         }
 
         if ($participant->getActive() == false) {
-            return $response->withJson(['message' => 'Participant not active'], 403);
+            return $response->withJson(['message' => 'Participant not active'], 400);
         }
 
         return $next($this->request, $this->response);
