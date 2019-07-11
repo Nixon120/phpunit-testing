@@ -34,20 +34,35 @@ class Tax extends AbstractReport
             'TransactionProduct.name' => 'Product Name',
             'SUM(((TransactionProduct.retail + IFNULL(TransactionProduct.shipping,0) + IFNULL(TransactionProduct.handling,0)) * TransactionItem.quantity)) as `Award Amount`' => 'Award Amount',
             '(SUM(((TransactionProduct.retail + IFNULL(TransactionProduct.shipping,0) + IFNULL(TransactionProduct.handling,0)) * TransactionItem.quantity)) * Program.point) as `Shipped Points Redeemed`' => 'Shipped Points Redeemed',
-            'ROUND(SUM(IF(Adjustment.type = 1 AND Adjustment.created_at >= ? AND Adjustment.created_at <= ?, Adjustment.amount, 0) * Program.point), 2) as `Points Earned`' => 'Points Earned',
+            'ROUND(IFNULL((SELECT SUM(adjustment.amount) FROM adjustment WHERE adjustment.participant_id = participant.id AND adjustment.type = 1 AND adjustment.created_at >= ? AND adjustment.created_at <= ?), 0) * Program.point, 2) AS `Points Earned`' => 'Points Earned'
         ]);
     }
 
+    private function addPreparedColumnArgs(array &$args)
+    {
+        $date = new \DateTime;
+        $startDate = $this->getFilter()->getInput()['start_date'];
+        if(trim($startDate) === "" || $startDate === null) {
+            $startDate = '2000-01-01 00:00:00';
+        }
+
+        $endDate = $this->getFilter()->getInput()['end_date'];
+        if(trim($endDate) === "" || $endDate === null) {
+            $endDate = $date->format('Y-m-d 23:59:59');
+        }
+
+        array_unshift($args, $startDate, $endDate);
+    }
 
     public function getReportData(): ReportDataResponse
     {
         $selection = implode(', ', $this->getFields());
         $selection .= $this->getMetaSelectionSql();
         $args = $this->getFilter()->getFilterConditionArgs();
-        $startDate = isset($args[2]) === true ? $args[2] : date("Y-m-d 00:00:00");
-        $endDate = isset($args[3]) === true ? $args[3] : date("Y-m-d 23:59:59");
-        $selection = $this->stringReplaceFirst('?', $startDate, $selection);
-        $selection = $this->stringReplaceFirst('?', $endDate, $selection);
+
+        if (strpos($selection, 'Points Earned') !== false) {
+            $this->addPreparedColumnArgs($args);
+        }
 
         $query = "SELECT SQL_CALC_FOUND_ROWS {$selection} FROM `TransactionItem` "
             . "JOIN `Transaction` ON `Transaction`.id = `TransactionItem`.transaction_id "
@@ -57,19 +72,11 @@ class Tax extends AbstractReport
             . "JOIN `Organization` ON `Organization`.id = `Participant`.organization_id "
             . "LEFT JOIN `Address` ON `Transaction`.shipping_reference = `Address`.reference_id "
             . "  AND Participant.id = Address.participant_id "
-            . "JOIN `Adjustment` ON `Adjustment`.participant_id = `Participant`.id "
             . "WHERE 1=1 "
             . $this->getFilter()->getFilterConditionSql()
             . " GROUP BY `Participant`.unique_id";
 
-        return $this->fetchDataForReport($query, $this->getFilter()->getFilterConditionArgs());
-    }
-
-    private function stringReplaceFirst($from, $to, $content)
-    {
-        $from = '/'.preg_quote($from, '/').'/';
-
-        return preg_replace($from, '"'.$to.'"', $content, 1);
+        return $this->fetchDataForReport($query, $args);
     }
 
     public function getReportMetaFields(): array
