@@ -47,6 +47,7 @@ JOIN `Program` ON `Program`.id = `Participant`.program_id
 JOIN `Organization` ON `Organization`.id = `Participant`.organization_id 
 WHERE 1=1  
 {$this->getFilter()->getFilterConditionSql()}
+GROUP BY Program.unique_id
 SQL;
 
         return $this->fetchDataForReport($query, $this->getFilter()->getFilterConditionArgs());

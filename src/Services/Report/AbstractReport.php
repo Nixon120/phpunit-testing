@@ -579,6 +579,11 @@ SQL;
             $where .= " AND created_at <= ".$db->quote($endDate);
         }
 
+        //when no programs are selected we need to Group By
+        if ($program === null || $program == '') {
+            $where .= ' GROUP BY participant.program_id';
+        }
+
         $query = <<<SQL
 JOIN (
   SELECT COUNT(*) AS 'Participant Count' FROM participant 
@@ -604,17 +609,24 @@ SQL;
 
         if ($startDate !== null && $startDate != '') {
             $startDate .= ' 00:00:00';
-            $where .= " AND created_at >= ".$db->quote($startDate);
+            $where .= " AND adjustment.created_at >= ".$db->quote($startDate);
         }
 
         if ($endDate !== null && $endDate != '') {
             $endDate .= ' 23:59:59';
-            $where .= " AND created_at <= ".$db->quote($endDate);
+            $where .= " AND adjustment.created_at <= ".$db->quote($endDate);
+        }
+
+        //when no programs are selected we need to Group By and Join first
+        $join = '';
+        if ($program === null || $program == '') {
+            $join = ' JOIN participant p ON p.id = adjustment.participant_id';
+            $where .= ' GROUP BY p.program_id';
         }
 
         $query = <<<SQL
 JOIN (
-  SELECT SUM(amount) AS 'Total Particpant Points' FROM adjustment 
+  SELECT SUM(amount) AS 'Total Particpant Points' FROM adjustment {$join}
   WHERE 1=1   
    AND `type` = 1
    {$where}
