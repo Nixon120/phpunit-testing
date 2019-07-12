@@ -19,6 +19,8 @@ class Enrollment extends AbstractReport
             'Organization.name as organization_name' => 'Organization Name',
             'Program.unique_id as program_id' => 'Program ID',
             'Program.name as program_name' => 'Program Name',
+            'Program.start_date as `Program Start Date`' => 'Program Start Date',
+            'Program.end_date as `Program End Date`' => 'Program End Date',
             'Participant.created_at' => 'Registration Date',
             'Participant.unique_id' => 'Participant ID',
             'IF(Participant.active = 1, \'Active\', \'Inactive\') as status' => 'Status',
