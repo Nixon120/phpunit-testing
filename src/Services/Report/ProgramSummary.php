@@ -23,7 +23,7 @@ class ProgramSummary extends AbstractReport
             'Program.grace_period as `Grace Period`' => 'Grace Period',
             'COUNT(distinct Participant.id) as `Participant Count`' => 'Participant Count',
             'ROUND(IFNULL(SUM(Adjustment.amount) * Program.point, 0), 2) as `Total Participant Points`' => 'Total Participant Points',
-            'COUNT(Transaction.id) as `Transaction Count`' => 'Transaction Count',
+            'COUNT(distinct Transaction.id) as `Transaction Count`' => 'Transaction Count',
             'IFNULL(SUM(TransactionItem.quantity), 0) as `Total Redemptions`' => 'Total Redemptions',
             'IFNULL(SUM(((TransactionProduct.retail + IFNULL(TransactionProduct.shipping, 0) + IFNULL(TransactionProduct.handling, 0)) * TransactionItem.quantity)), 0) as `Total`' => 'Total Redemption Value'
         ]);
