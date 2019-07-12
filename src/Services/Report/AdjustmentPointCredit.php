@@ -29,7 +29,7 @@ class AdjustmentPointCredit extends AbstractReport
             'Address.zip' => 'Zip',
             'Adjustment.description' => 'Description',
             'IF(Adjustment.type = 1, \'Credit\', \'Debit\') as type' => 'Type',
-            '(Adjustment.amount * Program.point) as points_earned' => 'Points Earned',
+            'ROUND((Adjustment.amount * Program.point), 2) as points_earned' => 'Points Earned',
             'Program.start_date' => 'Program Start Date',
             'Program.end_date' => 'Program End Date',
             'Adjustment.completed_at' => 'Incentive Completed Date',
