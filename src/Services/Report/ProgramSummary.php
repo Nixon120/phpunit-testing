@@ -21,7 +21,7 @@ class ProgramSummary extends AbstractReport
             'Program.start_date as `Program Start Date`' => 'Program Start Date',
             'Program.end_date as `Program End Date`' => 'Program End Date',
             'Program.grace_period as `Grace Period`' => 'Grace Period',
-            'COUNT(Participant.id) as `Participant Count`' => 'Participant Count',
+            'COUNT(distinct Participant.id) as `Participant Count`' => 'Participant Count',
             'ROUND(IFNULL(SUM(Adjustment.amount) * Program.point, 0), 2) as `Total Participant Points`' => 'Total Participant Points',
             'COUNT(Transaction.id) as `Transaction Count`' => 'Transaction Count',
             'IFNULL(SUM(TransactionItem.quantity), 0) as `Total Redemptions`' => 'Total Redemptions',
