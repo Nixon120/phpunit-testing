@@ -21,30 +21,27 @@ class ProgramSummary extends AbstractReport
             'Program.start_date as `Program Start Date`' => 'Program Start Date',
             'Program.end_date as `Program End Date`' => 'Program End Date',
             'Program.grace_period as `Grace Period`' => 'Grace Period',
-            'ParticipantSub.`Participant Count`' => 'Participant Count',
-            'AdjustmentSub.`Total Particpant Points`' => 'Total Participant Points',
-            'COUNT(distinct Transaction.id) as `Transaction Count`' => 'Transaction Count',
-            'SUM(TransactionItem.quantity) as `Total Redemptions`' => 'Total Redemptions',
-            'SUM(((TransactionProduct.retail + IFNULL(TransactionProduct.shipping,0) + IFNULL(TransactionProduct.handling,0)) * TransactionItem.quantity)) as `Total`' => 'Total Redemption Value'
+            'COUNT(Participant.id) as `Participant Count`' => 'Participant Count',
+            'ROUND(IFNULL(SUM(Adjustment.amount) * Program.point, 0), 2) as `Total Participant Points`' => 'Total Participant Points',
+            'COUNT(Transaction.id) as `Transaction Count`' => 'Transaction Count',
+            'IFNULL(SUM(TransactionItem.quantity), 0) as `Total Redemptions`' => 'Total Redemptions',
+            'IFNULL(SUM(((TransactionProduct.retail + IFNULL(TransactionProduct.shipping, 0) + IFNULL(TransactionProduct.handling, 0)) * TransactionItem.quantity)), 0) as `Total`' => 'Total Redemption Value'
         ]);
     }
 
     public function getReportData(): ReportDataResponse
     {
         $selection = implode(', ', $this->getFields());
-        $participantSub = $this->getParticipantSubquerySQL();
-        $adjustmentSub = $this->getAdjustmentSubquerySQL();
 
         $query = <<<SQL
 SELECT SQL_CALC_FOUND_ROWS {$selection}
-FROM `TransactionItem`
-{$participantSub}
-{$adjustmentSub} 
-JOIN `Transaction` ON `Transaction`.id = `TransactionItem`.transaction_id 
-JOIN `TransactionProduct` ON `TransactionItem`.reference_id = `TransactionProduct`.reference_id 
-JOIN `Participant` ON `Transaction`.participant_id = `Participant`.id 
-JOIN `Program` ON `Program`.id = `Participant`.program_id 
-JOIN `Organization` ON `Organization`.id = `Participant`.organization_id 
+FROM `Program`
+JOIN `Organization` ON `Organization`.id = `Program`.organization_id 
+LEFT JOIN `Participant` ON `Participant`.program_id = `Program`.id 
+LEFT JOIN `Adjustment` ON `Adjustment`.participant_id = `Participant`.id AND `Adjustment`.type = 1
+LEFT JOIN `Transaction` ON `Transaction`.participant_id = `Participant`.id
+LEFT JOIN `TransactionItem` ON `TransactionItem`.transaction_id = `Transaction`.id
+LEFT JOIN `TransactionProduct` ON `TransactionProduct`.reference_id = `TransactionItem`.reference_id
 WHERE 1=1  
 {$this->getFilter()->getFilterConditionSql()}
 GROUP BY Program.unique_id
