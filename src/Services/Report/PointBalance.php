@@ -28,7 +28,7 @@ class PointBalance extends AbstractReport
             'Address.city' => 'City',
             'Address.state' => 'State',
             'Address.zip' => 'Zip',
-            'Participant.credit' => 'Current Balance'
+            'ROUND(SUM(CASE When `Adjustment`.type=1 Then `Adjustment`.amount Else 0 End ) - SUM(CASE When `Adjustment`.type=2 Then `Adjustment`.amount Else 0 End ), 2) as `Current Balance`' => 'Current Balance'
         ]);
     }
 
@@ -37,13 +37,15 @@ class PointBalance extends AbstractReport
         $selection = implode(', ', $this->getFields());
         $selection .= $this->getMetaSelectionSql();
 
-        $query = "SELECT SQL_CALC_FOUND_ROWS {$selection} FROM `Participant` "
+        $query = "SELECT SQL_CALC_FOUND_ROWS {$selection} FROM `Adjustment` "
+            . "JOIN `Participant` ON `Participant`.id = `Adjustment`.participant_id "
             . "JOIN `Program` ON `Program`.id = `Participant`.program_id "
             . "JOIN `Organization` ON `Organization`.id = `Participant`.organization_id "
             . "LEFT JOIN `Address` ON `Participant`.address_reference = `Address`.reference_id "
             . "  AND Participant.id = Address.participant_id "
             . "WHERE 1=1 "
-            . $this->getFilter()->getFilterConditionSql();
+            . $this->getFilter()->getFilterConditionSql()
+            . ' GROUP BY `Adjustment`.participant_id';
 
         return $this->fetchDataForReport($query, $this->getFilter()->getFilterConditionArgs());
     }
