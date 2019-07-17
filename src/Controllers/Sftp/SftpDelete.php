@@ -44,6 +44,13 @@ class SftpDelete
 
     public function delete($id)
     {
+        $single = $this->factory->getSftpRepository()
+            ->getSftpById($id);
+
+        if ($single->getUserId() != $this->factory->getAuthenticatedUser()->getId()) {
+            return $this->response->withStatus(403);
+        }
+
         $deleted = $this->factory->getSftpRepository()
             ->delete($id);
 

@@ -82,7 +82,8 @@ return [
             'participant.all',
             'user.all',
             'report.all',
-            'administrators.all'
+            'administrators.all',
+            'sftp.all',
         ],
         'configs' => [
             'organization.all',
@@ -98,7 +99,8 @@ return [
 //            'user.read',
             'program.read',
             'organization.read',
-            'administrators.read'
+            'administrators.read',
+            'sftp.all',
         ]
     ]
 ];

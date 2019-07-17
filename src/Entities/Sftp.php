@@ -42,6 +42,12 @@ class Sftp extends Base
      * @var string
      */
     public $key;
+    /**
+     * user.id reference
+     *
+     * @var integer
+     */
+    public $user_id;
 
     /**
      * @return string
@@ -137,5 +143,21 @@ class Sftp extends Base
     public function setKey(string $key)
     {
         $this->key = $key;
+    }
+
+    /**
+     * @return int
+     */
+    public function getUserId(): int
+    {
+        return $this->user_id;
+    }
+
+    /**
+     * @param int $user_id
+     */
+    public function setUserId(int $user_id): void
+    {
+        $this->user_id = $user_id;
     }
 }

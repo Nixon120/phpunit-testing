@@ -5,7 +5,6 @@ namespace Controllers\Sftp;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Services\Report\ReportFilterNormalizer;
 use Services\Report\ServiceFactory;
 use Slim\Http\Request;
 use Slim\Http\Response;
@@ -45,6 +44,7 @@ class SftpUpdate
     public function update($id)
     {
         $get = $this->request->getParsedBody();
+        $get['user_id'] = $this->factory->getAuthenticatedUser()->getId();
 
         $saved = $this->factory->getSftpRepository()
             ->update($id, $get);
