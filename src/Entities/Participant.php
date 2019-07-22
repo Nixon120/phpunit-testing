@@ -49,6 +49,9 @@ class Participant extends \Entities\Base
      */
     private $address;
 
+    public $deactivated_at;
+
+
     public function __construct(array $data = null)
     {
         parent::__construct();
@@ -334,4 +337,22 @@ class Participant extends \Entities\Base
     {
         $this->meta = $meta;
     }
+
+
+    /**
+     * @return mixed
+     */
+    public function getDeactivatedAt()
+    {
+        return $this->deactivated_at;
+    }
+
+    /**
+     * @param mixed $time
+     */
+    public function setDeactivatedAt($time)
+    {
+        $this->deactivated_at = $time;
+    }
+
 }
