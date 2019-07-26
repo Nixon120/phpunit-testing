@@ -64,6 +64,11 @@ class Tax extends AbstractReport
             $this->addPreparedColumnArgs($args);
         }
 
+        // Fetch TAX EXEMPT skus from catalog
+        $taxExemptSkus = $this->getFactory()->getCatalogService()
+            ->getTaxExemptSkus();
+
+
         $query = "SELECT SQL_CALC_FOUND_ROWS {$selection} FROM `TransactionItem` "
             . "JOIN `Transaction` ON `Transaction`.id = `TransactionItem`.transaction_id "
             . "JOIN `TransactionProduct` ON `TransactionItem`.reference_id = `TransactionProduct`.reference_id "
@@ -73,8 +78,15 @@ class Tax extends AbstractReport
             . "LEFT JOIN `Address` ON `Transaction`.shipping_reference = `Address`.reference_id "
             . "  AND Participant.id = Address.participant_id "
             . "WHERE 1=1 "
-            . $this->getFilter()->getFilterConditionSql()
-            . " GROUP BY `Participant`.unique_id";
+            . $this->getFilter()->getFilterConditionSql();
+
+        if(!empty($taxExemptSkus)) {
+            $args = array_merge($args, $taxExemptSkus);
+            $placeholder = rtrim(str_repeat('?,', count($taxExemptSkus)), ',');
+            $query .= " AND TransactionProduct.unique_id NOT IN ({$placeholder})";
+        }
+
+        $query .= " GROUP BY `Participant`.unique_id";
 
         return $this->fetchDataForReport($query, $args);
     }
