@@ -168,6 +168,7 @@ class Report extends Base
                 return 'Program Summary';
                 break;
             case 8:
+            case 10:
                 return 'Tax';
                 break;
             case 9:
@@ -212,6 +213,9 @@ class Report extends Base
                 break;
             case 9: //'Adjustment Point Credit':
                 return 'AdjustmentPointCredit';
+                break;
+            case 10:
+                return 'TaxOnEarned';
                 break;
             default:
                 throw new \Exception('Invalid report specification');
