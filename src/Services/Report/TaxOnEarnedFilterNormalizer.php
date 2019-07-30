@@ -1,4 +1,5 @@
 <?php
+
 namespace Services\Report;
 
 use Services\AbstractFilterNormalizer;
@@ -7,7 +8,7 @@ class TaxOnEarnedFilterNormalizer extends AbstractFilterNormalizer
 {
     public function getStatusFilter($value)
     {
-        return "`Participant`.`active` = ?";
+        return "`participant`.`active` = ?";
     }
 
     public function getStatusFilterArgs($value)
@@ -17,7 +18,7 @@ class TaxOnEarnedFilterNormalizer extends AbstractFilterNormalizer
 
     public function getOrganizationFilter($value)
     {
-        return "`Organization`.`unique_id` = ?";
+        return "`organization`.`unique_id` = ?";
     }
 
     public function getOrganizationFilterArgs($value)
@@ -27,7 +28,7 @@ class TaxOnEarnedFilterNormalizer extends AbstractFilterNormalizer
 
     public function getProgramFilter($value)
     {
-        return "`Program`.`unique_id` = ?";
+        return "`program`.`unique_id` = ?";
     }
 
     public function getProgramFilterArgs($value)
@@ -37,7 +38,7 @@ class TaxOnEarnedFilterNormalizer extends AbstractFilterNormalizer
 
     public function getStartDateFilter($value)
     {
-        return "`Transaction`.`created_at` >= ?";
+        return "`adjustment`.`created_at` >= ?";
     }
 
     public function getStartDateFilterArgs($value)
@@ -52,7 +53,7 @@ class TaxOnEarnedFilterNormalizer extends AbstractFilterNormalizer
 
     public function getEndDateFilter($value)
     {
-        return "`Transaction`.`created_at` <= ?";
+        return "`adjustment`.`created_at` <= ?";
     }
 
     public function getEndDateFilterArgs($value)
@@ -66,7 +67,7 @@ class TaxOnEarnedFilterNormalizer extends AbstractFilterNormalizer
 
     public function getUniqueIdFilter($value)
     {
-        return "`Participant`.`unique_id` = ?";
+        return "`participant`.`unique_id` = ?";
     }
 
     public function getUniqueIdFilterArgs($value)
@@ -76,7 +77,7 @@ class TaxOnEarnedFilterNormalizer extends AbstractFilterNormalizer
 
     public function getFirstnameFilter($value)
     {
-        return "`Address`.`firstname` = ?";
+        return "IFNULL(`participant`.`firstname`, `Address`.`firstname`) = ?";
     }
 
     public function getFirstnameFilterArgs($value)
@@ -86,7 +87,7 @@ class TaxOnEarnedFilterNormalizer extends AbstractFilterNormalizer
 
     public function getLastnameFilter($value)
     {
-        return "`Address`.`lastname` = ?";
+        return "IFNULL(`participant`.`lastname`, `Address`.`lastname`) = ?";
     }
 
     public function getLastnameFilterArgs($value)
@@ -96,7 +97,7 @@ class TaxOnEarnedFilterNormalizer extends AbstractFilterNormalizer
 
     public function getBirthdateFilter($value)
     {
-        return "`Participant`.`birthdate` = ?";
+        return "`participant`.`birthdate` = ?";
     }
 
     public function getBirthdateFilterArgs($value)
@@ -106,7 +107,7 @@ class TaxOnEarnedFilterNormalizer extends AbstractFilterNormalizer
 
     public function getAddress1Filter($value)
     {
-        return "`Address`.`address1` = ?";
+        return "`address`.`address1` = ?";
     }
 
     public function getAddress1FilterArgs($value)
@@ -116,7 +117,7 @@ class TaxOnEarnedFilterNormalizer extends AbstractFilterNormalizer
 
     public function getAddress2Filter($value)
     {
-        return "`Address`.`address2` = ?";
+        return "`address`.`address2` = ?";
     }
 
     public function getAddress2FilterArgs($value)
