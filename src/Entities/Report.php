@@ -343,7 +343,7 @@ class Report extends Base
     }
 
     /**
-     * @param $reportDate
+     * @param string $reportDate
      * @throws \Exception
      */
     public function setReportDate($reportDate)
