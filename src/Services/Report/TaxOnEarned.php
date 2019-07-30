@@ -8,29 +8,29 @@ class TaxOnEarned extends AbstractReport
 {
     const NAME = 'TaxOnEarned';
 
-    const REPORT = 8;
+    const REPORT = 10;
 
     public function __construct(?ServiceFactory $factory = null)
     {
         parent::__construct($factory);
 
         $this->setFieldMap([
-            '`organization`.`name`' => 'Organization Name',
-            '`program`.`name`' => 'Program Name',
-            '`program`.`unique_id`' => 'Program ID',
-            '`participant`.`unique_id`' => 'Participant ID',
-            'IF(`participant`.`active` = 1, \'Active\', \'Inactive\')' => 'Status',
-            'IFNULL(`participant`.`firstname`, `Address`.`firstname`)' => 'First Name',
-            'IFNULL(`participant`.`lastname`, `Address`.`lastname`)' => 'Last Name',
-            '`participant`.`birthdate`' => 'Date of Birth',
-            '`address`.`address1`' => 'Address1',
-            '`address`.`address2`' => 'Address2',
-            '`address`.`city`' => 'City',
-            '`address`.`state`' => 'State',
-            '`address`.`zip`' => 'Zip',
-            '`participant`.`email_address`' => 'Email',
-            '(SUM(IF(adjustment.type = 1, adjustment.amount, 0))-SUM(IF(adjustment.type = 2 AND adjustment.transaction_id IS NULL, adjustment.amount, 0)))' => 'Earned Amount',
-            '(SUM(IF(adjustment.type = 2 AND adjustment.transaction_id IS NOT NULL, adjustment.amount, 0)))' => 'Redeemed Amount'
+            '`organization`.`name` as `Organization Name`' => 'Organization Name',
+            '`program`.`name` as `Program Name`' => 'Program Name',
+            '`program`.`unique_id` as `Program ID`' => 'Program ID',
+            '`participant`.`unique_id` as `Participant ID`' => 'Participant ID',
+            'IF(`participant`.`active` = 1, \'Active\', \'Inactive\') as `Status`' => 'Status',
+            'IFNULL(`participant`.`firstname`, `Address`.`firstname`) as `First Name`' => 'First Name',
+            'IFNULL(`participant`.`lastname`, `Address`.`lastname`) as `Last Name`' => 'Last Name',
+            '`participant`.`birthdate` as `Date of Birth`' => 'Date of Birth',
+            '`address`.`address1` as `Address1`' => 'Address1',
+            '`address`.`address2` as `Address2`' => 'Address2',
+            '`address`.`city` as `City`' => 'City',
+            '`address`.`state` as `State`' => 'State',
+            '`address`.`zip` as `Zip`' => 'Zip',
+            '`participant`.`email_address` as `Email`' => 'Email',
+            '(SUM(IF(adjustment.type = 1, adjustment.amount, 0))-SUM(IF(adjustment.type = 2 AND adjustment.transaction_id IS NULL, adjustment.amount, 0))) as `Earned Amount`' => 'Earned Amount',
+            '(SUM(IF(adjustment.type = 2 AND adjustment.transaction_id IS NOT NULL, adjustment.amount, 0))) as `Redeemed Amount`' => 'Redeemed Amount'
         ]);
     }
 
@@ -52,18 +52,29 @@ LEFT JOIN `transactionitem` ON `transactionitem`.transaction_id = `transaction`.
 LEFT JOIN `transactionproduct` ON `transactionitem`.reference_id = `transactionproduct`.reference_id
 WHERE 1=1
 {$this->getFilter()->getFilterConditionSql()}
+{$this->getTaxExemptSql($args)}
 GROUP BY `Participant`.unique_id
 SQL;
+        
+        return $this->fetchDataForReport($query, $args);
+    }
 
-        // Fetch TAX EXEMPT skus from catalog
+    /**
+     * @param array $args (reference)
+     * @return string
+     * @throws \AllDigitalRewards\Services\Catalog\Exception\CatalogException
+     */
+    private function getTaxExemptSql(array &$args)
+    {
         $taxExemptSkus = $this->getFactory()->getCatalogService()->getTaxExemptSkus();
+        $sql = '';
         if (!empty($taxExemptSkus)) {
             $args = array_merge($args, $taxExemptSkus);
             $placeholder = rtrim(str_repeat('?,', count($taxExemptSkus)), ',');
-            $query .= " AND `transactionproduct`.unique_id NOT IN ({$placeholder}) ";
+            $sql .= " AND `transactionproduct`.unique_id NOT IN ({$placeholder}) ";
         }
 
-        return $this->fetchDataForReport($query, $args);
+        return $sql;
     }
 
     public function getReportMetaFields(): array
