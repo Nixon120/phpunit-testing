@@ -39,6 +39,11 @@ class Report extends Base
     public $report;
 
     /**
+     * @var string
+     */
+    public $report_date;
+
+    /**
      * The requested format; csv, xls, pdf
      *
      * @var string
@@ -168,11 +173,13 @@ class Report extends Base
                 return 'Program Summary';
                 break;
             case 8:
-            case 10:
                 return 'Tax';
                 break;
             case 9:
                 return 'Adjustment Point Credit';
+                break;
+            case 10:
+                return 'Tax On Earned';
                 break;
             default:
                 return 'Unknown';
@@ -336,7 +343,8 @@ class Report extends Base
     }
 
     /**
-     * @param string
+     * @param $report_date
+     * @throws \Exception
      */
     public function setReportDate($report_date)
     {
