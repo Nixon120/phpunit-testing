@@ -51,6 +51,7 @@ LEFT JOIN `transaction` ON adjustment.transaction_id = `transaction`.id
 LEFT JOIN `transactionitem` ON `transactionitem`.transaction_id = `transaction`.id
 LEFT JOIN `transactionproduct` ON `transactionitem`.reference_id = `transactionproduct`.reference_id
 WHERE 1=1
+AND `adjustment`.`type` IN (1,2)
 {$this->getFilter()->getFilterConditionSql()}
 {$this->getTaxExemptSql($args)}
 GROUP BY `Participant`.unique_id
