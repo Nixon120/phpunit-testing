@@ -39,6 +39,11 @@ class Report extends Base
     public $report;
 
     /**
+     * @var string
+     */
+    public $report_date;
+
+    /**
      * The requested format; csv, xls, pdf
      *
      * @var string
@@ -173,6 +178,9 @@ class Report extends Base
             case 9:
                 return 'Adjustment Point Credit';
                 break;
+            case 10:
+                return 'Tax On Earned';
+                break;
             default:
                 return 'Unknown';
                 break;
@@ -212,6 +220,9 @@ class Report extends Base
                 break;
             case 9: //'Adjustment Point Credit':
                 return 'AdjustmentPointCredit';
+                break;
+            case 10:
+                return 'TaxOnEarned';
                 break;
             default:
                 throw new \Exception('Invalid report specification');
@@ -332,13 +343,13 @@ class Report extends Base
     }
 
     /**
-     * @param string
+     * @param string $reportDate
+     * @throws \Exception
      */
-    public function setReportDate($report_date)
+    public function setReportDate($reportDate)
     {
-        $this->report_date = null;
-        if ($report_date) {
-            $report_date = new \DateTime($report_date);
+        if (!empty($reportDate)) {
+            $report_date = new \DateTime($reportDate);
             $this->report_date = $report_date->format('Y-m-d');
         }
     }
