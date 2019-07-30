@@ -29,9 +29,25 @@ class TaxOnEarned extends AbstractReport
             '`address`.`state` as `State`' => 'State',
             '`address`.`zip` as `Zip`' => 'Zip',
             '`participant`.`email_address` as `Email`' => 'Email',
-            '(SUM(IF(adjustment.type = 1, adjustment.amount, 0))-SUM(IF(adjustment.type = 2 AND adjustment.transaction_id IS NULL, adjustment.amount, 0))) as `Earned Amount`' => 'Earned Amount',
-            '(SUM(IF(adjustment.type = 2 AND adjustment.transaction_id IS NOT NULL, adjustment.amount, 0))) as `Redeemed Amount`' => 'Redeemed Amount'
+            '(IFNULL((SELECT SUM(a.amount) FROM adjustment a WHERE a.participant_id = adjustment.participant_id AND a.`type` = 1 AND a.`created_at` >= ? AND a.`created_at` <= ?),0) - IFNULL((SELECT SUM(a.amount) FROM adjustment a WHERE a.participant_id = adjustment.participant_id AND a.`type` = 2 AND a.`transaction_id` IS NULL AND a.`created_at` >= ? AND a.`created_at` <= ?),0)) as `Earned Amount`' => 'Earned Amount',
+            '(IFNULL((SELECT SUM(a.amount) FROM adjustment a WHERE a.participant_id = adjustment.participant_id AND a.`type` = 2 AND a.transaction_id IS NOT NULL AND a.transaction_id NOT IN (SELECT DISTINCT transaction_id FROM `transactionitem` LEFT JOIN `transactionproduct` ON `transactionitem`.reference_id = `transactionproduct`.reference_id WHERE 1=1 %taxExemptPlaceholder%) AND a.`created_at` >= ? AND a.`created_at` <= ?),0)) as `Redeemed Amount`' => 'Redeemed Amount'
         ]);
+    }
+
+    private function addPreparedColumnArgsDateBetween(array &$args)
+    {
+        $date = new \DateTime;
+        $startDate = $this->getFilter()->getInput()['start_date'];
+        if(trim($startDate) === "" || $startDate === null) {
+            $startDate = '2000-01-01 00:00:00';
+        }
+
+        $endDate = $this->getFilter()->getInput()['end_date'];
+        if(trim($endDate) === "" || $endDate === null) {
+            $endDate = $date->format('Y-m-d 23:59:59');
+        }
+
+        array_unshift($args, $startDate, $endDate, $startDate, $endDate);
     }
 
     public function getReportData(): ReportDataResponse
@@ -39,6 +55,24 @@ class TaxOnEarned extends AbstractReport
         $selection = implode(', ', $this->getFields());
         $selection .= $this->getMetaSelectionSql();
         $args = $this->getFilter()->getFilterConditionArgs();
+
+        if (strpos($selection, 'Earned Amount') !== false) {
+            $this->addPreparedColumnArgsDateBetween($args);
+        }
+
+        if (strpos($selection, '%taxExemptPlaceholder%') !== false) {
+            $taxExemptSkus = $this->getFactory()->getCatalogService()->getTaxExemptSkus();
+            $replace = '';
+            if(!empty($taxExemptSkus)) {
+                $replace = $this->getTaxExemptSql($args);
+            }
+
+            $selection = str_replace('%taxExemptPlaceholder%', $replace, $selection);
+        }
+
+        if (strpos($selection, 'Redeemed Amount') !== false) {
+            $this->addPreparedColumnArgsDateBetween($args);
+        }
 
         $query = <<<SQL
 SELECT SQL_CALC_FOUND_ROWS {$selection}
@@ -53,10 +87,9 @@ LEFT JOIN `transactionproduct` ON `transactionitem`.reference_id = `transactionp
 WHERE 1=1
 AND `adjustment`.`type` IN (1,2)
 {$this->getFilter()->getFilterConditionSql()}
-{$this->getTaxExemptSql($args)}
 GROUP BY `Participant`.unique_id
 SQL;
-        
+
         return $this->fetchDataForReport($query, $args);
     }
 
@@ -72,7 +105,7 @@ SQL;
         if (!empty($taxExemptSkus)) {
             $args = array_merge($args, $taxExemptSkus);
             $placeholder = rtrim(str_repeat('?,', count($taxExemptSkus)), ',');
-            $sql .= " AND `transactionproduct`.unique_id NOT IN ({$placeholder}) ";
+            $sql .= " AND `transactionproduct`.unique_id IN ({$placeholder}) ";
         }
 
         return $sql;
