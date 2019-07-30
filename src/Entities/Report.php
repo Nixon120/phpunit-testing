@@ -343,14 +343,13 @@ class Report extends Base
     }
 
     /**
-     * @param $report_date
+     * @param $reportDate
      * @throws \Exception
      */
-    public function setReportDate($report_date)
+    public function setReportDate($reportDate)
     {
-        $this->report_date = null;
-        if ($report_date) {
-            $report_date = new \DateTime($report_date);
+        if (!empty($reportDate)) {
+            $report_date = new \DateTime($reportDate);
             $this->report_date = $report_date->format('Y-m-d');
         }
     }
