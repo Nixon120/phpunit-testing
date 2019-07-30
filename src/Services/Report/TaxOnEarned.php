@@ -90,13 +90,6 @@ AND `adjustment`.`type` IN (1,2)
 GROUP BY `Participant`.unique_id
 SQL;
 
-        print_r($args);
-        echo PHP_EOL;
-        echo PHP_EOL;
-        echo PHP_EOL;
-        print_r($query);
-
-        die();
         return $this->fetchDataForReport($query, $args);
     }
 
