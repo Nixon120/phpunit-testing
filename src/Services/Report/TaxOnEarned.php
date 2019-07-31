@@ -29,8 +29,8 @@ class TaxOnEarned extends AbstractReport
             '`address`.`state` as `State`' => 'State',
             '`address`.`zip` as `Zip`' => 'Zip',
             '`participant`.`email_address` as `Email`' => 'Email',
-            '(IFNULL((SELECT SUM(a.amount) FROM adjustment a WHERE a.participant_id = adjustment.participant_id AND a.`type` = 1 AND a.`created_at` >= ? AND a.`created_at` <= ?),0) - IFNULL((SELECT SUM(a.amount) FROM adjustment a WHERE a.participant_id = adjustment.participant_id AND a.`type` = 2 AND a.`transaction_id` IS NULL AND a.`created_at` >= ? AND a.`created_at` <= ?),0)) as `Earned Amount`' => 'Earned Amount',
-            '(IFNULL((SELECT SUM(a.amount) FROM adjustment a WHERE a.participant_id = adjustment.participant_id AND a.`type` = 2 AND a.transaction_id IS NOT NULL AND a.transaction_id NOT IN (SELECT DISTINCT transaction_id FROM `transactionitem` LEFT JOIN `transactionproduct` ON `transactionitem`.reference_id = `transactionproduct`.reference_id WHERE 1=1 {taxExemptPlaceholder}) AND a.`created_at` >= ? AND a.`created_at` <= ?),0)) as `Redeemed Amount`' => 'Redeemed Amount'
+            'ROUND(IFNULL((SELECT SUM(a.amount) FROM adjustment a WHERE a.participant_id = adjustment.participant_id AND a.`type` = 1 AND a.`created_at` >= ? AND a.`created_at` <= ?),0) - IFNULL((SELECT SUM(a.amount) FROM adjustment a WHERE a.participant_id = adjustment.participant_id AND a.`type` = 2 AND a.`transaction_id` IS NULL AND a.`created_at` >= ? AND a.`created_at` <= ?),0), 2) as `Earned Amount`' => 'Earned Amount',
+            'ROUND(IFNULL((SELECT SUM(a.amount) FROM adjustment a WHERE a.participant_id = adjustment.participant_id AND a.`type` = 2 AND a.transaction_id IS NOT NULL AND a.transaction_id NOT IN (SELECT DISTINCT transaction_id FROM `transactionitem` LEFT JOIN `transactionproduct` ON `transactionitem`.reference_id = `transactionproduct`.reference_id WHERE 1=1 {taxExemptPlaceholder}) AND a.`created_at` >= ? AND a.`created_at` <= ?),0), 2) as `Redeemed Amount`' => 'Redeemed Amount'
         ]);
     }
 
