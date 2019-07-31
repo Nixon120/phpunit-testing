@@ -30,7 +30,7 @@ class TaxOnEarned extends AbstractReport
             '`address`.`zip` as `Zip`' => 'Zip',
             '`participant`.`email_address` as `Email`' => 'Email',
             '(IFNULL((SELECT SUM(a.amount) FROM adjustment a WHERE a.participant_id = adjustment.participant_id AND a.`type` = 1 AND a.`created_at` >= ? AND a.`created_at` <= ?),0) - IFNULL((SELECT SUM(a.amount) FROM adjustment a WHERE a.participant_id = adjustment.participant_id AND a.`type` = 2 AND a.`transaction_id` IS NULL AND a.`created_at` >= ? AND a.`created_at` <= ?),0)) as `Earned Amount`' => 'Earned Amount',
-            '(IFNULL((SELECT SUM(a.amount) FROM adjustment a WHERE a.participant_id = adjustment.participant_id AND a.`type` = 2 AND a.transaction_id IS NOT NULL AND a.transaction_id NOT IN (SELECT DISTINCT transaction_id FROM `transactionitem` LEFT JOIN `transactionproduct` ON `transactionitem`.reference_id = `transactionproduct`.reference_id WHERE 1=1 {{taxExemptPlaceholder}}) AND a.`created_at` >= ? AND a.`created_at` <= ?),0)) as `Redeemed Amount`' => 'Redeemed Amount'
+            '(IFNULL((SELECT SUM(a.amount) FROM adjustment a WHERE a.participant_id = adjustment.participant_id AND a.`type` = 2 AND a.transaction_id IS NOT NULL AND a.transaction_id NOT IN (SELECT DISTINCT transaction_id FROM `transactionitem` LEFT JOIN `transactionproduct` ON `transactionitem`.reference_id = `transactionproduct`.reference_id WHERE 1=1 {taxExemptPlaceholder}) AND a.`created_at` >= ? AND a.`created_at` <= ?),0)) as `Redeemed Amount`' => 'Redeemed Amount'
         ]);
     }
 
@@ -47,27 +47,29 @@ class TaxOnEarned extends AbstractReport
             $endDate = $date->format('Y-m-d 23:59:59');
         }
 
-        array_unshift($args, $startDate, $endDate, $startDate, $endDate);
+        $args = array_merge($args, [$startDate, $endDate]);
     }
 
     public function getReportData(): ReportDataResponse
     {
         $selection = implode(', ', $this->getFields());
         $selection .= $this->getMetaSelectionSql();
-        $args = $this->getFilter()->getFilterConditionArgs();
+        $args = [];
 
         if (strpos($selection, 'Earned Amount') !== false) {
+            // we run twice, because there are two date ranges
+            $this->addPreparedColumnArgsDateBetween($args);
             $this->addPreparedColumnArgsDateBetween($args);
         }
 
-        if (strpos($selection, '{{taxExemptPlaceholder}}') !== false) {
+        if (strpos($selection, '{taxExemptPlaceholder}') !== false) {
             $taxExemptSkus = $this->getFactory()->getCatalogService()->getTaxExemptSkus();
             $replace = '';
             if(!empty($taxExemptSkus)) {
-                $replace = $this->getTaxExemptSql($args);
+                $replace = $this->getTaxExemptSql($args, $taxExemptSkus);
             }
 
-            $selection = str_replace('{{taxExemptPlaceholder}}', $replace, $selection);
+            $selection = str_replace('{taxExemptPlaceholder}', $replace, $selection);
         }
 
         if (strpos($selection, 'Redeemed Amount') !== false) {
@@ -89,26 +91,21 @@ AND `adjustment`.`type` IN (1,2)
 {$this->getFilter()->getFilterConditionSql()}
 GROUP BY `Participant`.unique_id
 SQL;
+        $args = array_merge($args, $this->getFilter()->getFilterConditionArgs());
 
         return $this->fetchDataForReport($query, $args);
     }
 
     /**
-     * @param array $args (reference)
+     * @param array $args
+     * @param array $taxExemptSkus
      * @return string
-     * @throws \AllDigitalRewards\Services\Catalog\Exception\CatalogException
      */
-    private function getTaxExemptSql(array &$args)
+    private function getTaxExemptSql(array &$args, array $taxExemptSkus)
     {
-        $taxExemptSkus = $this->getFactory()->getCatalogService()->getTaxExemptSkus();
-        $sql = '';
-        if (!empty($taxExemptSkus)) {
-            $args = array_merge($args, $taxExemptSkus);
-            $placeholder = rtrim(str_repeat('?,', count($taxExemptSkus)), ',');
-            $sql .= " AND `transactionproduct`.unique_id IN ({$placeholder}) ";
-        }
-
-        return $sql;
+        $args = array_merge($args, $taxExemptSkus);
+        $placeholder = rtrim(str_repeat('?,', count($taxExemptSkus)), ',');
+        return " AND `transactionproduct`.unique_id IN ({$placeholder}) ";
     }
 
     public function getReportMetaFields(): array
