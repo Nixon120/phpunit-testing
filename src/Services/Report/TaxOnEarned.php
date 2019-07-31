@@ -83,9 +83,6 @@ LEFT JOIN `adjustment` ON `participant`.`id` = `adjustment`.`participant_id`
 LEFT JOIN `address` ON `participant`.`address_reference` = `address`.`reference_id` AND `participant`.`id` = `address`.`participant_id`
 LEFT JOIN `program` ON `participant`.program_id = `program`.id
 LEFT JOIN `organization` ON `program`.organization_id = `organization`.id
-LEFT JOIN `transaction` ON adjustment.transaction_id = `transaction`.id
-LEFT JOIN `transactionitem` ON `transactionitem`.transaction_id = `transaction`.id
-LEFT JOIN `transactionproduct` ON `transactionitem`.reference_id = `transactionproduct`.reference_id
 WHERE 1=1
 AND `adjustment`.`type` IN (1,2)
 {$this->getFilter()->getFilterConditionSql()}
