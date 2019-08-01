@@ -156,9 +156,9 @@ class Request extends AbstractListener
         return $this->report;
     }
 
-    private function getStartDateTime():\DateTime
+    private function getStartDateTime(): \DateTime
     {
-        if($this->startDateTime === null) {
+        if ($this->startDateTime === null) {
             $startDate = $this->getReportService()->getFilter()->getInput()['start_date'];
             if ($startDate === null || trim($startDate) === "") {
                 $startDate = '2000-01-01';
@@ -170,9 +170,9 @@ class Request extends AbstractListener
         return $this->startDateTime;
     }
 
-    private function getEndDateTime():\DateTime
+    private function getEndDateTime(): \DateTime
     {
-        if($this->endDateTime === null) {
+        if ($this->endDateTime === null) {
             $endDate = $this->getReportService()->getFilter()->getInput()['end_date'];
 
             if ($endDate === null || trim($endDate) === "") {
@@ -212,10 +212,6 @@ class Request extends AbstractListener
                 WriterEntityFactory::createCell('', $style),
             ])
         ];
-
-
-
-
     }
 
     /**
