@@ -148,8 +148,18 @@ class Request extends AbstractListener
 
     private function getReportTitleSegment()
     {
-        $endDate = $this->getReport()->getParameters()['end_date'] ?? 'now';
+        $startDate = $this->getReportService()->getFilter()->getInput()['start_date'];
+        $endDate = $this->getReportService()->getFilter()->getInput()['end_date'];
+        if($startDate === null || trim($startDate) === "") {
+            $startDate = '2000-01-01';
+        }
+        if($endDate === null || trim($endDate) === "") {
+            $endDate = 'now';
+        }
+
+        $startDate = new \DateTime($startDate);
         $endDate = new \DateTime($endDate);
+
         $style = (new StyleBuilder)
             ->setFontBold()
             ->setFontSize(16)
@@ -166,9 +176,19 @@ class Request extends AbstractListener
                 WriterEntityFactory::createCell('As of ' . $endDate->format('M d, Y'), $style),
             ]),
             WriterEntityFactory::createRow([
+                WriterEntityFactory::createCell(
+                    $startDate->format('m/d/Y') . ' - ' . $endDate->format('m/d/Y'),
+                    $style
+                ),
+            ]),
+            $titleRowCollection[] = WriterEntityFactory::createRow([
                 WriterEntityFactory::createCell('', $style),
             ])
         ];
+
+
+
+
     }
 
     /**
