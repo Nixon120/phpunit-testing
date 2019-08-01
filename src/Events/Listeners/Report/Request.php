@@ -60,6 +60,16 @@ class Request extends AbstractListener
      */
     private $writer;
 
+    /**
+     * @var \DateTime
+     */
+    private $startDateTime;
+
+    /**
+     * @var \DateTime
+     */
+    private $endDateTime;
+
     public function __construct(
         MessagePublisher $publisher,
         Report\ServiceFactory $factory
@@ -146,10 +156,37 @@ class Request extends AbstractListener
         return $this->report;
     }
 
+    private function getStartDateTime(): \DateTime
+    {
+        if ($this->startDateTime === null) {
+            $startDate = $this->getReportService()->getFilter()->getInput()['start_date'];
+            if ($startDate === null || trim($startDate) === "") {
+                $startDate = '2000-01-01';
+            }
+
+            $this->startDateTime = new \DateTime($startDate);
+        }
+
+        return $this->startDateTime;
+    }
+
+    private function getEndDateTime(): \DateTime
+    {
+        if ($this->endDateTime === null) {
+            $endDate = $this->getReportService()->getFilter()->getInput()['end_date'];
+
+            if ($endDate === null || trim($endDate) === "") {
+                $endDate = 'now';
+            }
+            $this->endDateTime = new \DateTime($endDate);
+        }
+
+        return $this->endDateTime;
+    }
+
     private function getReportTitleSegment()
     {
-        $endDate = $this->getReport()->getParameters()['end_date'] ?? 'now';
-        $endDate = new \DateTime($endDate);
+
         $style = (new StyleBuilder)
             ->setFontBold()
             ->setFontSize(16)
@@ -163,7 +200,13 @@ class Request extends AbstractListener
                 WriterEntityFactory::createCell($this->getReport()->getReportName(), $style),
             ]),
             WriterEntityFactory::createRow([
-                WriterEntityFactory::createCell('As of ' . $endDate->format('M d, Y'), $style),
+                WriterEntityFactory::createCell('As of ' . $this->getEndDateTime()->format('M d, Y'), $style),
+            ]),
+            WriterEntityFactory::createRow([
+                WriterEntityFactory::createCell(
+                    $this->getStartDateTime()->format('m/d/Y') . ' - ' . $this->getEndDateTime()->format('m/d/Y'),
+                    $style
+                ),
             ]),
             WriterEntityFactory::createRow([
                 WriterEntityFactory::createCell('', $style),
