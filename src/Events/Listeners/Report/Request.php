@@ -181,7 +181,7 @@ class Request extends AbstractListener
                     $style
                 ),
             ]),
-            $titleRowCollection[] = WriterEntityFactory::createRow([
+            WriterEntityFactory::createRow([
                 WriterEntityFactory::createCell('', $style),
             ])
         ];
