@@ -30,6 +30,22 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
     $app->put('/{id}', $updateRoute)->add(Services\Participant\ValidationMiddleware::class);
     ;
 
+    $app->put('/{id}/meta', function ($request, $response, $args) {
+        $participant = new Controllers\Sso($request, $response, $this->get('participant'));
+        $uniqueId = $args['id'];
+        /** @var \Services\Authentication\Authenticate $auth */
+        $auth = $this->get('authentication');
+        return $participant->generateSso($auth->getUser()->getOrganizationId(), $uniqueId);
+    })->add(Services\Participant\ValidationMiddleware::class);
+
+    $app->patch('/{id}/meta', function ($request, $response, $args) {
+        $participant = new Controllers\Sso($request, $response, $this->get('participant'));
+        $uniqueId = $args['id'];
+        /** @var \Services\Authentication\Authenticate $auth */
+        $auth = $this->get('authentication');
+        return $participant->generateSso($auth->getUser()->getOrganizationId(), $uniqueId);
+    })->add(Services\Participant\ValidationMiddleware::class);
+
     $app->post('/{id}/sso', function ($request, $response, $args) {
         $participant = new Controllers\Sso($request, $response, $this->get('participant'));
         $uniqueId = $args['id'];
