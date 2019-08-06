@@ -63,7 +63,7 @@ class UpdateMeta
         $response = $this->response->withStatus($statusCode);
 
         if ($return !== null) {
-            $response->withJson($return);
+            $response = $response->withJson($return);
         }
         return $response;
     }
