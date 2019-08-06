@@ -126,6 +126,13 @@ SQL;
         return $participant;
     }
 
+    public function deleteParticipantMeta($participantId)
+    {
+        $sql = "DELETE FROM `ParticipantMeta` WHERE participant_id = ?";
+        $sth = $this->database->prepare($sql);
+        return $sth->execute([$participantId]);
+    }
+
     private function deleteMetaByParticipantAndKey($participantId, $key)
     {
         $sql = "DELETE FROM `ParticipantMeta` WHERE participant_id = ? AND `key` = ?";
@@ -133,7 +140,7 @@ SQL;
         return $sth->execute([$participantId, $key]);
     }
 
-    public function setParticipantMeta($metaCollection)
+    public function setParticipantMeta($metaCollection): bool
     {
         $this->table = 'ParticipantMeta';
         //@TODO try / catch
@@ -151,6 +158,7 @@ SQL;
             }
         }
         $this->table = 'Participant';
+        return true;
     }
 
     public function getParticipantMeta($participantId)
@@ -336,7 +344,9 @@ SQL;
                 $metaCollection[] = $item;
             }
 
-            $this->setParticipantMeta($metaCollection);
+            return $this->setParticipantMeta($metaCollection);
         }
+
+        return true;
     }
 }

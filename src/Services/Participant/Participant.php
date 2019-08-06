@@ -315,6 +315,50 @@ class Participant
     }
 
     /**
+     * Make meta collection easier to work with (for temporary assignments, updates, etc)
+     *
+     * @param $collection
+     * @return array
+     */
+    private function simplifyMetaCollection($collection)
+    {
+        $returnCollection = [];
+        foreach($collection as $value) {
+            $returnCollection[key($value)] = $value[key($value)];
+        }
+
+        return $returnCollection;
+    }
+
+    /**
+     * @param \Entities\Participant $participant
+     * @param $metaData
+     * @return bool
+     */
+    public function updateMeta(\Entities\Participant $participant, $metaData)
+    {
+        $meta = array_merge($this->simplifyMetaCollection($participant->getMeta()), $this->simplifyMetaCollection($metaData));
+        $metaCollection = [];
+        foreach($meta as $k=>$v) {
+            $metaCollection[] = [$k => $v];
+        }
+
+        return $this->repository->saveMeta($participant->getId(), $metaCollection);
+    }
+
+    /**
+     * @param \Entities\Participant $participant
+     * @param $meta
+     * @return bool
+     */
+    public function saveMeta(\Entities\Participant $participant, $meta)
+    {
+        // We need to clear existing meta.
+        $this->repository->deleteParticipantMeta($participant->getId());
+        return $this->repository->saveMeta($participant->getId(), $meta);
+    }
+
+    /**
      * @param $date
      * @return \DateTime
      */

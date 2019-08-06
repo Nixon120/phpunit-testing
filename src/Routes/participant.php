@@ -1,4 +1,5 @@
 <?php
+
 use \Controllers\Participant as Controllers;
 
 $updateRoute = function ($request, $response, $args) {
@@ -25,26 +26,11 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
     });
 
     $app->post('', $createRoute)->add(Services\Participant\ValidationMiddleware::class);
-    ;
 
     $app->put('/{id}', $updateRoute)->add(Services\Participant\ValidationMiddleware::class);
-    ;
 
-    $app->put('/{id}/meta', function ($request, $response, $args) {
-        $participant = new Controllers\Sso($request, $response, $this->get('participant'));
-        $uniqueId = $args['id'];
-        /** @var \Services\Authentication\Authenticate $auth */
-        $auth = $this->get('authentication');
-        return $participant->generateSso($auth->getUser()->getOrganizationId(), $uniqueId);
-    })->add(Services\Participant\ValidationMiddleware::class);
-
-    $app->patch('/{id}/meta', function ($request, $response, $args) {
-        $participant = new Controllers\Sso($request, $response, $this->get('participant'));
-        $uniqueId = $args['id'];
-        /** @var \Services\Authentication\Authenticate $auth */
-        $auth = $this->get('authentication');
-        return $participant->generateSso($auth->getUser()->getOrganizationId(), $uniqueId);
-    })->add(Services\Participant\ValidationMiddleware::class);
+    $app->put('/{id}/meta', Controllers\SaveMeta::class);
+    $app->patch('/{id}/meta', Controllers\UpdateMeta::class);
 
     $app->post('/{id}/sso', function ($request, $response, $args) {
         $participant = new Controllers\Sso($request, $response, $this->get('participant'));
@@ -189,8 +175,7 @@ $app->group('/participant', function () use ($app, $createRoute, $updateRoute) {
     });
 
     $app->post('/create', $createRoute);
-})->add(Services\Participant\ValidationMiddleware::class);
-;
+})->add(Services\Participant\ValidationMiddleware::class);;
 
 
 $app->group('/api/participant', function () use ($app, $createRoute, $updateRoute) {
@@ -214,6 +199,9 @@ $app->group('/api/participant', function () use ($app, $createRoute, $updateRout
 
     $app->post('/create', $createRoute);
 
+    $app->put('/{id}/meta', Controllers\SaveMeta::class);
+    $app->patch('/{id}/meta', Controllers\UpdateMeta::class);
+
     $app->get('/{id}/adjustment', function ($request, $response, $args) {
         $participant = new Controllers\JsonView($request, $response, $this->get('participant'));
         $participantId = $args['id'];
@@ -226,5 +214,4 @@ $app->group('/api/participant', function () use ($app, $createRoute, $updateRout
         $transactionId = $args['transaction_id'];
         return $participant->transaction($participantId, $transactionId);
     });
-})->add(Services\Participant\ValidationMiddleware::class);
-;
+})->add(Services\Participant\ValidationMiddleware::class);;
