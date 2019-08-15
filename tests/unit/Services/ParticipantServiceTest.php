@@ -117,13 +117,13 @@ class ParticipantServiceTest extends AbstractParticipantServiceTest
         $sthMock->expects($this->exactly(20))
             ->method('fetch')
             ->will($this->onConsecutiveCalls(
+                $this->getParticipantEntity(),
                 $this->getParticipantProgramEntity(),
                 $this->getParticipantOrganizationEntity(),
                 $this->getProgramDomainEntity(),
                 $this->getProgramAutoRedemptionEntity(),
                 $this->getProgramContactEntity(),
                 $this->getProgramSweepstake(),
-                $this->getParticipantEntity(),
                 $this->getParticipantProgramEntity(),
                 $this->getParticipantOrganizationEntity(),
                 $this->getProgramDomainEntity(),

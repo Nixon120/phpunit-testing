@@ -211,6 +211,10 @@ class Participant
             $data['birthdate'] = null;
         }
 
+        if (isset($data['active']) && (int) $data['active'] === 0) {
+            $data['deactivated_at'] = (new \DateTime)->format('Y-m-d H:i:s');
+        }
+
         $participant = new \Entities\Participant;
         $participant->exchange($data);
         if ($address !== null) {
@@ -254,6 +258,7 @@ class Participant
      */
     public function update($id, $data)
     {
+        $participant = $this->getSingle($id);
         //@TODO this sucks.. fix it someway
         //@TODO API Exceptions
         if (!empty($data['program'])) {
@@ -272,11 +277,19 @@ class Participant
             $data['birthdate'] = null;
         }
 
+        if (isset($data['active'])) {
+            $statusFlag = (int) $data['active'];
+            if ($statusFlag === 1) {
+                $data['deactivated_at'] = null;
+            } elseif ($statusFlag === 0 && $participant->getDeactivatedAt() === null) {
+                $data['deactivated_at'] = (new \DateTime)->format('Y-m-d H:i:s');
+            }
+        }
+
         $address = $data['address'] ?? null;
         $meta = $data['meta'] ?? null;
         unset($data['program'], $data['organization'], $data['password'], $data['address'], $data['meta'], $data['password_confirm'], $data['unique_id']);
 
-        $participant = $this->getSingle($id);
         $participant->exchange($data);
         if ($address !== null) {
             $participant->setAddress($address);
@@ -299,6 +312,50 @@ class Participant
         }
 
         return false;
+    }
+
+    /**
+     * Make meta collection easier to work with (for temporary assignments, updates, etc)
+     *
+     * @param $collection
+     * @return array
+     */
+    private function simplifyMetaCollection($collection)
+    {
+        $returnCollection = [];
+        foreach($collection as $value) {
+            $returnCollection[key($value)] = $value[key($value)];
+        }
+
+        return $returnCollection;
+    }
+
+    /**
+     * @param \Entities\Participant $participant
+     * @param $metaData
+     * @return bool
+     */
+    public function updateMeta(\Entities\Participant $participant, $metaData)
+    {
+        $meta = array_merge($this->simplifyMetaCollection($participant->getMeta()), $this->simplifyMetaCollection($metaData));
+        $metaCollection = [];
+        foreach($meta as $k=>$v) {
+            $metaCollection[] = [$k => $v];
+        }
+
+        return $this->repository->saveMeta($participant->getId(), $metaCollection);
+    }
+
+    /**
+     * @param \Entities\Participant $participant
+     * @param $meta
+     * @return bool
+     */
+    public function saveMeta(\Entities\Participant $participant, $meta)
+    {
+        // We need to clear existing meta.
+        $this->repository->deleteParticipantMeta($participant->getId());
+        return $this->repository->saveMeta($participant->getId(), $meta);
     }
 
     /**

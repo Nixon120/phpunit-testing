@@ -18,6 +18,8 @@ class ParticipantSummary extends AbstractReport
             'Organization.name as organization_name' => 'Organization Name',
             'Program.unique_id' => 'Program ID',
             'Program.name' => 'Program Name',
+            'Program.start_date as `Program Start Date`' => 'Program Start Date',
+            'Program.end_date as `Program End Date`' => 'Program End Date',
             'MIN(Participant.created_at) as `Enroll Start Date`' => 'Enroll Start Date',
             'MAX(Participant.created_at) as `Enroll End Date`' => 'Enroll End Date',
             'COUNT(Participant.id) as `Participant Count`' => 'Participant Count'

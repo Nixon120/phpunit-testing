@@ -1,13 +1,14 @@
 <?php
+
 namespace Services\Report;
 
 use Services\AbstractFilterNormalizer;
 
-class PointBalanceFilterNormalizer extends AbstractFilterNormalizer
+class TaxOnEarnedFilterNormalizer extends AbstractFilterNormalizer
 {
     public function getStatusFilter($value)
     {
-        return "`Participant`.`active` = ?";
+        return "`participant`.`active` = ?";
     }
 
     public function getStatusFilterArgs($value)
@@ -17,7 +18,7 @@ class PointBalanceFilterNormalizer extends AbstractFilterNormalizer
 
     public function getOrganizationFilter($value)
     {
-        return "`Organization`.`unique_id` = ?";
+        return "`organization`.`unique_id` = ?";
     }
 
     public function getOrganizationFilterArgs($value)
@@ -27,7 +28,7 @@ class PointBalanceFilterNormalizer extends AbstractFilterNormalizer
 
     public function getProgramFilter($value)
     {
-        return "`Program`.`unique_id` = ?";
+        return "`program`.`unique_id` = ?";
     }
 
     public function getProgramFilterArgs($value)
@@ -35,69 +36,9 @@ class PointBalanceFilterNormalizer extends AbstractFilterNormalizer
         return $this->returnArg($value);
     }
 
-    public function getUniqueIdFilter($value)
-    {
-        return "`Participant`.`unique_id` = ?";
-    }
-
-    public function getUniqueIdFilterArgs($value)
-    {
-        return $this->returnArg($value);
-    }
-
-    public function getFirstnameFilter($value)
-    {
-        return "`Participant`.`firstname` = ?";
-    }
-
-    public function getFirstnameFilterArgs($value)
-    {
-        return $this->returnArg($value);
-    }
-
-    public function getLastnameFilter($value)
-    {
-        return "`Participant`.`lastname` = ?";
-    }
-
-    public function getLastnameFilterArgs($value)
-    {
-        return $this->returnArg($value);
-    }
-
-    public function getBirthdateFilter($value)
-    {
-        return "`Participant`.`birthdate` = ?";
-    }
-
-    public function getBirthdateFilterArgs($value)
-    {
-        return $this->returnArg($value);
-    }
-
-    public function getAddress1Filter($value)
-    {
-        return "`Address`.`address1` = ?";
-    }
-
-    public function getAddress1FilterArgs($value)
-    {
-        return $this->returnArg($value);
-    }
-
-    public function getAddress2Filter($value)
-    {
-        return "`Address`.`address2` = ?";
-    }
-
-    public function getAddress2FilterArgs($value)
-    {
-        return $this->returnArg($value);
-    }
-
     public function getStartDateFilter($value)
     {
-        return "`Adjustment`.`created_at` >= ?";
+        return "`adjustment`.`created_at` >= ?";
     }
 
     public function getStartDateFilterArgs($value)
@@ -112,7 +53,7 @@ class PointBalanceFilterNormalizer extends AbstractFilterNormalizer
 
     public function getEndDateFilter($value)
     {
-        return "`Adjustment`.`created_at` <= ?";
+        return "`adjustment`.`created_at` <= ?";
     }
 
     public function getEndDateFilterArgs($value)
@@ -122,5 +63,65 @@ class PointBalanceFilterNormalizer extends AbstractFilterNormalizer
             $value[0] = $value[0] . ' 23:59:59';
         }
         return $value;
+    }
+
+    public function getUniqueIdFilter($value)
+    {
+        return "`participant`.`unique_id` = ?";
+    }
+
+    public function getUniqueIdFilterArgs($value)
+    {
+        return $this->returnArg($value);
+    }
+
+    public function getFirstnameFilter($value)
+    {
+        return "IFNULL(`participant`.`firstname`, `Address`.`firstname`) = ?";
+    }
+
+    public function getFirstnameFilterArgs($value)
+    {
+        return $this->returnArg($value);
+    }
+
+    public function getLastnameFilter($value)
+    {
+        return "IFNULL(`participant`.`lastname`, `Address`.`lastname`) = ?";
+    }
+
+    public function getLastnameFilterArgs($value)
+    {
+        return $this->returnArg($value);
+    }
+
+    public function getBirthdateFilter($value)
+    {
+        return "`participant`.`birthdate` = ?";
+    }
+
+    public function getBirthdateFilterArgs($value)
+    {
+        return $this->returnArg($value);
+    }
+
+    public function getAddress1Filter($value)
+    {
+        return "`address`.`address1` = ?";
+    }
+
+    public function getAddress1FilterArgs($value)
+    {
+        return $this->returnArg($value);
+    }
+
+    public function getAddress2Filter($value)
+    {
+        return "`address`.`address2` = ?";
+    }
+
+    public function getAddress2FilterArgs($value)
+    {
+        return $this->returnArg($value);
     }
 }

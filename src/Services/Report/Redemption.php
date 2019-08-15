@@ -54,6 +54,7 @@ class Redemption extends AbstractReport
             . "WHERE 1=1 "
             . $this->getFilter()->getFilterConditionSql();
 
+
         return $this->fetchDataForReport($query, $this->getFilter()->getFilterConditionArgs());
     }
 

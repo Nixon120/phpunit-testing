@@ -29,6 +29,9 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
 
     $app->put('/{id}', $updateRoute)->add(Services\Participant\ValidationMiddleware::class);
 
+    $app->put('/{id}/meta', Controllers\SaveMeta::class);
+    $app->patch('/{id}/meta', Controllers\UpdateMeta::class);
+
     $app->post('/{id}/sso', function ($request, $response, $args) {
         $participant = new Controllers\Sso($request, $response, $this->get('participant'));
         $uniqueId = $args['id'];
@@ -203,6 +206,9 @@ $app->group('/api/participant', function () use ($app, $createRoute, $updateRout
     $app->post('/{id}/view', $updateRoute);
 
     $app->post('/create', $createRoute);
+
+    $app->put('/{id}/meta', Controllers\SaveMeta::class);
+    $app->patch('/{id}/meta', Controllers\UpdateMeta::class);
 
     $app->get('/{id}/adjustment', function ($request, $response, $args) {
         $participant = new Controllers\JsonView($request, $response, $this->get('participant'));
