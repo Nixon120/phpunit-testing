@@ -65,6 +65,14 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
         return $transaction->single($auth->getUser()->getOrganizationId(), $uniqueId, $transactionId);
     });
 
+    $app->patch('/{id}/transaction/{transaction_id}/meta', function ($request, $response, $args) {
+        // Update Transaction Meta using Transaction ID OR Transaction Item GUID.
+        $transaction = new Controllers\Transaction($request, $response, $this->get('participant'));
+        /** @var \Services\Authentication\Authenticate $auth */
+        $auth = $this->get('authentication');
+        return $transaction->updateMeta($auth->getUser()->getOrganizationId(), $args['id'], $args['transaction_id']);
+    });
+
     $app->get('/{id}/transaction/{transaction_id}/{item_guid}', function ($request, $response, $args) {
         $transaction = new Controllers\Transaction($request, $response, $this->get('participant'));
         $uniqueId = $args['id'];
@@ -214,4 +222,4 @@ $app->group('/api/participant', function () use ($app, $createRoute, $updateRout
         $transactionId = $args['transaction_id'];
         return $participant->transaction($participantId, $transactionId);
     });
-})->add(Services\Participant\ValidationMiddleware::class);;
+})->add(Services\Participant\ValidationMiddleware::class);

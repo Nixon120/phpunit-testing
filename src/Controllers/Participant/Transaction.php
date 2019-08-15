@@ -1,4 +1,5 @@
 <?php
+
 namespace Controllers\Participant;
 
 use Psr\Http\Message\RequestInterface;
@@ -131,6 +132,31 @@ class Transaction
         }
 
         return $this->returnJson(400, ['Resource does not exist']);
+    }
+
+    public function updateMeta($organizationId, $uniqueId, $transactionId)
+    {
+        if (!is_numeric($transactionId)) {
+            // Transaction Item GUID provided (rather than Transaction ID)
+            $transaction_item = $this->service->getSingleItem($transactionId);
+            $transactionId = $transaction_item['transaction_id'];
+        }
+
+        $participant = $this->service->participantRepository->getParticipantByOrganization($organizationId, $uniqueId);
+        $transaction = $this->service->getSingle($participant, $transactionId);
+        $meta = $this->request->getParsedBody() ?? [];
+
+        if (empty($meta)) {
+            return $this->returnJson(400, ['Resource does not exist']);
+        }
+
+        if ($participant === null && $transaction === null) {
+            return $this->returnJson(400, ['Resource does not exist']);
+        }
+
+        $this->service->updateSingleItemMeta($transactionId, $meta);
+
+        return $this->response->withStatus(202);
     }
 
     private function returnJson($statusCode, $return = [])
