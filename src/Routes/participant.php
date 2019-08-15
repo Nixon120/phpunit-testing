@@ -116,6 +116,13 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
         return $balance->insert($auth->getUser()->getOrganizationId(), $uniqueId);
     })->add(\Middleware\ParticipantStatusValidator::class);
 
+    $app->patch('/{id}/adjustment/{adjustment_id}', function ($request, $response, $args) {
+        $balance = new Controllers\Balance($request, $response, $this->get('participant'));
+        /** @var \Services\Authentication\Authenticate $auth */
+        $auth = $this->get('authentication');
+        return $balance->update($auth->getUser()->getOrganizationId(), $args['id'], $args['adjustment_id']);
+    })->add(\Middleware\ParticipantStatusValidator::class);
+
     $app->post('/{id}/sweepstake', function ($request, $response, $args) {
         $sweepstake = new Controllers\SweepstakeEntry($request, $response, $this->get('participant'));
         $uniqueId = $args['id'];
@@ -215,6 +222,13 @@ $app->group('/api/participant', function () use ($app, $createRoute, $updateRout
         $participantId = $args['id'];
         return $participant->adjustmentList($participantId);
     });
+
+    $app->patch('/{id}/adjustment/{adjustment_id}', function ($request, $response, $args) {
+        $balance = new Controllers\Balance($request, $response, $this->get('participant'));
+        /** @var \Services\Authentication\Authenticate $auth */
+        $auth = $this->get('authentication');
+        return $balance->update($auth->getUser()->getOrganizationId(), $args['id'], $args['adjustment_id']);
+    })->add(\Middleware\ParticipantStatusValidator::class);
 
     $app->get('/{id}/transaction/{transaction_id}', function ($request, $response, $args) {
         $participant = new Controllers\JsonView($request, $response, $this->get('participant'));
