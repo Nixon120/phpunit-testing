@@ -105,7 +105,7 @@ class Balance
             return $this->response->withStatus(202);
         }
 
-        return $this->response->withJson(['Unable to save adjustment update.'], 500);
+        return $this->returnJson(400, $this->service->repository->getErrors());
     }
 
     private function returnJson($statusCode, $return = [])

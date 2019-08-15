@@ -66,6 +66,10 @@ class Balance
 
     public function updateAdjustment(Adjustment $adjustment)
     {
+        if (!$this->repository->validate($adjustment)) {
+            return false;
+        }
+
         return $this->repository->update($adjustment->getId(), $adjustment->toArray());
     }
 
