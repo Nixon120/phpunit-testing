@@ -1,4 +1,5 @@
 <?php
+
 namespace Services\Participant;
 
 use AllDigitalRewards\AMQP\MessagePublisher;
@@ -32,7 +33,7 @@ class Balance
         ParticipantRepository $participantRepository,
         MessagePublisher $eventPublisher
     ) {
-    
+
         $this->repository = $repository;
         $this->participantRepository = $participantRepository;
         $this->eventPublisher = $eventPublisher;
@@ -61,6 +62,11 @@ class Balance
             $this->queueAdjustmentEvent($adjustment->getType());
             return $adjustment;
         }
+    }
+
+    public function updateAdjustment(Adjustment $adjustment)
+    {
+        return $this->repository->update($adjustment->getId(), $adjustment->toArray());
     }
 
     private function queueAdjustmentEvent($type)
