@@ -210,7 +210,6 @@ SQL;
      */
     public function getProducts($productContainer, $program = null)
     {
-
         if (empty($productContainer)) {
             return [];
         }
@@ -219,10 +218,9 @@ SQL;
             return $this->catalog->getProducts(['sku' => $productContainer]);
         }
 
-        $products = $this->getProductFromProgramCatalog(['sku' => $productContainer], $program);
-
-        if ($products === false) {
-            $products = [];
+        $products = [];
+        foreach ($productContainer as $sku) {
+            $products[] = $this->getProductFromProgramCatalog($sku, $program);
         }
 
         if (count($products) !== count($productContainer)) {
@@ -253,7 +251,7 @@ SQL;
         return $products;
     }
 
-    private function getProductFromProgramCatalog($sku_container, $program_id)
+    private function getProductFromProgramCatalog($sku, $program_id)
     {
         $catalog = clone $this->getCatalog();
         $token = (new AuthenticationTokenFactory)->getToken();
@@ -261,7 +259,7 @@ SQL;
         $catalog->setToken($token);
         $catalog->setUrl(getenv('PROGRAM_CATALOG_URL'));
 
-        return $catalog->getProducts($sku_container);
+        return $catalog->getProduct($sku);
     }
 
     public function getParticipantTransaction(Participant $participant, int $transactionId): ?Transaction
