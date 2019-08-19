@@ -183,17 +183,6 @@ class OneTimeScheduledRedemption extends ScheduledTask
 
     private function noParticipantsEligible()
     {
-        $this->getLogger()->info(
-            'Auto Redemption',
-            [
-                'subsystem' => 'Scheduler',
-                'action' => 'Generate',
-                'success' => true,
-                'program' => $this->getProgram()->getUniqueId(),
-                'message' => 'No participants have enough points to auto-redeem.'
-            ]
-        );
-
         $this->setOutput('No participants have enough points to auto-redeem.');
         return;
     }
