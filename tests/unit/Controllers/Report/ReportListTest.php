@@ -21,8 +21,7 @@ class ReportListTest extends TestCase
     private function getMockContainer()
     {
         return new \Slim\Container([
-            'report' => $this->getMockReportFactory(),
-            'authentication' => $this->getMockAuthentication()
+            'report' => $this->getMockReportFactory()
         ]);
     }
 
@@ -39,6 +38,11 @@ class ReportListTest extends TestCase
                 ->expects($this->once())
                 ->method('getReportRepository')
                 ->willReturn($this->getMockReportRepository());
+
+            $this->reportFactory
+                ->expects($this->once())
+                ->method('getAuthenticatedUser')
+                ->willReturn($this->getMockUser());
         }
 
         return $this->reportFactory;
@@ -65,23 +69,6 @@ class ReportListTest extends TestCase
         }
 
         return $this->reportRepository;
-    }
-
-    private function getMockAuthentication()
-    {
-        if (is_null($this->authentication)) {
-            $this->authentication = $this->getMockBuilder(\Services\Authentication\Authenticate::class)
-                ->disableOriginalConstructor()
-                ->setMethods(['getUser'])
-                ->getMock();
-
-            $this->authentication
-                ->expects($this->once())
-                ->method('getUser')
-                ->willReturn($this->getMockUser());
-        }
-
-        return $this->authentication;
     }
 
     private function getMockUser()

@@ -1,4 +1,5 @@
 <?php
+
 namespace Repositories;
 
 use Entities\Sftp;
@@ -15,16 +16,16 @@ class SftpRepository extends BaseRepository
     /**
      * @param $limit
      * @param $offset
+     * @param $user_id
      * @return array
      */
-    public function list($limit, $offset): array
+    public function list($limit, $offset, int $user_id = null): array
     {
-        $sql = <<<SQL
-SELECT Sftp.* 
-FROM `Sftp` 
-ORDER BY `Sftp`.id DESC
-LIMIT $limit OFFSET $offset
-SQL;
+        $sql = "SELECT Sftp.* FROM `Sftp` ";
+        if (!is_null($user_id)) {
+            $sql .= "WHERE user_id = {$user_id} ";
+        }
+        $sql .= "ORDER BY `Sftp`.id DESC LIMIT {$limit} OFFSET {$offset}";
 
         $sth = $this->database->prepare($sql);
         $sth->execute();
@@ -62,15 +63,18 @@ SQL;
      */
     public function update($id, $data): bool
     {
-        $sql = 'UPDATE Sftp SET host = ?, port = ?, file_path = ?, username = ?, password = ?,  `key` = ? WHERE id = ?';
+        $sql = <<<SQL
+UPDATE Sftp SET host = ?, port = ?, file_path = ?, username = ?, password = ?,  `key` = ? WHERE id = ? AND user_id = ?
+SQL;
         $args = [
-          $data['host'],
-          $data['port'],
-          $data['file_path'],
-          $data['username'],
-          $data['password'],
-          $data['key'],
-          $id,
+            $data['host'],
+            $data['port'],
+            $data['file_path'],
+            $data['username'],
+            $data['password'],
+            $data['key'],
+            $id,
+            $data['user_id'],
         ];
         $sth = $this->database->prepare($sql);
         $this->database->beginTransaction();
