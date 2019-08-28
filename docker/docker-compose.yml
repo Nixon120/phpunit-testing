@@ -139,7 +139,7 @@ services:
       LOG_PORT: "24224"
       REWARDSTACK_USERNAME: "test@alldigitalrewards.com"
       REWARDSTACK_PASSWORD: "password"
-      REWARDSTACK_ENDPOINT: "https://admin.adrqa.info"
+      REWARDSTACK_ENDPOINT: http://admin
       MYSQL_DB_HOST: admin-mysql
       MYSQL_DB_DATABASE: api-batch
       MYSQL_DB_USERNAME: root
@@ -152,6 +152,10 @@ services:
       AMQP_PARTICIPANT_TASKRUNNER: /app/bin/batch-participant-taskrunner
       AMQP_PARTICIPANT_MAX_CONSUMER: 3
       AMQP_PARTICIPANT_CONSUMER_RUNTIME: 180
+      AMQP_ISSUANCE_CHANNEL: api-batch-issuance
+      AMQP_ISSUANCE_TASKRUNNER: /app/bin/batch-issuance-taskrunner
+      AMQP_ISSUANCE_MAX_CONSUMER: 3
+      AMQP_ISSUANCE_CONSUMER_RUNTIME: 180
     networks:
       - adrnet
   product.image:
