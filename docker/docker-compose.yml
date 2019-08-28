@@ -148,7 +148,7 @@ services:
       AMQP_PORT: "5672"
       AMQP_USERNAME: guest
       AMQP_PASSWORD: guest
-      AMQP_PARTICIPANT_CHANNEL: api-batch-participant-faciliator
+      AMQP_PARTICIPANT_CHANNEL: api-batch-participant
       AMQP_PARTICIPANT_TASKRUNNER: /app/bin/batch-participant-taskrunner
       AMQP_PARTICIPANT_MAX_CONSUMER: 3
       AMQP_PARTICIPANT_CONSUMER_RUNTIME: 180
