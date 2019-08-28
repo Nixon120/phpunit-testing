@@ -744,7 +744,11 @@ class SandboxResetSeeder extends AbstractSeed
         $users = $this->table('User');
 
         # Purge all existing users.
-        $users->truncate();
+        $this->execute(<<<SQL
+DELETE FROM `user` WHERE 1=1;
+ALTER TABLE `user` AUTO_INCREMENT=1;
+SQL
+        );
 
         # Load users.
         $users->insert($data)->save();
@@ -815,11 +819,11 @@ class SandboxResetSeeder extends AbstractSeed
             ];
         }
 
-        $users = $this->table('Adjustment');
+        $adjustmentTable = $this->table('Adjustment');
 
         # Purge all existing adjustments.
-        $users->truncate();
-        $users->insert($adjustments)->save();
+        $adjustmentTable->truncate();
+        $adjustmentTable->insert($adjustments)->save();
     }
 
     private function seedTransaction()
