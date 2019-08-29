@@ -246,4 +246,19 @@ $app->group('/api/participant', function () use ($app, $createRoute, $updateRout
         $transactionId = $args['transaction_id'];
         return $participant->transaction($participantId, $transactionId);
     });
+
+    $app->put('/{id}/transaction/{transaction_id}/{item_guid}/reissue_date', function ($request, $response, $args) {
+        $transaction = new Controllers\Transaction($request, $response, $this->get('participant'));
+        $uniqueId = $args['id'];
+        $itemGuid = $args['item_guid'];
+        $transactionId = $args['transaction_id'];
+        /** @var \Services\Authentication\Authenticate $auth */
+        $auth = $this->get('authentication');
+        return $transaction->addReissueDate(
+            $auth->getUser()->getOrganizationId(),
+            $uniqueId,
+            $transactionId,
+            $itemGuid
+        );
+    });
 })->add(Services\Participant\ValidationMiddleware::class);
