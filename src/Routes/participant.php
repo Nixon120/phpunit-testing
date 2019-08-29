@@ -218,9 +218,11 @@ $app->group('/api/participant', function () use ($app, $createRoute, $updateRout
     $app->patch('/{id}/meta', Controllers\UpdateMeta::class);
 
     $app->get('/{id}/adjustment', function ($request, $response, $args) {
-        $participant = new Controllers\JsonView($request, $response, $this->get('participant'));
-        $participantId = $args['id'];
-        return $participant->adjustmentList($participantId);
+        $balance = new Controllers\Balance($request, $response, $this->get('participant'));
+        $uniqueId = $args['id'];
+        /** @var \Services\Authentication\Authenticate $auth */
+        $auth = $this->get('authentication');
+        return $balance->list($auth->getUser()->getOrganizationId(), $uniqueId);
     });
 
     $app->patch('/{id}/adjustment/{adjustment_id}', function ($request, $response, $args) {
