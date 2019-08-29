@@ -86,9 +86,10 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
         $transaction = new Controllers\Transaction($request, $response, $this->get('participant'));
         $uniqueId = $args['id'];
         $itemGuid = $args['item_guid'];
+        $transactionId = $args['transaction_id'];
         /** @var \Services\Authentication\Authenticate $auth */
         $auth = $this->get('authentication');
-        return $transaction->addReissueDate($auth->getUser()->getOrganizationId(), $uniqueId, $itemGuid);
+        return $transaction->addReissueDate($auth->getUser()->getOrganizationId(), $uniqueId, $transactionId, $itemGuid);
     });
 
     $app->post('/{id}/transaction', function ($request, $response, $args) {

@@ -355,7 +355,7 @@ SQL;
 
     private function getParticipantTransactionProducts($transactionId): ?array
     {
-        $sql = "SELECT TransactionProduct.*, TransactionItem.quantity, TransactionItem.guid FROM `TransactionItem`"
+        $sql = "SELECT TransactionProduct.*, TransactionItem.quantity, TransactionItem.guid, TransactionItem.reissue_date FROM `TransactionItem`"
             . " JOIN TransactionProduct ON TransactionProduct.reference_id = TransactionItem.reference_id"
             . " WHERE TransactionItem.transaction_id = ?";
 
@@ -496,6 +496,7 @@ SQL;
             $transactionItem->setTransactionId($transaction->getId());
             $transactionItem->setReferenceId($item->getReferenceId());
             $transactionItem->setGuid($item->getGuid());
+            $transactionItem->setReissueDate($item->getReissueDate());
             $transaction->setItem($transactionItem, $transactionProduct);
         }
     }
