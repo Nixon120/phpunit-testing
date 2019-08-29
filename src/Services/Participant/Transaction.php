@@ -93,12 +93,8 @@ class Transaction
                     $transactionItem->setGuid((string)Uuid::uuid1());
                     $transactionItem->setQuantity((int)$quantity);
                     $transactionItem->setReferenceId($transactionProduct->getReferenceId());
-
-                    if (!$transactionProduct->isValid() || !$transactionItem->isValid()) {
-                        $errors = array_merge(
-                            $transactionProduct->getValidationErrors(),
-                            $transactionItem->getValidationErrors()
-                        );
+                    if (!$transactionItem->isValid()) {
+                        $errors = $transactionItem->getValidationErrors();
                         throw new TransactionServiceException(implode(', ', $errors));
                     }
 
@@ -331,6 +327,11 @@ class Transaction
     public function updateSingleItemMeta($transactionId, $meta)
     {
         $this->repository->saveTransactionMeta($transactionId, $meta);
+    }
+
+    public function setReissueDate($guid, $reissueDate)
+    {
+        return $this->repository->saveReissueDate($guid, $reissueDate);
     }
 
     public function getErrors()

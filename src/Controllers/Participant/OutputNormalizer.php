@@ -113,7 +113,8 @@ class OutputNormalizer extends AbstractOutputNormalizer
                 'quantity' => $item->getQuantity(),
                 'total' => $total,
                 'points' => $points,
-                'guid' => $item->getGuid()
+                'guid' => $item->getGuid(),
+                'reissue_date' => $item->getReissueDate(),
             ];
         }
 
@@ -171,7 +172,8 @@ class OutputNormalizer extends AbstractOutputNormalizer
                     'quantity' => $item->getQuantity(),
                     'total' => $total,
                     'points' => $points,
-                    'guid' => $item->getGuid()
+                    'guid' => $item->getGuid(),
+                    'reissue_date' => $item->getReissueDate(),
                 ];
             }
         }

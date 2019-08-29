@@ -421,6 +421,21 @@ SQL;
         }
     }
 
+    public function saveReissueDate($guid, $reissueDate)
+    {
+        $date = \DateTime::createFromFormat('Y-m-d', $reissueDate);
+        if ($date && $date->format('Y-m-d') === $reissueDate) {
+            $sql = "UPDATE `TransactionItem`"
+                . " SET reissue_date = ?"
+                . " WHERE guid = ?";
+
+            $sth = $this->database->prepare($sql);
+            return $sth->execute([$reissueDate, $guid]);
+        }
+
+        return false;
+    }
+
     public function validate(\Entities\Transaction $transaction)
     {
         try {
