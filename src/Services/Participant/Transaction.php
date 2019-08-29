@@ -204,12 +204,16 @@ class Transaction
 
             $description = null;
             $activityDate = null;
+            $reference = null;
             foreach ($meta as $item) {
                 if (strtoupper(key($item)) === 'DESCRIPTION') {
                     $description = current($item);
                 }
                 if (strtoupper(key($item)) === 'ACTIVITY_DATE') {
                     $activityDate = current($item);
+                }
+                if (strtoupper(key($item)) === 'REFERENCE') {
+                    $reference = current($item);
                 }
             }
 
@@ -220,6 +224,7 @@ class Transaction
                     $transaction->getTotal(),
                     $transaction->getId(),
                     $description,
+                    $reference,
                     $activityDate
                 );
             }
@@ -231,6 +236,7 @@ class Transaction
                 $transaction->getTotal(),
                 $transaction->getId(),
                 $description,
+                $reference,
                 $activityDate
             );
 
@@ -272,6 +278,7 @@ class Transaction
         $total,
         $transactionId = null,
         $description = null,
+        $reference = null,
         $completed_at = null
     ) {
         $pointConversion = $participant->getProgram()->getPoint();
@@ -281,6 +288,7 @@ class Transaction
         $adjustment->setAmount($pointTotal);
         $adjustment->setTransactionId($transactionId);
         $adjustment->setDescription($description);
+        $adjustment->setReference($reference);
 
         if (!is_null($completed_at) && strtotime($completed_at) !== false) {
             // Garantee the date time is in the correct date format without throwing errors.
