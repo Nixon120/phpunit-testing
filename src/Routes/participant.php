@@ -233,9 +233,9 @@ $app->group('/api/participant', function () use ($app, $createRoute, $updateRout
     })->add(\Middleware\ParticipantStatusValidator::class);
 
     $app->get('/{id}/transaction/{transaction_id}', function ($request, $response, $args) {
-        $participant = new Controllers\JsonView($request, $response, $this->get('participant'));
-        $participantId = $args['id'];
-        $transactionId = $args['transaction_id'];
-        return $participant->transaction($participantId, $transactionId);
+        $transaction = new Controllers\Transaction($request, $response, $this->get('participant'));
+        /** @var \Services\Authentication\Authenticate $auth */
+        $auth = $this->get('authentication');
+        return $transaction->single($auth->getUser()->getOrganizationId(), $args['id'], $args['transaction_id']);
     });
 })->add(Services\Participant\ValidationMiddleware::class);
