@@ -47,8 +47,7 @@ class SftpCreate
         $get = $this->request->getParsedBody();
         $get['user_id'] = $this->factory->getAuthenticatedUser()->getId();
 
-        $saved = $this->factory->getSftpRepository()
-            ->insert($get, true);
+        $saved = $this->factory->getSftpRepository()->insert($get);
 
         $response = $this->response->withStatus(200)
             ->withJson($saved);
