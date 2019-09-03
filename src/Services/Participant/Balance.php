@@ -98,6 +98,7 @@ class Balance
     public function get(Interfaces\InputNormalizer $input)
     {
         $filter = new BalanceFilterNormalizer($input->getInput());
+        $this->repository->orderBy = " ORDER BY adjustment.created_at DESC ";
         $adjustments = $this->repository->getCollection($filter, $input->getOffset(), 30);
         return $adjustments;
     }
