@@ -230,7 +230,17 @@ class Participant
                     ]
                 ]
             );
+            return false;
+        }
 
+        if (!$this->isParticipantUniqueIdValid($participant->getUniqueId())) {
+            $this->repository->setErrors(
+                [
+                    'unique_id' => [
+                        'Unique::ILLEGAL_CHARACTERS' => _("The participant id characters must be alphanumeric, hyphen and/or dashes.")
+                    ]
+                ]
+            );
             return false;
         }
 
@@ -238,7 +248,6 @@ class Participant
             $participant = $this->repository->getParticipant($participant->getUniqueId());
             if ($address !== null) {
                 $participant->setAddress($address);
-                //@TODO if failure throw exception, clean this up.. I need participant_id
                 $this->repository->insertAddress($participant->getAddress());
             }
 
@@ -249,6 +258,15 @@ class Participant
         }
 
         return false;
+    }
+
+    private function isParticipantUniqueIdValid($uniqueId)
+    {
+        if(preg_match('/[^a-z_\-0-9]/i', $uniqueId)) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
