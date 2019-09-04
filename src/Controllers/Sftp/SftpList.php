@@ -55,8 +55,10 @@ class SftpList
                 $this->factory->getAuthenticatedUser()->getId()
             );
 
+        $outputNormalizer = new OutputNormalizer($collection);
+
         $response = $this->response->withStatus(200)
-            ->withJson($collection);
+            ->withJson($outputNormalizer->getList());
 
         return $response;
     }

@@ -83,7 +83,7 @@ return [
             'user.all',
             'report.all',
             'administrators.all',
-//            'sftp.all',
+            'sftp.all',
         ],
         'configs' => [
             'organization.all',
@@ -100,7 +100,7 @@ return [
             'program.read',
             'organization.read',
             'administrators.read',
-//            'sftp.all',
+            'sftp.all',
         ]
     ]
 ];
