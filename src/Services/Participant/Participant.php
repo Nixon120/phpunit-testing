@@ -230,12 +230,10 @@ class Participant
                     ]
                 ]
             );
-
             return false;
         }
 
         if (!$this->isParticipantUniqueIdValid($participant->getUniqueId())) {
-            // unique_id has already been assigned to another Organization.
             $this->repository->setErrors(
                 [
                     'unique_id' => [
@@ -243,7 +241,6 @@ class Participant
                     ]
                 ]
             );
-
             return false;
         }
 
