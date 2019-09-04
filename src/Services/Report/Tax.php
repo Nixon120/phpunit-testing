@@ -42,14 +42,16 @@ class Tax extends AbstractReport
     {
         $date = new \DateTime;
         $startDate = $this->getFilter()->getInput()['start_date'];
-        if(trim($startDate) === "" || $startDate === null) {
-            $startDate = '2000-01-01 00:00:00';
+        if (trim($startDate) === "" || $startDate === null) {
+            $startDate = '2000-01-01';
         }
+        $startDate .= " 00:00:00";
 
         $endDate = $this->getFilter()->getInput()['end_date'];
-        if(trim($endDate) === "" || $endDate === null) {
-            $endDate = $date->format('Y-m-d 23:59:59');
+        if (trim($endDate) === "" || $endDate === null) {
+            $endDate = $date->format('Y-m-d');
         }
+        $endDate .= " 23:59:59";
 
         array_unshift($args, $startDate, $endDate);
     }

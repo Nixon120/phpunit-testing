@@ -47,11 +47,18 @@ class SftpList
         $page = isset($get['page']) ? $get['page'] : 30;
         $offset = isset($get['offset']) ? $get['offset'] : 0;
 
-        $collection = $this->factory->getSftpRepository()
-            ->list($page, $offset);
+        $collection = $this->factory
+            ->getSftpRepository()
+            ->list(
+                $page,
+                $offset,
+                $this->factory->getAuthenticatedUser()->getId()
+            );
+
+        $outputNormalizer = new OutputNormalizer($collection);
 
         $response = $this->response->withStatus(200)
-            ->withJson($collection);
+            ->withJson($outputNormalizer->getList());
 
         return $response;
     }

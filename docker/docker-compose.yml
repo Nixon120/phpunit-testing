@@ -128,6 +128,36 @@ services:
       IMAGE_URL: http://product.image
     networks:
       - adrnet
+  batch.facilitator:
+    image: gcr.io/green-talent-129607/api-batch:latest
+    expose:
+      - 80
+    environment:
+      ENVIRONMENT: development
+      JWT_SECRET: password
+      LOG_HOST: fluentd
+      LOG_PORT: "24224"
+      REWARDSTACK_USERNAME: "test@alldigitalrewards.com"
+      REWARDSTACK_PASSWORD: "password"
+      REWARDSTACK_ENDPOINT: http://admin
+      MYSQL_DB_HOST: admin-mysql
+      MYSQL_DB_DATABASE: api-batch
+      MYSQL_DB_USERNAME: root
+      MYSQL_DB_PASSWORD: 123
+      AMQP_HOST: admin-amqp
+      AMQP_PORT: "5672"
+      AMQP_USERNAME: guest
+      AMQP_PASSWORD: guest
+      AMQP_PARTICIPANT_CHANNEL: api-batch-participant
+      AMQP_PARTICIPANT_TASKRUNNER: /app/bin/batch-participant-taskrunner
+      AMQP_PARTICIPANT_MAX_CONSUMER: 3
+      AMQP_PARTICIPANT_CONSUMER_RUNTIME: 180
+      AMQP_ISSUANCE_CHANNEL: api-batch-issuance
+      AMQP_ISSUANCE_TASKRUNNER: /app/bin/batch-issuance-taskrunner
+      AMQP_ISSUANCE_MAX_CONSUMER: 3
+      AMQP_ISSUANCE_CONSUMER_RUNTIME: 180
+    networks:
+      - adrnet
   product.image:
     image: gcr.io/green-talent-129607/product-image:latest
     expose:

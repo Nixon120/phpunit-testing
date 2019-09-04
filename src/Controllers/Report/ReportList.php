@@ -52,7 +52,7 @@ class ReportList
     public function getReportList()
     {
         $get = $this->request->getQueryParams();
-        $get['user'] = $this->getAuthenticatedUser()->getEmailAddress();
+        $get['user'] = $this->factory->getAuthenticatedUser()->getEmailAddress();
         $page = $get['page'] ?? 1;
         $limit = $get['limit'] ?? 30;
         $offset = $page === 1 ? 0 : ($page - 1) * $limit;
@@ -65,14 +65,5 @@ class ReportList
             ->withJson($collection);
 
         return $response;
-    }
-
-    /**
-     * @return User
-     */
-    private function getAuthenticatedUser()
-    {
-        $authentication = $this->container->get('authentication');
-        return $authentication->getUser();
     }
 }

@@ -46,6 +46,10 @@ class SftpSingle
         $single = $this->factory->getSftpRepository()
             ->getSftpById($id);
 
+        if ($single->getUserId() != $this->factory->getAuthenticatedUser()->getId()) {
+            return $this->response->withStatus(403);
+        }
+
         $response = $this->response->withStatus(200)
             ->withJson($single);
 
