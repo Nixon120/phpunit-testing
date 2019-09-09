@@ -99,7 +99,7 @@ class Transaction
                             $transactionProduct->getValidationErrors(),
                             $transactionItem->getValidationErrors()
                         );
-                        die('here');
+                        
                         throw new TransactionServiceException(implode(', ', $errors));
                     }
 
