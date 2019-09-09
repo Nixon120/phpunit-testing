@@ -214,6 +214,11 @@ SQL;
             return [];
         }
 
+        foreach($productContainer as $key => $sku) {
+            // Force caps on SKU. We may reconsider this later down the road.
+            $productContainer[$key] = strtoupper($sku);
+        }
+
         if ($program === null) {
             return $this->catalog->getProducts(['sku' => $productContainer]);
         }
