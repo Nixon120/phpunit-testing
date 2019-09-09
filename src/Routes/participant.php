@@ -1,6 +1,7 @@
 <?php
 
 use \Controllers\Participant as Controllers;
+use Services\Participant\ValidationMiddleware;
 
 $updateRoute = function ($request, $response, $args) {
     $participant = new Controllers\Modify($request, $response, $this->get('participant'));
@@ -14,21 +15,26 @@ $createRoute = function ($request, $response) {
 };
 
 $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
+    // Create
+    $app->post('', $createRoute)->add(Services\Participant\ValidationMiddleware::class);
+
+    // List
     $app->get('', function ($request, $response) {
         $participant = new Controllers\JsonView($request, $response, $this->get('participant'));
         return $participant->list();
     });
 
+    // Fetch Single
     $app->get('/{id}', function ($request, $response, $args) {
         $participant = new Controllers\JsonView($request, $response, $this->get('participant'));
         $participantId = $args['id'];
         return $participant->single($participantId);
     });
 
-    $app->post('', $createRoute)->add(Services\Participant\ValidationMiddleware::class);
-
+    // Update
     $app->put('/{id}', $updateRoute)->add(Services\Participant\ValidationMiddleware::class);
 
+    //@TODO: misc. routes that need to be duplicated to /participant
     $app->put('/{id}/meta', Controllers\SaveMeta::class);
     $app->patch('/{id}/meta', Controllers\UpdateMeta::class);
 
@@ -133,86 +139,25 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
     });
 });
 
-
-$app->group('/participant', function () use ($app, $createRoute, $updateRoute) {
-    $app->get('', function ($request, $response) {
-        $participant = new Controllers\GuiView($request, $response, $this->get('renderer'), $this->get('participant'));
-        return $participant->renderList();
-    });
-
-    $app->get('/list', function ($request, $response) {
-        $participant = new Controllers\GuiView($request, $response, $this->get('renderer'), $this->get('participant'));
-        return $participant->renderListResult();
-    });
-
-    $this->get('/organization/list', function ($request, $response) {
-        $organization = new \Controllers\Participant\Organization(
-            $request,
-            $response,
-            $this->get('participant')
-        );
-        return $organization->renderListResult();
-    });
-
-    $this->get('/program/list', function ($request, $response) {
-        $organization = new \Controllers\Report\Program(
-            $request,
-            $response,
-            $this->get('report')
-        );
-        return $organization->renderListResult();
-    });
-
-    $app->get('/{id}/adjustment', function ($request, $response, $args) {
-        $participant = new Controllers\GuiView($request, $response, $this->get('renderer'), $this->get('participant'));
-        $participantId = $args['id'];
-        return $participant->renderAdjustmentList($participantId);
-    });
-
-    $app->get('/{id}/transaction/{transaction_id}', function ($request, $response, $args) {
-        $participant = new Controllers\GuiView($request, $response, $this->get('renderer'), $this->get('participant'));
-        $participantId = $args['id'];
-        $transactionId = $args['transaction_id'];
-        return $participant->renderTransaction($participantId, $transactionId);
-    });
-
-    $app->get('/{id}/view', function ($request, $response, $args) {
-        $participant = new Controllers\GuiView($request, $response, $this->get('renderer'), $this->get('participant'));
-        $participantId = $args['id'];
-        return $participant->renderSingle($participantId);
-    });
-
-    $app->post('/{id}/view', $updateRoute);
-
-    $app->get('/create', function ($request, $response) {
-        $participant = new Controllers\GuiView($request, $response, $this->get('renderer'), $this->get('participant'));
-        return $participant->renderCreatePage();
-    });
-
-    $app->post('/create', $createRoute);
-})->add(Services\Participant\ValidationMiddleware::class);;
-
-
 $app->group('/api/participant', function () use ($app, $createRoute, $updateRoute) {
-    $app->get('', function ($request, $response) {
-        $participant = new Controllers\GuiView($request, $response, $this->get('renderer'), $this->get('participant'));
-        return $participant->renderList();
-    });
+    // Create
+    $app->post('', $createRoute);
 
-    $app->get('/list', function ($request, $response) {
+    // List
+    $app->get('', function ($request, $response) {
         $participant = new Controllers\JsonView($request, $response, $this->get('participant'));
         return $participant->list();
     });
 
-    $app->get('/{id}/view', function ($request, $response, $args) {
+    // Fetch Single
+    $app->get('/{id}', function ($request, $response, $args) {
         $participant = new Controllers\JsonView($request, $response, $this->get('participant'));
         $participantId = $args['id'];
         return $participant->single($participantId);
     });
 
-    $app->post('/{id}/view', $updateRoute);
-
-    $app->post('/create', $createRoute);
+    // Update
+    $app->put('/{id}', $updateRoute);
 
     $app->put('/{id}/meta', Controllers\SaveMeta::class);
     $app->patch('/{id}/meta', Controllers\UpdateMeta::class);
