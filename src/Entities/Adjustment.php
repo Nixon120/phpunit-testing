@@ -81,7 +81,7 @@ class Adjustment extends Base
     public function getAmount()
     {
         $point = $this->getParticipant()->getProgram()->getPoint();
-        return $this->amount * $point;
+        return bcmul($this->amount, $point, 5);
     }
 
     /**
