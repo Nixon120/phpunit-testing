@@ -466,8 +466,6 @@ SQL;
     {
         return Validator::attribute('participant_id', Validator::notEmpty()->numeric()->setName('Participant'))
             ->attribute('type', Validator::notEmpty()->numeric()->length(1, 1))
-            ->attribute('wholesale', Validator::notEmpty()->floatVal())
-            ->attribute('subtotal', Validator::notEmpty()->floatVal())
             ->attribute('total', Validator::notEmpty()->floatVal());
     }
 
