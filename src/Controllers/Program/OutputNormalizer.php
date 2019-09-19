@@ -6,7 +6,6 @@ use Entities\Faqs;
 use Entities\FeaturedProduct;
 use Entities\LayoutRow;
 use Entities\Program;
-use Entities\ProgramLayout;
 
 class OutputNormalizer extends AbstractOutputNormalizer
 {
