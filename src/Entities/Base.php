@@ -53,10 +53,6 @@ abstract class Base implements \JsonSerializable
         if ((isset($this->created_at) || property_exists($this, 'created_at')) && $this->created_at === null) {
             $this->created_at = $time->format('Y-m-d H:i:s');
         }
-
-        if (property_exists($this, 'updated_at')) {
-            $this->updated_at = $time->format('Y-m-d H:i:s');
-        }
     }
 
     private function getSetterMethod($propertyName)
