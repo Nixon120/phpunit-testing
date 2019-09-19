@@ -145,7 +145,37 @@ SQL;
         $program->setLayoutRows($this->getProgramLayout($program));
         $program->setSweepstake($this->getProgramSweepstake($program));
         $program->setFeaturedProducts($this->getProgramFeaturedProducts($program));
+        $program->setActions($this->getProgramActions($program));
         return $program;
+    }
+
+    private function getProgramActions(Program $program)
+    {
+        $sql = <<<SQL
+SELECT actions 
+FROM ProgramType
+WHERE id IN (SELECT program_type_id FROM ProgramToProgramType WHERE ProgramToProgramType.program_id = ?)
+SQL;
+
+        $args = [$program->getId()];
+
+        $sth = $this->database->prepare($sql);
+        $sth->execute($args);
+        $actions = $sth->fetchAll();
+        $actionCollection = [];
+        foreach($actions as $action) {
+            $decoded = json_decode($action['actions'], true);
+            foreach($decoded as $decodedAction) {
+                $actionCollection[] = $decodedAction;
+            }
+        }
+
+        if(empty($actionCollection)) {
+            return [];
+        }
+        
+        $uniqueCollection = array_unique($actionCollection);
+        return $uniqueCollection;
     }
 
     private function getProgramFeaturedProducts(Program $program)
