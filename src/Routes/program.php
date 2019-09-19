@@ -2,6 +2,14 @@
 
 use \Controllers\Program as Controllers;
 
+
+$app->group('/api/program/type', function () use ($app) {
+    $app->get('', Controllers\GetProgramTypeJsonCollection::class);
+    $app->post('', Controllers\CreateProgramType::class);
+});
+
+
+
 $app->group('/api/program', function () use ($app) {
     //@TODO : Groups execute on runtime it seems, so can't use this as intermediary
     //@TODO : should we use alternate syntax? just class and let it load via __invoke ?
@@ -79,3 +87,4 @@ $app->group('/api/program', function () use ($app) {
         return $program->updateProgramPublishSetting($programId, $rowId);
     });
 })->add(new \Middleware\ProgramModifiedCacheClearMiddleware($app->getContainer()));
+
