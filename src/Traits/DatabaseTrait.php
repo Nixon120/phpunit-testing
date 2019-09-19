@@ -132,6 +132,7 @@ trait DatabaseTrait
     {
         $params = [];
         foreach ($batch as $index => $entity) {
+            /** @var Base $entity */
             $params[] = $this->prepareParametersForSQL($entity->toArray());
         }
         return $this->flatten($params);
