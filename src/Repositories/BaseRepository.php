@@ -113,6 +113,11 @@ abstract class BaseRepository implements Repository
         $params = $this->generateInsertParameters($data);
 
         if ($unique) {
+            if (array_key_exists('updated_at', $data)) {
+                $time = new \DateTime;
+                $data['updated_at'] = $time->format('Y-m-d H:i:s');
+            }
+
             $fields = $this->getFields($data);
             $sql .= ' ON DUPLICATE KEY UPDATE ' . $this->generateDuplicateKeySql($fields);
         }
@@ -138,6 +143,12 @@ abstract class BaseRepository implements Repository
             //@TODO think about it.
             return true;
         }
+
+        if (array_key_exists('updated_at', $data)) {
+            $time = new \DateTime;
+            $data['updated_at'] = $time->format('Y-m-d H:i:s');
+        }
+
         $sql = $this->generateUpdateSQL($data);
         $params = $this->generateUpdateParameters($id, $data);
 

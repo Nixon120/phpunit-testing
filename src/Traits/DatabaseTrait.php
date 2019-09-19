@@ -132,8 +132,13 @@ trait DatabaseTrait
     {
         $params = [];
         foreach ($batch as $index => $entity) {
-            /** @var Base $entity */
-            $params[] = $this->prepareParametersForSQL($entity->toArray());
+            $data = $entity->toArray();
+            if (array_key_exists('updated_at', $data)) {
+                $time = new \DateTime;
+                $data['updated_at'] = $time->format('Y-m-d H:i:s');
+            }
+
+            $params[] = $this->prepareParametersForSQL($data);
         }
         return $this->flatten($params);
     }
