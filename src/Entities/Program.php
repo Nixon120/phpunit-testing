@@ -97,6 +97,8 @@ class Program extends Base
      */
     private $accountingContact;
 
+    public $actions;
+
     public function __construct(array $data = null)
     {
         parent::__construct();
@@ -755,5 +757,25 @@ class Program extends Base
     public function setCostCenterId(string $cost_center_id)
     {
         $this->cost_center_id = $cost_center_id;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getActions(): array
+    {
+        if(!empty($this->actions)) {
+            return json_decode($this->actions, true);
+        }
+
+        return [];
+    }
+
+    /**
+     * @param mixed $actions
+     */
+    public function setActions($actions): void
+    {
+        $this->actions = $actions;
     }
 }
