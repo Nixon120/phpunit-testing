@@ -30,6 +30,13 @@ class ServiceFactory extends AbstractServiceFactory
         );
     }
 
+    public function getProgramTypeService()
+    {
+        return new ProgramType(
+            $this->getProgramTypeRepository()
+        );
+    }
+
     public function getSweepstakeRepository(): SweepstakeRepository
     {
         if ($this->sweepstakeRepository === null) {
