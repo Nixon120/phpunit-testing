@@ -112,6 +112,17 @@ class Program
             $data['domain_id'] = $domain->getId();
         }
 
+        if(!empty($data['programTypes'])) {
+            $collection = [];
+            foreach($data['programTypes'] as $programType) {
+                $type = new \Entities\ProgramType;
+                $type->setId($programType);
+                $collection[] = $type;
+            }
+
+            $data['programTypes'] = $collection;
+        }
+
         unset($data['organization'], $data['auto_redemption'], $data['contact'], $data['accounting_contact']);
         $this->program->exchange($data);
     }
@@ -130,6 +141,10 @@ class Program
 
         $this->repository->insert($this->program->toArray());
         $programId = $this->repository->getLastInsertId();
+
+        if($this->program->getProgramTypes()) {
+            $this->repository->placeProgramTypes($programId, $this->program->getProgramTypes());
+        }
 
         $this->queueEvent('Program.create', $programId);
     }
@@ -152,6 +167,10 @@ class Program
         if ($this->program->hasAccountingContact()) {
             // Save the Contact
             $this->contactRepository->place($this->program->getAccountingContact());
+        }
+
+        if($this->program->getProgramTypes()) {
+            $this->repository->placeProgramTypes($this->program->getId(), $this->program->getProgramTypes());
         }
 
         $this->repository->update($this->program->getId(), $this->program->toArray());
@@ -187,6 +206,7 @@ class Program
         }
 
         $this->saveEntities();
+
         return $this->repository->getProgram($this->program->getUniqueId());
     }
 

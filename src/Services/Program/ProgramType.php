@@ -4,6 +4,7 @@ namespace Services\Program;
 
 use Controllers\Interfaces as Interfaces;
 use Controllers\Program\InputNormalizer;
+use Controllers\Program\ProgramTypeInputNormalizer;
 use Repositories\ProgramTypeRepository;
 
 class ProgramType
@@ -36,11 +37,11 @@ class ProgramType
     }
 
     /**
-     * @param InputNormalizer $input
+     * @param ProgramTypeInputNormalizer $input
      * @return bool
      * @throws \Exception
      */
-    public function insert(InputNormalizer $input)
+    public function insert(ProgramTypeInputNormalizer $input)
     {
         $data = $input->getInput();
         $actions = $data['actions'] ?? [];
@@ -57,14 +58,17 @@ class ProgramType
 
     /**
      * @param $id
-     * @param InputNormalizer $input
-     * @return bool|\Entities\Program|null
+     * @param ProgramTypeInputNormalizer $input
+     * @return bool
+     * @throws \Exception
      */
-    public function update($id, InputNormalizer $input)
+    public function update($id, ProgramTypeInputNormalizer $input)
     {
         $data = $input->getInput();
-
+        $actions = $data['actions'] ?? [];
         $programType = new \Entities\ProgramType($data);
+        $programType->setActions($actions);
+
         if ($this->repository->validate($programType) === false) {
             // At least one entity failed to validate.
             return false;
