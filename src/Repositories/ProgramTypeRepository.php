@@ -37,9 +37,9 @@ SQL;
 
     /**
      * @param $id
-     * @return Program|null
+     * @return ProgramType|null
      */
-    public function getProgramType($id): ?Program
+    public function getProgramType($id): ?ProgramType
     {
         $sql = "SELECT * FROM ProgramType WHERE id = ?";
 
@@ -50,6 +50,38 @@ SQL;
         }
 
         return $programType;
+    }
+
+    public function isProgramTypeInUse(int $typeId): bool
+    {
+        $sql = <<<SQL
+SELECT id 
+FROM ProgramToProgramType
+WHERE program_type_id = ?
+LIMIT 1
+SQL;
+
+        $sth = $this->getDatabase()->prepare($sql);
+        $sth->execute([$typeId]);
+        $anId = $sth->fetchColumn(0);
+
+        if(!empty($anId)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function deleteProgramType($id): bool
+    {
+        $sql = <<<SQL
+DELETE FROM ProgramType
+WHERE id = ?
+SQL;
+
+        $sth = $this->getDatabase()->prepare($sql);
+
+        return $sth->execute([$id]);
     }
 
     /**
