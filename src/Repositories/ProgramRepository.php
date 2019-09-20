@@ -163,7 +163,7 @@ SQL;
         $sth = $this->database->prepare($sql);
         $sth->execute($args);
         $types = $sth->fetchAll(PDO::FETCH_CLASS, ProgramType::class);
-        if(empty($types)) {
+        if (empty($types)) {
             $types = [];
         }
 
@@ -378,7 +378,7 @@ SQL;
         $sth = $this->getDatabase()->prepare($sql);
         $sth->execute([$programId]);
 
-        foreach($programTypes as $type) {
+        foreach ($programTypes as $type) {
             $this->insert([
                 'program_id' => $programId,
                 'program_type_id' => $type->getId()

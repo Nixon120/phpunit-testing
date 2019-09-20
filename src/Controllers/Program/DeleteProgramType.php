@@ -13,7 +13,8 @@ class DeleteProgramType
      */
     private $container;
 
-    public function __construct(Container $container) {
+    public function __construct(Container $container)
+    {
         $this->container = $container;
     }
 
@@ -41,7 +42,7 @@ class DeleteProgramType
             $programServiceFactory = $this->getContainer()->get('program');
             $repository = $programServiceFactory->getProgramTypeRepository();
 
-            if($repository->isProgramTypeInUse($typeId) === true) {
+            if ($repository->isProgramTypeInUse($typeId) === true) {
                 throw new \Exception('Program type is currently in use');
             }
 
@@ -50,7 +51,7 @@ class DeleteProgramType
             }
 
             $errors = ['Unable to delete program type'];
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             $errors = [$e->getMessage()];
         }
 

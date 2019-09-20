@@ -112,9 +112,9 @@ class Program
             $data['domain_id'] = $domain->getId();
         }
 
-        if(!empty($data['programTypes'])) {
+        if (!empty($data['programTypes'])) {
             $collection = [];
-            foreach($data['programTypes'] as $programType) {
+            foreach ($data['programTypes'] as $programType) {
                 $type = new \Entities\ProgramType;
                 $type->setId($programType);
                 $collection[] = $type;
@@ -142,7 +142,7 @@ class Program
         $this->repository->insert($this->program->toArray());
         $programId = $this->repository->getLastInsertId();
 
-        if($this->program->getProgramTypes()) {
+        if ($this->program->getProgramTypes()) {
             $this->repository->placeProgramTypes($programId, $this->program->getProgramTypes());
         }
 
@@ -169,7 +169,7 @@ class Program
             $this->contactRepository->place($this->program->getAccountingContact());
         }
 
-        if($this->program->getProgramTypes()) {
+        if ($this->program->getProgramTypes()) {
             $this->repository->placeProgramTypes($this->program->getId(), $this->program->getProgramTypes());
         }
 

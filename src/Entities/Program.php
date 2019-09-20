@@ -791,8 +791,7 @@ class Program extends Base
         $actionCollection = [];
         foreach ($this->getProgramTypes() as $type) {
             foreach ($type->getActions() as $action => $boolean) {
-                if (
-                    isset($actionCollection[$action]) === true
+                if (isset($actionCollection[$action]) === true
                     && $actionCollection[$action] === true
                     && $boolean === false) {
                     // if we've already set it as true, that means it's available and shouldn't be revoked

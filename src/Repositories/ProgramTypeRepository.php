@@ -65,7 +65,7 @@ SQL;
         $sth->execute([$typeId]);
         $anId = $sth->fetchColumn(0);
 
-        if(!empty($anId)) {
+        if (!empty($anId)) {
             return true;
         }
 

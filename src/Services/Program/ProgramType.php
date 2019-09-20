@@ -20,8 +20,8 @@ class ProgramType
      */
     public function __construct(
         ProgramTypeRepository $repository
-    )
-    {
+    ) {
+    
         $this->repository = $repository;
     }
 

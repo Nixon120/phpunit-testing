@@ -47,7 +47,7 @@ class CreateProgramType
             }
 
             $errors = $programTypeService->getErrors();
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             $errors = [$e->getMessage()];
         }
 

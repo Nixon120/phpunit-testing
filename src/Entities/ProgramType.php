@@ -78,7 +78,7 @@ class ProgramType extends Base
      */
     public function getActions()
     {
-        if(!empty($this->actions)) {
+        if (!empty($this->actions)) {
             return json_decode($this->actions, true);
         }
 
@@ -91,13 +91,24 @@ class ProgramType extends Base
      */
     public function setActions(array $actions): void
     {
-        foreach($actions as $action => $boolean) {
-            if($this->isActionValid($action) === false) {
+        foreach ($actions as $action => $boolean) {
+            if ($this->isActionValid($action) === false) {
                 throw new \Exception('Action provided is invalid, it must be one of: ' . implode(', ', $this->availableActions));
             }
         }
 
-        $this->actions = json_encode($actions, true);
+        $this->actions = json_encode($this->getMappedActions($actions), true);
+    }
+
+    private function getMappedActions(array $actions): array
+    {
+        foreach ($this->availableActions as $proper) {
+            if (array_key_exists($proper, $actions) === false) {
+                $actions[$proper] = false;
+            }
+        }
+
+        return $actions;
     }
 
     private function isActionValid(string $action)

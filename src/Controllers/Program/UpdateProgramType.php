@@ -13,7 +13,8 @@ class UpdateProgramType
      */
     private $container;
 
-    public function __construct(Container $container) {
+    public function __construct(Container $container)
+    {
         $this->container = $container;
     }
 
@@ -50,7 +51,7 @@ class UpdateProgramType
             $serviceFactory = $this->getContainer()->get('program');
             $programTypeService = $serviceFactory->getProgramTypeService();
             $type = $this->getProgramTypeRepository()->getProgramType($typeId);
-            if($type === null) {
+            if ($type === null) {
                 throw new \Exception('Program type does not exist');
             }
             $post = $request->getParsedBody() ?? [];
@@ -61,7 +62,7 @@ class UpdateProgramType
             }
 
             $errors = ['Unable to update program type'];
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             $errors = [$e->getMessage()];
         }
 
