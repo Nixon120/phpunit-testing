@@ -97,7 +97,15 @@ class Program extends Base
      */
     private $accountingContact;
 
-    public $actions;
+    /**
+     * @var ProgramType[]
+     */
+    private $programTypes;
+
+    /**
+     * @var array
+     */
+    private $actions;
 
     public function __construct(array $data = null)
     {
@@ -319,7 +327,7 @@ class Program extends Base
     /**
      * @return mixed
      */
-    public function getDomain():?Domain
+    public function getDomain(): ?Domain
     {
         return $this->domain;
     }
@@ -431,7 +439,7 @@ class Program extends Base
         $this->autoRedemption = $settings;
     }
 
-    public function getAutoRedemption():?AutoRedemption
+    public function getAutoRedemption(): ?AutoRedemption
     {
         return $this->autoRedemption;
     }
@@ -461,7 +469,7 @@ class Program extends Base
         $this->productCriteria = $criteria;
     }
 
-    public function getProductCriteria():ProductCriteria
+    public function getProductCriteria(): ProductCriteria
     {
         if ($this->productCriteria === null) {
             $this->productCriteria = new ProductCriteria;
@@ -475,7 +483,7 @@ class Program extends Base
         $this->sweepstake = $sweepstake;
     }
 
-    public function getSweepstake():?Sweepstake
+    public function getSweepstake(): ?Sweepstake
     {
         if ($this->sweepstake === null) {
             $this->sweepstake = new Sweepstake;
@@ -492,7 +500,7 @@ class Program extends Base
     /**
      * @return LayoutRow[]
      */
-    public function getLayoutRows():array
+    public function getLayoutRows(): array
     {
         if ($this->layoutRows === null) {
             $this->layoutRows = [];
@@ -509,7 +517,7 @@ class Program extends Base
     /**
      * @return FeaturedProduct[]
      */
-    public function getFeaturedProducts():array
+    public function getFeaturedProducts(): array
     {
         if ($this->featuredProducts === null) {
             $this->featuredProducts = [];
@@ -760,19 +768,46 @@ class Program extends Base
     }
 
     /**
-     * @return mixed
+     * @return ProgramType[]
      */
-    public function getActions(): array
+    public function getProgramTypes(): array
     {
-        if(!empty($this->actions)) {
-            return json_decode($this->actions, true);
-        }
-
-        return [];
+        return $this->programTypes;
     }
 
     /**
-     * @param mixed $actions
+     * @param ProgramType[] $programTypes
+     */
+    public function setProgramTypes(array $programTypes): void
+    {
+        $this->programTypes = $programTypes;
+    }
+
+    /**
+     * @return array
+     */
+    public function getActions(): array
+    {
+        $actionCollection = [];
+        foreach ($this->getProgramTypes() as $type) {
+            foreach ($type->getActions() as $action => $boolean) {
+                if (
+                    isset($actionCollection[$action]) === true
+                    && $actionCollection[$action] === true
+                    && $boolean === false) {
+                    // if we've already set it as true, that means it's available and shouldn't be revoked
+                    continue;
+                }
+
+                $actionCollection[$action] = $boolean;
+            }
+        }
+
+        return $actionCollection;
+    }
+
+    /**
+     * @param array $actions
      */
     public function setActions($actions): void
     {

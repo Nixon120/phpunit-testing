@@ -22,14 +22,14 @@ class ProgramType extends Base
     public $actions;
 
     private $availableActions = [
-        'claim',
-        'marketplace',
-        'auto-redemption',
-        'redemption-center',
-        'sku-trigger',
-        'sweepstakes',
-        'file-upload',
-        'rebates'
+        'autoRedemption',
+        'product',
+        'vendor',
+        'layout',
+        'sweepstake',
+        'content',
+        'offlineRedemption',
+        'fileUpload',
     ];
 
     public function __construct(array $data = null)
@@ -78,7 +78,11 @@ class ProgramType extends Base
      */
     public function getActions()
     {
-        return $this->actions;
+        if(!empty($this->actions)) {
+            return json_decode($this->actions, true);
+        }
+
+        return [];
     }
 
     /**
@@ -87,11 +91,12 @@ class ProgramType extends Base
      */
     public function setActions(array $actions): void
     {
-        foreach($actions as $action) {
+        foreach($actions as $action => $boolean) {
             if($this->isActionValid($action) === false) {
                 throw new \Exception('Action provided is invalid, it must be one of: ' . implode(', ', $this->availableActions));
             }
         }
+
         $this->actions = json_encode($actions, true);
     }
 
