@@ -768,9 +768,9 @@ class Program extends Base
     }
 
     /**
-     * @return ProgramType[]
+     * @return ProgramType[]|null
      */
-    public function getProgramTypes(): array
+    public function getProgramTypes(): ?array
     {
         return $this->programTypes;
     }

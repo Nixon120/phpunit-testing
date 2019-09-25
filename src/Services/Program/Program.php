@@ -142,7 +142,7 @@ class Program
         $this->repository->insert($this->program->toArray());
         $programId = $this->repository->getLastInsertId();
 
-        if ($this->program->getProgramTypes()) {
+        if ($this->program->getProgramTypes() !== null) {
             $this->repository->placeProgramTypes($programId, $this->program->getProgramTypes());
         }
 
@@ -169,7 +169,7 @@ class Program
             $this->contactRepository->place($this->program->getAccountingContact());
         }
 
-        if ($this->program->getProgramTypes()) {
+        if ($this->program->getProgramTypes() !== null) {
             $this->repository->placeProgramTypes($this->program->getId(), $this->program->getProgramTypes());
         }
 
