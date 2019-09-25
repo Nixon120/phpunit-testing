@@ -537,10 +537,17 @@ class SandboxResetSeeder extends AbstractSeed
             ]
         ];
 
-        $programs = $this->table('Program');
+        $this->execute(<<<SQL
+DELETE FROM `ProgramType` WHERE 1=1;
+DELETE FROM `ProgramToProgramType` WHERE 1=1;
+DELETE FROM `Program` WHERE 1=1;
+ALTER TABLE `ProgramType` AUTO_INCREMENT=1;
+ALTER TABLE `ProgramToProgramType` AUTO_INCREMENT=1;
+ALTER TABLE `Program` AUTO_INCREMENT=1;
+SQL
+        );
 
-        # Purge all Organizations
-        $programs->truncate();
+        $programs = $this->table('Program');
 
         $programs
             ->insert($data)

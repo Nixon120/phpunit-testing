@@ -6,7 +6,6 @@ use Entities\Faqs;
 use Entities\FeaturedProduct;
 use Entities\LayoutRow;
 use Entities\Program;
-use Entities\ProgramLayout;
 
 class OutputNormalizer extends AbstractOutputNormalizer
 {
@@ -68,6 +67,8 @@ class OutputNormalizer extends AbstractOutputNormalizer
         }
         $return['auto_redemption'] = $program->getAutoRedemption();
         $return['one_time_auto_redemptions'] = $program->getOneTimeAutoRedemptions();
+        $return['programTypes'] = $this->scrubList($program->getProgramTypes(), ['actions', 'created_at', 'updated_at']);
+        $return['actions'] = $program->getActions();
         return $return;
     }
 

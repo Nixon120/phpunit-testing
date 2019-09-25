@@ -17,6 +17,7 @@ use Entities\Organization;
 use Entities\Participant;
 use Entities\ProductCriteria;
 use Entities\Program;
+use Entities\ProgramType;
 use Entities\Sweepstake;
 use Entities\SweepstakeDraw;
 use Entities\Transaction;
@@ -145,7 +146,28 @@ SQL;
         $program->setLayoutRows($this->getProgramLayout($program));
         $program->setSweepstake($this->getProgramSweepstake($program));
         $program->setFeaturedProducts($this->getProgramFeaturedProducts($program));
+        $program->setProgramTypes($this->getProgramTypes($program));
         return $program;
+    }
+
+    private function getProgramTypes(Program $program)
+    {
+        $sql = <<<SQL
+SELECT * 
+FROM ProgramType
+WHERE id IN (SELECT program_type_id FROM ProgramToProgramType WHERE ProgramToProgramType.program_id = ?)
+SQL;
+
+        $args = [$program->getId()];
+
+        $sth = $this->database->prepare($sql);
+        $sth->execute($args);
+        $types = $sth->fetchAll(PDO::FETCH_CLASS, ProgramType::class);
+        if (empty($types)) {
+            $types = [];
+        }
+
+        return $types;
     }
 
     private function getProgramFeaturedProducts(Program $program)
@@ -337,6 +359,34 @@ SQL;
 
         $autoRedemption->setProduct($product);
         return $autoRedemption;
+    }
+
+    /**
+     * @param int $programId
+     * @param ProgramType[] $programTypes
+     * @return bool
+     */
+    public function placeProgramTypes(int $programId, array $programTypes): bool
+    {
+        $this->table = 'ProgramToProgramType';
+
+        $sql = <<<SQL
+DELETE FROM ProgramToProgramType
+WHERE program_id = ?
+SQL;
+
+        $sth = $this->getDatabase()->prepare($sql);
+        $sth->execute([$programId]);
+
+        foreach ($programTypes as $type) {
+            $this->insert([
+                'program_id' => $programId,
+                'program_type_id' => $type->getId()
+            ]);
+        }
+        $this->table = 'Program';
+
+        return true;
     }
 
     public function placeSettings(AutoRedemption $settings): bool
