@@ -1,4 +1,4 @@
-# Marketplace Admin
+# RewardStack
 
 * Production: [https://admin.alldigitalrewards.com/login](https://admin.alldigitalrewards.com/login)
 * Staging: [https://admin.staging.alldigitalrewards.com/login](https://admin.staging.alldigitalrewards.com/login)
