@@ -406,7 +406,7 @@ SELECT `value`
 FROM `ParticipantMeta` meta 
 WHERE `key` = '{$key}'  -- pass key via arg
   AND meta.participant_id = Participant.id
-) as `{$key}`
+) as `pM_{$key}`
 SQL;
                 $sql .= ',';
             }
@@ -432,7 +432,7 @@ SELECT `value`
 FROM `TransactionMeta` meta 
 WHERE `key` = '{$key}'  -- pass key via arg 
   AND meta.transaction_id = Transaction.id
-) as {$key}
+) as `tM_{$key}`
 SQL;
                 $sql .= ',';
             }
