@@ -38,6 +38,12 @@ $app->group('/api/program', function () use ($app) {
         return $program->layout($programId);
     });
 
+    $app->map(['post'], '/{id}/product/management/criteria', function ($request, $response, $args) {
+        $program = new Controllers\JsonView($request, $response, $this->get('program'));
+        $programId = $args['id'];
+        return $program->saveProductCriteria($programId);
+    });
+
     $app->post('/{id}/product/management/featured', function ($request, $response, $args) {
         $program = new Controllers\JsonView($request, $response, $this->get('program'));
         $programId = $args['id'];
