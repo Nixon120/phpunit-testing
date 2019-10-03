@@ -626,8 +626,10 @@ SQL;
 
     public function saveProductCriteria(Program $program, $filterData): bool
     {
+        $featuredPageTitle = $this->getProductCriteria($program)->getFeaturedPageTitle();
         $criteria = new ProductCriteria;
         $criteria->setFilter($filterData);
+        $criteria->setFeaturedPageTitle($featuredPageTitle);
         $criteria->setProgramId($program->getUniqueId());
         return $this->placeProductCriteria($criteria);
     }
