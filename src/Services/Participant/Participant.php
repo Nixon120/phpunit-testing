@@ -244,6 +244,17 @@ class Participant
             return false;
         }
 
+        if(!$this->validateParticipantMeta($meta)) {
+            $this->repository->setErrors(
+                [
+                    'meta' => [
+                        'Meta::ILLEGAL_META' => _("Participant Meta is not valid, please provide valid key:value non-empty pairs.")
+                    ]
+                ]
+            );
+            return false;
+        }
+
         if ($this->repository->insert($participant->toArray())) {
             $participant = $this->repository->getParticipant($participant->getUniqueId());
             if ($address !== null) {
@@ -258,6 +269,24 @@ class Participant
         }
 
         return false;
+    }
+
+    private function validateParticipantMeta($metaCollection)
+    {
+        //tests associative array
+        foreach ($metaCollection as $meta) {
+            if (is_array($meta) === false) {
+                // Not valid meta;
+                return false;
+            }
+            foreach ($meta as $key => $value) {
+                if (empty($key) === true) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
     private function isParticipantUniqueIdValid($uniqueId)
@@ -321,8 +350,18 @@ class Participant
             $data = $this->hydratePassword($data, $participant);
         }
 
-        if ($this->repository->update($participant->getId(), $data)
-        ) {
+        if(!$this->validateParticipantMeta($meta)) {
+            $this->repository->setErrors(
+                [
+                    'meta' => [
+                        'Meta::ILLEGAL_META' => _("Participant Meta is not valid, please provide valid key:value non-empty pairs.")
+                    ]
+                ]
+            );
+            return false;
+        }
+
+        if ($this->repository->update($participant->getId(), $data)) {
             if ($meta !== null) {
                 $this->repository->saveMeta($participant->getId(), $meta);
             }
