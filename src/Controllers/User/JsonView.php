@@ -122,7 +122,7 @@ class JsonView extends AbstractViewController
             return $response;
         }
 
-        $response = $this->response->withStatus(200)
+        $response = $this->response->withStatus(400)
             ->withJson([
                 'message' => $this->errorMessage,
                 'status' => 'failed'
