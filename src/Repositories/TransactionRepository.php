@@ -360,7 +360,7 @@ SQL;
 
     private function getParticipantTransactionProducts($transactionId): ?array
     {
-        $sql = "SELECT TransactionProduct.*, TransactionItem.quantity, TransactionItem.guid, TransactionItem.reissue_date FROM `TransactionItem`"
+        $sql = "SELECT TransactionProduct.*, TransactionItem.quantity, TransactionItem.guid FROM `TransactionItem`"
             . " JOIN TransactionProduct ON TransactionProduct.reference_id = TransactionItem.reference_id"
             . " WHERE TransactionItem.transaction_id = ?";
 
@@ -426,21 +426,6 @@ SQL;
         }
     }
 
-    public function saveReissueDate($guid, $reissueDate)
-    {
-        $date = \DateTime::createFromFormat('Y-m-d', $reissueDate);
-        if ($date && $date->format('Y-m-d') === $reissueDate) {
-            $sql = "UPDATE `TransactionItem`"
-                . " SET reissue_date = ?"
-                . " WHERE guid = ?";
-
-            $sth = $this->database->prepare($sql);
-            return $sth->execute([$reissueDate, $guid]);
-        }
-
-        return false;
-    }
-
     public function validate(\Entities\Transaction $transaction)
     {
         try {
@@ -499,7 +484,6 @@ SQL;
             $transactionItem->setTransactionId($transaction->getId());
             $transactionItem->setReferenceId($item->getReferenceId());
             $transactionItem->setGuid($item->getGuid());
-            $transactionItem->setReissueDate($item->getReissueDate());
             $transaction->setItem($transactionItem, $transactionProduct);
         }
     }
