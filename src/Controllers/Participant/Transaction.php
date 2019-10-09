@@ -134,6 +134,27 @@ class Transaction
         return $this->returnJson(400, ['Resource does not exist']);
     }
 
+    public function addReissueDate($organizationId, $uniqueId, $transactionId, $guid)
+    {
+        $transaction_item = $this->service->getSingleItem($guid);
+        $participant = $this->service->participantRepository->getParticipantByOrganization($organizationId, $uniqueId);
+        $reissueDate = $this->request->getParsedBody() ?? null;
+
+        if ((empty($reissueDate['reissue_date']) === true)
+            || ($participant === null && $transaction_item === null)
+            || $transaction_item['transaction_id'] != $transactionId
+        ) {
+            return $this->returnJson(400, ['Resource does not exist']);
+        }
+
+        $updated = $this->service->setReissueDate($guid, $reissueDate['reissue_date']);
+        if ($updated === true) {
+            return $this->response->withStatus(202);
+        }
+
+        return $this->returnJson(500, ['Internal Server Error']);
+    }
+
     public function updateMeta($organizationId, $uniqueId, $transactionId)
     {
         if (!is_numeric($transactionId)) {

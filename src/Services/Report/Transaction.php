@@ -35,6 +35,7 @@ class Transaction extends AbstractReport
             'Participant.email_address' => 'Email Address',
             'TransactionProduct.category as `Reward Type`' => 'Reward Type',
             'TransactionItem.quantity' => 'Transaction Count',
+            'TransactionItem.reissue_date' => 'Reissue Date',
             'TransactionProduct.vendor_code' => 'Product SKU',
             'TransactionProduct.name' => 'Product Name',
             '((TransactionProduct.retail + IFNULL(TransactionProduct.shipping,0) + IFNULL(TransactionProduct.handling,0)) * TransactionItem.quantity) as Total' => 'Award Amount',

@@ -99,7 +99,7 @@ class Transaction
                             $transactionProduct->getValidationErrors(),
                             $transactionItem->getValidationErrors()
                         );
-                        
+
                         throw new TransactionServiceException(implode(', ', $errors));
                     }
 
@@ -340,6 +340,11 @@ class Transaction
     public function updateSingleItemMeta($transactionId, $meta)
     {
         $this->repository->saveTransactionMeta($transactionId, $meta);
+    }
+
+    public function setReissueDate($guid, $reissueDate)
+    {
+        return $this->repository->saveReissueDate($guid, $reissueDate);
     }
 
     public function getErrors()

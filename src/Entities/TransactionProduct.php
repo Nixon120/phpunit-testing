@@ -39,6 +39,8 @@ class TransactionProduct extends Base implements Validateable
 
     private $guid;
 
+    private $reissue_date;
+
     private $quantity;
 
 
@@ -316,6 +318,22 @@ class TransactionProduct extends Base implements Validateable
     public function setGuid($guid)
     {
         $this->guid = $guid;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getReissueDate()
+    {
+        return $this->reissue_date;
+    }
+
+    /**
+     * @param mixed $reissue_date
+     */
+    public function setReissueDate($reissue_date)
+    {
+        $this->reissue_date = $reissue_date;
     }
 
     public function isValid(): bool
