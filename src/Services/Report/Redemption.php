@@ -32,7 +32,6 @@ class Redemption extends AbstractReport
             'Participant.phone' => 'Phone',
             'Participant.birthdate' => 'Date of Birth',
             'TransactionItem.quantity' => 'Transaction Count',
-            'TransactionItem.reissue_date' => 'Reissue Date',
             'TransactionProduct.vendor_code' => 'Product SKU',
             'TransactionProduct.name' => 'Product Name',
             '((TransactionProduct.retail + IFNULL(TransactionProduct.shipping,0) + IFNULL(TransactionProduct.handling,0)) * TransactionItem.quantity) as Total' => 'Award Amount'

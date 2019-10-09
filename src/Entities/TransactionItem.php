@@ -16,8 +16,6 @@ class TransactionItem extends Base implements Validateable
 
     public $quantity;
 
-    public $reissue_date;
-
     public function setTransactionId($id)
     {
         $this->transaction_id = $id;
@@ -52,22 +50,6 @@ class TransactionItem extends Base implements Validateable
     public function getQuantity()
     {
         return $this->quantity;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getReissueDate()
-    {
-        return $this->reissue_date;
-    }
-
-    /**
-     * @param mixed $reissue_date
-     */
-    public function setReissueDate($reissue_date): void
-    {
-        $this->reissue_date = $reissue_date;
     }
 
     public function isValid(): bool
