@@ -5,8 +5,6 @@ namespace Controllers\Sftp;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Services\Report\ReportFilterNormalizer;
-use Services\Report\ServiceFactory;
 use Slim\Http\Request;
 use Slim\Http\Response;
 
@@ -23,13 +21,13 @@ class SftpDelete
     private $response;
 
     /**
-     * @var ServiceFactory
+     * @var \Services\Sftp\ServiceFactory
      */
     private $factory;
 
     public function __construct(ContainerInterface $container)
     {
-        $this->factory = $container->get('report');
+        $this->factory = $container->get('sftp');
     }
 
     public function __invoke(

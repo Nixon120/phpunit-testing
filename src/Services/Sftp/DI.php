@@ -2,6 +2,6 @@
 // DIC configuration
 use Interop\Container\ContainerInterface;
 
-$container['report'] = function (ContainerInterface $c) {
-    return new \Services\Report\ServiceFactory($c);
+$container['sftp'] = function (ContainerInterface $c) {
+    return new \Services\Sftp\ServiceFactory($c);
 };
