@@ -13,7 +13,6 @@ use Repositories\ParticipantRepository;
 use Repositories\ProgramRepository;
 use Repositories\ProgramTypeRepository;
 use Services\Authentication\Authenticate;
-use Services\Report\ReportPublisherFactory;
 use Slim\Flash\Messages;
 use Superbalist\Flysystem\GoogleStorage\GoogleStorageAdapter;
 
@@ -68,12 +67,6 @@ abstract class AbstractServiceFactory
         }
 
         return $this->database;
-    }
-
-    public function getReportPublisher()
-    {
-        $publisherFactory = new ReportPublisherFactory($this->container);
-        return $publisherFactory();
     }
 
     public function getEventPublisher()
