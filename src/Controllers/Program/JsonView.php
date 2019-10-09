@@ -89,6 +89,48 @@ class JsonView extends AbstractViewController
         return $response;
     }
 
+    public function saveProductCriteria($programId)
+    {
+        $repository = $this->factory->getProgramRepository();
+        $program = $repository->getProgram($programId);
+
+        if (is_null($program)) {
+            return $this->renderJson404();
+        }
+
+        if ($this->request->getParsedBody() !== null
+            && $repository->saveProductCriteria($program, $this->request->getParsedBody())
+        ) {
+            return $response = $this->response->withStatus(200)
+                ->withJson([]);
+        }
+
+        return $response = $this->response->withStatus(400)
+            ->withJson([]);
+    }
+
+    public function saveFeaturedProducts($programId)
+    {
+       $repository = $this->factory->getProgramRepository();
+       $program = $repository->getProgram($programId);
+
+       if (is_null($program)) {
+           return $this->renderJson404();
+       }
+
+       $skuContainer = $this->request->getParsedBody()['products'] ?? [];
+       $featuredPageTitle = $this->request->getParsedBody()['featured_page_title'] ?? '';
+       if ($this->request->getParsedBody() !== null
+           && $repository->saveFeaturedProducts($program, $skuContainer, $featuredPageTitle)
+       ) {
+           return $response = $this->response->withStatus(200)
+               ->withJson([]);
+       }
+
+       return $response = $this->response->withStatus(400)
+           ->withJson([]);
+    }
+
     public function layout($id)
     {
         $repository = $this->factory->getProgramRepository();

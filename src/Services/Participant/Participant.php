@@ -230,7 +230,28 @@ class Participant
                     ]
                 ]
             );
+            return false;
+        }
 
+        if (!$this->isParticipantUniqueIdValid($participant->getUniqueId())) {
+            $this->repository->setErrors(
+                [
+                    'unique_id' => [
+                        'Unique::ILLEGAL_CHARACTERS' => _("The participant id characters must be alphanumeric, hyphen and/or dashes.")
+                    ]
+                ]
+            );
+            return false;
+        }
+
+        if(!$this->validateParticipantMeta($meta)) {
+            $this->repository->setErrors(
+                [
+                    'meta' => [
+                        'Meta::ILLEGAL_META' => _("Participant Meta is not valid, please provide valid key:value non-empty pairs.")
+                    ]
+                ]
+            );
             return false;
         }
 
@@ -238,7 +259,6 @@ class Participant
             $participant = $this->repository->getParticipant($participant->getUniqueId());
             if ($address !== null) {
                 $participant->setAddress($address);
-                //@TODO if failure throw exception, clean this up.. I need participant_id
                 $this->repository->insertAddress($participant->getAddress());
             }
 
@@ -249,6 +269,33 @@ class Participant
         }
 
         return false;
+    }
+
+    private function validateParticipantMeta($metaCollection)
+    {
+        //tests associative array
+        foreach ($metaCollection as $meta) {
+            if (is_array($meta) === false) {
+                // Not valid meta;
+                return false;
+            }
+            foreach ($meta as $key => $value) {
+                if (empty($key) === true) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    private function isParticipantUniqueIdValid($uniqueId)
+    {
+        if(preg_match('/[^a-z_\-0-9]/i', $uniqueId)) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -303,8 +350,18 @@ class Participant
             $data = $this->hydratePassword($data, $participant);
         }
 
-        if ($this->repository->update($participant->getId(), $data)
-        ) {
+        if(!$this->validateParticipantMeta($meta)) {
+            $this->repository->setErrors(
+                [
+                    'meta' => [
+                        'Meta::ILLEGAL_META' => _("Participant Meta is not valid, please provide valid key:value non-empty pairs.")
+                    ]
+                ]
+            );
+            return false;
+        }
+
+        if ($this->repository->update($participant->getId(), $data)) {
             if ($meta !== null) {
                 $this->repository->saveMeta($participant->getId(), $meta);
             }

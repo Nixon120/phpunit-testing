@@ -1,4 +1,5 @@
 <?php
+
 namespace Services\Participant;
 
 use Particle\Validator\Exception\InvalidValueException;
@@ -47,14 +48,17 @@ class ValidationMiddleware
 
     private $validationMessages = [];
 
+    private $routeArguments = [];
+
     private $input = [];
 
     private $errors = [];
 
     public function __construct(
         ContainerInterface $container
-    ) {
-    
+    )
+    {
+
         $this->container = $container;
         $this->auth = $this->container->get('authentication');
         $this->validator = $this->container->get('validation');
@@ -72,10 +76,15 @@ class ValidationMiddleware
         ServerRequestInterface $request,
         Response $response,
         callable $next = null
-    ) {
+    )
+    {
         $this->request = $request;
         $this->response = $response;
+        $route = $request->getAttribute('route');
+        $this->routeArguments = $route->getArguments();
         $access = $this->request->getMethod() === 'GET' ? 'read' : 'write';
+
+
         $this->input = $this->request->getParsedBody() ?? [];
         $this->setValidationMessages();
         if ($access === 'write' && $this->validate() === false) {
@@ -93,11 +102,11 @@ class ValidationMiddleware
     {
         if ($this->auth->getUser() !== null) {
             $context = $this->auth->getUser()->getRole();
-            $update = isset($this->input['id']);
         } else {
             $context = 'api';
-            $update = $this->request->getMethod() === 'PUT' ? true : false;
         }
+
+        $update = $this->request->getMethod() === 'PUT' ? true : false;
 
         if ($update === true) {
             return $this->validateUpdateInput($context);
@@ -108,7 +117,7 @@ class ValidationMiddleware
 
     private function validateCreateInput($context): bool
     {
-        $this->prepareContext();
+        $this->prepareContext(false);
         $result = $this->validator->validate($this->input, $context);
         if ($result->isValid()) {
             return true;
@@ -121,7 +130,7 @@ class ValidationMiddleware
 
     private function validateUpdateInput($context): bool
     {
-        $this->prepareContext();
+        $this->prepareContext(true);
         $result = $this->validator->validate($this->input, $context);
         if ($result->isValid()) {
             return true;
@@ -180,20 +189,25 @@ class ValidationMiddleware
         $this->validator->overwriteMessages($this->validationMessages);
     }
 
-    private function prepareContext()
+    private function prepareContext(bool $isUpdate = false)
     {
-        $this->setApiUpdateContext();
-        $this->setSuperAdminUpdateContext();
-        $this->setClientAdminUpdateContext();
-        $this->setConfigsAdminUpdateContext();
+        $this->setApiUpdateContext($isUpdate);
+        $this->setSuperAdminUpdateContext($isUpdate);
+        $this->setClientAdminUpdateContext($isUpdate);
+        $this->setConfigsAdminUpdateContext($isUpdate);
     }
 
-    private function setApiUpdateContext()
+    private function setApiUpdateContext(bool $isUpdate = false)
     {
-        $this->validator->context('api', function (InputValidator $context) {
+        $this->validator->context('api', function (InputValidator $context) use ($isUpdate) {
+
+            $context->optional('unique_id')->allowEmpty(false)->lengthBetween(2, 45);
+            if ($isUpdate === false) {
+                $context->required('unique_id')->allowEmpty(false)->lengthBetween(2, 45);
+            }
+
             $context->optional('organization')->allowEmpty(false)->lengthBetween(2, 50)->string();
             $context->optional('program')->allowEmpty(false)->lengthBetween(2, 45);
-            $context->optional('unique_id')->allowEmpty(false)->lengthBetween(2, 45);
             $context->optional('firstname')->allowEmpty(false)->lengthBetween(1, 50);
             $context->optional('lastname')->allowEmpty(false)->lengthBetween(1, 50);
             $context->optional('email_address')->allowEmpty(false)->email();
@@ -207,15 +221,21 @@ class ValidationMiddleware
         });
     }
 
-    private function setSuperAdminUpdateContext()
+    private function setSuperAdminUpdateContext(bool $isUpdate = false)
     {
-        $this->validator->context('superadmin', function (InputValidator $context) {
-            $context->optional('organization')->allowEmpty(false)->lengthBetween(2, 50)->string();
-            $context->optional('program')->allowEmpty(false)->lengthBetween(2, 45);
+        $this->validator->context('superadmin', function (InputValidator $context) use ($isUpdate) {
             $context->optional('unique_id')->allowEmpty(false)->lengthBetween(2, 45);
+            $context->optional('program')->allowEmpty(false)->lengthBetween(2, 45);
+            $context->optional('email_address')->allowEmpty(false)->email();
+            if ($isUpdate === false) {
+                $context->required('unique_id')->allowEmpty(false)->lengthBetween(2, 45);
+                $context->required('program')->allowEmpty(false)->lengthBetween(2, 45);
+                $context->required('email_address')->allowEmpty(false)->email();
+            }
+
+            $context->optional('organization')->allowEmpty(false)->lengthBetween(2, 50)->string();
             $context->optional('firstname')->allowEmpty(false)->lengthBetween(1, 50);
             $context->optional('lastname')->allowEmpty(false)->lengthBetween(1, 50);
-            $context->optional('email_address')->allowEmpty(false)->email();
             $context->optional('birthdate')->datetime('Y-m-d');
             if (isset($this->input['password']) === true) {
                 $context->optional('password_confirm')->equals($this->input['password']);
@@ -224,28 +244,40 @@ class ValidationMiddleware
         });
     }
 
-    private function setClientAdminUpdateContext()
+    private function setClientAdminUpdateContext(bool $isUpdate = false)
     {
-        $this->validator->context('admin', function (InputValidator $context) {
-            $context->optional('organization')->allowEmpty(false)->lengthBetween(2, 50)->string();
-            $context->optional('program')->allowEmpty(false)->lengthBetween(2, 45);
+        $this->validator->context('admin', function (InputValidator $context) use ($isUpdate) {
             $context->optional('unique_id')->allowEmpty(false)->lengthBetween(2, 45);
+            $context->optional('program')->allowEmpty(false)->lengthBetween(2, 45);
+            $context->optional('email_address')->allowEmpty(false)->email();
+            if ($isUpdate === false) {
+                $context->required('unique_id')->allowEmpty(false)->lengthBetween(2, 45);
+                $context->required('program')->allowEmpty(false)->lengthBetween(2, 45);
+                $context->required('email_address')->allowEmpty(false)->email();
+            }
+
+            $context->optional('organization')->allowEmpty(false)->lengthBetween(2, 50)->string();
             $context->optional('firstname')->allowEmpty(false)->lengthBetween(1, 50);
             $context->optional('lastname')->allowEmpty(false)->lengthBetween(1, 50);
-            $context->optional('email_address')->allowEmpty(false)->email();
             $context->optional('birthdate')->datetime('Y-m-d');
         });
     }
 
-    private function setConfigsAdminUpdateContext()
+    private function setConfigsAdminUpdateContext(bool $isUpdate = false)
     {
-        $this->validator->context('configs', function (InputValidator $context) {
-            $context->optional('organization')->allowEmpty(false)->lengthBetween(2, 50)->string();
-            $context->optional('program')->allowEmpty(false)->lengthBetween(2, 45);
+        $this->validator->context('configs', function (InputValidator $context) use ($isUpdate) {
             $context->optional('unique_id')->allowEmpty(false)->lengthBetween(2, 45);
+            $context->optional('program')->allowEmpty(false)->lengthBetween(2, 45);
+            $context->optional('email_address')->allowEmpty(false)->email();
+            if ($isUpdate === false) {
+                $context->required('unique_id')->allowEmpty(false)->lengthBetween(2, 45);
+                $context->required('program')->allowEmpty(false)->lengthBetween(2, 45);
+                $context->required('email_address')->allowEmpty(false)->email();
+            }
+
+            $context->optional('organization')->allowEmpty(false)->lengthBetween(2, 50)->string();
             $context->optional('firstname')->allowEmpty(false)->lengthBetween(1, 50);
             $context->optional('lastname')->allowEmpty(false)->lengthBetween(1, 50);
-            $context->optional('email_address')->allowEmpty(false)->email();
             $context->optional('birthdate')->datetime('Y-m-d');
         });
     }

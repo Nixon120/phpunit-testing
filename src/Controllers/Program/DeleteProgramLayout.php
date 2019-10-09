@@ -4,10 +4,11 @@ namespace Controllers\Program;
 use Controllers\AbstractViewController;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Services\Program\Program;
 use Services\Program\ServiceFactory;
 use Slim\Views\PhpRenderer;
 
-class Sweepstake extends AbstractViewController
+class DeleteProgramLayout extends AbstractViewController
 {
     /**
      * @var ServiceFactory
@@ -24,7 +25,7 @@ class Sweepstake extends AbstractViewController
         $this->factory = $factory;
     }
 
-    public function renderSweepstakeConfig($programId)
+    public function __invoke($programId, $rowId)
     {
         $repository = $this->factory->getProgramRepository();
         $program = $repository->getProgram($programId);
@@ -33,21 +34,10 @@ class Sweepstake extends AbstractViewController
             return $this->renderGui404();
         }
 
-        $sweepstakeService = $this->factory->getSweepstakeService();
-
-        if ($this->request->getParsedBody() !== null) {
-            $success = $sweepstakeService->setConfiguration($program, $this->request->getParsedBody());
-            return $response = $this->response->withStatus($success ? 200:400)
-                ->withJson([]);
+        if ($this->factory->getProgramRepository()->deleteLayoutRow($rowId) === true) {
+            return $response = $this->response->withStatus(204);
         }
 
-        return $this->render(
-            $this->getRenderer()->fetch(
-                'program/sweepstake.phtml',
-                [
-                    'program' => $program
-                ]
-            )
-        );
+        return $response = $this->response->withStatus(400);
     }
 }

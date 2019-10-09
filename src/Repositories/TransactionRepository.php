@@ -214,6 +214,11 @@ SQL;
             return [];
         }
 
+        foreach($productContainer as $key => $sku) {
+            // Force caps on SKU. We may reconsider this later down the road.
+            $productContainer[$key] = strtoupper($sku);
+        }
+
         if ($program === null) {
             return $this->catalog->getProducts(['sku' => $productContainer]);
         }
@@ -476,8 +481,6 @@ SQL;
     {
         return Validator::attribute('participant_id', Validator::notEmpty()->numeric()->setName('Participant'))
             ->attribute('type', Validator::notEmpty()->numeric()->length(1, 1))
-            ->attribute('wholesale', Validator::notEmpty()->floatVal())
-            ->attribute('subtotal', Validator::notEmpty()->floatVal())
             ->attribute('total', Validator::notEmpty()->floatVal());
     }
 

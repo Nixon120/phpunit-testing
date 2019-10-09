@@ -85,7 +85,7 @@ class Transaction
 
         foreach ($this->requestedProductContainer as $requestedProduct) {
             foreach ($products as $product) {
-                if ($requestedProduct->getSku() === $product['sku']) {
+                if (strtoupper($requestedProduct->getSku()) === strtoupper($product['sku'])) {
                     $amount = $product['amount'] ?? null;
                     $quantity = $product['quantity'] ?? 1;
                     $transactionProduct = new TransactionProduct($requestedProduct, $amount);
@@ -93,8 +93,13 @@ class Transaction
                     $transactionItem->setGuid((string)Uuid::uuid1());
                     $transactionItem->setQuantity((int)$quantity);
                     $transactionItem->setReferenceId($transactionProduct->getReferenceId());
-                    if (!$transactionItem->isValid()) {
-                        $errors = $transactionItem->getValidationErrors();
+
+                    if (!$transactionProduct->isValid() || !$transactionItem->isValid()) {
+                        $errors = array_merge(
+                            $transactionProduct->getValidationErrors(),
+                            $transactionItem->getValidationErrors()
+                        );
+
                         throw new TransactionServiceException(implode(', ', $errors));
                     }
 

@@ -34,33 +34,4 @@ class ProgramSummaryFilterNormalizer extends AbstractFilterNormalizer
     {
         return $this->returnArg($value);
     }
-
-    public function getStartDateFilter($value)
-    {
-        return "`Transaction`.`created_at` >= ?";
-    }
-
-    public function getStartDateFilterArgs($value)
-    {
-        $value = $this->returnArg($value);
-        if (empty($value) === false) {
-            $value[0] = $value[0] . ' 00:00:00';
-        }
-
-        return $value;
-    }
-
-    public function getEndDateFilter($value)
-    {
-        return "`Transaction`.`created_at` <= ?";
-    }
-
-    public function getEndDateFilterArgs($value)
-    {
-        $value = $this->returnArg($value);
-        if (empty($value) === false) {
-            $value[0] = $value[0] . ' 23:59:59';
-        }
-        return $value;
-    }
 }
