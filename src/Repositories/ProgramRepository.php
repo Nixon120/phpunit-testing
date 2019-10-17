@@ -606,7 +606,7 @@ SQL;
             }
             $this->table = 'Program';
         }
-        
+
         $sql = "UPDATE `ProductCriteria` SET featured_page_title = ? WHERE program_id = ?";
         $args = [$featuredPageTitle, $program->getUniqueId()];
         $sth = $this->database->prepare($sql);
@@ -626,7 +626,12 @@ SQL;
 
     public function saveProductCriteria(Program $program, $filterData): bool
     {
-        $featuredPageTitle = $this->getProductCriteria($program)->getFeaturedPageTitle();
+        $featuredPageTitle = '';
+        $productCriteria = $this->getProductCriteria($program);
+        if ($productCriteria !== null) {
+            $featuredPageTitle = $productCriteria->getFeaturedPageTitle();
+        }
+
         $criteria = new ProductCriteria;
         $criteria->setFilter($filterData);
         $criteria->setFeaturedPageTitle($featuredPageTitle);
