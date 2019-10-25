@@ -606,13 +606,21 @@ SQL;
             }
             $this->table = 'Program';
         }
-        
-        $sql = "UPDATE `ProductCriteria` SET featured_page_title = ? WHERE program_id = ?";
+
+        $sql = "SELECT * FROM `ProductCriteria` WHERE program_id = ?";
+        $sth = $this->database->prepare($sql);
+        $sth->execute([$program->getUniqueId()]);
+        $result = $sth->fetchAll();
+
+        $sql = "INSERT INTO `ProductCriteria` (featured_page_title, program_id, filter) VALUES (?, ?, '')";
+        if (empty($result) === false) {
+            $sql = "UPDATE `ProductCriteria` SET featured_page_title = ?, updated_at = NOW() WHERE program_id = ?";
+        }
+
         $args = [$featuredPageTitle, $program->getUniqueId()];
         $sth = $this->database->prepare($sql);
-        $sth->execute($args);
 
-        return true;
+        return $sth->execute($args);
     }
 
     private function deleteAllProgramFeaturedProducts(Program $program)
