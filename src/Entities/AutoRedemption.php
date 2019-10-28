@@ -41,6 +41,8 @@ class AutoRedemption extends Base
         if (!is_null($data)) {
             $this->exchange($data);
         }
+        $date = new \DateTime();
+        $this->setUpdatedAt($date->format('Y-m-d H:i:s'));
     }
 
     public function isEligibleTime($time):bool
