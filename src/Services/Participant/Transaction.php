@@ -342,6 +342,11 @@ class Transaction
         $this->repository->saveTransactionMeta($transactionId, $meta);
     }
 
+    public function setReissueDate($guid, $reissueDate)
+    {
+        return $this->repository->saveReissueDate($guid, $reissueDate);
+    }
+
     public function getErrors()
     {
         return $this->repository->getErrors();
