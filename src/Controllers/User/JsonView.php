@@ -2,16 +2,17 @@
 
 namespace Controllers\User;
 
+use Box\Spout\Common\Type;
+use Box\Spout\Reader\Common\Creator\ReaderFactory;
 use Controllers\AbstractViewController;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Services\User\ImportFileParser;
 use Services\User\ServiceFactory;
-use Services\User\UserModify;
-use Slim\Views\PhpRenderer;
+use Traits\LoggerAwareTrait;
 
 class JsonView extends AbstractViewController
 {
+    use LoggerAwareTrait;
     /**
      * @var ServiceFactory
      */
@@ -20,6 +21,10 @@ class JsonView extends AbstractViewController
      * @var \Services\User\UserInvite
      */
     private $userInviteService;
+    /**
+     * @var string
+     */
+    private $errorMessage = '';
 
     public function __construct(
         RequestInterface $request,
@@ -47,8 +52,8 @@ class JsonView extends AbstractViewController
         if (!$user = $this->factory->getUserRead()->getByInviteToken($token)) {
             return $this->response->withStatus(200)
                 ->withJson([
-                    message => 'Sorry, then token is invalid or expired.',
-                    status => 'failed'
+                    'message' => 'Sorry, then token is invalid or expired.',
+                    'status' => 'failed'
 
                 ]);
         }
@@ -59,9 +64,8 @@ class JsonView extends AbstractViewController
         if ($password !== $confirm) {
             return $this->response->withStatus(200)
                 ->withJson([
-                    message => 'Password and password confirmation did not match',
-                    status => 'failed'
-
+                    'message' => 'Password and password confirmation did not match',
+                    'status' => 'failed'
                 ]);
         }
 
@@ -73,8 +77,8 @@ class JsonView extends AbstractViewController
 
         return $this->response->withStatus(200)
             ->withJson([
-                message => 'Your password changed successfully.',
-                status => 'success'
+                'message' => 'Your password changed successfully.',
+                'status' => 'success'
             ]);
     }
 
@@ -85,8 +89,8 @@ class JsonView extends AbstractViewController
         if ($email === null || !$user = $this->factory->getUserRead()->getByEmail($email)) {
             $response = $this->response->withStatus(200)
                 ->withJson([
-                    message => 'Sorry, invalid email and/or password.',
-                    status => 'failed'
+                    'message' => 'Sorry, invalid email and/or password.',
+                    'status' => 'failed'
 
                 ]);
             return $response;
@@ -97,15 +101,14 @@ class JsonView extends AbstractViewController
 
         $response = $this->response->withStatus(200)
             ->withJson([
-                message => 'An email with instructions to recover your password has been sent.',
-                status => 'success'
+                'message' => 'An email with instructions to recover your password has been sent.',
+                'status' => 'success'
             ]);
         return $response;
     }
 
     public function auditUploadFormData()
     {
-
         $files = $this->request->getUploadedFiles();
 
         // @todo Verify this file exists before assuming it exists?
@@ -113,39 +116,58 @@ class JsonView extends AbstractViewController
         // @todo Verify file type is (application/vnd.openxmlformats-officedocument.spreadsheetml.sheet)
 
         $emails = $this->getEmailsFromImportFile($userImportFile->file);
-        $response = $this->response->withStatus(200)
-            ->withJson($emails);
+        if (empty($emails) === false) {
+            $response = $this->response->withStatus(200)
+                ->withJson($emails);
+            return $response;
+        }
 
+        $response = $this->response->withStatus(400)
+            ->withJson([
+                'message' => $this->errorMessage,
+                'status' => 'failed'
+            ]);
         return $response;
     }
 
     private function getEmailsFromImportFile($importFile)
     {
-        $objPHPExcel = \PHPExcel_IOFactory::load($importFile);
-
-        $sheet = $objPHPExcel->getSheet(0);
-        $highestRow = $sheet->getHighestRow();
-        $highestColumn = $sheet->getHighestColumn();
-
-        for ($row = 1; $row <= $highestRow; $row++) {
-            //  Read a row of data into an array
-            $rowData = $sheet->rangeToArray(
-                'A' . $row . ':' . $highestColumn . $row,
-                null,
-                true,
-                false
-            );
-
-            foreach ($rowData as $singleRow) {
-                if ($singleRow[0] != 'Email') {
-                    $emails[] = $singleRow[0];
+        $emails = [];
+        try {
+            $reader = ReaderFactory::createFromType(Type::XLSX);
+            $reader->open($importFile);
+            $cnt = 0;
+            foreach ($reader->getSheetIterator() as $sheet) {
+                foreach ($sheet->getRowIterator() as $row) {
+                    if ($cnt > 0) {
+                        $cells = $row->getCells();
+                        $emails[] = $cells[0]->getValue();
+                    }
+                    $cnt++;
                 }
             }
+            $emailContainer = array_filter($emails, function ($e) {
+                return  $e != '';
+            });
+            if (empty($emailContainer) === true) {
+                $this->errorMessage = 'No emails were found in the file';
+            }
+
+            return $emailContainer;
+        } catch (\Exception $exception) {
+            $this->errorMessage = $exception->getMessage();
+            $this->getLogger()->error(
+                'GetEmailsFromImportFile File Reading Failure',
+                [
+                    'subsystem' => 'User Email Upload',
+                    'action' => 'Read',
+                    'success' => false,
+                    'error' => $exception->getMessage()
+                ]
+            );
         }
 
-        return array_filter($emails, function ($e) {
-            return  $e != '';
-        });
+        return $emails;
     }
 
     public function importUsers()
@@ -153,7 +175,6 @@ class JsonView extends AbstractViewController
         $userData = $this->request->getParsedBody();
         $errors = [];
         $users_invited = 0;
-
 
         for ($i = 0; $i < count($userData['email_address']); $i++) {
             $user = [

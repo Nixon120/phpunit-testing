@@ -33,12 +33,11 @@ class CreateValidParticipantTest extends AbstractAPITestCase
                     'program' => 'sharecare',
                     'organization' => 'sharecare',
                     'meta' => [
-                        'integration' => 'test'
+                        ['integration' => 'test']
                     ]
                 ]),
             ]
         );
-
         // Response MUST be status code 201
         $this->assertSame(201, $response->getStatusCode());
     }

@@ -1,4 +1,5 @@
 <?php
+
 namespace Controllers\Participant;
 
 use Psr\Http\Message\RequestInterface;
@@ -70,6 +71,41 @@ class Balance
         }
 
         return $this->returnJson(400, ['Resource does not exist']);
+    }
+
+    public function update($organizationId, $uniqueId, $adjustmentId)
+    {
+        $participant = $this->service->participantRepository->getParticipantByOrganization($organizationId, $uniqueId);
+
+        if (is_null($participant)) {
+            return $this->returnJson(404, ['Participant Not Found']);
+        }
+
+        $adjustment = $this->service->getSingle($participant, $adjustmentId);
+
+        if (is_null($adjustment)) {
+            return $this->response->withJson(['Adjustment Not Found'], 404);
+        }
+
+        $post = $this->request->getParsedBody() ?? [];
+
+        if (!empty($post['description'])) {
+            $adjustment->setDescription($post['description']);
+        }
+
+        if (!empty($post['reference'])) {
+            $adjustment->setReference($post['reference']);
+        }
+
+        if (!empty($post['completed_at'])) {
+            $adjustment->setCompletedAt($post['completed_at']);
+        }
+
+        if ($this->service->updateAdjustment($adjustment)) {
+            return $this->response->withStatus(202);
+        }
+
+        return $this->returnJson(400, $this->service->repository->getErrors());
     }
 
     private function returnJson($statusCode, $return = [])

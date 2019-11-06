@@ -13,6 +13,11 @@ class Participant
      */
     public $repository;
 
+    /**
+     * @var string
+     */
+    private $errorMessage;
+
     public function __construct(ParticipantRepository $repository)
     {
         $this->repository = $repository;
@@ -61,7 +66,8 @@ class Participant
     public function getProgramParticipantsWithPointsGreaterThan(
         $program_unique_id,
         $points
-    ) {
+    )
+    {
         $filter = new FilterNormalizer([
             'program' => $program_unique_id,
             'points_greater_than' => $points,
@@ -90,39 +96,65 @@ class Participant
         return null;
     }
 
-    public function generateSso($organization, $uniqueId):?array
+    private function isSsoRequestValid(?\Entities\Participant $participant): bool
+    {
+        if ($participant === null) {
+            $this->errorMessage = 'Resource does not exist';
+            return false;
+        }
+
+        if ($participant->isActive() === false) {
+            $this->errorMessage = 'Participant ' . $participant->getUniqueId() . ' is not active';
+            return false;
+        }
+
+        $program = $participant->getProgram();
+        $programNameString = 'Program ' . $program->getName() . '[' . $program->getUniqueId() . ']';
+        if ($program->isPublished() === false) {
+            $this->errorMessage = $programNameString . ' is not published';
+            return false;
+        }
+
+        if ($program->getDomain() === null) {
+            $this->errorMessage = $programNameString . ' does not have a marketplace domain configured';
+            return false;
+        };
+
+        return true;
+    }
+
+    public function generateSso($organization, $uniqueId): ?array
     {
         $participant = $this->repository->getParticipantByOrganization($organization, $uniqueId);
+        if ($this->isSsoRequestValid($participant) === false) {
+            return [
+                'error' => true,
+                'message' => $this->errorMessage
+            ];
+        }
 
-        if ($participant !== null || $participant->isActive() === true) {
-            $participant->setSso($participant->generateSsoToken());
-            $aParticipantUpdateRequest = ['sso' => $participant->getSso()];
-            if ($this->update($participant->getUniqueId(), $aParticipantUpdateRequest)) {
-                $program = $participant->getProgram();
-                $domain = $program->getDomain();
-                if (is_null($domain)) {
-                    return [
-                        'error' => true,
-                        'message' => 'No URL is configured for SSO'
-                    ];
-                };
-                $exchange = implode('.', [$program->getUrl(), $domain->getUrl()]);
-                $exchange .= '/?authenticate='
-                    . $participant->getSso()
-                    . '&' . 'participant='
-                    . $participant->getUniqueId();
-                return [
-                    'token' => $participant->getSso(),
-                    'participant' => $participant->getUniqueId(),
-                    'domain' => $domain->getUrl(),
-                    'exchange' => 'https://' . $exchange
-                ];
-            }
+        $participant->setSso($participant->generateSsoToken());
+        $aParticipantUpdateRequest = ['sso' => $participant->getSso()];
+        if ($this->update($participant->getUniqueId(), $aParticipantUpdateRequest)) {
+            $program = $participant->getProgram();
+            $domain = $program->getDomain();
+            $exchange = implode('.', [$program->getUrl(), $domain->getUrl()]);
+            $exchange .= '/?authenticate='
+                . $participant->getSso()
+                . '&' . 'participant='
+                . $participant->getUniqueId();
+
+            return [
+                'token' => $participant->getSso(),
+                'participant' => $participant->getUniqueId(),
+                'domain' => $domain->getUrl(),
+                'exchange' => 'https://' . $exchange
+            ];
         }
 
         return [
             'error' => true,
-            'message' => 'Resource does not exist'
+            'message' => 'There was a problem with your request'
         ];
     }
 
@@ -179,6 +211,10 @@ class Participant
             $data['birthdate'] = null;
         }
 
+        if (isset($data['active']) && (int) $data['active'] === 0) {
+            $data['deactivated_at'] = (new \DateTime)->format('Y-m-d H:i:s');
+        }
+
         $participant = new \Entities\Participant;
         $participant->exchange($data);
         if ($address !== null) {
@@ -194,7 +230,28 @@ class Participant
                     ]
                 ]
             );
+            return false;
+        }
 
+        if (!$this->isParticipantUniqueIdValid($participant->getUniqueId())) {
+            $this->repository->setErrors(
+                [
+                    'unique_id' => [
+                        'Unique::ILLEGAL_CHARACTERS' => _("The participant id characters must be alphanumeric, hyphen and/or dashes.")
+                    ]
+                ]
+            );
+            return false;
+        }
+
+        if(!$this->validateParticipantMeta($meta)) {
+            $this->repository->setErrors(
+                [
+                    'meta' => [
+                        'Meta::ILLEGAL_META' => _("Participant Meta is not valid, please provide valid key:value non-empty pairs.")
+                    ]
+                ]
+            );
             return false;
         }
 
@@ -202,7 +259,6 @@ class Participant
             $participant = $this->repository->getParticipant($participant->getUniqueId());
             if ($address !== null) {
                 $participant->setAddress($address);
-                //@TODO if failure throw exception, clean this up.. I need participant_id
                 $this->repository->insertAddress($participant->getAddress());
             }
 
@@ -215,6 +271,33 @@ class Participant
         return false;
     }
 
+    private function validateParticipantMeta($metaCollection)
+    {
+        //tests associative array
+        foreach ($metaCollection as $meta) {
+            if (is_array($meta) === false) {
+                // Not valid meta;
+                return false;
+            }
+            foreach ($meta as $key => $value) {
+                if (empty($key) === true) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    private function isParticipantUniqueIdValid($uniqueId)
+    {
+        if(preg_match('/[^a-z_\-0-9]/i', $uniqueId)) {
+            return false;
+        }
+
+        return true;
+    }
+
     /**
      * @param $id
      * @param $data
@@ -222,6 +305,7 @@ class Participant
      */
     public function update($id, $data)
     {
+        $participant = $this->getSingle($id);
         //@TODO this sucks.. fix it someway
         //@TODO API Exceptions
         if (!empty($data['program'])) {
@@ -240,11 +324,19 @@ class Participant
             $data['birthdate'] = null;
         }
 
+        if (isset($data['active'])) {
+            $statusFlag = (int) $data['active'];
+            if ($statusFlag === 1) {
+                $data['deactivated_at'] = null;
+            } elseif ($statusFlag === 0 && $participant->getDeactivatedAt() === null) {
+                $data['deactivated_at'] = (new \DateTime)->format('Y-m-d H:i:s');
+            }
+        }
+
         $address = $data['address'] ?? null;
         $meta = $data['meta'] ?? null;
         unset($data['program'], $data['organization'], $data['password'], $data['address'], $data['meta'], $data['password_confirm'], $data['unique_id']);
 
-        $participant = $this->getSingle($id);
         $participant->exchange($data);
         if ($address !== null) {
             $participant->setAddress($address);
@@ -258,8 +350,18 @@ class Participant
             $data = $this->hydratePassword($data, $participant);
         }
 
-        if ($this->repository->update($participant->getId(), $data)
-        ) {
+        if(!$this->validateParticipantMeta($meta)) {
+            $this->repository->setErrors(
+                [
+                    'meta' => [
+                        'Meta::ILLEGAL_META' => _("Participant Meta is not valid, please provide valid key:value non-empty pairs.")
+                    ]
+                ]
+            );
+            return false;
+        }
+
+        if ($this->repository->update($participant->getId(), $data)) {
             if ($meta !== null) {
                 $this->repository->saveMeta($participant->getId(), $meta);
             }
@@ -267,6 +369,50 @@ class Participant
         }
 
         return false;
+    }
+
+    /**
+     * Make meta collection easier to work with (for temporary assignments, updates, etc)
+     *
+     * @param $collection
+     * @return array
+     */
+    private function simplifyMetaCollection($collection)
+    {
+        $returnCollection = [];
+        foreach($collection as $value) {
+            $returnCollection[key($value)] = $value[key($value)];
+        }
+
+        return $returnCollection;
+    }
+
+    /**
+     * @param \Entities\Participant $participant
+     * @param $metaData
+     * @return bool
+     */
+    public function updateMeta(\Entities\Participant $participant, $metaData)
+    {
+        $meta = array_merge($this->simplifyMetaCollection($participant->getMeta()), $this->simplifyMetaCollection($metaData));
+        $metaCollection = [];
+        foreach($meta as $k=>$v) {
+            $metaCollection[] = [$k => $v];
+        }
+
+        return $this->repository->saveMeta($participant->getId(), $metaCollection);
+    }
+
+    /**
+     * @param \Entities\Participant $participant
+     * @param $meta
+     * @return bool
+     */
+    public function saveMeta(\Entities\Participant $participant, $meta)
+    {
+        // We need to clear existing meta.
+        $this->repository->deleteParticipantMeta($participant->getId());
+        return $this->repository->saveMeta($participant->getId(), $meta);
     }
 
     /**

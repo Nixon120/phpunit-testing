@@ -1,4 +1,5 @@
 <?php
+
 namespace Controllers\Participant;
 
 use Psr\Http\Message\RequestInterface;
@@ -94,10 +95,12 @@ class Transaction
         if ($participant !== null) {
             //@TODO: Make sure domains do not include HTTPS / HTTP on entry or here ?
             $transactions = $this->service->get($participant, $transactionUniqueIds);
-
             //The unique id passed in was bad
             if (empty($transactions) === true && $transactionUniqueIds !== null) {
                 return $this->returnJson(404, ['Unique Ids Not Found']);
+            }
+            if (empty($transactions) === true) {
+                return $this->returnJson(200, []);
             }
             $output = new OutputNormalizer($transactions);
             return $this->returnJson(200, $output->getTransactionList());
@@ -129,6 +132,52 @@ class Transaction
         }
 
         return $this->returnJson(400, ['Resource does not exist']);
+    }
+
+    public function addReissueDate($organizationId, $uniqueId, $transactionId, $guid)
+    {
+        $transaction_item = $this->service->getSingleItem($guid);
+        $participant = $this->service->participantRepository->getParticipantByOrganization($organizationId, $uniqueId);
+        $reissueDate = $this->request->getParsedBody() ?? null;
+
+        if ((empty($reissueDate['reissue_date']) === true)
+            || ($participant === null && $transaction_item === null)
+            || $transaction_item['transaction_id'] != $transactionId
+        ) {
+            return $this->returnJson(400, ['Resource does not exist']);
+        }
+
+        $updated = $this->service->setReissueDate($guid, $reissueDate['reissue_date']);
+        if ($updated === true) {
+            return $this->response->withStatus(202);
+        }
+
+        return $this->returnJson(500, ['Internal Server Error']);
+    }
+
+    public function updateMeta($organizationId, $uniqueId, $transactionId)
+    {
+        if (!is_numeric($transactionId)) {
+            // Transaction Item GUID provided (rather than Transaction ID)
+            $transaction_item = $this->service->getSingleItem($transactionId);
+            $transactionId = $transaction_item['transaction_id'];
+        }
+
+        $participant = $this->service->participantRepository->getParticipantByOrganization($organizationId, $uniqueId);
+        $transaction = $this->service->getSingle($participant, $transactionId);
+        $meta = $this->request->getParsedBody() ?? [];
+
+        if (empty($meta)) {
+            return $this->returnJson(400, ['Resource does not exist']);
+        }
+
+        if ($participant === null && $transaction === null) {
+            return $this->returnJson(400, ['Resource does not exist']);
+        }
+
+        $this->service->updateSingleItemMeta($transactionId, $meta);
+
+        return $this->response->withStatus(202);
     }
 
     private function returnJson($statusCode, $return = [])

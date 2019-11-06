@@ -85,7 +85,7 @@ class Transaction
 
         foreach ($this->requestedProductContainer as $requestedProduct) {
             foreach ($products as $product) {
-                if ($requestedProduct->getSku() === $product['sku']) {
+                if (strtoupper($requestedProduct->getSku()) === strtoupper($product['sku'])) {
                     $amount = $product['amount'] ?? null;
                     $quantity = $product['quantity'] ?? 1;
                     $transactionProduct = new TransactionProduct($requestedProduct, $amount);
@@ -99,6 +99,7 @@ class Transaction
                             $transactionProduct->getValidationErrors(),
                             $transactionItem->getValidationErrors()
                         );
+                        
                         throw new TransactionServiceException(implode(', ', $errors));
                     }
 
@@ -125,7 +126,7 @@ class Transaction
 
                         if ($success === false) {
                             throw new TransactionServiceException(
-                                'Unable to obtain inventory hold for product '. $requestedProduct->getName(). ' ('. $requestedProduct->getSku() . ')'
+                                'Unable to obtain inventory hold for product ' . $requestedProduct->getName() . ' (' . $requestedProduct->getSku() . ')'
                             );
                         }
                     }
@@ -201,12 +202,31 @@ class Transaction
                     $transactionId
                 );
 
+
+            $description = null;
+            $activityDate = null;
+            $reference = null;
+            foreach ($meta as $item) {
+                if (strtoupper(key($item)) === 'DESCRIPTION') {
+                    $description = current($item);
+                }
+                if (strtoupper(key($item)) === 'ACTIVITY_DATE') {
+                    $activityDate = current($item);
+                }
+                if (strtoupper(key($item)) === 'REFERENCE') {
+                    $reference = current($item);
+                }
+            }
+
             if ($issuePoints === true) {
                 $this->adjustPoints(
                     $participant,
                     'credit',
                     $transaction->getTotal(),
-                    $transaction->getId()
+                    $transaction->getId(),
+                    $description,
+                    $reference,
+                    $activityDate
                 );
             }
 
@@ -215,7 +235,10 @@ class Transaction
                 $participant,
                 'debit',
                 $transaction->getTotal(),
-                $transaction->getId()
+                $transaction->getId(),
+                $description,
+                $reference,
+                $activityDate
             );
 
             // We'll approve the inventory hold through the Transaction.create webhook listener event
@@ -231,7 +254,7 @@ class Transaction
         $organization,
         $uniqueId,
         $data
-    ):?\Entities\Transaction {
+    ): ?\Entities\Transaction {
         $participant = $this
             ->participantRepository
             ->getParticipantByOrganization(
@@ -254,15 +277,28 @@ class Transaction
         \Entities\Participant $participant,
         $type,
         $total,
-        $transactionId = null
+        $transactionId = null,
+        $description = null,
+        $reference = null,
+        $completed_at = null
     ) {
-
         $pointConversion = $participant->getProgram()->getPoint();
         $pointTotal = $total * $pointConversion;
         $adjustment = new Adjustment($participant);
         $adjustment->setType($type);
         $adjustment->setAmount($pointTotal);
         $adjustment->setTransactionId($transactionId);
+        $adjustment->setDescription($description);
+        $adjustment->setReference($reference);
+
+        if (!is_null($completed_at) && strtotime($completed_at) !== false) {
+            // Garantee the date time is in the correct date format without throwing errors.
+            $completed_at = date('Y-m-d H:i:s', strtotime($completed_at));
+        } else {
+            $completed_at = null;
+        }
+        $adjustment->setCompletedAt($completed_at);
+
         if ($this->balanceRepository->addAdjustment($adjustment)) {
             $adjustment = $this
                 ->balanceRepository
@@ -299,6 +335,16 @@ class Transaction
     public function getSingleItem($guid)
     {
         return $this->repository->getParticipantTransactionItem($guid);
+    }
+
+    public function updateSingleItemMeta($transactionId, $meta)
+    {
+        $this->repository->saveTransactionMeta($transactionId, $meta);
+    }
+
+    public function setReissueDate($guid, $reissueDate)
+    {
+        return $this->repository->saveReissueDate($guid, $reissueDate);
     }
 
     public function getErrors()

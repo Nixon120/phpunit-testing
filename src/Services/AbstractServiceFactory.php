@@ -11,8 +11,8 @@ use League\Flysystem\Filesystem;
 use Repositories\OrganizationRepository;
 use Repositories\ParticipantRepository;
 use Repositories\ProgramRepository;
+use Repositories\ProgramTypeRepository;
 use Services\Authentication\Authenticate;
-use Services\Report\ReportPublisherFactory;
 use Slim\Flash\Messages;
 use Superbalist\Flysystem\GoogleStorage\GoogleStorageAdapter;
 
@@ -29,7 +29,15 @@ abstract class AbstractServiceFactory
      */
     private $storageAdapter;
 
+    /**
+     * @var ProgramRepository
+     */
     private $programRepository;
+
+    /**
+     * @var ProgramTypeRepository
+     */
+    private $programTypeRepository;
 
     private $organizationRepository;
 
@@ -59,12 +67,6 @@ abstract class AbstractServiceFactory
         }
 
         return $this->database;
-    }
-
-    public function getReportPublisher()
-    {
-        $publisherFactory = new ReportPublisherFactory($this->container);
-        return $publisherFactory();
     }
 
     public function getEventPublisher()
@@ -155,6 +157,15 @@ abstract class AbstractServiceFactory
         }
 
         return $this->programRepository;
+    }
+
+    public function getProgramTypeRepository(): ProgramTypeRepository
+    {
+        if ($this->programTypeRepository === null) {
+            $this->programTypeRepository = new ProgramTypeRepository($this->getDatabase());
+        }
+
+        return $this->programTypeRepository;
     }
 
     public function getParticipantRepository(): ParticipantRepository

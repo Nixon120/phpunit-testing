@@ -5,7 +5,6 @@ namespace Controllers\Sftp;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Services\Report\ServiceFactory;
 use Slim\Http\Request;
 use Slim\Http\Response;
 
@@ -22,13 +21,13 @@ class SftpList
     private $response;
 
     /**
-     * @var ServiceFactory
+     * @var \Services\Sftp\ServiceFactory
      */
     private $factory;
 
     public function __construct(ContainerInterface $container)
     {
-        $this->factory = $container->get('report');
+        $this->factory = $container->get('sftp');
     }
 
     public function __invoke(
@@ -47,11 +46,18 @@ class SftpList
         $page = isset($get['page']) ? $get['page'] : 30;
         $offset = isset($get['offset']) ? $get['offset'] : 0;
 
-        $collection = $this->factory->getSftpRepository()
-            ->list($page, $offset);
+        $collection = $this->factory
+            ->getSftpRepository()
+            ->list(
+                $page,
+                $offset,
+                $this->factory->getAuthenticatedUser()->getId()
+            );
+
+        $outputNormalizer = new OutputNormalizer($collection);
 
         $response = $this->response->withStatus(200)
-            ->withJson($collection);
+            ->withJson($outputNormalizer->getList());
 
         return $response;
     }

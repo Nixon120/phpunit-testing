@@ -46,13 +46,6 @@ return [
                 'maxConsumers' => 1,
                 'maxConsumerRuntime' => 180,
                 'taskRunner' => __DIR__ . '/../cli/event-task-runner'
-            ],
-            'reports' => [
-                'channelName' => getenv('AMQP_REPORT_CHANNEL'),
-                'maxConsumers' => 3,
-                'maxConsumerRuntime' => 180,
-                // It's the same thing as an event, just on a different channel
-                'taskRunner' => __DIR__ . '/../cli/event-task-runner'
             ]
         ]
     ],
@@ -82,7 +75,8 @@ return [
             'participant.all',
             'user.all',
             'report.all',
-            'administrators.all'
+            'administrators.all',
+            'sftp.all',
         ],
         'configs' => [
             'organization.all',
@@ -98,7 +92,8 @@ return [
 //            'user.read',
             'program.read',
             'organization.read',
-            'administrators.read'
+            'administrators.read',
+            'sftp.all',
         ]
     ]
 ];

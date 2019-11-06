@@ -210,19 +210,22 @@ SQL;
      */
     public function getProducts($productContainer, $program = null)
     {
-
         if (empty($productContainer)) {
             return [];
+        }
+
+        foreach($productContainer as $key => $sku) {
+            // Force caps on SKU. We may reconsider this later down the road.
+            $productContainer[$key] = strtoupper($sku);
         }
 
         if ($program === null) {
             return $this->catalog->getProducts(['sku' => $productContainer]);
         }
 
-        $products = $this->getProductFromProgramCatalog(['sku' => $productContainer], $program);
-
-        if ($products === false) {
-            $products = [];
+        $products = [];
+        foreach ($productContainer as $sku) {
+            $products[] = $this->getProductFromProgramCatalog($sku, $program);
         }
 
         if (count($products) !== count($productContainer)) {
@@ -253,7 +256,7 @@ SQL;
         return $products;
     }
 
-    private function getProductFromProgramCatalog($sku_container, $program_id)
+    private function getProductFromProgramCatalog($sku, $program_id)
     {
         $catalog = clone $this->getCatalog();
         $token = (new AuthenticationTokenFactory)->getToken();
@@ -261,7 +264,7 @@ SQL;
         $catalog->setToken($token);
         $catalog->setUrl(getenv('PROGRAM_CATALOG_URL'));
 
-        return $catalog->getProducts($sku_container);
+        return $catalog->getProduct($sku);
     }
 
     public function getParticipantTransaction(Participant $participant, int $transactionId): ?Transaction
@@ -347,6 +350,9 @@ SQL;
 
         foreach ($transactions as $transaction) {
             $transaction->setMeta($this->getTransactionMeta($transaction->getId()));
+            $transaction->setWholesale(0);
+            $transaction->setSubtotal(0);
+            $transaction->setTotal(0);
             $this->setTransactionProducts($transaction);
         }
         return $transactions;
@@ -354,7 +360,7 @@ SQL;
 
     private function getParticipantTransactionProducts($transactionId): ?array
     {
-        $sql = "SELECT TransactionProduct.*, TransactionItem.quantity, TransactionItem.guid FROM `TransactionItem`"
+        $sql = "SELECT TransactionProduct.*, TransactionItem.quantity, TransactionItem.guid, TransactionItem.reissue_date  FROM `TransactionItem`"
             . " JOIN TransactionProduct ON TransactionProduct.reference_id = TransactionItem.reference_id"
             . " WHERE TransactionItem.transaction_id = ?";
 
@@ -440,6 +446,21 @@ SQL;
         }
     }
 
+    public function saveReissueDate($guid, $reissueDate)
+    {
+        $date = \DateTime::createFromFormat('Y-m-d', $reissueDate);
+        if ($date && $date->format('Y-m-d') === $reissueDate) {
+            $sql = "UPDATE `TransactionItem`"
+                . " SET reissue_date = ?"
+                . " WHERE guid = ?";
+
+            $sth = $this->database->prepare($sql);
+            return $sth->execute([$reissueDate, $guid]);
+        }
+
+        return false;
+    }
+
     /**
      * @return Validator
      */
@@ -460,8 +481,6 @@ SQL;
     {
         return Validator::attribute('participant_id', Validator::notEmpty()->numeric()->setName('Participant'))
             ->attribute('type', Validator::notEmpty()->numeric()->length(1, 1))
-            ->attribute('wholesale', Validator::notEmpty()->floatVal())
-            ->attribute('subtotal', Validator::notEmpty()->floatVal())
             ->attribute('total', Validator::notEmpty()->floatVal());
     }
 
@@ -480,6 +499,7 @@ SQL;
             $transactionItem->setTransactionId($transaction->getId());
             $transactionItem->setReferenceId($item->getReferenceId());
             $transactionItem->setGuid($item->getGuid());
+            $transactionItem->setReissueDate($item->getReissueDate());
             $transaction->setItem($transactionItem, $transactionProduct);
         }
     }

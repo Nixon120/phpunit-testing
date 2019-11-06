@@ -5,8 +5,9 @@ namespace Controllers\Participant;
 use Controllers\AbstractViewController;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Services\Report\ServiceFactory;
+use Services\Participant\ServiceFactory;
 
+//@TODO remove? is this even in use?
 class Program extends AbstractViewController
 {
     /**

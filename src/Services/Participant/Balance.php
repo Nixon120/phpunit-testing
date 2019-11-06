@@ -1,4 +1,5 @@
 <?php
+
 namespace Services\Participant;
 
 use AllDigitalRewards\AMQP\MessagePublisher;
@@ -32,7 +33,7 @@ class Balance
         ParticipantRepository $participantRepository,
         MessagePublisher $eventPublisher
     ) {
-    
+
         $this->repository = $repository;
         $this->participantRepository = $participantRepository;
         $this->eventPublisher = $eventPublisher;
@@ -63,6 +64,15 @@ class Balance
         }
     }
 
+    public function updateAdjustment(Adjustment $adjustment)
+    {
+        if (!$this->repository->validate($adjustment)) {
+            return false;
+        }
+
+        return $this->repository->update($adjustment->getId(), $adjustment->toArray());
+    }
+
     private function queueAdjustmentEvent($type)
     {
         $event = new Event();
@@ -88,6 +98,7 @@ class Balance
     public function get(Interfaces\InputNormalizer $input)
     {
         $filter = new BalanceFilterNormalizer($input->getInput());
+        $this->repository->orderBy = " ORDER BY adjustment.created_at DESC ";
         $adjustments = $this->repository->getCollection($filter, $input->getOffset(), 30);
         return $adjustments;
     }

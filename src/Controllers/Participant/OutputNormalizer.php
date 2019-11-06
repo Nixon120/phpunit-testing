@@ -113,7 +113,8 @@ class OutputNormalizer extends AbstractOutputNormalizer
                 'quantity' => $item->getQuantity(),
                 'total' => $total,
                 'points' => $points,
-                'guid' => $item->getGuid()
+                'guid' => $item->getGuid(),
+                'reissue_date' => $item->getReissueDate(),
             ];
         }
 
@@ -171,7 +172,8 @@ class OutputNormalizer extends AbstractOutputNormalizer
                     'quantity' => $item->getQuantity(),
                     'total' => $total,
                     'points' => $points,
-                    'guid' => $item->getGuid()
+                    'guid' => $item->getGuid(),
+                    'reissue_date' => $item->getReissueDate()
                 ];
             }
         }
@@ -188,17 +190,10 @@ class OutputNormalizer extends AbstractOutputNormalizer
         ]);
 
         $transactions = [];
-
         foreach ($return as $key => $transaction) {
             $transactions[$key] = $transaction;
             $transactions[$key]['meta'] = $meta[$key];
             $transactions[$key]['products'] = $products[$key];
-            $transactions[$key]['total'] = bcmul(
-                $transactions[$key]['total'],
-                $programPoint,
-                2
-            );
-
         }
 
         return $transactions;

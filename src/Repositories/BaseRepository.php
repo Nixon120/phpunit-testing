@@ -138,6 +138,7 @@ abstract class BaseRepository implements Repository
             //@TODO think about it.
             return true;
         }
+
         $sql = $this->generateUpdateSQL($data);
         $params = $this->generateUpdateParameters($id, $data);
 

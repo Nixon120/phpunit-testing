@@ -5,8 +5,7 @@ namespace Controllers\Sftp;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Services\Report\ReportFilterNormalizer;
-use Services\Report\ServiceFactory;
+use Services\Sftp\ServiceFactory;
 use Slim\Http\Request;
 use Slim\Http\Response;
 
@@ -29,7 +28,7 @@ class SftpCreate
 
     public function __construct(ContainerInterface $container)
     {
-        $this->factory = $container->get('report');
+        $this->factory = $container->get('sftp');
     }
 
     public function __invoke(
@@ -45,9 +44,9 @@ class SftpCreate
     public function create()
     {
         $get = $this->request->getParsedBody();
+        $get['user_id'] = $this->factory->getAuthenticatedUser()->getId();
 
-        $saved = $this->factory->getSftpRepository()
-            ->insert($get, true);
+        $saved = $this->factory->getSftpRepository()->insert($get);
 
         $response = $this->response->withStatus(200)
             ->withJson($saved);
