@@ -30,6 +30,7 @@ class ProgramType extends Base
         'content',
         'offlineRedemption',
         'fileUpload',
+        'redemptionCampaigns',
     ];
 
     public function __construct(array $data = null)
