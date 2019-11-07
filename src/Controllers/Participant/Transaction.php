@@ -134,15 +134,15 @@ class Transaction
         return $this->returnJson(400, ['Resource does not exist']);
     }
 
-    public function addReissueDate($organizationId, $uniqueId, $transactionId, $guid)
+    public function addReissueDate($organizationId, $uniqueId, $guid)
     {
         $transaction_item = $this->service->getSingleItem($guid);
         $participant = $this->service->participantRepository->getParticipantByOrganization($organizationId, $uniqueId);
         $reissueDate = $this->request->getParsedBody() ?? null;
 
-        if ((empty($reissueDate['reissue_date']) === true)
-            || ($participant === null && $transaction_item === null)
-            || $transaction_item['transaction_id'] != $transactionId
+        if (empty($reissueDate['reissue_date']) === true
+            || $participant === null
+            || $transaction_item === null
         ) {
             return $this->returnJson(400, ['Resource does not exist']);
         }
