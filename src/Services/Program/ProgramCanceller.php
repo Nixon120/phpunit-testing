@@ -31,8 +31,8 @@ class ProgramCanceller
     private function getExpiredPrograms()
     {
         $database = $this->repository->getDatabase();
-        $today = date("Y-m-d");
-        $sql = "SELECT * FROM program WHERE DATE_ADD(end_date, INTERVAL grace_period DAY) < '" . $today . "';";
+        $today = (new \DateTime)->format('Y-m-d H:i:s');
+        $sql = "SELECT * FROM program WHERE DATE_ADD(end_date, INTERVAL grace_period DAY) <= {$today}";
         $sth = $database->prepare($sql);
         $sth->execute();
         return $sth->fetchAll(PDO::FETCH_CLASS, $this->repository->getRepositoryEntity());

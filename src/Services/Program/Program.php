@@ -123,6 +123,17 @@ class Program
             $data['programTypes'] = $collection;
         }
 
+        if(!empty($data['end_date'])) {
+            $timezone = $this->program->getTimezone() ?? 'America/Phoenix';
+            if(!empty($data['timezone'])) {
+                $timezone = $data['timezone'];
+            }
+
+            $time = new \DateTime($data['end_date'], new \DateTimeZone($timezone));
+            $time->setTimezone(new \DateTimeZone("UTC"));
+            $data['end_date'] = $time->format('Y-m-d H:i:s');
+        }
+
         unset($data['organization'], $data['auto_redemption'], $data['contact'], $data['accounting_contact']);
         $this->program->exchange($data);
     }
