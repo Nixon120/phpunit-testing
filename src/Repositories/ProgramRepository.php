@@ -147,7 +147,7 @@ SQL;
         $program->setSweepstake($this->getProgramSweepstake($program));
         $program->setFeaturedProducts($this->getProgramFeaturedProducts($program));
         $program->setProgramTypes($this->getProgramTypes($program));
-        if($program->getEndDate() !== null) {
+        if ($program->getEndDate() !== null) {
             $timezone = $program->getTimezone() ?? 'America/Phoenix';
             $time = new \DateTime($program->getEndDate(), new \DateTimeZone("UTC"));
             $time->setTimezone(new \DateTimeZone($timezone));
@@ -583,7 +583,8 @@ SQL;
             ->attribute('low_level_deposit', Validator::optional(Validator::numeric()->setName('LowLevelDeposit')))
             ->attribute(
                 'timezone',
-                Validator::optional(Validator::stringType()->setName('TimeZone')))
+                Validator::optional(Validator::stringType()->setName('TimeZone'))
+            )
             ->attribute(
                 'cost_center_id',
                 Validator::optional(Validator::notEmpty()->length(1, 45)->setName('Cost Center'))

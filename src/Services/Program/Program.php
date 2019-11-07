@@ -123,9 +123,9 @@ class Program
             $data['programTypes'] = $collection;
         }
 
-        if(!empty($data['end_date'])) {
+        if (!empty($data['end_date'])) {
             $timezone = $this->program->getTimezone() ?? 'America/Phoenix';
-            if(!empty($data['timezone'])) {
+            if (!empty($data['timezone'])) {
                 $timezone = $data['timezone'];
             }
 
