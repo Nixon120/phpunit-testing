@@ -43,7 +43,6 @@ services:
       AMQP_USERNAME: guest
       AMQP_PASSWORD: guest
       AMQP_EVENT_CHANNEL: mp-admin-events
-      AMQP_REPORT_CHANNEL: mp-admin-reports
       MONGO_HOST: mongodb://mongodb:27017
       MONGO_DB: marketplace-dev
       CATALOG_URL: http://product.catalog
@@ -126,32 +125,6 @@ services:
       VENDOR_DB_NAME: adr_crm-dev
       ENVIRONMENT: development
       IMAGE_URL: http://product.image
-    networks:
-      - adrnet
-  report:
-    image: gcr.io/green-talent-129607/report-api:latest
-    expose:
-      - 80
-    environment:
-      ENVIRONMENT: development
-      JWT_SECRET: password
-      MYSQL_DB_HOST: admin-mysql
-      MYSQL_DB_DATABASE: report
-      MYSQL_DB_USERNAME: root
-      MYSQL_DB_PASSWORD: 123
-      RS_DB_HOST: admin-mysql
-      RS_DB_USER: root
-      RS_DB_PASS: 123
-      RS_DB_NAME: mpadmin
-      FILESYSTEM: local
-      AMQP_HOST: admin-amqp
-      AMQP_PORT: "5672"
-      AMQP_USERNAME: guest
-      AMQP_PASSWORD: guest
-      AMQP_CHANNEL: reports-pending-processing-queue
-      AMQP_TASKRUNNER: /app/bin/pending-report-task-runner
-      AMQP_MAX_CONSUMER: 3
-      AMQP_CONSUMER_RUNTIME: 180
     networks:
       - adrnet
   batch.facilitator:
@@ -259,7 +232,6 @@ services:
       MYSQL_DB_HOST: admin-mysql
       MYSQL_DB_DATABASE: transaction-email
       MYSQL_DB_USERNAME: root
-      MYSQL_DB_PASSWORD: 123
     networks:
       - adrnet
   avs-service:
@@ -321,6 +293,36 @@ services:
       MYSQL_PASSWORD: 123
       LOG_HOST: fluentd
       LOG_PORT: "24224"
+    networks:
+      - adrnet
+  report:
+    image: gcr.io/green-talent-129607/report-api:latest
+    expose:
+      - 80
+    environment:
+      ENVIRONMENT: development
+      JWT_SECRET: password
+      MYSQL_DB_HOST: admin-mysql
+      MYSQL_DB_DATABASE: report
+      MYSQL_DB_USERNAME: root
+      MYSQL_DB_PASSWORD: 123
+      RS_DB_HOST: admin-mysql
+      RS_DB_USER: root
+      RS_DB_PASS: 123
+      RS_DB_NAME: mpadmin
+      CATALOG_URL: http://product.catalog
+      FILESYSTEM: local
+      TOKEN_ENDPOINT: "https://admin.adrqa.info/token"
+      TOKEN_USERNAME: "test@alldigitalrewards.com"
+      TOKEN_PASSWORD: "password"
+      AMQP_HOST: report-amqp
+      AMQP_PORT: "5672"
+      AMQP_USERNAME: guest
+      AMQP_PASSWORD: guest
+      AMQP_CHANNEL: reports-pending-processing-queue
+      AMQP_TASKRUNNER: /app/bin/pending-report-task-runner
+      AMQP_MAX_CONSUMER: 3
+      AMQP_CONSUMER_RUNTIME: 180
     networks:
       - adrnet
 volumes:
