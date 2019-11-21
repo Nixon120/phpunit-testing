@@ -88,6 +88,19 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
         return $transaction->singleItem($auth->getUser()->getOrganizationId(), $uniqueId, $itemGuid);
     });
 
+    $app->put('/{id}/transaction/{item_guid}/reissue_date', function ($request, $response, $args) {
+        $transaction = new Controllers\Transaction($request, $response, $this->get('participant'));
+        $uniqueId = $args['id'];
+        $itemGuid = $args['item_guid'];
+        /** @var \Services\Authentication\Authenticate $auth */
+        $auth = $this->get('authentication');
+        return $transaction->addReissueDate(
+            $auth->getUser()->getOrganizationId(),
+            $uniqueId,
+            $itemGuid
+        );
+    });
+
     $app->post('/{id}/transaction', function ($request, $response, $args) {
         $transaction = new Controllers\Transaction($request, $response, $this->get('participant'));
         $uniqueId = $args['id'];
@@ -182,5 +195,18 @@ $app->group('/api/participant', function () use ($app, $createRoute, $updateRout
         /** @var \Services\Authentication\Authenticate $auth */
         $auth = $this->get('authentication');
         return $transaction->single($auth->getUser()->getOrganizationId(), $args['id'], $args['transaction_id']);
+    });
+
+    $app->put('/{id}/transaction/{item_guid}/reissue_date', function ($request, $response, $args) {
+        $transaction = new Controllers\Transaction($request, $response, $this->get('participant'));
+        $uniqueId = $args['id'];
+        $itemGuid = $args['item_guid'];
+        /** @var \Services\Authentication\Authenticate $auth */
+        $auth = $this->get('authentication');
+        return $transaction->addReissueDate(
+            $auth->getUser()->getOrganizationId(),
+            $uniqueId,
+            $itemGuid
+        );
     });
 })->add(Services\Participant\ValidationMiddleware::class);
