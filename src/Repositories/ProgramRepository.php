@@ -554,7 +554,7 @@ SQL;
     {
         $sql = <<<SQL
 INSERT INTO `ProductCriteria`(program_id, filter, created_at, updated_at, featured_page_title)
-SELECT ?, filter, NOW(), NOW(), featured_page_title from `ProductCriteria` where program_id = ?;
+SELECT ?, filter, NOW(), NOW(), featured_page_title FROM `ProductCriteria` WHERE program_id = ?;
 SQL;
 
         $args = [$toId, $fromId];
@@ -563,8 +563,8 @@ SQL;
         $updated = $sth->execute($args);
         if ($updated === true) {
             $sql = <<<SQL
-insert into `FeaturedProduct`(program_id, sku, created_at, updated_at)
-select ?, sku, NOW(), NOW() from `FeaturedProduct` where program_id = ?;
+INSERT INTO `FeaturedProduct`(program_id, sku, created_at, updated_at)
+SELECT ?, sku, NOW(), NOW() FROM `FeaturedProduct` WHERE program_id = ?;
 SQL;
             $sth = $this->database->prepare($sql);
             return $sth->execute($args);
