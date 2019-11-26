@@ -39,6 +39,10 @@ class ProgramRepository extends BaseRepository
      * @var Filesystem
      */
     private $filesystem;
+    /**
+     * @var bool
+     */
+    private $isClone = false;
 
     public function __construct(PDO $database, Client $client, Filesystem $filesystem)
     {
@@ -50,6 +54,22 @@ class ProgramRepository extends BaseRepository
     private function getFilesystem()
     {
         return $this->filesystem;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isClone(): bool
+    {
+        return $this->isClone;
+    }
+
+    /**
+     * @param bool $isClone
+     */
+    public function setIsClone(bool $isClone): void
+    {
+        $this->isClone = $isClone;
     }
 
 
@@ -793,6 +813,35 @@ SQL;
         throw new \Exception('failed to save offline redemption.');
     }
 
+    /**
+     * @param array $layoutRows
+     * @return array
+     */
+    public function getLayoutRowsToArray(array $layoutRows): array
+    {
+        $container = [];
+        /** @var LayoutRow[] $layoutRow */
+        foreach ($layoutRows as $layoutRow) {
+            $row = $layoutRow->toArray();
+            unset($row['priority']);
+            unset($row['program_id']);
+            unset($row['id']);
+            unset($row['created_at']);
+            unset($row['updated_at']);
+            $container[$layoutRow->getPriority()] = $row;
+            foreach ($layoutRow->getCards() as $card) {
+                $cardRow = $card->toArray();
+                unset($cardRow['id']);
+                unset($cardRow['row_id']);
+                unset($cardRow['created_at']);
+                unset($cardRow['updated_at']);
+                $container[$layoutRow->getPriority()]['card'] = [$cardRow['priority'] => $cardRow];
+            }
+        }
+
+        return $container;
+    }
+
     public function saveProgramLayout(Program $program, array $layoutRows): bool
     {
         if (!empty($layoutRows)) {
@@ -816,13 +865,15 @@ SQL;
 
     private function saveRowCards(LayoutRow $row, array $cards)
     {
-        try {
-            // Purge row cards to save only the cards sent in request
-            $sql = "DELETE FROM `LayoutRowCard` WHERE row_id = ?";
-            $sth = $this->database->prepare($sql);
-            $sth->execute([$row->getId()]);
-        } catch (\PDOException $e) {
-            throw new \Exception('could not purge row cards.');
+        if ($this->isClone() === false) {
+            try {
+                // Purge row cards to save only the cards sent in request
+                $sql = "DELETE FROM `LayoutRowCard` WHERE row_id = ?";
+                $sth = $this->database->prepare($sql);
+                $sth->execute([$row->getId()]);
+            } catch (\PDOException $e) {
+                throw new \Exception('could not purge row cards.');
+            }
         }
 
         foreach ($cards as $cardPriority => $card) {
@@ -885,6 +936,10 @@ SQL;
      */
     private function saveProgramLayoutImage($cardName, $imageData): ?string
     {
+        if ($this->isClone() === true) {
+            $imageData = $this->getBase64EncodedCloneFile($imageData);
+        }
+
         if (preg_match('/^data:image\/(\w+);base64,/', $imageData, $type)) {
             $imageData = substr($imageData, strpos($imageData, ',') + 1);
             $type = strtolower($type[1]); // jpg, png, gif
@@ -912,6 +967,27 @@ SQL;
             ->put($imagePath, $imageData);
 
         return $imagePath;
+    }
+
+    private function getImageType(string $fileName)
+    {
+        $imageFile = explode('.', $fileName);
+        return $imageFile[1];
+    }
+
+    /**
+     * @param $program
+     * @param $fileName
+     * @return string
+     * @throws \Exception
+     */
+    private function getBase64EncodedCloneFile($fileName)
+    {
+        $type = $this->getImageType($fileName);
+
+        $contents = file_get_contents(__DIR__ . '/../../public/resources/app/layout/'. $fileName);
+
+        return 'data:image/' . $type . ';base64,' . base64_encode($contents);
     }
 
     public function getProgramSweepstake(Program $program)

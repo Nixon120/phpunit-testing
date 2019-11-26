@@ -162,6 +162,40 @@ class JsonView extends AbstractViewController
         return $response;
     }
 
+    public function layoutClone()
+    {
+        $repository = $this->factory->getProgramRepository();
+        $payload = $this->request->getParsedBody();
+        $cloneFromId = $payload['from_id'] ?? null;
+        $cloneToId = $payload['to_id'] ?? null;
+        // Look up by ID first.
+        $cloneFrom = $this->service->getSingle($cloneFromId, true);
+        if (is_null($cloneFrom)) {
+            // Failing that, lookup up by domain.
+            $cloneFrom = $this->service->repository->getProgramByDomain($cloneFromId);
+        }
+        $clonedToProgram = $this->service->getSingle($cloneToId, true);
+
+        //@TODO handle this with middleware?
+        if ($cloneFrom === null || $clonedToProgram === null) {
+            return $this->renderJson404();
+        }
+
+        if ($payload !== null) {
+            $repository->setIsClone(true);
+            $rows = $repository->getLayoutRowsToArray($cloneFrom->getLayoutRows());
+            $repository->saveProgramLayout($clonedToProgram, $rows);
+            return $response = $this->response->withStatus(200)
+                ->withJson([]);
+        }
+
+        $output = new OutputNormalizer($clonedToProgram->getLayoutRows());
+        $response = $this->response->withStatus(200)
+            ->withJson($output->getLayout());
+
+        return $response;
+    }
+
     public function autoRedemption($id)
     {
         $repository = $this->factory->getProgramRepository();

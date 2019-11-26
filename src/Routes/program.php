@@ -38,6 +38,11 @@ $app->group('/api/program', function () use ($app) {
         return $program->layout($programId);
     });
 
+    $app->post('/layout/clone', function ($request, $response, $args) {
+        $program = new Controllers\JsonView($request, $response, $this->get('program'));
+        return $program->layoutClone();
+    });
+
     $app->map(['post'], '/{id}/product/management/criteria', function ($request, $response, $args) {
         $program = new Controllers\JsonView($request, $response, $this->get('program'));
         $programId = $args['id'];
