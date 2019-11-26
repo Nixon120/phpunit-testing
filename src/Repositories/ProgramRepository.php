@@ -560,7 +560,17 @@ SQL;
         $args = [$toId, $fromId];
 
         $sth = $this->database->prepare($sql);
-        return $sth->execute($args);
+        $updated = $sth->execute($args);
+        if ($updated === true) {
+            $sql = <<<SQL
+insert into `FeaturedProduct`(program_id, sku, created_at, updated_at)
+select ?, sku, NOW(), NOW() from `FeaturedProduct` where program_id = ?;
+SQL;
+            $sth = $this->database->prepare($sql);
+            return $sth->execute($args);
+        }
+
+        return $updated;
     }
 
     public function getProductCriteria(Program $program): ?ProductCriteria
