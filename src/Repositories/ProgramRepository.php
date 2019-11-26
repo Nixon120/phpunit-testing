@@ -981,7 +981,7 @@ SQL;
             $type = strtolower($type[1]); // jpg, png, gif
 
             if (!in_array($type, ['jpg', 'jpeg', 'gif', 'png'])) {
-                throw new \Exception('invalid image type');
+                throw new \Exception('invalid image type:' . $type);
             }
 
             $imageData = base64_decode($imageData);
@@ -1027,7 +1027,19 @@ SQL;
     {
         $type = $this->getImageType($fileName);
 
-        $contents = file_get_contents(__DIR__ . '/../../public/resources/app/layout/'. $fileName);
+        if (getenv('FILESYSTEM') === 'local') {
+            $contents = file_get_contents(__DIR__ . '/../../public/resources/app/layout/'. $fileName);
+        } else {
+            $bucketName = getenv('GOOGLE_CDN_BUCKET');
+            $cdnPath = "https://storage.googleapis.com/$bucketName/layout";
+            $fileName = $cdnPath . '/' . $fileName;
+            if (file_put_contents('/tmp/product_file.' . $type, file_get_contents($fileName))) {
+                $contents = file_get_contents('/tmp/product_file.' . $type);
+                unlink('/tmp/product_file.' . $type);
+            } else {
+                throw new \Exception('CDN File Download failure for ' . $fileName);
+            }
+        }
 
         return 'data:image/' . $type . ';base64,' . base64_encode($contents);
     }
