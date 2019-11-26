@@ -44,7 +44,7 @@ class Program extends Base
 
     public $grace_period;
 
-    public $timezone;
+    public $timezone = 'America/Phoenix';
 
     /** @var AutoRedemption */
     private $autoRedemption;
