@@ -299,7 +299,7 @@ class Transaction
         }
         $adjustment->setCompletedAt($completed_at);
 
-        if ($this->balanceRepository->addAdjustment($adjustment)) {
+        if ($this->balanceRepository->addAdjustment($adjustment) === true) {
             $adjustment = $this
                 ->balanceRepository
                 ->getAdjustment(
