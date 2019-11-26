@@ -559,7 +559,8 @@ SQL;
 
         $args = [$toId, $fromId];
 
-        return $this->executeQuery($sql, $args);
+        $sth = $this->database->prepare($sql);
+        return $sth->execute($args);
     }
 
     public function getProductCriteria(Program $program): ?ProductCriteria
