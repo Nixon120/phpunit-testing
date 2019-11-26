@@ -199,6 +199,17 @@ abstract class BaseRepository implements Repository
         return $row;
     }
 
+    /**
+     * @param $sql
+     * @param array $args
+     * @return bool
+     */
+    public function executeQuery($sql, array $args = [])
+    {
+        $sth = $this->database->prepare($sql);
+        return $sth->execute($args);
+    }
+
     public function getCollection(
         FilterNormalizer $filters = null,
         $offset = 30,

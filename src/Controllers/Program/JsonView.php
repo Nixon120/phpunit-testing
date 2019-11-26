@@ -109,6 +109,31 @@ class JsonView extends AbstractViewController
             ->withJson([]);
     }
 
+    public function cloneProductCriteria()
+    {
+        $repository = $this->factory->getProgramRepository();
+        $payload = $this->request->getParsedBody();
+        $cloneFrom = $payload['from_id'] ?? null;
+        $cloneTo = $payload['to_id'] ?? null;
+        $cloneFromProgram = $repository->getProgram($cloneFrom);
+        $cloneToProgram = $repository->getProgram($cloneTo);
+
+        if ($cloneFromProgram === null || $cloneToProgram === null) {
+            return $this->renderJson404();
+        }
+
+        if ($payload !== null
+            && $cloneToProgram->getProductCriteria()->getProgramId() === null
+            && $repository->cloneProductCriteria($cloneFrom, $cloneTo) === true
+        ) {
+            return $response = $this->response->withStatus(200)
+                ->withJson([]);
+        }
+
+        return $response = $this->response->withStatus(400)
+            ->withJson([]);
+    }
+
     public function saveFeaturedProducts($programId)
     {
        $repository = $this->factory->getProgramRepository();

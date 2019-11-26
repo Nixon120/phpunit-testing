@@ -545,6 +545,23 @@ SQL;
         return $return;
     }
 
+    /**
+     * @param string $fromId
+     * @param string $toId
+     * @return bool
+     */
+    public function cloneProductCriteria(string $fromId, string $toId): bool
+    {
+        $sql = <<<SQL
+INSERT INTO `ProductCriteria`(program_id, filter, created_at, updated_at, featured_page_title)
+SELECT ?, filter, NOW(), NOW(), featured_page_title from `ProductCriteria` where program_id = ?;
+SQL;
+
+        $args = [$toId, $fromId];
+
+        return $this->executeQuery($sql, $args);
+    }
+
     public function getProductCriteria(Program $program): ?ProductCriteria
     {
         $sql = "SELECT * FROM `ProductCriteria` WHERE program_id = ?";

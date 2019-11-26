@@ -49,6 +49,11 @@ $app->group('/api/program', function () use ($app) {
         return $program->saveProductCriteria($programId);
     });
 
+    $app->post('/product/management/criteria/clone', function ($request, $response, $args) {
+        $program = new Controllers\JsonView($request, $response, $this->get('program'));
+        return $program->cloneProductCriteria();
+    });
+
     $app->post('/{id}/product/management/featured', function ($request, $response, $args) {
         $program = new Controllers\JsonView($request, $response, $this->get('program'));
         $programId = $args['id'];
