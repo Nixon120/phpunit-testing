@@ -842,7 +842,7 @@ SQL;
     }
 
     /**
-     * @param array $layoutRows
+     * @param LayoutRow[] $layoutRows
      * @return array
      */
     public function getLayoutRowsToArray(array $layoutRows): array
@@ -850,6 +850,7 @@ SQL;
         $container = [];
         /** @var LayoutRow[] $layoutRow */
         foreach ($layoutRows as $layoutRow) {
+            $cardContainer = [];
             $row = $layoutRow->toArray();
             unset($row['priority']);
             unset($row['program_id']);
@@ -857,13 +858,20 @@ SQL;
             unset($row['created_at']);
             unset($row['updated_at']);
             $container[$layoutRow->getPriority()] = $row;
-            foreach ($layoutRow->getCards() as $card) {
-                $cardRow = $card->toArray();
-                unset($cardRow['id']);
-                unset($cardRow['row_id']);
-                unset($cardRow['created_at']);
-                unset($cardRow['updated_at']);
-                $container[$layoutRow->getPriority()]['card'] = [$cardRow['priority'] => $cardRow];
+
+            if (empty($layoutRow->getCards()) === false) {
+                foreach ($layoutRow->getCards() as $card) {
+                    $cardRow = $card->toArray();
+                    unset($cardRow['id']);
+                    unset($cardRow['row_id']);
+                    unset($cardRow['created_at']);
+                    unset($cardRow['updated_at']);
+                    $cardRow['product_row'] = $cardRow['product_row'] !== null
+                        ? json_decode($cardRow['product_row'])
+                        : null;
+                    $cardContainer[$cardRow['priority']] = $cardRow;
+                }
+                $container[$layoutRow->getPriority()]['card'] = $cardContainer;
             }
         }
 
