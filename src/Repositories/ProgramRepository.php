@@ -965,7 +965,7 @@ SQL;
     private function saveProgramLayoutImage($cardName, $imageData): ?string
     {
         if ($this->isClone() === true) {
-            $imageData = $this->getBase64EncodedCloneFile($imageData);
+            $imageData = $this->getBase64EncodedExistingFile($imageData);
         }
 
         if (preg_match('/^data:image\/(\w+);base64,/', $imageData, $type)) {
@@ -983,6 +983,12 @@ SQL;
             }
         } elseif (substr($imageData, 0, 4) === 'http') {
             $imageData = @file_get_contents($imageData);
+            if (empty($imageData) === true) {
+                throw new \Exception('Image is not valid');
+            }
+        } elseif (in_array($this->getImageType($imageData), ['jpg', 'jpeg', 'gif', 'png'])) {
+            //GUI sends the original file path on update
+            $imageData = $this->getBase64EncodedExistingFile($imageData);
             if (empty($imageData) === true) {
                 throw new \Exception('Image is not valid');
             }
@@ -1009,7 +1015,7 @@ SQL;
      * @return string
      * @throws \Exception
      */
-    private function getBase64EncodedCloneFile($fileName)
+    private function getBase64EncodedExistingFile($fileName)
     {
         $type = $this->getImageType($fileName);
 
