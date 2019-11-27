@@ -123,16 +123,7 @@ class Program
             $data['programTypes'] = $collection;
         }
 
-        if (!empty($data['end_date'])) {
-            $timezone = $this->program->getTimezone() ?? 'America/Phoenix';
-            if (!empty($data['timezone'])) {
-                $timezone = $data['timezone'];
-            }
-
-            $time = new \DateTime($data['end_date'], new \DateTimeZone($timezone));
-            $time->setTimezone(new \DateTimeZone("UTC"));
-            $data['end_date'] = $time->format('Y-m-d H:i:s');
-        }
+        $data['end_date'] = $this->setEndDate($data);
 
         unset($data['organization'], $data['auto_redemption'], $data['contact'], $data['accounting_contact']);
         $this->program->exchange($data);
@@ -304,5 +295,26 @@ class Program
         }
 
         return true;
+    }
+
+    /**
+     * @param $data
+     * @return bool|string|null
+     * @throws \Exception
+     */
+    private function setEndDate($data)
+    {
+        if (empty($data['end_date']) === true) {
+            return null;
+        }
+
+        $timezone = $this->program->getTimezone() ?? 'America/Phoenix';
+        if (!empty($data['timezone'])) {
+            $timezone = $data['timezone'];
+        }
+
+        $time = new \DateTime($data['end_date'], new \DateTimeZone($timezone));
+        $time->setTimezone(new \DateTimeZone("UTC"));
+        return $time->format('Y-m-d H:i:s');
     }
 }
