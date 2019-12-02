@@ -1,6 +1,6 @@
 <?php
 // DIC configuration
-use Interop\Container\ContainerInterface;
+use Psr\Container\ContainerInterface;
 
 $container['scheduler'] = function (ContainerInterface $c) {
     return new \Services\Scheduler\ServiceFactory($c);

@@ -2,7 +2,7 @@
 namespace Services\Product;
 
 use AllDigitalRewards\Services\Catalog\Client;
-use Interop\Container\ContainerInterface;
+use Psr\Container\ContainerInterface;
 use Repositories\ProductRepository;
 use Services\AbstractServiceFactory;
 

@@ -19,7 +19,7 @@ $token->setRequestedScopes($requestedScopes);
 $token->setToken($token->generateUserToken($user)['token']);
 
 
-/** @var \Interop\Container\ContainerInterface $container */
+/** @var \Psr\Container\ContainerInterface $container */
 $factory = new \Services\Scheduler\ServiceFactory($container);
 $scheduler = $factory->getService();
 $output = $scheduler->run();

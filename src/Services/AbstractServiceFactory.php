@@ -5,7 +5,7 @@ use AllDigitalRewards\Services\Catalog\Client;
 use Entities\User;
 use Events\EventPublisherFactory;
 use Google\Cloud\Storage\StorageClient;
-use Interop\Container\ContainerInterface;
+use Psr\Container\ContainerInterface;
 use League\Flysystem\Adapter\Local;
 use League\Flysystem\Filesystem;
 use Repositories\OrganizationRepository;
