@@ -123,7 +123,7 @@ class Program
             $data['programTypes'] = $collection;
         }
 
-        $data['end_date'] = $this->setEndDate($data);
+        $data['end_date'] = $this->calculateEndDate($data);
 
         unset($data['organization'], $data['auto_redemption'], $data['contact'], $data['accounting_contact']);
         $this->program->exchange($data);
@@ -302,7 +302,7 @@ class Program
      * @return bool|string|null
      * @throws \Exception
      */
-    private function setEndDate($data)
+    private function calculateEndDate($data)
     {
         if (empty($data['end_date']) === true) {
             return null;
