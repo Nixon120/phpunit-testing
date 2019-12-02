@@ -1,6 +1,6 @@
 <?php
 // DIC configuration
-use Interop\Container\ContainerInterface;
+use Psr\Container\ContainerInterface;
 
 /**
  * Base Dependencies
