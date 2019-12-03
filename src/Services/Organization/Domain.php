@@ -1,7 +1,7 @@
 <?php
 namespace Services\Organization;
 
-use Interop\Container\ContainerInterface;
+use Psr\Container\ContainerInterface;
 use Repositories\DomainRepository;
 use Respect\Validation\Exceptions\NestedValidationException;
 use Respect\Validation\Validator;

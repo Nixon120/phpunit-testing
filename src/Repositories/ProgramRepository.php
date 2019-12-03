@@ -39,6 +39,10 @@ class ProgramRepository extends BaseRepository
      * @var Filesystem
      */
     private $filesystem;
+    /**
+     * @var bool
+     */
+    private $isClone = false;
 
     public function __construct(PDO $database, Client $client, Filesystem $filesystem)
     {
@@ -50,6 +54,22 @@ class ProgramRepository extends BaseRepository
     private function getFilesystem()
     {
         return $this->filesystem;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isClone(): bool
+    {
+        return $this->isClone;
+    }
+
+    /**
+     * @param bool $isClone
+     */
+    public function setIsClone(bool $isClone): void
+    {
+        $this->isClone = $isClone;
     }
 
 
@@ -147,6 +167,12 @@ SQL;
         $program->setSweepstake($this->getProgramSweepstake($program));
         $program->setFeaturedProducts($this->getProgramFeaturedProducts($program));
         $program->setProgramTypes($this->getProgramTypes($program));
+        if ($program->getEndDate() !== null) {
+            $timezone = $program->getTimezone() ?? 'America/Phoenix';
+            $time = new \DateTime($program->getEndDate(), new \DateTimeZone("UTC"));
+            $time->setTimezone(new \DateTimeZone($timezone));
+            $program->setEndDate($time->format('Y-m-d H:i:s'));
+        }
         return $program;
     }
 
@@ -519,6 +545,34 @@ SQL;
         return $return;
     }
 
+    /**
+     * @param string $fromId
+     * @param string $toId
+     * @return bool
+     */
+    public function cloneProductCriteria(string $fromId, string $toId): bool
+    {
+        $sql = <<<SQL
+INSERT INTO `ProductCriteria`(program_id, filter, created_at, updated_at, featured_page_title)
+SELECT ?, filter, NOW(), NOW(), featured_page_title FROM `ProductCriteria` WHERE program_id = ?;
+SQL;
+
+        $args = [$toId, $fromId];
+
+        $sth = $this->database->prepare($sql);
+        $updated = $sth->execute($args);
+        if ($updated === true) {
+            $sql = <<<SQL
+INSERT INTO `FeaturedProduct`(program_id, sku, created_at, updated_at)
+SELECT ?, sku, NOW(), NOW() FROM `FeaturedProduct` WHERE program_id = ?;
+SQL;
+            $sth = $this->database->prepare($sql);
+            return $sth->execute($args);
+        }
+
+        return $updated;
+    }
+
     public function getProductCriteria(Program $program): ?ProductCriteria
     {
         $sql = "SELECT * FROM `ProductCriteria` WHERE program_id = ?";
@@ -576,6 +630,10 @@ SQL;
             ->attribute('deposit_amount', Validator::optional(Validator::numeric()->setName('Deposit')))
             ->attribute('low_level_deposit', Validator::optional(Validator::numeric()->setName('LowLevelDeposit')))
             ->attribute(
+                'timezone',
+                Validator::optional(Validator::stringType()->setName('TimeZone'))
+            )
+            ->attribute(
                 'cost_center_id',
                 Validator::optional(Validator::notEmpty()->length(1, 45)->setName('Cost Center'))
             );
@@ -607,12 +665,20 @@ SQL;
             $this->table = 'Program';
         }
 
-        $sql = "UPDATE `ProductCriteria` SET featured_page_title = ? WHERE program_id = ?";
+        $sql = "SELECT * FROM `ProductCriteria` WHERE program_id = ?";
+        $sth = $this->database->prepare($sql);
+        $sth->execute([$program->getUniqueId()]);
+        $result = $sth->fetchAll();
+
+        $sql = "INSERT INTO `ProductCriteria` (featured_page_title, program_id, filter) VALUES (?, ?, '')";
+        if (empty($result) === false) {
+            $sql = "UPDATE `ProductCriteria` SET featured_page_title = ?, updated_at = NOW() WHERE program_id = ?";
+        }
+
         $args = [$featuredPageTitle, $program->getUniqueId()];
         $sth = $this->database->prepare($sql);
-        $sth->execute($args);
 
-        return true;
+        return $sth->execute($args);
     }
 
     private function deleteAllProgramFeaturedProducts(Program $program)
@@ -627,11 +693,9 @@ SQL;
     public function saveProductCriteria(Program $program, $filterData): bool
     {
         $featuredPageTitle = '';
-        $productCriteria = $this->getProductCriteria($program);
-        if ($productCriteria !== null) {
-            $featuredPageTitle = $productCriteria->getFeaturedPageTitle();
+        if ($this->getProductCriteria($program) !== null) {
+            $featuredPageTitle = $this->getProductCriteria($program)->getFeaturedPageTitle();
         }
-
         $criteria = new ProductCriteria;
         $criteria->setFilter($filterData);
         $criteria->setFeaturedPageTitle($featuredPageTitle);
@@ -777,6 +841,43 @@ SQL;
         throw new \Exception('failed to save offline redemption.');
     }
 
+    /**
+     * @param LayoutRow[] $layoutRows
+     * @return array
+     */
+    public function getLayoutRowsToArray(array $layoutRows): array
+    {
+        $container = [];
+        /** @var LayoutRow[] $layoutRow */
+        foreach ($layoutRows as $layoutRow) {
+            $cardContainer = [];
+            $row = $layoutRow->toArray();
+            unset($row['priority']);
+            unset($row['program_id']);
+            unset($row['id']);
+            unset($row['created_at']);
+            unset($row['updated_at']);
+            $container[$layoutRow->getPriority()] = $row;
+
+            if (empty($layoutRow->getCards()) === false) {
+                foreach ($layoutRow->getCards() as $card) {
+                    $cardRow = $card->toArray();
+                    unset($cardRow['id']);
+                    unset($cardRow['row_id']);
+                    unset($cardRow['created_at']);
+                    unset($cardRow['updated_at']);
+                    $cardRow['product_row'] = $cardRow['product_row'] !== null
+                        ? json_decode($cardRow['product_row'])
+                        : null;
+                    $cardContainer[$cardRow['priority']] = $cardRow;
+                }
+                $container[$layoutRow->getPriority()]['card'] = $cardContainer;
+            }
+        }
+
+        return $container;
+    }
+
     public function saveProgramLayout(Program $program, array $layoutRows): bool
     {
         if (!empty($layoutRows)) {
@@ -800,13 +901,15 @@ SQL;
 
     private function saveRowCards(LayoutRow $row, array $cards)
     {
-        try {
-            // Purge row cards to save only the cards sent in request
-            $sql = "DELETE FROM `LayoutRowCard` WHERE row_id = ?";
-            $sth = $this->database->prepare($sql);
-            $sth->execute([$row->getId()]);
-        } catch (\PDOException $e) {
-            throw new \Exception('could not purge row cards.');
+        if ($this->isClone() === false) {
+            try {
+                // Purge row cards to save only the cards sent in request
+                $sql = "DELETE FROM `LayoutRowCard` WHERE row_id = ?";
+                $sth = $this->database->prepare($sql);
+                $sth->execute([$row->getId()]);
+            } catch (\PDOException $e) {
+                throw new \Exception('could not purge row cards.');
+            }
         }
 
         foreach ($cards as $cardPriority => $card) {
@@ -869,12 +972,16 @@ SQL;
      */
     private function saveProgramLayoutImage($cardName, $imageData): ?string
     {
+        if ($this->isClone() === true) {
+            $imageData = $this->getBase64EncodedExistingFile($imageData);
+        }
+
         if (preg_match('/^data:image\/(\w+);base64,/', $imageData, $type)) {
             $imageData = substr($imageData, strpos($imageData, ',') + 1);
             $type = strtolower($type[1]); // jpg, png, gif
 
             if (!in_array($type, ['jpg', 'jpeg', 'gif', 'png'])) {
-                throw new \Exception('invalid image type');
+                throw new \Exception('invalid image type:' . $type);
             }
 
             $imageData = base64_decode($imageData);
@@ -887,6 +994,12 @@ SQL;
             if (empty($imageData) === true) {
                 throw new \Exception('Image is not valid');
             }
+        } elseif (in_array($this->getImageType($imageData), ['jpg', 'jpeg', 'gif', 'png'])) {
+            //GUI sends the original file path on update
+            $imageData = $this->getBase64EncodedExistingFile($imageData);
+            if (empty($imageData) === true) {
+                throw new \Exception('Image is not valid');
+            }
         } else {
             throw new \Exception('did not match data URI with image data');
         }
@@ -896,6 +1009,39 @@ SQL;
             ->put($imagePath, $imageData);
 
         return $imagePath;
+    }
+
+    private function getImageType(string $fileName)
+    {
+        $imageFile = explode('.', $fileName);
+        return $imageFile[1];
+    }
+
+    /**
+     * @param $program
+     * @param $fileName
+     * @return string
+     * @throws \Exception
+     */
+    private function getBase64EncodedExistingFile($fileName)
+    {
+        $type = $this->getImageType($fileName);
+
+        if (getenv('FILESYSTEM') === 'local') {
+            $contents = file_get_contents(__DIR__ . '/../../public/resources/app/layout/'. $fileName);
+        } else {
+            $bucketName = getenv('GOOGLE_CDN_BUCKET');
+            $cdnPath = "https://storage.googleapis.com/$bucketName/layout";
+            $fileName = $cdnPath . '/' . $fileName;
+            if (file_put_contents('/tmp/product_file.' . $type, file_get_contents($fileName))) {
+                $contents = file_get_contents('/tmp/product_file.' . $type);
+                unlink('/tmp/product_file.' . $type);
+            } else {
+                throw new \Exception('CDN File Download failure for ' . $fileName);
+            }
+        }
+
+        return 'data:image/' . $type . ';base64,' . base64_encode($contents);
     }
 
     public function getProgramSweepstake(Program $program)

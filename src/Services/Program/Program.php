@@ -123,6 +123,8 @@ class Program
             $data['programTypes'] = $collection;
         }
 
+        $data['end_date'] = $this->calculateEndDate($data);
+
         unset($data['organization'], $data['auto_redemption'], $data['contact'], $data['accounting_contact']);
         $this->program->exchange($data);
     }
@@ -293,5 +295,26 @@ class Program
         }
 
         return true;
+    }
+
+    /**
+     * @param $data
+     * @return bool|string|null
+     * @throws \Exception
+     */
+    private function calculateEndDate($data)
+    {
+        if (empty($data['end_date']) === true) {
+            return null;
+        }
+
+        $timezone = $this->program->getTimezone() ?? 'America/Phoenix';
+        if (!empty($data['timezone'])) {
+            $timezone = $data['timezone'];
+        }
+
+        $time = new \DateTime($data['end_date'], new \DateTimeZone($timezone));
+        $time->setTimezone(new \DateTimeZone("UTC"));
+        return $time->format('Y-m-d H:i:s');
     }
 }

@@ -1,7 +1,7 @@
 <?php
 namespace Services\Scheduler;
 
-use Interop\Container\ContainerInterface;
+use Psr\Container\ContainerInterface;
 use Repositories\SchedulerRepository;
 
 class ServiceFactory

@@ -44,6 +44,8 @@ class Program extends Base
 
     public $grace_period;
 
+    public $timezone = 'America/Phoenix';
+
     /** @var AutoRedemption */
     private $autoRedemption;
 
@@ -376,7 +378,7 @@ class Program extends Base
         $this->end_date = $end_date;
         if ($end_date) {
             $end_date = new \DateTime($end_date);
-            $this->end_date = $end_date->format('Y-m-d');
+            $this->end_date = $end_date->format('Y-m-d H:i:s');
         }
     }
 
@@ -394,6 +396,22 @@ class Program extends Base
     public function setGracePeriod($grace_period)
     {
         $this->grace_period = $grace_period;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTimezone():?string
+    {
+        return $this->timezone;
+    }
+
+    /**
+     * @param string $timezone
+     */
+    public function setTimezone(string $timezone): void
+    {
+        $this->timezone = $timezone;
     }
 
     public function isPublished(): bool
