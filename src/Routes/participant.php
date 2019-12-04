@@ -108,7 +108,8 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
         $auth = $this->get('authentication');
 
         return $transaction->addTransaction($auth->getUser()->getOrganizationId(), $uniqueId);
-    })->add(\Middleware\ParticipantStatusValidator::class);
+    })->add(\Middleware\ParticipantProgramIsActiveValidator::class)
+        ->add(\Middleware\ParticipantStatusValidator::class);
 
     $app->post('/{id}/customerservice_transaction', function ($request, $response, $args) {
         $transaction = new Controllers\Transaction($request, $response, $this->get('participant'));
@@ -117,7 +118,8 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
         $auth = $this->get('authentication');
 
         return $transaction->customerServiceTransaction($auth->getUser()->getOrganizationId(), $uniqueId);
-    })->add(\Middleware\ParticipantStatusValidator::class);
+    })->add(\Middleware\ParticipantProgramIsActiveValidator::class)
+        ->add(\Middleware\ParticipantStatusValidator::class);
 
     $app->get('/{id}/adjustment', function ($request, $response, $args) {
         $balance = new Controllers\Balance($request, $response, $this->get('participant'));
