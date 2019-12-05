@@ -66,7 +66,7 @@ SQL;
             $organization->setParent($this->getOrganization($organization->getParentId()));
         }
 
-        $organization->setDomains($this->getOrganizationDomains($organization->getUniqueId()));
+        $organization->setDomains($this->getOrganizationDomains($organization->getUniqueId(), false));
         return $organization;
     }
 
