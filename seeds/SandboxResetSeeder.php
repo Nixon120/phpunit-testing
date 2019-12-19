@@ -745,6 +745,15 @@ SQL
                 'lastname' => 'Admin',
                 'role' => 'reports',
                 'active' => 1,
+            ],
+            [
+                'organization_id' => 2,
+                'email_address' => 'accounting@alldigitalrewards.com',
+                'password' => password_hash('password', PASSWORD_BCRYPT),
+                'firstname' => 'Accounting',
+                'lastname' => 'Admin',
+                'role' => 'accounting',
+                'active' => 1,
             ]
         ];
 
