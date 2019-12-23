@@ -53,7 +53,8 @@ return [
         'superadmin' => '/organizations',
         'admin' => '/programs',
         'configs' => '/report-list',
-        'reports' => '/report-list'
+        'reports' => '/report-list',
+        'accounting' => '/report-list'
     ],
     'roles' => [
         'superadmin' => [
@@ -94,6 +95,9 @@ return [
             'organization.read',
             'administrators.read',
             'sftp.all',
+        ],
+        'accounting' => [
+            'accounting.all'
         ]
     ]
 ];
