@@ -52,17 +52,14 @@ class LogApiRequestBodiesMiddleware
     ) {
         $this->request = $request;
         $this->response = $response;
-
-        if(getenv('LOG_API_REQUEST_BODIES') == 1) {
-            $post = $this->request->getParsedBody()??[];
-            $this->getLogger()->notice(
-                'API POST Request Bodies',
-                [
-                    'POST' => $post,
-                    'ROUTE' => $request->getAttribute('routeInfo')['request'][1] ?? null
-                ]
-            );
-        }
+        $post = $this->request->getParsedBody()??[];
+        $this->getLogger()->notice(
+            'API POST Request Bodies',
+            [
+                'POST' => $post,
+                'ROUTE' => $request->getAttribute('routeInfo')['request'][1] ?? null
+            ]
+        );
 
         return $next($this->request, $this->response);
     }

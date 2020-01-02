@@ -131,3 +131,7 @@ $app->add("HttpBasicAuthentication");
 $app->add("JwtAuthentication");
 $app->add("Cors");
 $app->add("Negotiation");
+
+if(getenv('LOG_API_REQUEST_BODIES') == 1) {
+    $app->add(\Middleware\LogApiRequestBodiesMiddleware::class);
+}
