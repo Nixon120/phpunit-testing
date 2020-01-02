@@ -51,6 +51,7 @@ services:
       LOG_HOST: fluentd
       LOG_PORT: "24224"
       GOOGLE_CDN_BUCKET: "adrcdn"
+      LOG_API_REQUEST_BODIES: 1
       ENABLE_CRON: "1"
     networks:
       - adrnet
