@@ -2,12 +2,9 @@
 
 namespace Middleware;
 
-use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Services\Participant\ServiceFactory;
 use Slim\Http\Request;
 use Slim\Http\Response;
-use Slim\Route;
 use Traits\LoggerAwareTrait;
 
 class LogApiRequestBodiesMiddleware
@@ -22,22 +19,6 @@ class LogApiRequestBodiesMiddleware
      * @var Response
      */
     private $response;
-
-    /**
-     * @var ServiceFactory
-     */
-    private $participantService;
-
-    /**
-     * @var ContainerInterface
-     */
-    private $container;
-
-    public function __construct(ContainerInterface $container)
-    {
-        $this->container = $container;
-        $this->participantService = $this->container->get('participant');
-    }
 
     /**
      * @param ServerRequestInterface $request
