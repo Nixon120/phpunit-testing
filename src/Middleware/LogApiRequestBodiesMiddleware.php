@@ -30,18 +30,20 @@ class LogApiRequestBodiesMiddleware
         ServerRequestInterface $request,
         Response $response,
         callable $next = null
-    ) {
+    )
+    {
         $this->request = $request;
         $this->response = $response;
-        $post = $this->request->getParsedBody()??[];
-        $this->getLogger()->notice(
-            'API POST Request Bodies',
-            [
-                'POST' => $post,
-                'ROUTE' => $request->getAttribute('routeInfo')['request'][1] ?? null
-            ]
-        );
-
+        $post = $this->request->getParsedBody() ?? [];
+        if (!empty($post)) {
+            $this->getLogger()->notice(
+                'API POST Request Bodies',
+                [
+                    'POST' => $post,
+                    'ROUTE' => $request->getAttribute('routeInfo')['request'][1] ?? null
+                ]
+            );
+        }
         return $next($this->request, $this->response);
     }
 }
