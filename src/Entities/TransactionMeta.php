@@ -77,7 +77,7 @@ class TransactionMeta extends Base
                 return false;
             }
             foreach ($meta as $key => $value) {
-                if (empty($key) === true) {
+                if (empty($key) === true || empty($key) === true) {
                     return false;
                 }
             }

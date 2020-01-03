@@ -409,21 +409,24 @@ SQL;
 
     public function saveTransactionMeta($transactionId, ?array $meta = null)
     {
-        if (!is_null($meta)) {
-            $metaCollection = [];
-            $date = new \DateTime;
-            foreach ($meta as $value) {
-                $item = new TransactionMeta;
-                $key = key($value);
-                $item->setKey($key);
-                $item->setValue($value[$key]);
-                $item->setTransactionId($transactionId);
-                $item->setUpdatedAt($date->format('Y-m-d H:i:s'));
-                $metaCollection[] = $item;
-            }
-
-            $this->setTransactionMeta($metaCollection);
+        if ($meta === null) {
+            return true;
         }
+
+        $metaCollection = [];
+        $date = new \DateTime;
+        foreach ($meta as $item) {
+            foreach ($item as $key => $value) {
+                $newMeta = new TransactionMeta;
+                $newMeta->setKey($key);
+                $newMeta->setValue($value);
+                $newMeta->setTransactionId($transactionId);
+                $newMeta->setUpdatedAt($date->format('Y-m-d H:i:s'));
+                $metaCollection[] = $newMeta;
+            }
+        }
+
+        return $this->setTransactionMeta($metaCollection);
     }
 
     public function validate(\Entities\Transaction $transaction)

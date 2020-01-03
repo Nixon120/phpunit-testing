@@ -7,6 +7,7 @@ use AllDigitalRewards\Services\Catalog\Entity\InventoryApproveRequest;
 use AllDigitalRewards\Services\Catalog\Entity\InventoryHoldRequest;
 use Entities\Adjustment;
 use Entities\Event;
+use Entities\ParticipantMeta;
 use Entities\TransactionItem;
 use Entities\TransactionMeta;
 use Entities\TransactionProduct;
@@ -202,19 +203,26 @@ class Transaction
                     $transactionId
                 );
 
-
             $description = null;
             $activityDate = null;
             $reference = null;
-            foreach ($meta as $item) {
-                if (strtoupper(key($item)) === 'DESCRIPTION') {
-                    $description = current($item);
-                }
-                if (strtoupper(key($item)) === 'ACTIVITY_DATE') {
-                    $activityDate = current($item);
-                }
-                if (strtoupper(key($item)) === 'REFERENCE') {
-                    $reference = current($item);
+
+            if ($meta !== null) {
+                foreach ($meta as $item) {
+                    foreach ($item as $key => $value) {
+                        if (strtoupper($key) === 'DESCRIPTION') {
+                            $description = $value;
+                            continue;
+                        }
+                        if (strtoupper($key) === 'ACTIVITY_DATE') {
+                            $activityDate = $value;
+                            continue;
+                        }
+                        if (strtoupper($key) === 'REFERENCE') {
+                            $reference = $value;
+                            continue;
+                        }
+                    }
                 }
             }
 

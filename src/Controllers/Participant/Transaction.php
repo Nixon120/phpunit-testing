@@ -2,6 +2,7 @@
 
 namespace Controllers\Participant;
 
+use Entities\TransactionMeta;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Services\Participant\Exception\TransactionServiceException;
@@ -169,6 +170,12 @@ class Transaction
 
         if (empty($meta)) {
             return $this->returnJson(400, ['Resource does not exist']);
+        }
+
+        //is TransactionMeta well-formed
+        $transactionMeta = new TransactionMeta();
+        if ($isValid = $transactionMeta->validate($meta) === false) {
+            return $this->returnJson(400, ['Transaction Meta is not valid, please provide valid key:value non-empty pairs.']);
         }
 
         if ($participant === null && $transaction === null) {
