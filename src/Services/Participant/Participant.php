@@ -245,13 +245,6 @@ class Participant
         }
 
         if(!$this->validateParticipantMeta($meta)) {
-            $this->repository->setErrors(
-                [
-                    'meta' => [
-                        'Meta::ILLEGAL_META' => _("Participant Meta is not valid, please provide valid key:value non-empty pairs.")
-                    ]
-                ]
-            );
             return false;
         }
 
@@ -271,21 +264,29 @@ class Participant
         return false;
     }
 
-    private function validateParticipantMeta($metaCollection)
+    public function validateParticipantMeta($metaCollection)
     {
         //no need to validate empty collection
         if (empty($metaCollection) === true) {
             return true;
         }
 
+        $error = [
+            'meta' => [
+                'Meta::ILLEGAL_META' => _("Participant Meta is not valid, please provide valid key:value non-empty pairs.")
+            ]
+        ];
+
         //tests associative array
         foreach ($metaCollection as $meta) {
             if (is_array($meta) === false) {
                 // Not valid meta;
+                $this->repository->setErrors($error);
                 return false;
             }
             foreach ($meta as $key => $value) {
                 if (empty($key) === true || empty($value) === true) {
+                    $this->repository->setErrors($error);
                     return false;
                 }
             }
@@ -356,13 +357,6 @@ class Participant
         }
 
         if(!$this->validateParticipantMeta($meta)) {
-            $this->repository->setErrors(
-                [
-                    'meta' => [
-                        'Meta::ILLEGAL_META' => _("Participant Meta is not valid, please provide valid key:value non-empty pairs.")
-                    ]
-                ]
-            );
             return false;
         }
 
@@ -400,6 +394,7 @@ class Participant
     public function updateMeta(\Entities\Participant $participant, $metaData)
     {
         $meta = array_merge($this->simplifyMetaCollection($participant->getMeta()), $this->simplifyMetaCollection($metaData));
+        var_dump($meta);die;
         $metaCollection = [];
         foreach($meta as $k=>$v) {
             $metaCollection[] = [$k => $v];
