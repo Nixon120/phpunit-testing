@@ -97,7 +97,14 @@ return [
             'sftp.all',
         ],
         'accounting' => [
-            'accounting.all'
+            'accounting.all',
+            'organization.all',
+            'program.all',
+            'participant.all',
+            'user.all',
+            'report.all',
+            'administrators.all',
+            'sftp.all'
         ]
     ]
 ];
