@@ -262,7 +262,7 @@ class Participant
                 $this->repository->insertAddress($participant->getAddress());
             }
 
-            if ($meta !== null) {
+            if (empty($meta) === false) {
                 $this->repository->saveMeta($participant->getId(), $meta);
             }
             return $this->repository->getParticipant($participant->getUniqueId());
@@ -273,6 +273,11 @@ class Participant
 
     private function validateParticipantMeta($metaCollection)
     {
+        //no need to validate empty collection
+        if (empty($metaCollection) === true) {
+            return true;
+        }
+
         //tests associative array
         foreach ($metaCollection as $meta) {
             if (is_array($meta) === false) {
@@ -280,7 +285,7 @@ class Participant
                 return false;
             }
             foreach ($meta as $key => $value) {
-                if (empty($key) === true) {
+                if (empty($key) === true || empty($value) === true) {
                     return false;
                 }
             }
