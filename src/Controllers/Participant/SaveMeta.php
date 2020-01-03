@@ -45,7 +45,7 @@ class SaveMeta
             $data = $this->request->getParsedBody() ?? [];
 
             try {
-                if ($this->service->validateParticipantMeta($data) === false || $this->service->saveMeta($participant, $data) !== true) {
+                if ($this->service->hasValidMeta($data) === false || $this->service->saveMeta($participant, $data) !== true) {
                     return $this->returnJson(400, $this->service->repository->getErrors());
                 }
 

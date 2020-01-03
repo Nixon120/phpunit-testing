@@ -2,12 +2,15 @@
 
 namespace Services\Participant;
 
+use AllDigitalRewards\RewardStack\Traits\MetaValidationTrait;
 use Controllers\Interfaces as Interfaces;
 use Entities\ParticipantMeta;
 use Repositories\ParticipantRepository;
 
 class Participant
 {
+    use MetaValidationTrait;
+
     /**
      * @var ParticipantRepository
      */
@@ -244,7 +247,7 @@ class Participant
             return false;
         }
 
-        if(!$this->validateParticipantMeta($meta)) {
+        if($this->hasValidMeta($meta) === false) {
             return false;
         }
 
@@ -262,37 +265,6 @@ class Participant
         }
 
         return false;
-    }
-
-    public function validateParticipantMeta($metaCollection)
-    {
-        //no need to validate empty collection
-        if (empty($metaCollection) === true) {
-            return true;
-        }
-
-        $error = [
-            'meta' => [
-                'Meta::ILLEGAL_META' => _("Participant Meta is not valid, please provide valid key:value non-empty pairs.")
-            ]
-        ];
-
-        //tests associative array
-        foreach ($metaCollection as $meta) {
-            if (is_array($meta) === false) {
-                // Not valid meta;
-                $this->repository->setErrors($error);
-                return false;
-            }
-            foreach ($meta as $key => $value) {
-                if (empty($key) === true || empty($value) === true) {
-                    $this->repository->setErrors($error);
-                    return false;
-                }
-            }
-        }
-
-        return true;
     }
 
     private function isParticipantUniqueIdValid($uniqueId)
@@ -356,7 +328,7 @@ class Participant
             $data = $this->hydratePassword($data, $participant);
         }
 
-        if(!$this->validateParticipantMeta($meta)) {
+        if($this->hasValidMeta($meta) === false) {
             return false;
         }
 
@@ -368,6 +340,25 @@ class Participant
         }
 
         return false;
+    }
+
+    /**
+     * @param $meta
+     * @return bool
+     */
+    public function hasValidMeta($meta): bool
+    {
+        if ($this->hasWellFormedMeta($meta) === false) {
+            $this->repository->setErrors([
+                'meta' => [
+                    'Meta::ILLEGAL_META' => _("Participant Meta is not valid, please provide valid key:value non-empty pairs.")
+                ]
+            ]);
+
+            return false;
+        }
+
+        return true;
     }
 
     /**

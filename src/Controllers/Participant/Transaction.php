@@ -166,16 +166,15 @@ class Transaction
 
         $participant = $this->service->participantRepository->getParticipantByOrganization($organizationId, $uniqueId);
         $transaction = $this->service->getSingle($participant, $transactionId);
-        $meta = $this->request->getParsedBody() ?? [];
+        $meta = $this->request->getParsedBody()['meta'] ?? [];
 
         if (empty($meta)) {
             return $this->returnJson(400, ['Resource does not exist']);
         }
 
         //is TransactionMeta well-formed
-        $transactionMeta = new TransactionMeta();
-        if ($isValid = $transactionMeta->validate($meta) === false) {
-            return $this->returnJson(400, ['Transaction Meta is not valid, please provide valid key:value non-empty pairs.']);
+        if ($this->service->hasValidMeta($meta) === false) {
+            return $this->returnJson(400, $this->service->repository->getErrors());
         }
 
         if ($participant === null && $transaction === null) {

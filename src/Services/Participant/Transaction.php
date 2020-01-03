@@ -3,6 +3,7 @@
 namespace Services\Participant;
 
 use AllDigitalRewards\AMQP\MessagePublisher;
+use AllDigitalRewards\RewardStack\Traits\MetaValidationTrait;
 use AllDigitalRewards\Services\Catalog\Entity\InventoryApproveRequest;
 use AllDigitalRewards\Services\Catalog\Entity\InventoryHoldRequest;
 use Entities\Adjustment;
@@ -18,6 +19,8 @@ use Services\Participant\Exception\TransactionServiceException;
 
 class Transaction
 {
+    use MetaValidationTrait;
+
     /**
      * @var TransactionRepository
      */
@@ -182,11 +185,7 @@ class Transaction
         }
 
         //is TransactionMeta well-formed
-        $transactionMeta = new TransactionMeta();
-        if ($isValid = $transactionMeta->validate($meta) === false) {
-            $this->repository->setErrors([
-                'Transaction Meta is not valid, please provide valid key:value non-empty pairs.'
-            ]);
+        if ($this->hasValidMeta($meta) === false) {
             return null;
         }
 
@@ -357,6 +356,25 @@ class Transaction
     public function getErrors()
     {
         return $this->repository->getErrors();
+    }
+
+    /**
+     * @param $meta
+     * @return bool
+     */
+    public function hasValidMeta($meta): bool
+    {
+        if ($this->hasWellFormedMeta($meta) === false) {
+            $this->repository->setErrors([
+                'meta' => [
+                    'Meta::ILLEGAL_META' => _("Transaction Meta is not valid, please provide valid key:value non-empty pairs.")
+                ]
+            ]);
+
+            return false;
+        }
+
+        return true;
     }
 
     protected function queueEvent($id)
