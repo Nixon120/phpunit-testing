@@ -161,11 +161,22 @@ class Transaction
         if (!is_numeric($transactionId)) {
             // Transaction Item GUID provided (rather than Transaction ID)
             $transaction_item = $this->service->getSingleItem($transactionId);
+            if ($transaction_item === null) {
+                return $this->returnJson(400, ['Resource does not exist']);
+            }
             $transactionId = $transaction_item['transaction_id'];
         }
 
         $participant = $this->service->participantRepository->getParticipantByOrganization($organizationId, $uniqueId);
+        if ($participant === null) {
+            return $this->returnJson(400, ['Resource does not exist']);
+        }
+
         $transaction = $this->service->getSingle($participant, $transactionId);
+        if ($transaction === null) {
+            return $this->returnJson(400, ['Resource does not exist']);
+        }
+
         $meta = $this->request->getParsedBody() ?? [];
 
         if (empty($meta)) {
@@ -179,10 +190,6 @@ class Transaction
         //is TransactionMeta well-formed
         if ($this->service->hasValidMeta($meta) === false) {
             return $this->returnJson(400, $this->service->repository->getErrors());
-        }
-
-        if ($participant === null && $transaction === null) {
-            return $this->returnJson(400, ['Resource does not exist']);
         }
 
         $this->service->updateSingleItemMeta($transactionId, $meta);

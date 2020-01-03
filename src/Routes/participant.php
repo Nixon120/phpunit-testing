@@ -174,7 +174,7 @@ $app->group('/api/participant', function () use ($app, $createRoute, $updateRout
     // Update
     $app->put('/{id}', $updateRoute);
 
-    $app->put('/{id}/meta', Controllers\PatchMeta::class);
+    $app->put('/{id}/meta', Controllers\UpdateMeta::class);
     $app->patch('/{id}/meta', Controllers\PatchMeta::class);
 
     $app->get('/{id}/adjustment', function ($request, $response, $args) {
