@@ -156,7 +156,7 @@ class Transaction
         return $this->returnJson(500, ['Internal Server Error']);
     }
 
-    public function updateMeta($organizationId, $uniqueId, $transactionId)
+    public function patchMeta($organizationId, $uniqueId, $transactionId)
     {
         if (!is_numeric($transactionId)) {
             // Transaction Item GUID provided (rather than Transaction ID)

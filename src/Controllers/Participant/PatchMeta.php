@@ -9,7 +9,7 @@ use Slim\Container;
 use Slim\Http\Request;
 use Slim\Http\Response;
 
-class SaveMeta
+class PatchMeta
 {
     /**
      * @var RequestInterface
@@ -45,7 +45,7 @@ class SaveMeta
             $data = $this->request->getParsedBody() ?? [];
 
             try {
-                if ($this->service->hasValidMeta($data) === false || $this->service->saveMeta($participant, $data) !== true) {
+                if ($this->service->hasValidMeta($data) === false || $this->service->updateMeta($participant, $data) !== true) {
                     return $this->returnJson(400, $this->service->repository->getErrors());
                 }
 
