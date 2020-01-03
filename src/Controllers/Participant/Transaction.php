@@ -166,10 +166,14 @@ class Transaction
 
         $participant = $this->service->participantRepository->getParticipantByOrganization($organizationId, $uniqueId);
         $transaction = $this->service->getSingle($participant, $transactionId);
-        $meta = $this->request->getParsedBody()['meta'] ?? [];
+        $meta = $this->request->getParsedBody() ?? [];
 
         if (empty($meta)) {
-            return $this->returnJson(400, ['Resource does not exist']);
+            return $this->returnJson(400, [
+                'meta' => [
+                    'Meta::ILLEGAL_META' => _("Transaction Meta is not valid, please provide valid key:value non-empty pairs.")
+                ]
+            ]);
         }
 
         //is TransactionMeta well-formed
