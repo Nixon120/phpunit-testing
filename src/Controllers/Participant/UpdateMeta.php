@@ -45,7 +45,7 @@ class UpdateMeta
             $data = $this->request->getParsedBody() ?? [];
 
             try {
-                if ($this->service->updateMeta($participant, $data) !== true) {
+                if ($this->service->validateParticipantMeta($data) === false || $this->service->updateMeta($participant, $data) !== true) {
                     return $this->returnJson(400, $this->service->repository->getErrors());
                 }
 
@@ -58,13 +58,9 @@ class UpdateMeta
         return $this->returnJson(400, ['Resource does not exist']);
     }
 
-    private function returnJson($statusCode, $return = null)
+    private function returnJson($statusCode, $return = [])
     {
-        $response = $this->response->withStatus($statusCode);
-
-        if ($return !== null) {
-            $response = $response->withJson($return);
-        }
-        return $response;
+        return $this->response->withStatus($statusCode)
+            ->withJson($return);
     }
 }

@@ -394,7 +394,6 @@ class Participant
     public function updateMeta(\Entities\Participant $participant, $metaData)
     {
         $meta = array_merge($this->simplifyMetaCollection($participant->getMeta()), $this->simplifyMetaCollection($metaData));
-        var_dump($meta);die;
         $metaCollection = [];
         foreach($meta as $k=>$v) {
             $metaCollection[] = [$k => $v];
