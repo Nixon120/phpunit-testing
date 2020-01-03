@@ -7,7 +7,6 @@ use AllDigitalRewards\Services\Catalog\Entity\InventoryApproveRequest;
 use AllDigitalRewards\Services\Catalog\Entity\InventoryHoldRequest;
 use Entities\Adjustment;
 use Entities\Event;
-use Entities\ParticipantMeta;
 use Entities\TransactionItem;
 use Entities\TransactionMeta;
 use Entities\TransactionProduct;
