@@ -237,6 +237,10 @@ class Program
             return false;
         }
 
+        if ($data['active'] == 0) {
+            $data['published'] = 0;
+        }
+
         $this->buildEntities($data);
 
         if (!$this->entitiesAreValid()) {
