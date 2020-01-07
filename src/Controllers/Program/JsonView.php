@@ -119,13 +119,11 @@ class JsonView extends AbstractViewController
         $cloneToProgram = $repository->getProgram($cloneTo);
 
         if ($cloneFromProgram === null || $cloneToProgram === null) {
-            return $this->renderJson404();
+            return $response = $this->response->withStatus(404)
+                ->withJson(['Resource does not exist']);
         }
 
-        if ($payload !== null
-            && $cloneToProgram->getProductCriteria()->getProgramId() === null
-            && $repository->cloneProductCriteria($cloneFrom, $cloneTo) === true
-        ) {
+        if ($repository->cloneProductCriteria($cloneFrom, $cloneTo) === true) {
             return $response = $this->response->withStatus(200)
                 ->withJson([]);
         }

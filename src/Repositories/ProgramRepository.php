@@ -553,8 +553,9 @@ SQL;
     public function cloneProductCriteria(string $fromId, string $toId): bool
     {
         $sql = <<<SQL
-INSERT INTO `ProductCriteria`(program_id, filter, created_at, updated_at, featured_page_title)
-SELECT ?, filter, NOW(), NOW(), featured_page_title FROM `ProductCriteria` WHERE program_id = ?;
+INSERT INTO `ProductCriteria` (program_id, filter, created_at, updated_at, featured_page_title)
+SELECT ?, filter, NOW(), NOW(), featured_page_title FROM `ProductCriteria` pc WHERE program_id = ?
+ON DUPLICATE KEY UPDATE filter = pc.filter, featured_page_title = pc.featured_page_title
 SQL;
 
         $args = [$toId, $fromId];
@@ -564,7 +565,8 @@ SQL;
         if ($updated === true) {
             $sql = <<<SQL
 INSERT INTO `FeaturedProduct`(program_id, sku, created_at, updated_at)
-SELECT ?, sku, NOW(), NOW() FROM `FeaturedProduct` WHERE program_id = ?;
+SELECT ?, sku, NOW(), NOW() FROM `FeaturedProduct` fp WHERE program_id = ?
+ON DUPLICATE KEY UPDATE sku = fp.sku
 SQL;
             $sth = $this->database->prepare($sql);
             return $sth->execute($args);
