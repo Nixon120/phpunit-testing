@@ -805,8 +805,13 @@ SQL
 
         $participants = $this->table('Participant');
 
-        # Purge all existing participants.
-        $participants->truncate();
+        # Purge all existing participant meta.
+        $this->execute('
+            SET FOREIGN_KEY_CHECKS=0;
+            TRUNCATE `' . getenv('MYSQL_DATABASE') . '`.`ParticipantMeta`;
+            TRUNCATE `' . getenv('MYSQL_DATABASE') . '`.`Participant`;
+            SET FOREIGN_KEY_CHECKS=1;
+        ');
 
         # Load participants.
         $participants->insert($userContainerSeed)

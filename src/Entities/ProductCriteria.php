@@ -213,14 +213,15 @@ class ProductCriteria extends Base
      */
     public function setFilter($filters)
     {
-        if (is_array($filters)) {
-            $filters = $this->formatFilter($filters);
+        if (empty($filters) === true) {
+            $filters = [];
         }
+
+        $filters = $this->formatFilter($filters);
+
         $this->filter = $filters;
         $filters = json_decode($filters);
-        if (empty($filters)) {
-            //throw some exception/ return false
-        }
+
         $this->setMinFilter($filters->price->min);
         $this->setMaxFilter($filters->price->max);
         $this->setProductFilter($filters->products);
