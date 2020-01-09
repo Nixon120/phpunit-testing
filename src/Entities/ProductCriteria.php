@@ -217,8 +217,9 @@ class ProductCriteria extends Base
             $filters = [];
         }
 
-        $filters = $this->formatFilter($filters);
-
+        if (is_array($filters)) {
+            $filters = $this->formatFilter($filters);
+        }
         $this->filter = $filters;
         $filters = json_decode($filters);
 
