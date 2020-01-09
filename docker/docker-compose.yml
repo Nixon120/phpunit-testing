@@ -180,6 +180,10 @@ services:
       MYSQL_DB_DATABASE: program-catalog
       MYSQL_DB_USERNAME: root
       MYSQL_DB_PASSWORD: 123
+      REWARDSTACK_DB_HOST: admin-mysql
+      REWARDSTACK_DB_DATABASE: mpadmin
+      REWARDSTACK_DB_USERNAME: root
+      REWARDSTACK_DB_PASSWORD: 123
       JWT_SECRET: password
       ENVIRONMENT: development
       REDIS_HOST: program-catalog-redis
