@@ -1,20 +1,19 @@
 <?php
 
-use Entities\TransactionMeta;
 use PHPUnit\Framework\TestCase;
 
 class TransactionMetaOutputTest extends TestCase
 {
+    use \AllDigitalRewards\RewardStack\Traits\MetaValidationTrait;
+
     public function testValidatesMetaReturnsFalse()
     {
-        $test = new TransactionMeta();
-        $this->assertFalse($test->validate($this->badMeta()));
+        $this->assertFalse($this->hasWellFormedMeta($this->badMeta()));
     }
 
     public function testValidatesMetaReturnsTrue()
     {
-        $test = new TransactionMeta();
-        $this->assertTrue($test->validate($this->goodMeta()));
+        $this->assertTrue($this->hasWellFormedMeta($this->goodMeta()));
     }
 
     private function goodMeta()

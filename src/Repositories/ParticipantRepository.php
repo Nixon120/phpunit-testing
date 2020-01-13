@@ -331,22 +331,19 @@ SQL;
 
     public function saveMeta($participantId, array $meta)
     {
-        if (!is_null($meta)) {
-            $metaCollection = [];
-            $date = new \DateTime;
-            foreach ($meta as $value) {
-                $item = new ParticipantMeta;
-                $key = key($value);
-                $item->setKey($key);
-                $item->setValue($value[$key]);
-                $item->setParticipantId($participantId);
-                $item->setUpdatedAt($date->format('Y-m-d H:i:s'));
-                $metaCollection[] = $item;
+        $metaCollection = [];
+        $date = new \DateTime;
+        foreach ($meta as $item) {
+            foreach ($item as $key => $value) {
+                $newMeta = new ParticipantMeta;
+                $newMeta->setKey($key);
+                $newMeta->setValue($value);
+                $newMeta->setParticipantId($participantId);
+                $newMeta->setUpdatedAt($date->format('Y-m-d H:i:s'));
+                $metaCollection[] = $newMeta;
             }
-
-            return $this->setParticipantMeta($metaCollection);
         }
 
-        return true;
+        return $this->setParticipantMeta($metaCollection);
     }
 }

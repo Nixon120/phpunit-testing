@@ -3,6 +3,7 @@
 namespace Services\Participant;
 
 use AllDigitalRewards\AMQP\MessagePublisher;
+use AllDigitalRewards\RewardStack\Traits\MetaValidationTrait;
 use AllDigitalRewards\Services\Catalog\Entity\InventoryApproveRequest;
 use AllDigitalRewards\Services\Catalog\Entity\InventoryHoldRequest;
 use Entities\Adjustment;
@@ -18,6 +19,8 @@ use Services\Participant\Exception\TransactionServiceException;
 
 class Transaction
 {
+    use MetaValidationTrait;
+
     /**
      * @var TransactionRepository
      */
@@ -182,11 +185,7 @@ class Transaction
         }
 
         //is TransactionMeta well-formed
-        $transactionMeta = new TransactionMeta();
-        if ($isValid = $transactionMeta->validate($meta) === false) {
-            $this->repository->setErrors([
-                'Transaction Meta is not valid, please provide valid key:value non-empty pairs.'
-            ]);
+        if ($this->hasValidMeta($meta) === false) {
             return null;
         }
 
@@ -202,19 +201,26 @@ class Transaction
                     $transactionId
                 );
 
-
             $description = null;
             $activityDate = null;
             $reference = null;
-            foreach ($meta as $item) {
-                if (strtoupper(key($item)) === 'DESCRIPTION') {
-                    $description = current($item);
-                }
-                if (strtoupper(key($item)) === 'ACTIVITY_DATE') {
-                    $activityDate = current($item);
-                }
-                if (strtoupper(key($item)) === 'REFERENCE') {
-                    $reference = current($item);
+
+            if ($meta !== null) {
+                foreach ($meta as $item) {
+                    foreach ($item as $key => $value) {
+                        if (strtoupper($key) === 'DESCRIPTION') {
+                            $description = $value;
+                            continue;
+                        }
+                        if (strtoupper($key) === 'ACTIVITY_DATE') {
+                            $activityDate = $value;
+                            continue;
+                        }
+                        if (strtoupper($key) === 'REFERENCE') {
+                            $reference = $value;
+                            continue;
+                        }
+                    }
                 }
             }
 
@@ -350,6 +356,25 @@ class Transaction
     public function getErrors()
     {
         return $this->repository->getErrors();
+    }
+
+    /**
+     * @param $meta
+     * @return bool
+     */
+    public function hasValidMeta($meta): bool
+    {
+        if ($this->hasWellFormedMeta($meta) === false) {
+            $this->repository->setErrors([
+                'meta' => [
+                    'Meta::ILLEGAL_META' => _("Transaction Meta is not valid, please provide valid key:value non-empty pairs.")
+                ]
+            ]);
+
+            return false;
+        }
+
+        return true;
     }
 
     protected function queueEvent($id)

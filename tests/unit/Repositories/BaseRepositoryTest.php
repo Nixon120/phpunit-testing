@@ -129,12 +129,13 @@ class BaseRepositoryTest extends \PHPUnit\Framework\TestCase
 
     private function getMockUser()
     {
+        $date = (new DateTime())->format('Y-m-d H:i:s');
         $user = new \Entities\User;
         $user->setId(1);
         $user->setFirstname('John');
         $user->setLastname('Doe');
-        $user->setCreatedAt((new DateTime())->format('Y-m-d H:i:s'));
-        $user->setUpdatedAt((new DateTime())->format('Y-m-d H:i:s'));
+        $user->setCreatedAt($date);
+        $user->setUpdatedAt($date);
         return $user;
     }
 
