@@ -853,7 +853,7 @@ SQL;
         $this->setIsClone(true);
         $rows = $this->getLayoutRowsToArray($cloneFrom->getLayoutRows());
         if (empty($rows) === false) {
-            $deleted = $this->deleteRowsIfExists($clonedToProgram->getLayoutRows());
+            $deleted = $this->deleteLayoutRowsIfExists($clonedToProgram->getLayoutRows());
             $cloned = $this->saveProgramLayout($clonedToProgram, $rows);
             return $deleted && $cloned;
         }
@@ -865,7 +865,7 @@ SQL;
      * @param LayoutRow[] $layoutRows
      * @return array
      */
-    public function getLayoutRowsToArray(array $layoutRows): array
+    private function getLayoutRowsToArray(array $layoutRows): array
     {
         $container = [];
         /** @var LayoutRow[] $layoutRow */
@@ -902,7 +902,7 @@ SQL;
      * @param LayoutRow[] $layoutRows
      * @return bool
      */
-    public function deleteRowsIfExists(array $layoutRows): bool
+    private function deleteLayoutRowsIfExists(array $layoutRows): bool
     {
         if (empty($layoutRows) === true) {
             return true;
