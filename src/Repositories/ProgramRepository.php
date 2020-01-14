@@ -1081,7 +1081,7 @@ SQL;
             //we have some corrupt image types in all buckets, lets show a no-image instead
             if (!in_array($type, ['jpg', 'jpeg', 'gif', 'png'])) {
                 $contents = file_get_contents(__DIR__ . '/../../public/resources/app/products/no-image.jpg');
-                return 'data:image/' . $type . ';base64,' . base64_encode($contents);
+                return 'data:image/jpg;base64,' . base64_encode($contents);
             }
 
             $bucketName = getenv('GOOGLE_CDN_BUCKET');
