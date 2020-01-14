@@ -844,10 +844,28 @@ SQL;
     }
 
     /**
+     * @param Program $cloneFrom
+     * @param Program $clonedToProgram
+     * @return bool
+     */
+    public function cloneLayout(Program $cloneFrom, Program $clonedToProgram): bool
+    {
+        $this->setIsClone(true);
+        $rows = $this->getLayoutRowsToArray($cloneFrom->getLayoutRows());
+        if (empty($rows) === false) {
+            $deleted = $this->deleteLayoutRowsIfExists($clonedToProgram->getLayoutRows());
+            $cloned = $this->saveProgramLayout($clonedToProgram, $rows);
+            return $deleted && $cloned;
+        }
+
+        return true;
+    }
+
+    /**
      * @param LayoutRow[] $layoutRows
      * @return array
      */
-    public function getLayoutRowsToArray(array $layoutRows): array
+    private function getLayoutRowsToArray(array $layoutRows): array
     {
         $container = [];
         /** @var LayoutRow[] $layoutRow */
@@ -878,6 +896,34 @@ SQL;
         }
 
         return $container;
+    }
+
+    /**
+     * @param LayoutRow[] $layoutRows
+     * @return bool
+     */
+    private function deleteLayoutRowsIfExists(array $layoutRows): bool
+    {
+        if (empty($layoutRows) === true) {
+            return true;
+        }
+
+        foreach ($layoutRows as $layoutRow) {
+            try {
+                $sql = "DELETE FROM `LayoutRow` WHERE program_id = ?";
+                $sth = $this->database->prepare($sql);
+                $sth->execute([$layoutRow->getProgramId()]);
+
+                $sql = "DELETE FROM `LayoutRowCard` WHERE row_id = ?";
+                $sth = $this->database->prepare($sql);
+                $sth->execute([$layoutRow->getId()]);
+            } catch (\PDOException $e) {
+                $this->errors[] = $e->getMessage();
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public function saveProgramLayout(Program $program, array $layoutRows): bool
@@ -1032,6 +1078,12 @@ SQL;
         if (getenv('FILESYSTEM') === 'local') {
             $contents = file_get_contents(__DIR__ . '/../../public/resources/app/layout/'. $fileName);
         } else {
+            //we have some corrupt image types in all buckets, lets show a no-image instead
+            if (!in_array($type, ['jpg', 'jpeg', 'gif', 'png'])) {
+                $contents = file_get_contents(__DIR__ . '/../../public/resources/app/products/no-image.jpg');
+                return 'data:image/' . $type . ';base64,' . base64_encode($contents);
+            }
+
             $bucketName = getenv('GOOGLE_CDN_BUCKET');
             $cdnPath = "https://storage.googleapis.com/$bucketName/layout";
             $fileName = $cdnPath . '/' . $fileName;
