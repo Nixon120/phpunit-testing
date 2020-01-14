@@ -200,7 +200,10 @@ class JsonView extends AbstractViewController
         $clonedToProgram = $this->service->getSingle($cloneToId, true);
 
         //@TODO handle this with middleware?
-        if ($cloneFrom === null || $clonedToProgram === null) {
+        if ($cloneFrom === null
+            || $clonedToProgram === null
+            || empty($cloneFrom->getLayoutRows()) === true
+        ) {
             return $this->renderJson404();
         }
 

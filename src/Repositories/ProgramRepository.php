@@ -910,7 +910,10 @@ SQL;
 
         foreach ($layoutRows as $layoutRow) {
             try {
-                // Purge row cards to save only the cards sent in request
+                $sql = "DELETE FROM `LayoutRow` WHERE program_id = ?";
+                $sth = $this->database->prepare($sql);
+                $sth->execute([$layoutRow->getProgramId()]);
+
                 $sql = "DELETE FROM `LayoutRowCard` WHERE row_id = ?";
                 $sth = $this->database->prepare($sql);
                 $sth->execute([$layoutRow->getId()]);
@@ -1075,6 +1078,12 @@ SQL;
         if (getenv('FILESYSTEM') === 'local') {
             $contents = file_get_contents(__DIR__ . '/../../public/resources/app/layout/'. $fileName);
         } else {
+            //we have some corrupt image types in all buckets, lets show a no-image instead
+            if (!in_array($type, ['jpg', 'jpeg', 'gif', 'png'])) {
+                $contents = file_get_contents(__DIR__ . '/../../public/resources/app/products/no-image.jpg');
+                return 'data:image/' . $type . ';base64,' . base64_encode($contents);
+            }
+
             $bucketName = getenv('GOOGLE_CDN_BUCKET');
             $cdnPath = "https://storage.googleapis.com/$bucketName/layout";
             $fileName = $cdnPath . '/' . $fileName;
