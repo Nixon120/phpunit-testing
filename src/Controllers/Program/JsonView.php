@@ -205,7 +205,7 @@ class JsonView extends AbstractViewController
         }
 
         if (empty($cloneFrom->getLayoutRows()) === true) {
-            return $response = $this->response->withStatus(400)
+            return $response = $this->response->withStatus(404)
                 ->withJson([$cloneFrom->getUniqueId() . ' contained no program layout data']);
         }
 
