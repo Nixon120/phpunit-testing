@@ -844,6 +844,24 @@ SQL;
     }
 
     /**
+     * @param Program $cloneFrom
+     * @param Program $clonedToProgram
+     * @return bool
+     */
+    public function cloneLayout(Program $cloneFrom, Program $clonedToProgram): bool
+    {
+        $this->setIsClone(true);
+        $rows = $this->getLayoutRowsToArray($cloneFrom->getLayoutRows());
+        if (empty($rows) === false) {
+            $deleted = $this->deleteRowsIfExists($clonedToProgram->getLayoutRows());
+            $cloned = $this->saveProgramLayout($clonedToProgram, $rows);
+            return $deleted && $cloned;
+        }
+
+        return true;
+    }
+
+    /**
      * @param LayoutRow[] $layoutRows
      * @return array
      */
@@ -878,6 +896,31 @@ SQL;
         }
 
         return $container;
+    }
+
+    /**
+     * @param LayoutRow[] $layoutRows
+     * @return bool
+     */
+    public function deleteRowsIfExists(array $layoutRows): bool
+    {
+        if (empty($layoutRows) === true) {
+            return true;
+        }
+
+        foreach ($layoutRows as $layoutRow) {
+            try {
+                // Purge row cards to save only the cards sent in request
+                $sql = "DELETE FROM `LayoutRowCard` WHERE row_id = ?";
+                $sth = $this->database->prepare($sql);
+                $sth->execute([$layoutRow->getId()]);
+            } catch (\PDOException $e) {
+                $this->errors[] = 'could not purge row cards.';
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public function saveProgramLayout(Program $program, array $layoutRows): bool
