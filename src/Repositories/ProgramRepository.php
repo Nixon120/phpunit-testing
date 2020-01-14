@@ -918,7 +918,7 @@ SQL;
                 $sth = $this->database->prepare($sql);
                 $sth->execute([$layoutRow->getId()]);
             } catch (\PDOException $e) {
-                $this->errors[] = 'could not purge row cards.';
+                $this->errors[] = $e->getMessage();
                 return false;
             }
         }
