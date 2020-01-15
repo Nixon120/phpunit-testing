@@ -1109,7 +1109,7 @@ SQL;
      */
     private function getBase64EncodedExistingFile($fileName, $type): array
     {
-        if (getenv('FILESYSTEM') === 'local') {
+        if (getenv('FILESYSTEM') !== 'local') {
             $contents = file_get_contents(__DIR__ . '/../../public/resources/app/layout/'. $fileName);
         } else {
             if (!in_array($type, ['jpg', 'jpeg', 'gif', 'png'])) {
