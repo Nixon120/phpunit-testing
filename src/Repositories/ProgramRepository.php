@@ -1137,8 +1137,7 @@ SQL;
      */
     private function fixFileIfImageFileTypeArrayExists($fileName): array
     {
-        //$bucketName = getenv('GOOGLE_CDN_BUCKET');
-        $bucketName = 'adrcdn-qa';
+        $bucketName = getenv('GOOGLE_CDN_BUCKET');
         $cdnPath = "https://storage.googleapis.com/$bucketName/layout";
         $fileName = $cdnPath . '/' . $fileName;
         $exif = @exif_read_data($fileName, 0, true);
