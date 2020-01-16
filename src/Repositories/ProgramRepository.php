@@ -1021,14 +1021,17 @@ SQL;
     private function saveProgramLayoutImage($cardName, $imageData): ?string
     {
         if ($this->isClone() === true) {
-            $imageData = $this->getBase64EncodedExistingFile($imageData);
+            $type = $this->getImageType($imageData);
+            list($imageData, $type) = $this->getBase64EncodedExistingFile($imageData, $type);
+            return $this->saveImageFile($cardName, $imageData, $type);
         }
 
-        if (preg_match('/^data:image\/(\w+);base64,/', $imageData, $type)) {
+        //data image type was sent
+        $type = $this->getDataImageTypeIfDataImageUrl($imageData);
+        if ($type !== null) {
             $imageData = substr($imageData, strpos($imageData, ',') + 1);
-            $type = strtolower($type[1]); // jpg, png, gif
 
-            if (!in_array($type, ['jpg', 'jpeg', 'gif', 'png'])) {
+            if ($this->hasValidMimeType($type) === false) {
                 throw new \Exception('invalid image type:' . $type);
             }
 
@@ -1037,28 +1040,60 @@ SQL;
             if ($imageData === false) {
                 throw new \Exception('base64_decode failed');
             }
-        } elseif (substr($imageData, 0, 4) === 'http') {
+
+            return $this->saveImageFile($cardName, $imageData, $type);
+        }
+
+        //url was sent
+        if (substr($imageData, 0, 4) === 'http') {
+            $type = $this->getImageType($imageData);
             $imageData = @file_get_contents($imageData);
             if (empty($imageData) === true) {
                 throw new \Exception('Image is not valid');
             }
-        } elseif (in_array($this->getImageType($imageData), ['jpg', 'jpeg', 'gif', 'png'])) {
-            //GUI sends the original file path on update
-            $imageData = $this->getBase64EncodedExistingFile($imageData);
+
+            return $this->saveImageFile($cardName, $imageData, $type);
+        }
+
+        //fallback if GUI sends the original file path on update
+        $type = $this->getImageType($imageData);
+        if ($this->hasValidMimeType($this->getImageType($imageData)) === true) {
+            list($imageData, $type) = $this->getBase64EncodedExistingFile($imageData, $type);
             if (empty($imageData) === true) {
                 throw new \Exception('Image is not valid');
             }
-        } else {
-            throw new \Exception('did not match data URI with image data');
+            return $this->saveImageFile($cardName, $imageData, $type);
         }
 
-        $imagePath = sha1($cardName) . "." . $type;
-        $this->getFilesystem()
-            ->put($imagePath, $imageData);
-
-        return $imagePath;
+        throw new \Exception('did not match data URI with image data');
     }
 
+    /**
+     * @param $imageData
+     * @return string|null
+     */
+    private function getDataImageTypeIfDataImageUrl($imageData)
+    {
+        if (preg_match('/^data:image\/(\w+);base64,/', $imageData, $type) === 1) {
+            return strtolower($type[1]); // jpg, png, gif
+        }
+
+        return null;
+    }
+
+    /**
+     * @param $type
+     * @return bool
+     */
+    private function hasValidMimeType($type)
+    {
+        return in_array($type, ['jpg', 'jpeg', 'gif', 'png']);
+    }
+
+    /**
+     * @param string $fileName
+     * @return mixed
+     */
     private function getImageType(string $fileName)
     {
         $imageFile = explode('.', $fileName);
@@ -1066,24 +1101,16 @@ SQL;
     }
 
     /**
-     * @param $program
      * @param $fileName
-     * @return string
+     * @param $type
+     * @return array
      * @throws \Exception
      */
-    private function getBase64EncodedExistingFile($fileName)
+    private function getBase64EncodedExistingFile($fileName, $type): array
     {
-        $type = $this->getImageType($fileName);
-
         if (getenv('FILESYSTEM') === 'local') {
             $contents = file_get_contents(__DIR__ . '/../../public/resources/app/layout/'. $fileName);
         } else {
-            //we have some corrupt image types in all buckets, lets show a no-image instead
-            if (!in_array($type, ['jpg', 'jpeg', 'gif', 'png'])) {
-                $contents = file_get_contents(__DIR__ . '/../../public/resources/app/products/no-image.jpg');
-                return 'data:image/jpg;base64,' . base64_encode($contents);
-            }
-
             $bucketName = getenv('GOOGLE_CDN_BUCKET');
             $cdnPath = "https://storage.googleapis.com/$bucketName/layout";
             $fileName = $cdnPath . '/' . $fileName;
@@ -1095,7 +1122,7 @@ SQL;
             }
         }
 
-        return 'data:image/' . $type . ';base64,' . base64_encode($contents);
+        return [$contents, $type];
     }
 
     public function getProgramSweepstake(Program $program)
@@ -1215,5 +1242,20 @@ SQL;
         $sth->execute();
         $total = $sth->fetch();
         return $total['program_transactions'];
+    }
+
+    /**
+     * @param $cardName
+     * @param $imageData
+     * @param string $type
+     * @return string
+     */
+    private function saveImageFile($cardName, $imageData, string $type): string
+    {
+        $imagePath = md5($cardName . time()) . "." . $type;
+        $this->getFilesystem()
+            ->put($imagePath, $imageData);
+
+        return $imagePath;
     }
 }
