@@ -2,7 +2,6 @@
 
 namespace Repositories;
 
-use AllDigitalRewards\RewardStack\Services\Program\ProgramImageFileTypeFixer;
 use AllDigitalRewards\Services\Catalog\Client;
 use Entities\Adjustment;
 use Entities\AutoRedemption;
@@ -1109,13 +1108,9 @@ SQL;
      */
     private function getBase64EncodedExistingFile($fileName, $type): array
     {
-        if (getenv('FILESYSTEM') !== 'local') {
+        if (getenv('FILESYSTEM') === 'local') {
             $contents = file_get_contents(__DIR__ . '/../../public/resources/app/layout/'. $fileName);
         } else {
-            if ($this->hasValidMimeType($type) === false) {
-                return $this->fixFileIfImageFileTypeArrayExists($fileName);
-            }
-
             $bucketName = getenv('GOOGLE_CDN_BUCKET');
             $cdnPath = "https://storage.googleapis.com/$bucketName/layout";
             $fileName = $cdnPath . '/' . $fileName;
@@ -1128,19 +1123,6 @@ SQL;
         }
 
         return [$contents, $type];
-    }
-
-    /**
-     * we have some corrupt image types in all CDN buckets, fix and resave
-     * @param $fileName
-     * @return array
-     * @throws \Exception
-     */
-    private function fixFileIfImageFileTypeArrayExists($fileName): array
-    {
-        $service = new ProgramImageFileTypeFixer;
-
-        return $service->getFileIfImageFileTypeArrayExists($fileName);
     }
 
     public function getProgramSweepstake(Program $program)
