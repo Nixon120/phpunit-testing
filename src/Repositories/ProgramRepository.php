@@ -1056,7 +1056,7 @@ SQL;
             return $this->saveImageFile($cardName, $imageData, $type);
         }
 
-        //GUI sends the original file path on update
+        //fallback if GUI sends the original file path on update
         $type = $this->getImageType($imageData);
         if ($this->hasValidMimeType($this->getImageType($imageData)) === true) {
             list($imageData, $type) = $this->getBase64EncodedExistingFile($imageData, $type);
@@ -1112,7 +1112,7 @@ SQL;
         if (getenv('FILESYSTEM') !== 'local') {
             $contents = file_get_contents(__DIR__ . '/../../public/resources/app/layout/'. $fileName);
         } else {
-            if (!in_array($type, ['jpg', 'jpeg', 'gif', 'png'])) {
+            if ($this->hasValidMimeType($type) === false) {
                 return $this->fixFileIfImageFileTypeArrayExists($fileName);
             }
 
