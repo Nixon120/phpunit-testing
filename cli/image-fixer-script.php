@@ -28,9 +28,9 @@ try {
     foreach ($rows as $row) {
         $imagePath = $row['program_id'] . $row['row_priority'] . $row['priority'];
         $imageName = $fixerService->resaveCorruptedImageFile($imagePath, $row['image']);
-        $sql = "UPDATE `LayoutRowCard` SET image = ?, updated_at = NOW() WHERE id = {$row['id']}";
+        $sql = "UPDATE `LayoutRowCard` SET image = ?, updated_at = NOW() WHERE id = ?";
         $sth = $pdo->prepare($sql);
-        $sth->execute([$imageName]);
+        $sth->execute([$imageName, $row['id']]);
     }
 } catch (\Exception $exception) {
     echo $exception->getMessage();
