@@ -12,7 +12,12 @@ require __DIR__ . "/../cli-bootstrap.php";
 $pdo = $container->get('database');
 $fixerService = new ProgramImageFileTypeFixer;
 
-$sql = "SELECT id, program_id, priority FROM `LayoutRow`";
+$sql = "SELECT lc.id, l.program_id, l.priority as row_priority, lc.priority, row_id, image
+FROM layoutrowcard lc
+LEFT JOIN layoutrow l ON lc.row_id = l.id
+WHERE lc.image LIKE '%.Array' 
+  AND l.program_id IS NOT NULL";
+
 $sth = $pdo->prepare($sql);
 $sth->execute();
 $rows = $sth->fetchAll();
@@ -21,17 +26,11 @@ if (!$rows) {
 }
 try {
     foreach ($rows as $row) {
-        $sql = "SELECT priority, row_id, image  FROM `LayoutRowCard` WHERE row_id = {$row['id']}";
+        $imagePath = $row['program_id'] . $row['row_priority'] . $row['priority'];
+        $imageName = $fixerService->resaveCorruptedImageFile($imagePath, $row['image']);
+        $sql = "UPDATE `LayoutRowCard` SET image = ?, updated_at = NOW() WHERE id = ?";
         $sth = $pdo->prepare($sql);
-        $sth->execute();
-        $cardRow = $sth->fetch();
-        if (empty($cardRow['image']) === false && $fixerService->getImageType($cardRow['image']) === 'Array') {
-            $imagePath = $row['program_id'] . $row['priority'] . $cardRow['priority'];
-            $imageName = $fixerService->resaveCorruptedImageFile($imagePath, $cardRow['image']);
-            $sql = "UPDATE `LayoutRowCard` SET image = ?, updated_at = NOW() WHERE row_id = {$row['id']}";
-            $sth = $pdo->prepare($sql);
-            $sth->execute([$imageName]);
-        }
+        $sth->execute([$imageName, $row['id']]);
     }
 } catch (\Exception $exception) {
     echo $exception->getMessage();
