@@ -3,10 +3,6 @@
 use AllDigitalRewards\RewardStack\Services\Program\ProgramImageFileTypeFixer;
 use Psr\Container\ContainerInterface;
 
-//324cdd53610a7f0214d82b0cbc20eb228ae67f67.Array
-//77cfa314c5194c3d41a8d22fcbf327d6f90a96b4.Array
-//dfdbb033770d22bc9cba86a2f1d3ce473922b6fb.Array
-
 /**
  * @var ContainerInterface $container
  */
