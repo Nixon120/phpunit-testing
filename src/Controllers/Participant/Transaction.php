@@ -94,7 +94,7 @@ class Transaction
         $transactionUniqueIds = $this->request->getQueryParam('unique_id');
 
         if ($participant !== null) {
-            if ($year !== null && checkdate(1, 1, $year) === false) {
+            if ($year !== null && ($year > 2015 && $year <= date('yy')) === false) {
                 return $this->returnJson(400, [$year . ' is not a valid year']);
             }
             //@TODO: Make sure domains do not include HTTPS / HTTP on entry or here ?
