@@ -38,6 +38,8 @@ class Program extends Base
 
     public $published = 0;
 
+    public $collect_ssn = 0;
+
     public $start_date;
 
     public $end_date;
@@ -417,6 +419,27 @@ class Program extends Base
     public function isPublished(): bool
     {
         return $this->published == 1;
+    }
+
+    public function collectSsn(): bool
+    {
+        return $this->collect_ssn == 1;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCollectSsn(): int
+    {
+        return $this->collect_ssn;
+    }
+
+    /**
+     * @param int $collect_ssn
+     */
+    public function setCollectSsn(int $collect_ssn): void
+    {
+        $this->collect_ssn = $collect_ssn;
     }
 
     /**
