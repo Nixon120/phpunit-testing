@@ -4,6 +4,7 @@ require __DIR__ . "/../cli-bootstrap.php";
 /** @var \Psr\Container\ContainerInterface $container */
 $factory = new \Services\Program\ServiceFactory($container);
 $programRepo = $factory->getProgramRepository();
+$cacheService = $container['cacheService'];
 
-$programCanceller = new \Services\Program\ProgramCanceller($programRepo);
+$programCanceller = new \Services\Program\ProgramCanceller($programRepo, $cacheService);
 $programCanceller->cancelExpiredPrograms();
