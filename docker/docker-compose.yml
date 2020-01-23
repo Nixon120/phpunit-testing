@@ -258,7 +258,7 @@ services:
     networks:
       - adrnet
   ssn:
-    image: gcr.io/green-talent-129607/ssn-1099-service:latest
+    image: gcr.io/green-talent-129607/ssn-service:latest
     expose:
       - 80
     ports:
