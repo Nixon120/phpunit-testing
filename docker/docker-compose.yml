@@ -257,6 +257,20 @@ services:
       SMARTY_INTL_URL: "https://international-street.api.smartystreets.com/verify"
     networks:
       - adrnet
+  ssn:
+    image: gcr.io/green-talent-129607/ssn-1099-service:latest
+    expose:
+      - 80
+    ports:
+      - 87:80
+    environment:
+      ENVIRONMENT: development
+      MYSQL_HOST: admin-mysql
+      MYSQL_DATABASE: ssn
+      MYSQL_USERNAME: root
+      MYSQL_PASSWORD: 123
+    networks:
+      - adrnet
   redis:
     image: redis:3.2
     ports:
