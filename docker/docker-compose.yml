@@ -264,6 +264,7 @@ services:
     ports:
       - 87:80
     environment:
+      JWT_SECRET: password
       ENVIRONMENT: development
       MYSQL_HOST: admin-mysql
       MYSQL_DATABASE: ssn
