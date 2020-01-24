@@ -320,10 +320,19 @@ SQL;
         return null;
     }
 
-    public function getParticipantTransactions(Participant $participant, $transactionUniqueIds = null): ?array
-    {
+    public function getParticipantTransactions(
+        Participant $participant,
+        $transactionUniqueIds = null,
+        $year = null
+    ): ?array {
+
         $where =  " WHERE Participant.program_id = ? AND Participant.unique_id = ?";
         $params = [$participant->getProgramId(), $participant->getUniqueId()];
+
+        if ($year !== null) {
+            $where .= " AND YEAR(Transaction.created_at) = ?";
+            $params[] = $year;
+        }
 
         if ($transactionUniqueIds !== null) {
             $placeholder = rtrim(str_repeat('?, ', count($transactionUniqueIds)), ', ');

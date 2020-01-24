@@ -319,9 +319,9 @@ class Transaction
         }
     }
 
-    public function get(\Entities\Participant $participant, $transactionUniqueIds = null)
+    public function get(\Entities\Participant $participant, $transactionUniqueIds = null, $year = null)
     {
-        return $this->repository->getParticipantTransactions($participant, $transactionUniqueIds);
+        return $this->repository->getParticipantTransactions($participant, $transactionUniqueIds, $year);
     }
 
     public function getTransactionOrganization(

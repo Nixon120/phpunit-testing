@@ -1005,6 +1005,13 @@ SQL;
         return $sth->execute([$publish, $program]);
     }
 
+    public function updateCollectSsnColumn($program, $collectSsn)
+    {
+        $sql = "UPDATE Program SET collect_ssn = ? WHERE unique_id = ?";
+        $sth = $this->database->prepare($sql);
+        return $sth->execute([$collectSsn, $program]);
+    }
+
     public function cancelProgram($program)
     {
         $sql = "UPDATE Program SET published = 0, active = 0 WHERE unique_id = ?";

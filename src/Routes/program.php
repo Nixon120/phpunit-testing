@@ -102,11 +102,19 @@ $app->group('/api/program', function () use ($app) {
         return $program->update($programId);
     });
 
-    $app->map(['post'], '/{id}/publish/{publish}', function ($request, $response, $args) {
+    $app->put('/{id}/publish/{publish}', function ($request, $response, $args) {
         $program = new Controllers\Publish($request, $response, $this->get('program'));
         $programId = $args['id'];
         $rowId = $args['publish'];
 
         return $program->updateProgramPublishSetting($programId, $rowId);
+    });
+
+    $app->put('/{id}/collectssn/{collectssn}', function ($request, $response, $args) {
+        $program = new Controllers\CollectSsn($request, $response, $this->get('program'));
+        $programId = $args['id'];
+        $rowId = $args['collectssn'];
+
+        return $program->updateProgramCollectSsnSetting($programId, $rowId);
     });
 })->add(new \Middleware\ProgramModifiedCacheClearMiddleware($app->getContainer()));

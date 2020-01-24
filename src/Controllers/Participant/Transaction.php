@@ -88,14 +88,17 @@ class Transaction
         return $this->returnJson(400, ['Resource does not exist']);
     }
 
-    public function transactionList($organizationId, $uniqueId)
+    public function transactionList($organizationId, $uniqueId, $year = null)
     {
         $participant = $this->service->participantRepository->getParticipantByOrganization($organizationId, $uniqueId);
         $transactionUniqueIds = $this->request->getQueryParam('unique_id');
 
         if ($participant !== null) {
+            if ($year !== null && ($year > 2015 && $year <= date('yy')) === false) {
+                return $this->returnJson(400, [$year . ' is not a valid year']);
+            }
             //@TODO: Make sure domains do not include HTTPS / HTTP on entry or here ?
-            $transactions = $this->service->get($participant, $transactionUniqueIds);
+            $transactions = $this->service->get($participant, $transactionUniqueIds, $year);
             //The unique id passed in was bad
             if (empty($transactions) === true && $transactionUniqueIds !== null) {
                 return $this->returnJson(404, ['Unique Ids Not Found']);
