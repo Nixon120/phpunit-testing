@@ -153,7 +153,7 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
 
         return $sweepstake->create($auth->getUser()->getOrganizationId(), $uniqueId);
     });
-});
+})->add(new \Middleware\ProgramModifiedCacheClearMiddleware($app->getContainer()));
 
 $app->group('/api/participant', function () use ($app, $createRoute, $updateRoute) {
     // Create
@@ -220,4 +220,5 @@ $app->group('/api/participant', function () use ($app, $createRoute, $updateRout
             $itemGuid
         );
     });
-})->add(Services\Participant\ValidationMiddleware::class);
+})->add(new \Middleware\ProgramModifiedCacheClearMiddleware($app->getContainer()))
+    ->add(Services\Participant\ValidationMiddleware::class);
