@@ -48,7 +48,7 @@ services:
       FILESYSTEM: local
       LOG_HOST: fluentd
       LOG_PORT: "24224"
-      GOOGLE_CDN_BUCKET: "adrcdn"
+      GOOGLE_CDN_BUCKET: "adrcdn_qa"
       ENABLE_CRON: "1"
     networks:
       - adrnet
@@ -178,6 +178,10 @@ services:
       MYSQL_DB_DATABASE: program-catalog
       MYSQL_DB_USERNAME: root
       MYSQL_DB_PASSWORD: 123
+      REWARDSTACK_DB_HOST: admin-mysql
+      REWARDSTACK_DB_DATABASE: mpadmin
+      REWARDSTACK_DB_USERNAME: root
+      REWARDSTACK_DB_PASSWORD: 123
       JWT_SECRET: password
       ENVIRONMENT: development
       REDIS_HOST: program-catalog-redis
@@ -248,6 +252,21 @@ services:
       SMARTY_AUTH_ID: 0945d3f2-5eff-32f4-b4b2-158847ff5f54
       SMARTY_AUTH_TOKEN: YsaH5jHF6lAUQzq7mOLE
       SMARTY_INTL_URL: "https://international-street.api.smartystreets.com/verify"
+    networks:
+      - adrnet
+  ssn:
+    image: gcr.io/green-talent-129607/ssn-service:latest
+    expose:
+      - 80
+    ports:
+      - 87:80
+    environment:
+      JWT_SECRET: password
+      ENVIRONMENT: development
+      MYSQL_HOST: admin-mysql
+      MYSQL_DATABASE: ssn
+      MYSQL_USERNAME: root
+      MYSQL_PASSWORD: 123
     networks:
       - adrnet
   redis:

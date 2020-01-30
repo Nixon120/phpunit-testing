@@ -553,8 +553,9 @@ SQL;
     public function cloneProductCriteria(string $fromId, string $toId): bool
     {
         $sql = <<<SQL
-INSERT INTO `ProductCriteria`(program_id, filter, created_at, updated_at, featured_page_title)
-SELECT ?, filter, NOW(), NOW(), featured_page_title FROM `ProductCriteria` WHERE program_id = ?;
+INSERT INTO `ProductCriteria` (program_id, filter, created_at, updated_at, featured_page_title)
+SELECT ?, filter, NOW(), NOW(), featured_page_title FROM `ProductCriteria` pc WHERE program_id = ?
+ON DUPLICATE KEY UPDATE filter = pc.filter, featured_page_title = pc.featured_page_title
 SQL;
 
         $args = [$toId, $fromId];
@@ -564,7 +565,8 @@ SQL;
         if ($updated === true) {
             $sql = <<<SQL
 INSERT INTO `FeaturedProduct`(program_id, sku, created_at, updated_at)
-SELECT ?, sku, NOW(), NOW() FROM `FeaturedProduct` WHERE program_id = ?;
+SELECT ?, sku, NOW(), NOW() FROM `FeaturedProduct` fp WHERE program_id = ?
+ON DUPLICATE KEY UPDATE sku = fp.sku
 SQL;
             $sth = $this->database->prepare($sql);
             return $sth->execute($args);
@@ -842,10 +844,28 @@ SQL;
     }
 
     /**
+     * @param Program $cloneFrom
+     * @param Program $clonedToProgram
+     * @return bool
+     */
+    public function cloneLayout(Program $cloneFrom, Program $clonedToProgram): bool
+    {
+        $this->setIsClone(true);
+        $rows = $this->getLayoutRowsToArray($cloneFrom->getLayoutRows());
+        if (empty($rows) === false) {
+            $deleted = $this->deleteLayoutRowsIfExists($clonedToProgram->getLayoutRows());
+            $cloned = $this->saveProgramLayout($clonedToProgram, $rows);
+            return $deleted && $cloned;
+        }
+
+        return true;
+    }
+
+    /**
      * @param LayoutRow[] $layoutRows
      * @return array
      */
-    public function getLayoutRowsToArray(array $layoutRows): array
+    private function getLayoutRowsToArray(array $layoutRows): array
     {
         $container = [];
         /** @var LayoutRow[] $layoutRow */
@@ -876,6 +896,34 @@ SQL;
         }
 
         return $container;
+    }
+
+    /**
+     * @param LayoutRow[] $layoutRows
+     * @return bool
+     */
+    private function deleteLayoutRowsIfExists(array $layoutRows): bool
+    {
+        if (empty($layoutRows) === true) {
+            return true;
+        }
+
+        foreach ($layoutRows as $layoutRow) {
+            try {
+                $sql = "DELETE FROM `LayoutRow` WHERE program_id = ?";
+                $sth = $this->database->prepare($sql);
+                $sth->execute([$layoutRow->getProgramId()]);
+
+                $sql = "DELETE FROM `LayoutRowCard` WHERE row_id = ?";
+                $sth = $this->database->prepare($sql);
+                $sth->execute([$layoutRow->getId()]);
+            } catch (\PDOException $e) {
+                $this->errors[] = $e->getMessage();
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public function saveProgramLayout(Program $program, array $layoutRows): bool
@@ -957,6 +1005,13 @@ SQL;
         return $sth->execute([$publish, $program]);
     }
 
+    public function updateCollectSsnColumn($program, $collectSsn)
+    {
+        $sql = "UPDATE Program SET collect_ssn = ? WHERE unique_id = ?";
+        $sth = $this->database->prepare($sql);
+        return $sth->execute([$collectSsn, $program]);
+    }
+
     public function cancelProgram($program)
     {
         $sql = "UPDATE Program SET published = 0, active = 0 WHERE unique_id = ?";
@@ -973,14 +1028,17 @@ SQL;
     private function saveProgramLayoutImage($cardName, $imageData): ?string
     {
         if ($this->isClone() === true) {
-            $imageData = $this->getBase64EncodedExistingFile($imageData);
+            $type = $this->getImageType($imageData);
+            list($imageData, $type) = $this->getBase64EncodedExistingFile($imageData, $type);
+            return $this->saveImageFile($cardName, $imageData, $type);
         }
 
-        if (preg_match('/^data:image\/(\w+);base64,/', $imageData, $type)) {
+        //data image type was sent
+        $type = $this->getDataImageTypeIfDataImageUrl($imageData);
+        if ($type !== null) {
             $imageData = substr($imageData, strpos($imageData, ',') + 1);
-            $type = strtolower($type[1]); // jpg, png, gif
 
-            if (!in_array($type, ['jpg', 'jpeg', 'gif', 'png'])) {
+            if ($this->hasValidMimeType($type) === false) {
                 throw new \Exception('invalid image type:' . $type);
             }
 
@@ -989,28 +1047,60 @@ SQL;
             if ($imageData === false) {
                 throw new \Exception('base64_decode failed');
             }
-        } elseif (substr($imageData, 0, 4) === 'http') {
+
+            return $this->saveImageFile($cardName, $imageData, $type);
+        }
+
+        //url was sent
+        if (substr($imageData, 0, 4) === 'http') {
+            $type = $this->getImageType($imageData);
             $imageData = @file_get_contents($imageData);
             if (empty($imageData) === true) {
                 throw new \Exception('Image is not valid');
             }
-        } elseif (in_array($this->getImageType($imageData), ['jpg', 'jpeg', 'gif', 'png'])) {
-            //GUI sends the original file path on update
-            $imageData = $this->getBase64EncodedExistingFile($imageData);
+
+            return $this->saveImageFile($cardName, $imageData, $type);
+        }
+
+        //fallback if GUI sends the original file path on update
+        $type = $this->getImageType($imageData);
+        if ($this->hasValidMimeType($this->getImageType($imageData)) === true) {
+            list($imageData, $type) = $this->getBase64EncodedExistingFile($imageData, $type);
             if (empty($imageData) === true) {
                 throw new \Exception('Image is not valid');
             }
-        } else {
-            throw new \Exception('did not match data URI with image data');
+            return $this->saveImageFile($cardName, $imageData, $type);
         }
 
-        $imagePath = sha1($cardName) . "." . $type;
-        $this->getFilesystem()
-            ->put($imagePath, $imageData);
-
-        return $imagePath;
+        throw new \Exception('did not match data URI with image data');
     }
 
+    /**
+     * @param $imageData
+     * @return string|null
+     */
+    private function getDataImageTypeIfDataImageUrl($imageData)
+    {
+        if (preg_match('/^data:image\/(\w+);base64,/', $imageData, $type) === 1) {
+            return strtolower($type[1]); // jpg, png, gif
+        }
+
+        return null;
+    }
+
+    /**
+     * @param $type
+     * @return bool
+     */
+    private function hasValidMimeType($type)
+    {
+        return in_array($type, ['jpg', 'jpeg', 'gif', 'png']);
+    }
+
+    /**
+     * @param string $fileName
+     * @return mixed
+     */
     private function getImageType(string $fileName)
     {
         $imageFile = explode('.', $fileName);
@@ -1018,15 +1108,13 @@ SQL;
     }
 
     /**
-     * @param $program
      * @param $fileName
-     * @return string
+     * @param $type
+     * @return array
      * @throws \Exception
      */
-    private function getBase64EncodedExistingFile($fileName)
+    private function getBase64EncodedExistingFile($fileName, $type): array
     {
-        $type = $this->getImageType($fileName);
-
         if (getenv('FILESYSTEM') === 'local') {
             $contents = file_get_contents(__DIR__ . '/../../public/resources/app/layout/'. $fileName);
         } else {
@@ -1041,7 +1129,7 @@ SQL;
             }
         }
 
-        return 'data:image/' . $type . ';base64,' . base64_encode($contents);
+        return [$contents, $type];
     }
 
     public function getProgramSweepstake(Program $program)
@@ -1161,5 +1249,20 @@ SQL;
         $sth->execute();
         $total = $sth->fetch();
         return $total['program_transactions'];
+    }
+
+    /**
+     * @param $cardName
+     * @param $imageData
+     * @param string $type
+     * @return string
+     */
+    private function saveImageFile($cardName, $imageData, string $type): string
+    {
+        $imagePath = md5($cardName . time()) . "." . $type;
+        $this->getFilesystem()
+            ->put($imagePath, $imageData);
+
+        return $imagePath;
     }
 }

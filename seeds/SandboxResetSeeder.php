@@ -538,12 +538,14 @@ class SandboxResetSeeder extends AbstractSeed
         ];
 
         $this->execute(<<<SQL
+SET FOREIGN_KEY_CHECKS=0;
 DELETE FROM `ProgramType` WHERE 1=1;
 DELETE FROM `ProgramToProgramType` WHERE 1=1;
 DELETE FROM `Program` WHERE 1=1;
 ALTER TABLE `ProgramType` AUTO_INCREMENT=1;
 ALTER TABLE `ProgramToProgramType` AUTO_INCREMENT=1;
 ALTER TABLE `Program` AUTO_INCREMENT=1;
+SET FOREIGN_KEY_CHECKS=1;
 SQL
         );
 
@@ -745,6 +747,15 @@ SQL
                 'lastname' => 'Admin',
                 'role' => 'reports',
                 'active' => 1,
+            ],
+            [
+                'organization_id' => 2,
+                'email_address' => 'accounting@alldigitalrewards.com',
+                'password' => password_hash('password', PASSWORD_BCRYPT),
+                'firstname' => 'Accounting',
+                'lastname' => 'Admin',
+                'role' => 'accounting',
+                'active' => 1,
             ]
         ];
 
@@ -796,8 +807,13 @@ SQL
 
         $participants = $this->table('Participant');
 
-        # Purge all existing participants.
-        $participants->truncate();
+        # Purge all existing participant meta.
+        $this->execute('
+            SET FOREIGN_KEY_CHECKS=0;
+            TRUNCATE `' . getenv('MYSQL_DATABASE') . '`.`ParticipantMeta`;
+            TRUNCATE `' . getenv('MYSQL_DATABASE') . '`.`Participant`;
+            SET FOREIGN_KEY_CHECKS=1;
+        ');
 
         # Load participants.
         $participants->insert($userContainerSeed)

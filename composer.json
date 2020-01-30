@@ -69,6 +69,7 @@
     "ext-pdo": "*",
     "ext-bcmath": "*",
     "ext-json": "*",
+    "ext-exif": "*",
     "box/spout": "^3.0"
   },
   "require-dev": {

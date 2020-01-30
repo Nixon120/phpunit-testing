@@ -35,8 +35,8 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
     $app->put('/{id}', $updateRoute)->add(Services\Participant\ValidationMiddleware::class);
 
     //@TODO: misc. routes that need to be duplicated to /participant
-    $app->put('/{id}/meta', Controllers\SaveMeta::class);
-    $app->patch('/{id}/meta', Controllers\UpdateMeta::class);
+    $app->put('/{id}/meta', Controllers\UpdateMeta::class);
+    $app->patch('/{id}/meta', Controllers\PatchMeta::class);
 
     $app->post('/{id}/sso', function ($request, $response, $args) {
         $participant = new Controllers\Sso($request, $response, $this->get('participant'));
@@ -57,9 +57,10 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
     $app->get('/{id}/transaction', function ($request, $response, $args) {
         $transaction = new Controllers\Transaction($request, $response, $this->get('participant'));
         $uniqueId = $args['id'];
+        $year = $request->getParam('year');
         /** @var \Services\Authentication\Authenticate $auth */
         $auth = $this->get('authentication');
-        return $transaction->transactionList($auth->getUser()->getOrganizationId(), $uniqueId);
+        return $transaction->transactionList($auth->getUser()->getOrganizationId(), $uniqueId, $year);
     });
 
     $app->get('/{id}/transaction/{transaction_id}', function ($request, $response, $args) {
@@ -76,7 +77,7 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
         $transaction = new Controllers\Transaction($request, $response, $this->get('participant'));
         /** @var \Services\Authentication\Authenticate $auth */
         $auth = $this->get('authentication');
-        return $transaction->updateMeta($auth->getUser()->getOrganizationId(), $args['id'], $args['transaction_id']);
+        return $transaction->patchMeta($auth->getUser()->getOrganizationId(), $args['id'], $args['transaction_id']);
     });
 
     $app->get('/{id}/transaction/{transaction_id}/{item_guid}', function ($request, $response, $args) {
@@ -108,7 +109,8 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
         $auth = $this->get('authentication');
 
         return $transaction->addTransaction($auth->getUser()->getOrganizationId(), $uniqueId);
-    })->add(\Middleware\ParticipantStatusValidator::class);
+    })->add(\Middleware\ParticipantProgramIsActiveValidator::class)
+        ->add(\Middleware\ParticipantStatusValidator::class);
 
     $app->post('/{id}/customerservice_transaction', function ($request, $response, $args) {
         $transaction = new Controllers\Transaction($request, $response, $this->get('participant'));
@@ -117,7 +119,8 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
         $auth = $this->get('authentication');
 
         return $transaction->customerServiceTransaction($auth->getUser()->getOrganizationId(), $uniqueId);
-    })->add(\Middleware\ParticipantStatusValidator::class);
+    })->add(\Middleware\ParticipantProgramIsActiveValidator::class)
+        ->add(\Middleware\ParticipantStatusValidator::class);
 
     $app->get('/{id}/adjustment', function ($request, $response, $args) {
         $balance = new Controllers\Balance($request, $response, $this->get('participant'));
@@ -172,8 +175,8 @@ $app->group('/api/participant', function () use ($app, $createRoute, $updateRout
     // Update
     $app->put('/{id}', $updateRoute);
 
-    $app->put('/{id}/meta', Controllers\SaveMeta::class);
-    $app->patch('/{id}/meta', Controllers\UpdateMeta::class);
+    $app->put('/{id}/meta', Controllers\UpdateMeta::class);
+    $app->patch('/{id}/meta', Controllers\PatchMeta::class);
 
     $app->get('/{id}/adjustment', function ($request, $response, $args) {
         $balance = new Controllers\Balance($request, $response, $this->get('participant'));
@@ -195,6 +198,14 @@ $app->group('/api/participant', function () use ($app, $createRoute, $updateRout
         /** @var \Services\Authentication\Authenticate $auth */
         $auth = $this->get('authentication');
         return $transaction->single($auth->getUser()->getOrganizationId(), $args['id'], $args['transaction_id']);
+    });
+
+    $app->patch('/{id}/transaction/{transaction_id}/meta', function ($request, $response, $args) {
+        // Update Transaction Meta using Transaction ID OR Transaction Item GUID.
+        $transaction = new Controllers\Transaction($request, $response, $this->get('participant'));
+        /** @var \Services\Authentication\Authenticate $auth */
+        $auth = $this->get('authentication');
+        return $transaction->patchMeta($auth->getUser()->getOrganizationId(), $args['id'], $args['transaction_id']);
     });
 
     $app->put('/{id}/transaction/{item_guid}/reissue_date', function ($request, $response, $args) {
