@@ -21,7 +21,7 @@ trait MetaValidationTrait
             }
 
             foreach ($meta as $key => $value) {
-                if (empty($key) === true || empty($value) === true) {
+                if (empty($key) === true) {
                     // Not valid meta;
                     return false;
                 }
