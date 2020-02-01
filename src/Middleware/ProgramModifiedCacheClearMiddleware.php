@@ -106,12 +106,14 @@ SQL;
             $programUniqueId = $this->request->getParsedBody()['to_id'];
         }
 
-        $programUrl = $this->getProgramSubDomainAndDomain($programUniqueId);
+        if ($programUniqueId !== null) {
+            $programUrl = $this->getProgramSubDomainAndDomain($programUniqueId);
 
-        if (is_null($programUrl) === false) {
-            $url = strtolower($programUrl);
-            if ($this->getCacheService()->cachedItemExists($url) === true) {
-                $this->getCacheService()->clearItem($url);
+            if (is_null($programUrl) === false) {
+                $url = strtolower($programUrl);
+                if ($this->getCacheService()->cachedItemExists($url) === true) {
+                    $this->getCacheService()->clearItem($url);
+                }
             }
         }
     }
