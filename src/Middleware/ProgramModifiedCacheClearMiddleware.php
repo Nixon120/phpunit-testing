@@ -96,13 +96,17 @@ SQL;
 
     private function clearClientSiteCacheIfExists(): void
     {
-        /**
-         * @var Route $route
-         */
+        /** @var Route $route */
         $route = $this->request->getAttribute('route');
-        $programUrl = $this->getProgramSubDomainAndDomain(
-            $route->getArgument('id')
-        );
+        $programUniqueId = $route->getArgument('id', null);
+
+        //Need to check if this is a Clone request since no Program Id is sent as args
+        //if found use the to_id since that is being updated
+        if (strpos($this->request->getUri()->getPath(), 'clone') !== false) {
+            $programUniqueId = $this->request->getParsedBody()['to_id'];
+        }
+
+        $programUrl = $this->getProgramSubDomainAndDomain($programUniqueId);
 
         if (is_null($programUrl) === false) {
             $url = strtolower($programUrl);
