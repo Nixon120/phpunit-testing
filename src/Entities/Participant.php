@@ -207,6 +207,10 @@ class Participant extends \Entities\Base
      */
     public function getFirstname()
     {
+        if ($this->firstname === null) {
+            return '';
+        }
+
         return $this->firstname;
     }
 
@@ -223,6 +227,10 @@ class Participant extends \Entities\Base
      */
     public function getLastname()
     {
+        if ($this->lastname === null) {
+            return '';
+        }
+
         return $this->lastname;
     }
 

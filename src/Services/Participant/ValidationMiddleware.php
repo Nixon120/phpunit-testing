@@ -208,8 +208,8 @@ class ValidationMiddleware
 
             $context->optional('organization')->allowEmpty(false)->lengthBetween(2, 50)->string();
             $context->optional('program')->allowEmpty(false)->lengthBetween(2, 45);
-            $context->optional('firstname')->allowEmpty(false)->lengthBetween(1, 50);
-            $context->optional('lastname')->allowEmpty(false)->lengthBetween(1, 50);
+            $context->optional('firstname')->allowEmpty(true)->lengthBetween(1, 50);
+            $context->optional('lastname')->allowEmpty(true)->lengthBetween(1, 50);
             $context->optional('email_address')->allowEmpty(false)->email();
             $context->optional('birthdate')->datetime('Y-m-d');
             $context->optional('password_confirm')->callback(function ($value, $values) {
@@ -234,8 +234,8 @@ class ValidationMiddleware
             }
 
             $context->optional('organization')->allowEmpty(false)->lengthBetween(2, 50)->string();
-            $context->optional('firstname')->allowEmpty(false)->lengthBetween(1, 50);
-            $context->optional('lastname')->allowEmpty(false)->lengthBetween(1, 50);
+            $context->optional('firstname')->allowEmpty(true)->lengthBetween(1, 50);
+            $context->optional('lastname')->allowEmpty(true)->lengthBetween(1, 50);
             $context->optional('birthdate')->datetime('Y-m-d');
             if (isset($this->input['password']) === true) {
                 $context->optional('password_confirm')->equals($this->input['password']);
@@ -257,8 +257,8 @@ class ValidationMiddleware
             }
 
             $context->optional('organization')->allowEmpty(false)->lengthBetween(2, 50)->string();
-            $context->optional('firstname')->allowEmpty(false)->lengthBetween(1, 50);
-            $context->optional('lastname')->allowEmpty(false)->lengthBetween(1, 50);
+            $context->optional('firstname')->allowEmpty(true)->lengthBetween(1, 50);
+            $context->optional('lastname')->allowEmpty(true)->lengthBetween(1, 50);
             $context->optional('birthdate')->datetime('Y-m-d');
         });
     }
@@ -276,8 +276,8 @@ class ValidationMiddleware
             }
 
             $context->optional('organization')->allowEmpty(false)->lengthBetween(2, 50)->string();
-            $context->optional('firstname')->allowEmpty(false)->lengthBetween(1, 50);
-            $context->optional('lastname')->allowEmpty(false)->lengthBetween(1, 50);
+            $context->optional('firstname')->allowEmpty(true)->lengthBetween(1, 50);
+            $context->optional('lastname')->allowEmpty(true)->lengthBetween(1, 50);
             $context->optional('birthdate')->datetime('Y-m-d');
         });
     }
