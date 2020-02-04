@@ -56,6 +56,8 @@ class JsonView extends AbstractViewController
     {
         //@TODO move this to organization service
         $get = $this->request->getQueryParams();
+        $uniqueResultSet = !empty($get['unique']);
+
         if ($uniqueId === false && !empty($get['organization'])) {
             //@TODO check if org exist, throw error
             $uniqueId = $get['organization'];
@@ -66,7 +68,7 @@ class JsonView extends AbstractViewController
                 $this
                     ->factory
                     ->getOrganizationRepository()
-                    ->getOrganizationDomains($uniqueId)
+                    ->getOrganizationDomains($uniqueId, $uniqueResultSet)
             );
     }
 }

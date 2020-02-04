@@ -57,7 +57,7 @@
     "alldigitalrewards/rap": "^1.1",
     "mongodb/mongodb": "1.2.0",
     "particle/validator": "^2.3",
-    "alldigitalrewards/catalog-wrapper": "^1.3.0",
+    "alldigitalrewards/catalog-wrapper": "^1.6.0",
     "superbalist/flysystem-google-storage": "^6.0",
     "jojihere/monolog-fluent": "^1.0",
     "ramsey/uuid": "^3.7",

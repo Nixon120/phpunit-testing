@@ -66,11 +66,11 @@ SQL;
             $organization->setParent($this->getOrganization($organization->getParentId()));
         }
 
-        $organization->setDomains($this->getOrganizationDomains($organization->getUniqueId()));
+        $organization->setDomains($this->getOrganizationDomains($organization->getUniqueId(), false));
         return $organization;
     }
 
-    public function getOrganizationDomains($uniqueId):?array
+    public function getOrganizationDomains($uniqueId, $uniqueResultSet):?array
     {
         $sql = "SELECT * FROM `Domain`";
         $innerQuery = "SELECT parent.id FROM Organization node, Organization parent"
@@ -85,6 +85,24 @@ SQL;
         $sth->execute($args);
         $domains = $sth->fetchAll(PDO::FETCH_CLASS, Domain::class);
 
+        if ($uniqueResultSet === true && empty($domains) === false) {
+            $domains = $this->removeDuplicateModels($domains);
+        }
+
         return $domains;
+    }
+
+    /**
+     * @param Domain[] $domains
+     * @return array
+     */
+    private function removeDuplicateModels(array $domains)
+    {
+        $models = array_map(function ($domain) {
+            return $domain->getUrl();
+        }, $domains);
+        $uniqueModels = array_unique($models);
+
+        return array_values(array_intersect_key($domains, $uniqueModels));
     }
 }

@@ -21,10 +21,8 @@ services:
       - ./app/php-fpm.conf:/etc/php/7.2/fpm/php-fpm.conf
     expose:
       - 80
-    ports:
-      - 81:80
     environment:
-      XDEBUG_CONFIG: "remote_host=${XDEBUG_HOST}"
+      XDEBUG_CONFIG: "remote_host=${HOST_IP}"
       PHP_IDE_CONFIG: "serverName=admin"
       ENVIRONMENT: development
       MYSQL_ROOT_PASSWORD: 123
@@ -207,7 +205,7 @@ services:
     environment:
       ENVIRONMENT: development
       JWT_SECRET: password
-      XDEBUG_CONFIG: "remote_host=${XDEBUG_HOST}"
+      XDEBUG_CONFIG: "remote_host=${HOST_IP}"
       PHP_IDE_CONFIG: "serverName=transaction-email"
       LOG_HOST: fluentd
       LOG_PORT: "24224"
@@ -232,7 +230,6 @@ services:
       TRANSACTION_ITEM_CHANNEL: transaction-item
       CATALOG_URL: http://product.catalog
       PROGRAM_CONFIG_URL: http://admin/api/program
-      MYSQL_DB_PASSWORD: 123
       MYSQL_DB_HOST: admin-mysql
       MYSQL_DB_DATABASE: transaction-email
       MYSQL_DB_USERNAME: root
@@ -314,6 +311,25 @@ services:
       LOG_PORT: "24224"
     networks:
       - adrnet
+  redemption-campaigns-service:
+    image: gcr.io/green-talent-129607/redemption-campaign-service:latest
+    ports:
+    - "88:80"
+    environment:
+      JWT_SECRET: password
+      ENVIRONMENT: development
+      MYSQL_HOST: admin-mysql
+      MYSQL_DATABASE: rcs_admin
+      MYSQL_USERNAME: root
+      MYSQL_PASSWORD: 123
+      LOG_HOST: fluentd
+      LOG_PORT: "24224"
+      FILESYSTEM: local
+      PROGRAM_CONTENT_URL: program.content
+      GOOGLE_IMAGE_PATH: "https://storage.googleapis.com/adrcdn/programcontent"
+      GOOGLE_CDN_BUCKET: "adrcdn"
+    networks:
+    - adrnet
   report:
     image: gcr.io/green-talent-129607/report-api:latest
     expose:
