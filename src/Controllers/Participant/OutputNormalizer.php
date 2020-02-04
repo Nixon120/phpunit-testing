@@ -32,6 +32,9 @@ class OutputNormalizer extends AbstractOutputNormalizer
         $return['program'] = $participant->getProgram()->getUniqueId();
         $return['organization'] = $participant->getOrganization()->getUniqueId();
         $return['meta'] = $participant->getMeta();
+        $return['firstname'] = $participant->getFirstname();
+        $return['lastname'] = $participant->getLastname();
+
         $return = $this->scrub($return, [
             'address_reference',
             'password',
@@ -62,6 +65,9 @@ class OutputNormalizer extends AbstractOutputNormalizer
         $participantReturn['program_points'] = $participant->getProgram()->getPoint();
         $participantReturn['organization'] = $participant->getOrganization()->getUniqueId();
         $participantReturn['meta'] = $participant->getMeta();
+        $participantReturn['firstname'] = $participant->getFirstname();
+        $participantReturn['lastname'] = $participant->getLastname();
+
         $participantReturn = $this->scrub($participantReturn, [
             'address_reference',
             'password',
@@ -123,6 +129,9 @@ class OutputNormalizer extends AbstractOutputNormalizer
         $participantReturn['program'] = $participant->getProgram()->getUniqueId();
         $participantReturn['organization'] = $participant->getOrganization()->getUniqueId();
         $participantReturn['meta'] = $participant->getMeta();
+        $participantReturn['firstname'] = $participant->getFirstname();
+        $participantReturn['lastname'] = $participant->getLastname();
+
         $participantReturn = $this->scrub($participantReturn, [
             'address_reference',
             'password',
