@@ -98,7 +98,6 @@ abstract class AbstractOrganizationModel
             $this->buildCompanyContactEntity(
                 $data['company_contact']
             );
-
             unset($data['company_contact']);
         }
 
@@ -107,7 +106,6 @@ abstract class AbstractOrganizationModel
             $this->buildAccountsPayableContactEntity(
                 $data['accounts_payable_contact']
             );
-
             unset($data['accounts_payable_contact']);
         }
 
@@ -144,12 +142,13 @@ abstract class AbstractOrganizationModel
 
         unset($data['parent']);
 
+
         $this->organization->exchange($data);
     }
 
     protected function setExistingDomains()
     {
-        $orgDomains = $this->repository->getOrganizationDomains($this->organization->getUniqueId(), false);
+        $orgDomains = $this->repository->getOrganizationDomains($this->organization->getUniqueId());
         foreach ($orgDomains as $domain) {
             $this->existingDomains[] = $domain->url;
         }
