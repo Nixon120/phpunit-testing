@@ -54,6 +54,7 @@ class UpdateOrganizationModel extends AbstractOrganizationModel
     {
         // Fetch the existing Org from DB
         $this->organization = $this->getSingle($id);
+
         unset($data['parent'], $data['unique_id']);
 
         // Hydrate Entities with new data.
