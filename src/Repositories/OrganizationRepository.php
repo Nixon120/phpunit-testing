@@ -70,7 +70,7 @@ SQL;
         return $organization;
     }
 
-    public function getOrganizationDomains($uniqueId, $uniqueResultSet):?array
+    public function getOrganizationDomains($uniqueId, $uniqueResultSet = false):?array
     {
         $sql = "SELECT * FROM `Domain`";
         $innerQuery = "SELECT parent.id FROM Organization node, Organization parent"
