@@ -233,6 +233,7 @@ services:
       MYSQL_DB_HOST: admin-mysql
       MYSQL_DB_DATABASE: transaction-email
       MYSQL_DB_USERNAME: root
+      MYSQL_DB_PASSWORD: 123
     networks:
       - adrnet
   avs-service:
@@ -325,9 +326,24 @@ services:
       LOG_HOST: fluentd
       LOG_PORT: "24224"
       FILESYSTEM: local
-      PROGRAM_CONTENT_URL: program.content
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      PROGRAM_CONTENT_URL: http://program.content
       GOOGLE_IMAGE_PATH: "https://storage.googleapis.com/adrcdn/programcontent"
       GOOGLE_CDN_BUCKET: "adrcdn"
+      STACKDRIVER_KEYFILE: >
+        {
+          "type": "service_account",
+          "project_id": "green-talent-129607",
+          "private_key_id": "ccb27667ebdfa9d75271e90b83d8ce5c6ce22d4e",
+          "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDWatATVzPqTUqD\nmWSxZ6bmw1uyZHulPaOlcpJxckeoELxUKs3U258iubJm2g/eHE3iKuRjRxnSX9ge\nTnWCV7Ed+7xVSL15Ijl/VNjQnGmc+LMyJABYOSeLgZJk3abSntNHlnXJCUYuXMns\nqReWetnOGrpY7IpDXxh7nH6uIKh96VrA8mOZXw4dQPMfjZacC7e1BDwZkPja+nnO\nD28tBja1lXmkbwM0S6u8jAOHhMMIVj+kfHgwZdUtSI0GIlMimbyTBZQ0iWR/EtYy\nZxHH07/GTkso2w7iT8y4WaXygQg1Vc1q7Xr3OpwdTiOSsxS36FTZsZuloIQAjs+6\nLt94UXmjAgMBAAECggEAM2c9Bf34aLnp3L3H+Y3nYdhA4fYb/GPYGSBsAj2K9zw3\n4he268pRDtKk9epeNnnjpA5zXWecxaYLmkxl+H8Ma6s/ndSH9APj8+ZD6lMtMKAg\n2aru2Devhs7j6UGILmM8NKPaDf2msRO2pwFssbs2/yXCOfJPPVKNfIjqh9U1f6Wj\nHmIAfQzm9WxopiuhA2Ago6XGkNT7yIlev1eKPB+E//aQsVLBL9ajHeN71PS2n7gG\nr8bZsgZqauq3H55f9xXHqGPxqbffi01W3Y8unwfOmO1+WbNvUwb8Ka2/o8n7ajMb\nXwljAFwl39Yr3qSib/8oVVPhU2y+r+LPB1FKsNgMOQKBgQDzDOiIouGfYgy9P1Zb\nwKWLnbNeCSOkCRwV8WyM8zmYdzxQCMy/bVO3URAI99o4glB35rOZIy3p8ZvIqKax\nIvYTWxWaGlSEc881IwzZ8WUH83jLBZGuzQ6haamjxCUm3285JQjJ8jvh3YnK8U6v\nhANrCdM3rkJ06lnu8NNlW3ISawKBgQDh11yKUNtuapew6LVbcc4LgdRvtnGbSDEX\nwAUJSZmiAfh25j53D3h/TLQjz1dzGBooPIZ9pjtPFY+/RJYHAzx6ASPEE+A1VL4y\nTfXnBFVSdL504kDgsMpFLeO6XZWhWMrg6q0rdIo5Gs3CuwOb3cN9R3x0QU65gnRY\nA6z+pwgzqQKBgEiML9SpGcOjVr4ea76TcFaOSf3lqHfMKE/8cjRYXXa/EIerOMJi\n9bwgPDMRGFgJvc8sU6uALrJH5gItJSR2lREN/RK0jUnD77OitLFRNqD68bFYBjYx\nCw7vJS223IgP5XkfLtJotasjn3+uK5iERSjsE9no7/lKAnIp/E+izhflAoGBAKGq\niwIwc4QNJd1sGDcHtpmiLLJzhcvE1+/Kc1B8sU+53WUv2NNd7cIi5GkmCdHIFSFs\nglH750TriGVA8ay/clFb84BvQfarXSOhjz/6aCGIlLYTKKIvq/vtp7FHQM+pQkHT\nfHc5C6FpQJX/TcwL6d8Kh1qpTXOaoTJIH1SDuWlRAoGBAIJJ1FXCedMYX/H9uUDe\nMi5OBwkHvqOe86eq2xm3tlIYXs7uPw4hAI5qK+3EJ85z+UEFR/RQrESx2QIBIQTg\ni3jsm8tAGoB27h7Px0YR5fcL1kc4rxz3lK0GiCOWwrtQXR+cnc58bpn6HE2XtSIA\nM+hyDESZkrM9TVo9wB+bpczA\n-----END PRIVATE KEY-----\n",
+          "client_email": "sharecare-ssn-service-logger@green-talent-129607.iam.gserviceaccount.com",
+          "client_id": "107811350151032697607",
+          "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+          "token_uri": "https://oauth2.googleapis.com/token",
+          "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+          "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/sharecare-ssn-service-logger%40green-talent-129607.iam.gserviceaccount.com"
+        }
     networks:
     - adrnet
   report:
