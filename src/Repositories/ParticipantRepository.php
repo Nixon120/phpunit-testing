@@ -340,7 +340,10 @@ SQL;
                 $newMeta->setValue($value);
                 $newMeta->setParticipantId($participantId);
                 $newMeta->setUpdatedAt($date->format('Y-m-d H:i:s'));
-                $metaCollection[] = $newMeta;
+                // don't include meta that is null or empty string
+                if (!empty($value)) {
+                    $metaCollection[] = $newMeta;
+                }
             }
         }
 

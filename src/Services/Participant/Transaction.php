@@ -345,6 +345,8 @@ class Transaction
 
     public function updateSingleItemMeta($transactionId, $meta)
     {
+        // clear out any exisitng meta before replacing with new meta
+        $this->repository->deleteTransactionMeta($transactionId);
         $this->repository->saveTransactionMeta($transactionId, $meta);
     }
 

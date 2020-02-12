@@ -431,11 +431,21 @@ SQL;
                 $newMeta->setValue($value);
                 $newMeta->setTransactionId($transactionId);
                 $newMeta->setUpdatedAt($date->format('Y-m-d H:i:s'));
-                $metaCollection[] = $newMeta;
+                // don't include meta that is null or empty string
+                if (!empty($value)) {
+                    $metaCollection[] = $newMeta;
+                }
             }
         }
 
         return $this->setTransactionMeta($metaCollection);
+    }
+
+    public function deleteTransactionMeta($transactionId)
+    {
+        $sql = "DELETE FROM `TransactionMeta` WHERE transaction_id = ?";
+        $sth = $this->database->prepare($sql);
+        return $sth->execute([$transactionId]);
     }
 
     public function validate(\Entities\Transaction $transaction)

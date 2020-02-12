@@ -334,6 +334,7 @@ class Participant
 
         if ($this->repository->update($participant->getId(), $data)) {
             if ($meta !== null) {
+                $this->repository->deleteParticipantMeta($participant->getId());
                 $this->repository->saveMeta($participant->getId(), $meta);
             }
             return $this->repository->getParticipant($participant->getUniqueId());
