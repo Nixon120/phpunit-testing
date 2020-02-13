@@ -56,7 +56,8 @@ class ProgramModifiedCacheClearMiddleware
     }
 
     /**
-     * @return string|bool
+     * @param $unique_id
+     * @return mixed
      */
     private function getProgramSubDomainAndDomain($unique_id)
     {
@@ -107,9 +108,10 @@ SQL;
         }
 
         if ($programUniqueId !== null) {
-            $programUrl = $this->getProgramSubDomainAndDomain($programUniqueId);
+            $this->getCacheService()->cacheItem($programUniqueId, $programUniqueId . '_update');
 
-            if (is_null($programUrl) === false) {
+            $programUrl = $this->getProgramSubDomainAndDomain($programUniqueId);
+            if (empty($programUrl) === false) {
                 $url = strtolower($programUrl);
                 if ($this->getCacheService()->cachedItemExists($url) === true) {
                     $this->getCacheService()->clearItem($url);
