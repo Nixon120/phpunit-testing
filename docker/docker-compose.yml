@@ -209,7 +209,7 @@ services:
       PHP_IDE_CONFIG: "serverName=transaction-email"
       LOG_HOST: fluentd
       LOG_PORT: "24224"
-      AMQP_HOST: amqp
+      AMQP_HOST: admin-amqp
       AMQP_PORT: 5672
       AMQP_USERNAME: guest
       AMQP_PASSWORD: guest
@@ -366,7 +366,7 @@ services:
       TOKEN_ENDPOINT: "https://admin.adrqa.info/token"
       TOKEN_USERNAME: "test@alldigitalrewards.com"
       TOKEN_PASSWORD: "password"
-      AMQP_HOST: report-amqp
+      AMQP_HOST: admin-amqp
       AMQP_PORT: "5672"
       AMQP_USERNAME: guest
       AMQP_PASSWORD: guest

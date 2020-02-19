@@ -114,7 +114,9 @@ SQL;
             if (empty($programUrl) === false) {
                 $url = strtolower($programUrl);
                 if ($this->getCacheService()->cachedItemExists($url) === true) {
+                    //lets clear both here the site url and content key
                     $this->getCacheService()->clearItem($url);
+                    $this->getCacheService()->clearItem($url . '_content');
                 }
             }
         }
