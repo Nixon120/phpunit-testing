@@ -1,0 +1,38 @@
+#!/usr/bin/env php
+<?php
+require __DIR__ . "/../../cli-bootstrap.php";
+
+$host = getenv('MYSQL_HOST');
+$user = getenv('MYSQL_USERNAME');
+$pass = getenv('MYSQL_PASSWORD');
+$db = getenv('MYSQL_DATABASE');
+
+$dsn = "mysql:host=$host;dbname=$db;charset=utf8";
+$opt = [
+    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+    PDO::ATTR_EMULATE_PREPARES   => false,
+];
+
+$db = new PDO($dsn, $user, $pass, $opt);
+
+$sth = $db->query('SELECT DISTINCT `key` FROM participantmeta');
+$metaKeys = $sth->fetchAll();
+
+$metaKeySql = <<<SQL
+INSERT INTO `participant_meta_key` (`keyName`) VALUES
+SQL;
+
+$keyArgCollection = [];
+foreach ($metaKeys as $meta) {
+    $key = $meta['key'];
+    $keyArgCollection[] = "('{$key}')";
+}
+
+$metaKeySql .= implode(',', $keyArgCollection) . PHP_EOL . <<<SQL
+ON DUPLICATE KEY UPDATE
+    `keyName` = VALUES(`keyName`),
+    `updated_at` = NOW()
+SQL;
+
+$db->exec($metaKeySql);

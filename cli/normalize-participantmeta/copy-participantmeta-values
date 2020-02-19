@@ -1,0 +1,121 @@
+#!/usr/bin/env php
+<?php
+require __DIR__ . "/../../cli-bootstrap.php";
+require __DIR__ . "/PdoDb.php";
+$time_start = microtime(true);
+$totalRecords = 0;
+$chunkLimit = 20000;
+
+if (generateMetaValues() === true) {
+    echo PHP_EOL .
+        "For {$totalRecords} participant meta records, it took a total execution time in seconds of: " .
+        (microtime(true) - $time_start) . PHP_EOL . PHP_EOL;
+    exit;
+}
+
+function generateMetaValues(int $page = 1)
+{
+    global $chunkLimit, $totalRecords;
+
+    echo PHP_EOL . 'Importing page: ' . $page . PHP_EOL;
+    echo 'Memory Usage: ' . get_server_memory_usage() . PHP_EOL;
+    echo 'CPU Usage: ' . get_server_cpu_usage() . PHP_EOL;
+
+    $metaCollection = getMeta($page);
+    $metaCount = count($metaCollection);
+    if(empty($metaCollection)) {
+        // Just so happens the last result had just enough records for it to match chunk set.. Go ahead and return true
+        return true;
+    }
+
+    $totalRecords += count($metaCollection);
+    // Add all meta to new table
+    list($metaValueSql, $argCollection) = getMetaSql($metaCollection);
+    echo 'Page fetched, beginning import...' . PHP_EOL;
+    try {
+        $sth = PdoDb::getConnection()->prepare($metaValueSql);
+        $sth->execute($argCollection);
+    } catch(\PDOException $e) {
+        print_r($e->getMessage());
+        exit;
+    }
+
+    echo 'Page: ' . $page . ' complete' . PHP_EOL . PHP_EOL;
+
+    if ($metaCount < $chunkLimit) {
+        // That's all folks
+        return true;
+    }
+
+    // If meta is equal to 10000 or more, we probably have more to load...
+    // clean up, increment the page and re-run routine
+    unset($metaCollection);
+    $page = $page + 1;
+    return generateMetaValues($page);
+}
+
+function getMetaSql(array &$collection)
+{
+    $metaValueSql = <<<SQL
+INSERT INTO `participant_meta_value` (`participant_id`, `key_id`, `value`) VALUES
+SQL;
+
+    $metaValueSqlPlaceholders = [];
+    $keyArgCollection = [];
+    foreach ($collection as $meta) {
+        $metaValueSqlPlaceholders[] = "(?, ?, ?)";
+        $keyArgCollection[] = $meta['participant_id'];
+        $keyArgCollection[] = $meta['keyId'];
+        $keyArgCollection[] = $meta['value'];
+    }
+
+    $sql = $metaValueSql . PHP_EOL . implode(',', $metaValueSqlPlaceholders) . PHP_EOL . <<<SQL
+ON DUPLICATE KEY UPDATE
+    `participant_id` = VALUES(`participant_id`),
+    `key_id` = VALUES(`key_id`),
+    `value` = VALUES(`value`)
+SQL;
+
+    return [$sql, $keyArgCollection];
+}
+
+function getMeta(int $page = 1): array
+{
+    global $chunkLimit;
+    $limit = $chunkLimit;
+    $offset = $limit * ($page - 1);
+    $sql = <<<SQL
+SELECT 
+    participant_id,
+    (SELECT id FROM `participant_meta_key` WHERE `participant_meta_key`.`keyName` = `participantmeta`.`key`) as keyId, 
+    `participantmeta`.`value` 
+FROM participantmeta
+LIMIT {$limit} OFFSET {$offset}
+SQL;
+
+    echo "LIMIT {$limit} OFFSET {$offset} " . PHP_EOL;
+
+    $sth = PdoDb::getConnection()->query($sql);
+    return $sth->fetchAll();
+}
+
+
+function get_server_memory_usage(){
+
+    $free = shell_exec('free');
+    $free = (string)trim($free);
+    $free_arr = explode("\n", $free);
+    $mem = explode(" ", $free_arr[1]);
+    $mem = array_filter($mem);
+    $mem = array_merge($mem);
+    $memory_usage = $mem[2]/$mem[1]*100;
+
+    return $memory_usage;
+}
+
+function get_server_cpu_usage(){
+
+    $load = sys_getloadavg();
+    return $load[0];
+
+}

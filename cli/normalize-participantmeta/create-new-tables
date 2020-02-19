@@ -1,0 +1,45 @@
+#!/usr/bin/env php
+<?php
+require __DIR__ . "/../../cli-bootstrap.php";
+
+$host = getenv('MYSQL_HOST');
+$user = getenv('MYSQL_USERNAME');
+$pass = getenv('MYSQL_PASSWORD');
+$db = getenv('MYSQL_DATABASE');
+
+$dsn = "mysql:host=$host;dbname=$db;charset=utf8";
+$opt = [
+    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+    PDO::ATTR_EMULATE_PREPARES => false,
+];
+
+$db = new PDO($dsn, $user, $pass, $opt);
+
+$createParticipantMetaTablesSql = <<<SQL
+CREATE TABLE IF NOT EXISTS `participant_meta_key` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `keyName` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `participantMetaKeyName` (`keyName`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `participant_meta_value` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `participant_id` int(11) NOT NULL,
+  `key_id` int(11) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `value` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UQIndexUserMetaKey` (`participant_id`,`key_id`),
+  KEY `IndexParticipantMetaKeyId` (`key_id`),
+  KEY `IndexParticipantMetaParticipantId` (`participant_id`),
+  CONSTRAINT `FK_MetaParticipantId` FOREIGN KEY (`participant_id`) REFERENCES `participant` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
+  CONSTRAINT `FK_MetaKeyId` FOREIGN KEY (`key_id`) REFERENCES `participant_meta_key` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+SQL;
+
+$db->exec($createParticipantMetaTablesSql);
