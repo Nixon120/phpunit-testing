@@ -9,7 +9,9 @@ class ParticipantMeta extends Base
 
     public $participant_id;
 
-    public $key;
+    public $key_id;
+
+    private $key;
 
     public $value;
 
@@ -36,6 +38,22 @@ class ParticipantMeta extends Base
     public function setParticipantId($id)
     {
         $this->participant_id = $id;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getKeyId()
+    {
+        return $this->key_id;
+    }
+
+    /**
+     * @param mixed $keyId
+     */
+    public function setKeyId($keyId): void
+    {
+        $this->key_id = $keyId;
     }
 
     /**
