@@ -123,7 +123,9 @@ class Program
             $data['programTypes'] = $collection;
         }
 
-        $data['end_date'] = $this->calculateEndDate($data);
+        if(isset($data['end_date'])) {
+            $data['end_date'] = $this->calculateEndDate($data);
+        }
 
         unset($data['organization'], $data['auto_redemption'], $data['contact'], $data['accounting_contact']);
         $this->program->exchange($data);
@@ -247,7 +249,6 @@ class Program
             // At least one entity failed to validate.
             return false;
         }
-
 
         $this->updateEntities();
         return $this->repository->getProgram($this->program->getUniqueId());
