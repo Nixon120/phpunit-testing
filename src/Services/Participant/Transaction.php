@@ -4,12 +4,10 @@ namespace Services\Participant;
 
 use AllDigitalRewards\AMQP\MessagePublisher;
 use AllDigitalRewards\RewardStack\Traits\MetaValidationTrait;
-use AllDigitalRewards\Services\Catalog\Entity\InventoryApproveRequest;
 use AllDigitalRewards\Services\Catalog\Entity\InventoryHoldRequest;
 use Entities\Adjustment;
 use Entities\Event;
 use Entities\TransactionItem;
-use Entities\TransactionMeta;
 use Entities\TransactionProduct;
 use Ramsey\Uuid\Uuid;
 use Repositories\BalanceRepository;

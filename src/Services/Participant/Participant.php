@@ -4,7 +4,6 @@ namespace Services\Participant;
 
 use AllDigitalRewards\RewardStack\Traits\MetaValidationTrait;
 use Controllers\Interfaces as Interfaces;
-use Entities\ParticipantMeta;
 use Repositories\ParticipantRepository;
 
 class Participant
