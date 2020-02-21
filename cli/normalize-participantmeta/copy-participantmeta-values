@@ -6,24 +6,37 @@ $time_start = microtime(true);
 $totalRecords = 0;
 $chunkLimit = 20000;
 
-if (generateMetaValues() === true) {
-    echo PHP_EOL .
-        "For {$totalRecords} participant meta records, it took a total execution time in seconds of: " .
-        (microtime(true) - $time_start) . PHP_EOL . PHP_EOL;
-    exit;
+// If you pass an argument to the script, it will use it as the page to start on.
+// We page through meta by id asc, so the higher the page, the newer the record.
+// this will allow us to run the script with an argument somewhere around 3500 (the amount of pages the
+// meta has currently) and just grab the newest records post code deploy. <3
+$page = $argv[1] ?? 1;
+
+// 10000 is arbitrary here, the current page count at this chunk size is like ~3500 or something (65,000,000 / 20,000)
+// as soon as generate meta realizes it's completed the paging, it will return true, rather then false, and break
+// the for loop. It's kinda janky, but I had recursion and it didn't want to work, so.. sorry :D
+for ($i = $page; $i < 10000; $i++) {
+    if (generateMetaValues($i) === true) {
+        break;
+    }
 }
+
+echo PHP_EOL .
+    "For {$totalRecords} participant meta records, it took a total execution time in seconds of: " .
+    (microtime(true) - $time_start) . PHP_EOL . PHP_EOL;
+exit;
 
 function generateMetaValues(int $page = 1)
 {
     global $chunkLimit, $totalRecords;
 
     echo PHP_EOL . 'Importing page: ' . $page . PHP_EOL;
-    echo 'Memory Usage: ' . get_server_memory_usage() . PHP_EOL;
-    echo 'CPU Usage: ' . get_server_cpu_usage() . PHP_EOL;
+    echo 'Memory Usage: ' . getServerMemoryUsage() . PHP_EOL;
+    echo 'CPU Usage: ' . getServerCpuUsage() . PHP_EOL;
 
     $metaCollection = getMeta($page);
     $metaCount = count($metaCollection);
-    if(empty($metaCollection)) {
+    if (empty($metaCollection)) {
         // Just so happens the last result had just enough records for it to match chunk set.. Go ahead and return true
         return true;
     }
@@ -35,7 +48,7 @@ function generateMetaValues(int $page = 1)
     try {
         $sth = PdoDb::getConnection()->prepare($metaValueSql);
         $sth->execute($argCollection);
-    } catch(\PDOException $e) {
+    } catch (\PDOException $e) {
         print_r($e->getMessage());
         exit;
     }
@@ -50,8 +63,7 @@ function generateMetaValues(int $page = 1)
     // If meta is equal to 10000 or more, we probably have more to load...
     // clean up, increment the page and re-run routine
     unset($metaCollection);
-    $page = $page + 1;
-    return generateMetaValues($page);
+    return false;
 }
 
 function getMetaSql(array &$collection)
@@ -63,6 +75,10 @@ SQL;
     $metaValueSqlPlaceholders = [];
     $keyArgCollection = [];
     foreach ($collection as $meta) {
+        if (trim($meta['value']) === "") {
+            continue;
+        }
+
         $metaValueSqlPlaceholders[] = "(?, ?, ?)";
         $keyArgCollection[] = $meta['participant_id'];
         $keyArgCollection[] = $meta['keyId'];
@@ -90,6 +106,7 @@ SELECT
     (SELECT id FROM `participant_meta_key` WHERE `participant_meta_key`.`keyName` = `participantmeta`.`key`) as keyId, 
     `participantmeta`.`value` 
 FROM participantmeta
+ORDER BY id ASC
 LIMIT {$limit} OFFSET {$offset}
 SQL;
 
@@ -99,23 +116,21 @@ SQL;
     return $sth->fetchAll();
 }
 
-
-function get_server_memory_usage(){
-
+function getServerMemoryUsage()
+{
     $free = shell_exec('free');
     $free = (string)trim($free);
     $free_arr = explode("\n", $free);
     $mem = explode(" ", $free_arr[1]);
     $mem = array_filter($mem);
     $mem = array_merge($mem);
-    $memory_usage = $mem[2]/$mem[1]*100;
+    $memory_usage = $mem[2] / $mem[1] * 100;
 
     return $memory_usage;
 }
 
-function get_server_cpu_usage(){
-
+function getServerCpuUsage()
+{
     $load = sys_getloadavg();
     return $load[0];
-
 }

@@ -7,6 +7,12 @@ class PdoDb
      */
     protected static $pdo = null;
 
+    public static function resetConnection()
+    {
+        self::$pdo = null;
+        self::init();
+    }
+
     /**
      * @return PDO
      */
