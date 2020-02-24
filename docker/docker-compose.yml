@@ -22,7 +22,7 @@ services:
     expose:
       - 80
     environment:
-      XDEBUG_CONFIG: "remote_host=${HOST_IP}"
+      XDEBUG_CONFIG: "remote_host=host.docker.internal"
       PHP_IDE_CONFIG: "serverName=admin"
       ENVIRONMENT: development
       MYSQL_ROOT_PASSWORD: 123
@@ -32,7 +32,7 @@ services:
       MYSQL_PASSWORD: 123
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      RA_ENDPOINT: "${RA_ENDPOINT}"
+      RA_ENDPOINT: "https://ra.staging.alldigitalrewards.com/api/"
       RA_USERNAME: claim
       RA_PASSWORD: claim
       JWT_SECRET: password
@@ -63,7 +63,7 @@ services:
   admin-mysql:
     image: mariadb:10.2
     ports:
-      - "${ADMIN_MYSQL_PORT}:3306"
+      - "3306:3306"
     expose:
       - 3306
     volumes:
@@ -80,7 +80,7 @@ services:
   admin-amqp:
       image: rabbitmq:3-management
       ports:
-        - "${ADMIN_AMQP_PORT}:15672"
+        - "15672:15672"
       expose:
         - 5672
       networks:
@@ -205,7 +205,7 @@ services:
     environment:
       ENVIRONMENT: development
       JWT_SECRET: password
-      XDEBUG_CONFIG: "remote_host=${HOST_IP}"
+      XDEBUG_CONFIG: "remote_host=host.docker.internal"
       PHP_IDE_CONFIG: "serverName=transaction-email"
       LOG_HOST: fluentd
       LOG_PORT: "24224"
