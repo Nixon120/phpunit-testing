@@ -1,12 +1,4 @@
 #!/usr/bin/env bash
-
-export ADMIN_PORT=${ADMIN_PORT:-80}
-export ADMIN_AMQP_PORT=${ADMIN_AMQP_PORT:-15672}
-export ADMIN_MYSQL_PORT=${ADMIN_MYSQL_PORT:-3306}
-export NG_ADMIN_PORT=${NG_ADMIN_PORT:-81}
-export RA_ENDPOINT=${RA_ENDPOINT:-"https://ra.staging.alldigitalrewards.com/api/"}
-export HOST_IP=${HOST_IP:-`ifconfig -a | grep inet | grep 0xffffff00 | cut -d\  -f2 | head -n 1`}
-
 TTY=""
 
 ## CI sends BUILD_NUMBER env variable.
