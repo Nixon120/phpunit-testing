@@ -146,7 +146,7 @@ SQL;
         //@TODO try / catch
         foreach ($metaCollection as $meta) {
             /** @var ParticipantMeta $meta */
-            if ($meta->getValue() === null) {
+            if ($meta->getValue() === null || trim($meta->getValue()) === "") {
                 //purge
                 if (!$this->deleteMetaByParticipantAndKey($meta->getParticipantId(), $meta->getKeyId())) {
                     return false;
