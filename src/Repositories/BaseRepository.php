@@ -199,6 +199,16 @@ abstract class BaseRepository implements Repository
         return $row;
     }
 
+    public function getOrderBy(): string
+    {
+        return $this->orderBy;
+    }
+
+    public function setOrderBy(string $orderBy) 
+    {
+        $this->orderBy = $orderBy;
+    }
+
     public function getCollection(
         FilterNormalizer $filters = null,
         $offset = 30,

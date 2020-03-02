@@ -46,4 +46,48 @@ abstract class AbstractInputNormalizer implements InputNormalizer
     {
         return $this->offset;
     }
+
+    /**
+     * Returns SQL for an array of potential sorts
+     * 
+     * @param array $sorts
+     * A list-type array containing dictionary-type entries,
+     *  each of which represents a single ORDER BY statement
+     * 
+     * @return string
+     * - An empty string, if nothing specified
+     * - An untrimmed (leading space) ORDER BY query statement
+     * 
+     * @example
+     * $sorts: array(array('column': 'name'), array('column': 'favoriteColor', 'direction': 'desc'));
+     * return: ' ORDER BY name ASC, favoriteColor DESC'
+     */
+    private function convertSortToOrderBy(array $sorts) : string
+    {
+        if (!$sorts || !count($sorts)) {
+            return '';
+        }
+        $statements = array();
+        foreach($sorts as $f) {
+            $statement = $f['column'] . ' ';
+            if (isset($sorts['direction'])) { // todo: figure out how query is escaped
+                $statement .= $sorts['direction'];
+            } else {
+                $statement .= 'ASC';
+            }
+            $statements[] = $statement;
+        }
+        return (
+            ' ORDER BY ' .
+            implode(', ', $statements)
+        );
+    }
+
+    public function getOrderBy(): string
+    {
+        if (!isset($this->input['sort'])) {
+            return '';
+        }
+        return $this->convertSortToOrderBy(json_decode($this->input['sort'], true));
+    }
 }
