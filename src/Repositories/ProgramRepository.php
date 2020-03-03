@@ -123,6 +123,14 @@ SQL;
         return $this->hydrateProgram($program);
     }
 
+    private function getParticipantMetaKeyIdByKeyName(string $keyName)
+    {
+        $sql = "SELECT `participant_meta_key`.`id` FROM `participant_meta_key` WHERE `keyName` = ?";
+        $sth = $this->getDatabase()->prepare($sql);
+        $sth->execute([$keyName]);
+        return $sth->fetchColumn(1);
+    }
+
     public function getCreditAdjustmentsByMeta($input)
     {
         $page = $input['page'] ?? 1;
@@ -132,16 +140,21 @@ SQL;
         $key = $input['meta_key'];
         $value = $input['meta_value'];
         $program = $input['program'];
+        $keyId = $this->getParticipantMetaKeyIdByKeyName($key);
+        if(empty($keyId)) {
+            throw new \Exception('Unable to find meta key: ' . $key);
+        }
 
         $sql = <<<SQL
 SELECT *
 FROM Adjustment
 WHERE Adjustment.participant_id IN (
-  SELECT ParticipantMeta.participant_id
-  FROM ParticipantMeta
-  LEFT JOIN Participant ON Participant.id = ParticipantMeta.participant_id
-  WHERE ParticipantMeta.`key` = '$key' AND ParticipantMeta.value = '$value'
-   AND Participant.program_id = $program
+  SELECT `participant_meta_value`.`participant_id`
+  FROM `participant_meta_value`
+  LEFT JOIN Participant ON Participant.id = `participant_meta_value`.`participant_id`
+  WHERE Participant.program_id = {$program}
+    AND `participant_meta_value`.`key_id` = '{$keyId}' 
+    AND `participant_meta_value`.`value` = '{$value}'
 )
 AND Adjustment.reference IS NOT NULL 
 {$paginationSql}

@@ -128,27 +128,27 @@ SQL;
 
     public function deleteParticipantMeta($participantId)
     {
-        $sql = "DELETE FROM `ParticipantMeta` WHERE participant_id = ?";
+        $sql = "DELETE FROM `participant_meta_value` WHERE participant_id = ?";
         $sth = $this->database->prepare($sql);
         return $sth->execute([$participantId]);
     }
 
-    private function deleteMetaByParticipantAndKey($participantId, $key)
+    private function deleteMetaByParticipantAndKey($participantId, $keyId)
     {
-        $sql = "DELETE FROM `ParticipantMeta` WHERE participant_id = ? AND `key` = ?";
+        $sql = "DELETE FROM `participant_meta_value` WHERE participant_id = ? AND `key_id` = ?";
         $sth = $this->database->prepare($sql);
-        return $sth->execute([$participantId, $key]);
+        return $sth->execute([$participantId, $keyId]);
     }
 
     public function setParticipantMeta($metaCollection): bool
     {
-        $this->table = 'ParticipantMeta';
+        $this->table = 'participant_meta_value';
         //@TODO try / catch
         foreach ($metaCollection as $meta) {
             /** @var ParticipantMeta $meta */
-            if ($meta->getValue() === null) {
+            if ($meta->getValue() === null || trim($meta->getValue()) === "") {
                 //purge
-                if (!$this->deleteMetaByParticipantAndKey($meta->getParticipantId(), $meta->getKey())) {
+                if (!$this->deleteMetaByParticipantAndKey($meta->getParticipantId(), $meta->getKeyId())) {
                     return false;
                 }
             } else {
@@ -163,7 +163,13 @@ SQL;
 
     public function getParticipantMeta($participantId)
     {
-        $sql = "SELECT * FROM `ParticipantMeta` WHERE participant_id = ?";
+        $sql = <<<SQL
+SELECT `participant_meta_key`.`keyName` as `key`, `participant_meta_value`.* 
+FROM `participant_meta_value` 
+LEFT JOIN `participant_meta_key` ON `participant_meta_value`.`key_id` = `participant_meta_key`.id
+WHERE participant_id = ?
+SQL;
+
         $args = [$participantId];
         $sth = $this->database->prepare($sql);
         $sth->execute($args);
@@ -335,8 +341,9 @@ SQL;
         $date = new \DateTime;
         foreach ($meta as $item) {
             foreach ($item as $key => $value) {
+                $metaKeyId = $this->getMetaKey($key);
                 $newMeta = new ParticipantMeta;
-                $newMeta->setKey($key);
+                $newMeta->setKeyId($metaKeyId);
                 $newMeta->setValue($value);
                 $newMeta->setParticipantId($participantId);
                 $newMeta->setUpdatedAt($date->format('Y-m-d H:i:s'));
@@ -345,5 +352,21 @@ SQL;
         }
 
         return $this->setParticipantMeta($metaCollection);
+    }
+
+    private function getMetaKey(string $keyName)
+    {
+        $sql = "SELECT `participant_meta_key`.`id` FROM `participant_meta_key` WHERE `keyName` = ?";
+        $sth = $this->getDatabase()->prepare($sql);
+        $sth->execute([$keyName]);
+        $keyId = $sth->fetchColumn(0);
+        if(empty($keyId)) {
+            $sql = "INSERT INTO `participant_meta_key` (`keyName`) VALUES (?)";
+            $sth = $this->getDatabase()->prepare($sql);
+            $sth->execute([$keyName]);
+            $keyId = $this->getDatabase()->lastInsertId();
+        }
+
+        return $keyId;
     }
 }

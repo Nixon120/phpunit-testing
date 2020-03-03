@@ -173,11 +173,24 @@ SQL;
         //@TODO try / catch
         foreach ($metaCollection as $meta) {
             /** @var TransactionMeta $meta */
-            if (!$this->place($meta)) {
-                return false;
+            if ($meta->getValue() === null || trim($meta->getValue()) === "") {
+                if (!$this->deleteMetaByTransactionAndKey($meta->getTransactionId(), $meta->getKey())) {
+                    return false;
+                }
+            } else {
+                if (!$this->place($meta)) {
+                    return false;
+                }
             }
         }
         $this->table = 'Transaction';
+    }
+
+    private function deleteMetaByTransactionAndKey($transactionId, $keyId)
+    {
+        $sql = "DELETE FROM `TransactionMeta` WHERE transaction_id = ? AND `key` = ?";
+        $sth = $this->database->prepare($sql);
+        return $sth->execute([$transactionId, $keyId]);
     }
 
     public function getTransactionMeta($transactionId)
