@@ -33,7 +33,7 @@ class ProgramCanceller
                 $this->repository->cancelProgram($program->getUniqueId());
 
                 //set this for services looking for parent program update
-                $this->cacheService->cacheItem($program->getUniqueId(), $program->getUniqueId() . '_update');
+                $this->cacheService->cacheItem($program->getUniqueId(), $program->getUniqueId() . '_expired');
 
                 //need to clear cache if exists
                 $programUrl = $this->getProgramSubDomainAndDomain($program->getUniqueId());
