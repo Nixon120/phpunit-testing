@@ -1,0 +1,7 @@
+#!/usr/bin/env php
+<?php
+require __DIR__ . "/../cli-bootstrap.php";
+/** @var \Slim\Container $container */
+
+$processor = new \Services\Participant\TransactionRefundProcessor($container);
+$processor->processPendingRefundRequests();
