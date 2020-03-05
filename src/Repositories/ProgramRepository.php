@@ -128,7 +128,7 @@ SQL;
         $sql = "SELECT `participant_meta_key`.`id` FROM `participant_meta_key` WHERE `keyName` = ?";
         $sth = $this->getDatabase()->prepare($sql);
         $sth->execute([$keyName]);
-        return $sth->fetchColumn(1);
+        return $sth->fetchColumn(0);
     }
 
     public function getCreditAdjustmentsByMeta($input)
