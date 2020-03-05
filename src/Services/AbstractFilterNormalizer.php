@@ -32,6 +32,18 @@ abstract class AbstractFilterNormalizer implements FilterNormalizer
         }
     }
 
+    public function getOrderBy(): ?array
+    {
+        if(empty($this->input['orderBy']) || empty($this->input['orderBy']['field']) || empty($this->input['orderBy']['direction'])) {
+            return null;
+        }
+
+        // we can pretty easily extend to support multiple ordering..
+        return [
+            $this->input['orderBy']['field'] => $this->input['orderBy']['direction']
+        ];
+    }
+
     private function getFilterMethod($filter)
     {
         return "get" . str_replace(' ', '', ucwords(str_replace('_', ' ', $filter))) . 'Filter';
@@ -40,6 +52,7 @@ abstract class AbstractFilterNormalizer implements FilterNormalizer
     public function getFilterConditionSql():?string
     {
         $input = $this->getInput();
+        unset($input['orderBy']);
         if (!empty($input)) {
             $query = "";
 
@@ -64,6 +77,7 @@ abstract class AbstractFilterNormalizer implements FilterNormalizer
     public function getFilterConditionArgs():?array
     {
         $input = $this->getInput();
+        unset($input['orderBy']);
         $args = null;
         if (!empty($input)) {
             $args = [];

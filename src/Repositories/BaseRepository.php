@@ -46,6 +46,37 @@ abstract class BaseRepository implements Repository
     }
 
     /**
+     * @return mixed
+     */
+    public function getOrderBySql()
+    {
+        if($this->getOrderBy() === null) {
+            return "";
+        }
+
+        $safeColumnName = $this->getSafeColumnName($this->getOrderBy()['column']);
+        return "ORDER BY {$safeColumnName} {$this->getOrderBy()['direction']}";
+    }
+
+    /**
+     * @param mixed $orderBy
+     */
+    public function setOrderBy($column, $order): void
+    {
+        $direction = strtolower($order) !== 'asc' ? 'DESC' : 'ASC';
+
+        $this->orderBy = [
+            'column' => $column,
+            'direction' => $direction
+        ];
+    }
+
+    public function getOrderBy(): ?array
+    {
+        return $this->orderBy;
+    }
+
+    /**
      * @return array
      */
     public function getProgramIdContainer(): array
@@ -216,8 +247,10 @@ abstract class BaseRepository implements Repository
             $sql .= $this->groupBy;
         }
 
-        if ($this->orderBy !== null) {
-            $sql .= $this->orderBy;
+        if($filters->getOrderBy() !== null) {
+            $column = (string) key($filters->getOrderBy());
+            $this->setOrderBy($column, $filters->getOrderBy()[$column]);
+            $sql .= $this->getOrderBySql();
         }
 
         $sql .= " LIMIT " . $limit . " OFFSET " . $offset;
@@ -225,7 +258,6 @@ abstract class BaseRepository implements Repository
         if ($filters !== null) {
             $args = $filters->getFilterConditionArgs();
         }
-
         $sth = $this->database->prepare($sql);
         $sth->execute($args);
 
@@ -239,5 +271,25 @@ abstract class BaseRepository implements Repository
     {
         $string = "SELECT * FROM " . $this->table;
         return $string;
+    }
+
+    private function getSafeColumnName(string $column): ?string
+    {
+        $sql = <<<SQL
+SELECT column_name, ordinal_position 
+FROM information_schema.columns 
+WHERE table_name = '{$this->table}'
+SQL;
+
+        $sth = $this->getDatabase()->query($sql);
+        $columnResult = $sth->fetchAll();
+        foreach($columnResult as $result) {
+            if(strtolower($result['column_name']) === strtolower($column)) {
+                return (string) $result['column_name'];
+            }
+        }
+
+        // throw exception
+        die('broken');
     }
 }
