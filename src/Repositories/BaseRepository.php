@@ -297,6 +297,6 @@ SQL;
         }
 
         // throw exception
-        die('broken');
+        throw new \Exception('Unable to find field: ' . $column . ' to sort by');
     }
 }
