@@ -8,6 +8,8 @@ use AllDigitalRewards\Services\Catalog\Entity\InventoryHoldRequest;
 use Entities\Adjustment;
 use Entities\Event;
 use Entities\TransactionItem;
+use Entities\TransactionItemRefund;
+use Entities\TransactionMeta;
 use Entities\TransactionProduct;
 use Ramsey\Uuid\Uuid;
 use Repositories\BalanceRepository;
@@ -48,7 +50,8 @@ class Transaction
         ParticipantRepository $participantRepository,
         BalanceRepository $balanceRepository,
         MessagePublisher $eventPublisher
-    ) {
+    )
+    {
         $this->repository = $repository;
         $this->participantRepository = $participantRepository;
         $this->balanceRepository = $balanceRepository;
@@ -63,6 +66,23 @@ class Transaction
         return $this->repository;
     }
 
+    /**
+     * @param int $transactionId
+     * @param int $transactionItemId
+     * @param string|null $notes
+     * @return bool
+     * @throws \Exception
+     */
+    public function initiateRefund(int $transactionId, int $transactionItemId, ?string $notes): bool
+    {
+        $transactionRefund = new TransactionItemRefund;
+        $transactionRefund->setTransactionId($transactionId);
+        $transactionRefund->setTransactionItemId($transactionItemId);
+        $transactionRefund->setNotes($notes);
+
+        // Create refund item
+        \        return $this->repository->createTransactionItemRefund($transactionRefund);
+    }
 
     /**
      * @param \Entities\Transaction $transaction
@@ -72,7 +92,8 @@ class Transaction
     private function addTransactionItems(
         \Entities\Transaction $transaction,
         array $data
-    ) {
+    )
+    {
         $products = $data['products'] ?? null;
         $skuContainer = array_column($products, 'sku');
         $this->requestedProductContainer = $this->repository->getProducts(
@@ -100,7 +121,7 @@ class Transaction
                             $transactionProduct->getValidationErrors(),
                             $transactionItem->getValidationErrors()
                         );
-                        
+
                         throw new TransactionServiceException(implode(', ', $errors));
                     }
 
@@ -141,7 +162,8 @@ class Transaction
     public function insertParticipantTransaction(
         \Entities\Participant $participant,
         $data
-    ) {
+    )
+    {
         $shipping = $data['shipping'] ?? null;
         $meta = $data['meta'] ?? null;
         $products = $data['products'] ?? null;
@@ -258,7 +280,8 @@ class Transaction
         $organization,
         $uniqueId,
         $data
-    ): ?\Entities\Transaction {
+    ): ?\Entities\Transaction
+    {
         $participant = $this
             ->participantRepository
             ->getParticipantByOrganization(
@@ -285,7 +308,8 @@ class Transaction
         $description = null,
         $reference = null,
         $completed_at = null
-    ) {
+    )
+    {
         $pointConversion = $participant->getProgram()->getPoint();
         $pointTotal = $total * $pointConversion;
         $adjustment = new Adjustment($participant);
@@ -324,7 +348,8 @@ class Transaction
 
     public function getTransactionOrganization(
         \Entities\Transaction $transaction
-    ) {
+    )
+    {
 
         return $this
             ->repository
@@ -336,7 +361,12 @@ class Transaction
         return $this->repository->getParticipantTransaction($participant, $transactionId);
     }
 
-    public function getSingleItem($guid)
+    public function getTransactionItemByTransactionIdAndGuid(int $transactionId, string $guid): ?array
+    {
+        return $this->repository->getParticipantTransactionItemByTransactionIdAndGuid($transactionId, $guid);
+    }
+
+    public function getSingleItem($guid): ?array
     {
         return $this->repository->getParticipantTransactionItem($guid);
     }
