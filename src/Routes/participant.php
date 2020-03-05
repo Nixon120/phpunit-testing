@@ -80,6 +80,8 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
         return $transaction->patchMeta($auth->getUser()->getOrganizationId(), $args['id'], $args['transaction_id']);
     });
 
+    $app->post('/{id}/transaction/{transaction_id}/refund/{item_guid}', Controllers\TransactionRefund::class);
+
     $app->get('/{id}/transaction/{transaction_id}/{item_guid}', function ($request, $response, $args) {
         $transaction = new Controllers\Transaction($request, $response, $this->get('participant'));
         $uniqueId = $args['id'];
