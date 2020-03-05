@@ -38,10 +38,20 @@ abstract class AbstractFilterNormalizer implements FilterNormalizer
             return null;
         }
 
-        // we can pretty easily extend to support multiple ordering..
-        return [
-            $this->input['orderBy']['field'] => $this->input['orderBy']['direction']
-        ];
+        if(is_array($this->input['orderBy']['field']) === false) {
+            // Only one sort field request
+            return [
+                $this->input['orderBy']['field'] => $this->input['orderBy']['direction']
+            ];
+        }
+
+        $returnOrderByCollection = [];
+
+        foreach($this->input['orderBy']['field'] as $key => $field) {
+            $returnOrderByCollection[$field] = $this->input['orderBy']['direction'][$key];
+        }
+
+        return $returnOrderByCollection;
     }
 
     private function getFilterMethod($filter)

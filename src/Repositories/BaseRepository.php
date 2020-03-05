@@ -53,22 +53,29 @@ abstract class BaseRepository implements Repository
         if($this->getOrderBy() === null) {
             return "";
         }
-
-        $safeColumnName = $this->getSafeColumnName($this->getOrderBy()['column']);
-        return "ORDER BY {$safeColumnName} {$this->getOrderBy()['direction']}";
+        foreach($this->getOrderBy() as $orderBy) {
+            $orderByCollection[] = "`{$orderBy['column']}` {$orderBy['direction']}";
+        }
+        $orderBySql = implode(',', $orderByCollection);
+        return <<<SQL
+ ORDER BY {$orderBySql}
+SQL;
     }
 
     /**
      * @param mixed $orderBy
      */
-    public function setOrderBy($column, $order): void
+    public function setOrderBy(array $orderBy): void
     {
-        $direction = strtolower($order) !== 'asc' ? 'DESC' : 'ASC';
+        $collection = [];
+        foreach($orderBy as $key => $order) {
+            $collection[] = [
+                'column' => $this->getSafeColumnName($key),
+                'direction' => strtolower($order) !== 'asc' ? 'DESC' : 'ASC'
+            ];
+        }
 
-        $this->orderBy = [
-            'column' => $column,
-            'direction' => $direction
-        ];
+        $this->orderBy = $collection;
     }
 
     public function getOrderBy(): ?array
@@ -248,8 +255,7 @@ abstract class BaseRepository implements Repository
         }
 
         if($filters->getOrderBy() !== null) {
-            $column = (string) key($filters->getOrderBy());
-            $this->setOrderBy($column, $filters->getOrderBy()[$column]);
+            $this->setOrderBy($filters->getOrderBy());
             $sql .= $this->getOrderBySql();
         }
 
@@ -258,6 +264,7 @@ abstract class BaseRepository implements Repository
         if ($filters !== null) {
             $args = $filters->getFilterConditionArgs();
         }
+
         $sth = $this->database->prepare($sql);
         $sth->execute($args);
 
