@@ -46,6 +46,44 @@ abstract class BaseRepository implements Repository
     }
 
     /**
+     * @return mixed
+     */
+    public function getOrderBySql()
+    {
+        if($this->getOrderBy() === null) {
+            return "";
+        }
+        foreach($this->getOrderBy() as $orderBy) {
+            $orderByCollection[] = "`{$orderBy['column']}` {$orderBy['direction']}";
+        }
+        $orderBySql = implode(',', $orderByCollection);
+        return <<<SQL
+ ORDER BY {$orderBySql}
+SQL;
+    }
+
+    /**
+     * @param mixed $orderBy
+     */
+    public function setOrderBy(array $orderBy): void
+    {
+        $collection = [];
+        foreach($orderBy as $key => $order) {
+            $collection[] = [
+                'column' => $this->getSafeColumnName($key),
+                'direction' => strtolower($order) !== 'asc' ? 'DESC' : 'ASC'
+            ];
+        }
+
+        $this->orderBy = $collection;
+    }
+
+    public function getOrderBy(): ?array
+    {
+        return $this->orderBy;
+    }
+
+    /**
      * @return array
      */
     public function getProgramIdContainer(): array
@@ -216,8 +254,9 @@ abstract class BaseRepository implements Repository
             $sql .= $this->groupBy;
         }
 
-        if ($this->orderBy !== null) {
-            $sql .= $this->orderBy;
+        if($filters->getOrderBy() !== null) {
+            $this->setOrderBy($filters->getOrderBy());
+            $sql .= $this->getOrderBySql();
         }
 
         $sql .= " LIMIT " . $limit . " OFFSET " . $offset;
@@ -239,5 +278,25 @@ abstract class BaseRepository implements Repository
     {
         $string = "SELECT * FROM " . $this->table;
         return $string;
+    }
+
+    private function getSafeColumnName(string $column): ?string
+    {
+        $sql = <<<SQL
+SELECT column_name, ordinal_position 
+FROM information_schema.columns 
+WHERE table_name = '{$this->table}'
+SQL;
+
+        $sth = $this->getDatabase()->query($sql);
+        $columnResult = $sth->fetchAll();
+        foreach($columnResult as $result) {
+            if(strtolower($result['column_name']) === strtolower($column)) {
+                return (string) $result['column_name'];
+            }
+        }
+
+        // throw exception
+        throw new \Exception('Unable to find field: ' . $column . ' to sort by');
     }
 }

@@ -7,6 +7,8 @@ interface FilterNormalizer
 
     public function setInput(?array $input);
 
+    public function getOrderBy(): ?array;
+
     public function getFilterConditionSql():?string;
 
     public function getFilterConditionArgs():?array;
