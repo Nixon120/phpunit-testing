@@ -78,7 +78,7 @@ SQL;
             . " AND node.unique_id = ?"
             . " ORDER BY parent.rgt - parent.lft DESC";
 
-        $sql .= " WHERE organization_id IN (" . $innerQuery . ")";
+        $sql .= " WHERE organization_id IN (" . $innerQuery . ") ORDER BY `Domain`.url ASC";
         $args = [$uniqueId];
 
         $sth = $this->database->prepare($sql);
