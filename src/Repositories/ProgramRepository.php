@@ -195,6 +195,7 @@ SQL;
 SELECT * 
 FROM ProgramType
 WHERE id IN (SELECT program_type_id FROM ProgramToProgramType WHERE ProgramToProgramType.program_id = ?)
+ORDER BY `ProgramType`.name ASC
 SQL;
 
         $args = [$program->getId()];
@@ -743,24 +744,6 @@ SQL;
         }
 
         return $this->hydrateLayoutRowContainer($layout);
-    }
-
-    /**
-     * @param Program $program
-     * @return Faqs[]
-     */
-    public function getProgramFaqs(Program $program)
-    {
-        $sql = "SELECT * FROM `Faqs` WHERE program_id = ?";
-        $args = [$program->getUniqueId()];
-        $sth = $this->database->prepare($sql);
-        $sth->execute($args);
-        $faqs = $sth->fetchAll(PDO::FETCH_CLASS, Faqs::class);
-        if (!$faqs) {
-            return null;
-        }
-
-        return $faqs;
     }
 
     /**

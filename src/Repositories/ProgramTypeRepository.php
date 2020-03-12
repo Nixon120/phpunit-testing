@@ -30,6 +30,7 @@ class ProgramTypeRepository extends BaseRepository
 SELECT ProgramType.* 
 FROM ProgramType
 {$where}
+ORDER BY `ProgramType`.name ASC
 SQL;
 
         return $sql;
