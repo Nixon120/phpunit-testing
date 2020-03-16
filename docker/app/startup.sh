@@ -14,6 +14,11 @@ php /var/www/html/vendor/robmorgan/phinx/bin/phinx migrate -c /var/www/html/phin
 # Temporary migration for the webhook log mongo migrations
 php /var/www/html/cli/migrate-mongo.php
 
+if [ "$ENVIRONMENT" = "development" ]
+then
+   php /var/www/html/cli/normalize-participantmeta/create-new-tables
+fi
+
 # Tail the application log
 tail -f /var/www/html/logs/app.log &
 
