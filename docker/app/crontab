@@ -3,7 +3,7 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 BASH_ENV=/container.env
 
 * * * * * /bin/bash /var/www/html/cli/cron.sh event-consumer.php
-/1 * * * * /bin/bash /var/www/html/cli/cron.sh autoredemption-scheduler
+*/1 * * * * /bin/bash /var/www/html/cli/cron.sh autoredemption-scheduler
 0 2,14 * * * /bin/bash /var/www/html/cli/cron.sh sweepstake-drawing
 * * * * * /bin/bash /var/www/html/cli/cron.sh program-canceller
 0 3 * * * /bin/bash /var/www/html/cli/cron.sh onetime-autoredemption-runner
