@@ -54,7 +54,7 @@ class TransactionRefund
      */
     public function getTransactionService(): \Services\Participant\Transaction
     {
-        if($this->transactionService === null) {
+        if ($this->transactionService === null) {
             $this->transactionService = $this->getContainer()->get('participant')->getTransactionService();
         }
 
@@ -74,43 +74,49 @@ class TransactionRefund
         $this->request = $request;
         $this->response = $response;
 
-        $transactionId = $args['transaction_id'] ?? null;
-        $transactionItemGuid = $args['item_guid'] ?? null;
+        $guid = $args['item_guid'] ?? null;
 
-        $item = $this->getTransactionService()->getTransactionItemByTransactionIdAndGuid($transactionId, $transactionItemGuid);
-
+        $item = $this->getTransactionService()->getSingleItem($guid);
         if ($item === null) {
-            return $this->returnJson(404, ['Resource does not exist']);
+            return $this->response = $this->response->withJson(404, ['Resource does not exist']);
         }
 
-        $transactionItemId = $item['id'];
+        if ($this->request->isPost()) {
+            return $this->issueRefundRequest($item);
+        }
+
+        return $this->getRefundRequest($guid);
+    }
+
+    private function getRefundRequest($guid)
+    {
+        $refund = $this->getTransactionService()->getRefundByGuid($guid);
+        if ($refund === null) {
+            return $this->response = $this->response->withJson(['Resource does not exist'], 404);
+        }
+
+        $aRefund = $refund->toArray();
+        $aRefund['item'] = $refund->getItem();
+        unset($aRefund['transaction_id'], $aRefund['transaction_item_id']);
+
+        return $this->response = $this->response->withJson($aRefund, 200);
+    }
+
+    private function issueRefundRequest(array $item)
+    {
         $notes = $this->request->getParsedBody()['notes'] ?? null;
 
         try {
-            $success = $this->getTransactionService()->initiateRefund($transactionId, $transactionItemId, $notes);
+            $success = $this->getTransactionService()->initiateRefund($item, $notes);
 
             if ($success === true) {
-                return $this->returnJson(201);
+                return $this->response = $this->response->withStatus(201);
             }
             $message = 'There was a problem with your request';
         } catch (\Exception $e) {
             $message = $e->getMessage();
         }
 
-        return $this->returnJson(400, [
-            'errors' => [
-                $message
-            ]
-        ]);
-    }
-
-    private function returnJson($statusCode, ?array $return = null)
-    {
-        $this->response = $this->response->withStatus($statusCode);
-        if($return !== null && !empty($return)) {
-            $this->response = $this->response->withJson($return);
-        }
-
-        return $this->response;
+        return $this->response = $this->response->withJson([$message], 400);
     }
 }
