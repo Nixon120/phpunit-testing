@@ -43,6 +43,8 @@ class TransactionProduct extends Base implements Validateable
 
     private $reissue_date;
 
+    private $refunded = 0;
+
     /**
      * TransactionProduct constructor.
      * @param Product $product
@@ -64,7 +66,7 @@ class TransactionProduct extends Base implements Validateable
                 'description' => $product->getDescription(),
                 'terms' => $product->getTerms(),
                 'type' => $product->isDigital()?1:0,
-                'category' => $product->getCategory() !== null ? $product->getCategory()->getName() : "Other"
+                'category' => $product->getCategory() !== null ? $product->getCategory()->getName() : "Other",
             ]);
             if ($product instanceof Product && $product->isPriceRanged()) {
                 $this->setRetail($amount);
@@ -333,6 +335,22 @@ class TransactionProduct extends Base implements Validateable
     public function setReissueDate($reissue_date): void
     {
         $this->reissue_date = $reissue_date;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isRefunded(): bool
+    {
+        return (int)$this->refunded === 1;
+    }
+
+    /**
+     * @param int $refunded
+     */
+    public function setRefunded(int $refunded): void
+    {
+        $this->refunded = $refunded;
     }
 
     public function isValid(): bool
