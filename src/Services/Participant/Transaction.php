@@ -67,21 +67,53 @@ class Transaction
     }
 
     /**
-     * @param int $transactionId
-     * @param int $transactionItemId
+     * @param array $item
      * @param string|null $notes
      * @return bool
      * @throws \Exception
      */
-    public function initiateRefund(int $transactionId, int $transactionItemId, ?string $notes): bool
+    public function initiateRefund(array $item, ?string $notes): bool
     {
+        $guid = $item['guid'];
+        $transactionId = $item['transaction_id'];
+        $transactionItemId = $item['id'];
+
+        $refund = $this->getRefundByGuid($guid);
+        if($refund !== null) {
+            return true;
+        }
+
         $transactionRefund = new TransactionItemRefund;
         $transactionRefund->setTransactionId($transactionId);
         $transactionRefund->setTransactionItemId($transactionItemId);
         $transactionRefund->setNotes($notes);
 
         // Create refund item
-        \        return $this->repository->createTransactionItemRefund($transactionRefund);
+        return $this->repository->createTransactionItemRefund($transactionRefund);
+    }
+
+    public function getRefundByGuid($guid): ?TransactionItemRefund
+    {
+        $refund = $this->repository->getTransactionItemRefund($guid);
+        if($refund === null) {
+            return null;
+        }
+
+        $item = $this->getSingleItem($guid);
+        $refund->setItem($item);
+        return $refund;
+    }
+
+    public function getRefundById(int $refundId): ?TransactionItemRefund
+    {
+        $refund = $this->repository->getTransactionItemRefundById($refundId);
+        if($refund === null) {
+            throw new \Exception('Unable to locate refund');
+        }
+
+        $item = $this->getSingleItemById($refund->getTransactionItemId());
+        $refund->setItem($item);
+        return $refund;
     }
 
     /**
@@ -300,7 +332,7 @@ class Transaction
         return $this->insertParticipantTransaction($participant, $data);
     }
 
-    private function adjustPoints(
+    public function adjustPoints(
         \Entities\Participant $participant,
         $type,
         $total,
@@ -308,7 +340,7 @@ class Transaction
         $description = null,
         $reference = null,
         $completed_at = null
-    )
+    ): ?Adjustment
     {
         $pointConversion = $participant->getProgram()->getPoint();
         $pointTotal = $total * $pointConversion;
@@ -339,6 +371,8 @@ class Transaction
 
             return $adjustment;
         }
+
+        return null;
     }
 
     public function get(\Entities\Participant $participant, $transactionUniqueIds = null, $year = null)
@@ -361,14 +395,14 @@ class Transaction
         return $this->repository->getParticipantTransaction($participant, $transactionId);
     }
 
-    public function getTransactionItemByTransactionIdAndGuid(int $transactionId, string $guid): ?array
-    {
-        return $this->repository->getParticipantTransactionItemByTransactionIdAndGuid($transactionId, $guid);
-    }
-
     public function getSingleItem($guid): ?array
     {
         return $this->repository->getParticipantTransactionItem($guid);
+    }
+
+    public function getSingleItemById(int $id): ?array
+    {
+        return $this->repository->getParticipantTransactionItemById($id);
     }
 
     public function updateSingleItemMeta($transactionId, $meta)
