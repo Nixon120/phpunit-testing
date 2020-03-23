@@ -2,11 +2,8 @@
 
 namespace Services\Participant;
 
-use AllDigitalRewards\RewardStack\Client;
-use AllDigitalRewards\RewardStack\Common\AbstractCollectionApiResponse;
-use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\Exception\ServerException;
-use \PDO as PDO;
+use Entities\Event;
+use Events\EventPublisherFactory;
 use Slim\Container;
 
 class TransactionRefundProcessor
@@ -20,6 +17,11 @@ class TransactionRefundProcessor
      * @var \Services\Participant\Transaction
      */
     private $transactionService;
+
+    /**
+     * @var Participant
+     */
+    private $participantService;
 
     public function __construct(Container $container)
     {
@@ -40,6 +42,18 @@ class TransactionRefundProcessor
     public function setContainer(Container $container): void
     {
         $this->container = $container;
+    }
+
+    /**
+     * @return Participant
+     */
+    public function getParticipantService(): Participant
+    {
+        if($this->participantService === null) {
+            $this->participantService = $this->getContainer()->get('participant')->getService();
+        }
+
+        return $this->participantService;
     }
 
     /**
@@ -65,29 +79,16 @@ class TransactionRefundProcessor
         foreach($pendingCollection as $refund) {
             if($this->issueRefund($refund) === false) {
                 // Report incomplete refund issuance and continue
-                die('yep');
+                // Refund failed, so what now?
+                exit(1);
             }
+
+            $this->setRefundAsProcessed($refund['id']);
+            $this->publishRefundWebhookEvent($refund['id']);
         }
 
         return true;
     }
-
-    private function getRewardStackClient(): Client
-    {
-        $credentials = new \AllDigitalRewards\RewardStack\Auth\Credentials(
-            'test@alldigitalrewards.com',
-            'password'
-        );
-
-        $uri = new \GuzzleHttp\Psr7\Uri('http://localhost');
-
-        $httpClient = new \GuzzleHttp\Client();
-
-        $authProxy = new \AllDigitalRewards\RewardStack\Auth\AuthProxy($credentials, $uri, $httpClient);
-
-        return new \AllDigitalRewards\RewardStack\Client($authProxy);
-    }
-
 
     private function issueRefund(array $refund): bool
     {
@@ -96,26 +97,39 @@ class TransactionRefundProcessor
         return $success;
     }
 
+    private function setRefundAsProcessed(int $refundId)
+    {
+        $this->getDatabase()->query(<<<SQL
+UPDATE transaction_item_refund SET complete = 1 WHERE id = {$refundId} 
+SQL
+        );
+    }
+
+    private function publishRefundWebhookEvent($refundId)
+    {
+        $event = new Event();
+        $event->setName('TransactionItemRefundWebhook.create');
+        $event->setEntityId($refundId);
+        $this->getEventPublisher()->publish(json_encode($event));
+    }
+
+    private function getEventPublisher()
+    {
+        $eventPublisherFactory = new EventPublisherFactory($this->container);
+        return $eventPublisherFactory();
+    }
+
     private function issueCreditAdjustment(array $refund): bool
     {
-        $createAdjustmentsRequest = new \AllDigitalRewards\RewardStack\Adjustment\CreateAdjustmentRequest(
-            $refund['participant_unique_id'],
+        $participant = $this->getParticipantService()->getSingle($refund['participant_unique_id']);
+        return $this->getTransactionService()->adjustPoints(
+            $participant,
             'credit',
-            bcmul($refund['total_refund_amount'], $refund['program_point_value'], 2),
-            'Refund for GUID: ' . $refund['guid']
-        );
-
-        try {
-            /**
-             * @var AbstractCollectionApiResponse $createAdjustmentsResponse
-             */
-            $createAdjustmentsResponse = $this->getRewardStackClient()->request($createAdjustmentsRequest);
-            return true;
-        } catch(ClientException $e) {
-            return false;
-        } catch(ServerException $e) {
-            return false;
-        }
+            $refund['total_refund_amount'],
+            $refund['transaction_id'],
+            'Refund',
+            $refund['guid']
+        ) !== null;
     }
 
     private function getPendingRefunds(): array
@@ -125,6 +139,7 @@ SELECT
     (SELECT program.point FROM program WHERE program.id = participant.program_id) as program_point_value,
     participant.unique_id as participant_unique_id, 
     ((transactionproduct.retail + transactionproduct.handling + transactionproduct.shipping) * transactionitem.quantity) as total_refund_amount,
+    transactionitem.transaction_id,
     transactionitem.guid,
     transaction_item_refund.* 
 FROM transaction_item_refund 

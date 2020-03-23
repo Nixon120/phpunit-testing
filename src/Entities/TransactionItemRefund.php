@@ -10,6 +10,8 @@ class TransactionItemRefund extends Base
 
     public $notes;
 
+    private $item;
+
     /**
      * @return mixed
      */
@@ -56,5 +58,21 @@ class TransactionItemRefund extends Base
     public function setNotes($notes): void
     {
         $this->notes = $notes;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getItem()
+    {
+        return $this->item;
+    }
+
+    /**
+     * @param mixed $item
+     */
+    public function setItem($item): void
+    {
+        $this->item = $item;
     }
 }
