@@ -160,6 +160,31 @@ SQL;
         return true;
     }
 
+    /**
+     * @param $guid
+     * @return TransactionItemRefund|null
+     */
+    public function getTransactionItemRefund($guid):?TransactionItemRefund
+    {
+        $sql = <<<SQL
+SELECT * 
+FROM transaction_item_refund 
+WHERE transaction_item_id = (SELECT id FROM TransactionItem WHERE TransactionItem.guid = ?)
+SQL;
+
+        return $this->query($sql, [$guid], TransactionItemRefund::class);
+    }
+
+    /**
+     * @param int $refundId
+     * @return mixed|null
+     */
+    public function getTransactionItemRefundById(int $refundId):?TransactionItemRefund
+    {
+        $sql = "SELECT * FROM transaction_item_refund WHERE id = ?";
+        return $this->query($sql, [$refundId], TransactionItemRefund::class);
+    }
+
     public function addTransaction(Transaction $transaction)
     {
         $this->table = 'Transaction';
@@ -331,16 +356,18 @@ SQL;
         return null;
     }
 
-    public function getParticipantTransactionItemByTransactionIdAndGuid(int $transactionId, string $guid): ?array
+
+    public function getParticipantTransactionItemById(int $id): ?array
     {
         $sql = <<<SQL
-SELECT transactionitem.*
+SELECT TransactionItem.quantity, TransactionItem.guid, TransactionItem.transaction_id, TransactionProduct.vendor_code as sku
 FROM `TransactionItem`
-WHERE TransactionItem.transaction_id = ? AND TransactionItem.guid = ?
+JOIN TransactionProduct ON TransactionProduct.reference_id = TransactionItem.reference_id
+WHERE TransactionItem.id = ?
 SQL;
 
         $sth = $this->database->prepare($sql);
-        $sth->execute([$transactionId, $guid]);
+        $sth->execute([$id]);
         $sth->setFetchMode(\PDO::FETCH_ASSOC);
         if ($item = $sth->fetch()) {
             return $item;
@@ -352,7 +379,12 @@ SQL;
     public function getParticipantTransactionItem($guid): ?array
     {
         $sql = <<<SQL
-SELECT TransactionItem.quantity, TransactionItem.guid, TransactionItem.transaction_id, TransactionProduct.vendor_code as sku
+SELECT 
+    TransactionItem.id, 
+    TransactionItem.quantity, 
+    TransactionItem.guid, 
+    TransactionItem.transaction_id, 
+    TransactionProduct.vendor_code as sku
 FROM `TransactionItem`
 JOIN TransactionProduct ON TransactionProduct.reference_id = TransactionItem.reference_id
 WHERE TransactionItem.guid = ?
@@ -417,9 +449,18 @@ SQL;
 
     private function getParticipantTransactionProducts($transactionId): ?array
     {
-        $sql = "SELECT TransactionProduct.*, TransactionItem.quantity, TransactionItem.guid, TransactionItem.reissue_date  FROM `TransactionItem`"
-            . " JOIN TransactionProduct ON TransactionProduct.reference_id = TransactionItem.reference_id"
-            . " WHERE TransactionItem.transaction_id = ?";
+        $sql = <<<SQL
+SELECT 
+    TransactionProduct.*, 
+    TransactionItem.quantity, 
+    TransactionItem.guid, 
+    TransactionItem.reissue_date,
+    (transaction_item_refund.id IS NOT NULL) as refunded
+FROM `TransactionItem`
+JOIN TransactionProduct ON TransactionProduct.reference_id = TransactionItem.reference_id
+LEFT JOIN transaction_item_refund on TransactionItem.id = transaction_item_refund.transaction_item_id
+WHERE TransactionItem.transaction_id = ?
+SQL;
 
         $sth = $this->database->prepare($sql);
         $sth->execute([$transactionId]);
@@ -551,9 +592,12 @@ SQL;
     {
         $items = $this->getParticipantTransactionProducts($transaction->getId());
         foreach ($items as $item) {
+
             /** @var TransactionProduct $item */
+            $aItem = $item->toArray();
             $transactionProduct = new TransactionProduct;
-            $transactionProduct->exchange($item->toArray());
+            $transactionProduct->exchange($aItem);
+            $transactionProduct->setRefunded($item->isRefunded() ? 1:0);
             $transactionItem = new TransactionItem;
             $transactionItem->setQuantity($item->getQuantity());
             $transactionItem->setTransactionId($transaction->getId());
