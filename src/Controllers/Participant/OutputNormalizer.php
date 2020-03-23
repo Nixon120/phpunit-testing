@@ -121,6 +121,7 @@ class OutputNormalizer extends AbstractOutputNormalizer
                 'points' => $points,
                 'guid' => $item->getGuid(),
                 'reissue_date' => $item->getReissueDate(),
+                'refunded' => $product->isRefunded()
             ];
         }
 
