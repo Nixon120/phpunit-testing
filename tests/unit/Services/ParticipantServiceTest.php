@@ -10,12 +10,12 @@ class ParticipantServiceTest extends AbstractParticipantServiceTest
         $sthMock = $this->getPdoStatementMock();
 
         $this->getMockDatabase()
-            ->expects($this->exactly(26))
+            ->expects($this->exactly(28))
             ->method('prepare')
             ->with($this->isType('string'))
             ->will($this->returnValue($sthMock));
 
-        $sthMock->expects($this->exactly(26))
+        $sthMock->expects($this->exactly(28))
             ->method('execute')
             ->with($this->isType('array'));
 
@@ -93,7 +93,7 @@ class ParticipantServiceTest extends AbstractParticipantServiceTest
         $sthMock = $this->getPdoStatementMock();
 
         $this->getMockDatabase()
-            ->expects($this->exactly(25))
+            ->expects($this->exactly(27))
             ->method('prepare')
             ->with($this->isType('string'))
             ->will($this->returnValue($sthMock));
@@ -107,7 +107,7 @@ class ParticipantServiceTest extends AbstractParticipantServiceTest
             ->method('commit')
             ->will($this->returnValue(true));
 
-        $sthMock->expects($this->exactly(25))
+        $sthMock->expects($this->exactly(27))
             ->method('execute')
             ->with($this->isType('array'));
 
