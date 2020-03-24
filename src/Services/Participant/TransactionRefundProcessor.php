@@ -122,12 +122,17 @@ SQL
     private function issueCreditAdjustment(array $refund): bool
     {
         $participant = $this->getParticipantService()->getSingle($refund['participant_unique_id']);
+        $description = 'Refund';
+        if(!empty(trim($refund['notes']))) {
+            $description .= ': ' . $refund['notes'];
+        }
+
         return $this->getTransactionService()->adjustPoints(
             $participant,
             'credit',
             $refund['total_refund_amount'],
             $refund['transaction_id'],
-            'Refund',
+            $description,
             $refund['guid']
         ) !== null;
     }
