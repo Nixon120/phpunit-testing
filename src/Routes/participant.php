@@ -80,7 +80,7 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
         return $transaction->patchMeta($auth->getUser()->getOrganizationId(), $args['id'], $args['transaction_id']);
     });
 
-    $app->post('/{id}/transaction/{transaction_id}/refund/{item_guid}', Controllers\TransactionRefund::class);
+    $app->map(['post','get'], '/{id}/transaction/{transaction_id}/refund/{item_guid}', Controllers\TransactionRefund::class);
 
     $app->get('/{id}/transaction/{transaction_id}/{item_guid}', function ($request, $response, $args) {
         $transaction = new Controllers\Transaction($request, $response, $this->get('participant'));
@@ -157,9 +157,11 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
     });
 });
 
+$app->map(['post','get'], '/api/participant/{id}/transaction/{transaction_id}/refund/{item_guid}', Controllers\TransactionRefund::class);
+
 $app->group('/api/participant', function () use ($app, $createRoute, $updateRoute) {
     // Create
-    $app->post('', $createRoute);
+    $app->post('', $createRoute)->add(Services\Participant\ValidationMiddleware::class);
 
     // List
     $app->get('', function ($request, $response) {
@@ -175,7 +177,7 @@ $app->group('/api/participant', function () use ($app, $createRoute, $updateRout
     });
 
     // Update
-    $app->put('/{id}', $updateRoute);
+    $app->put('/{id}', $updateRoute)->add(Services\Participant\ValidationMiddleware::class);
 
     $app->put('/{id}/meta', Controllers\UpdateMeta::class);
     $app->patch('/{id}/meta', Controllers\PatchMeta::class);
@@ -222,4 +224,4 @@ $app->group('/api/participant', function () use ($app, $createRoute, $updateRout
             $itemGuid
         );
     });
-})->add(Services\Participant\ValidationMiddleware::class);
+});
