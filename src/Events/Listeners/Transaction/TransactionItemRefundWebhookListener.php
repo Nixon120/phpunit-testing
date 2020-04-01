@@ -67,6 +67,11 @@ class TransactionItemRefundWebhookListener extends AbstractListener
                     'TransactionItemRefundWebhook.create'
                 );
 
+            $item = $refund->getItem();
+            $refund = $refund->toArray();
+            $refund['item'] = $item;
+            $refund['participant'] = $this->scrubParticipant($participant);
+            unset($refund['id']);
             // Iterate thru the webhooks & execute.
             foreach ($webhooks as $webhook) {
                 $this->executeWebhook($webhook, $refund);
@@ -78,20 +83,38 @@ class TransactionItemRefundWebhookListener extends AbstractListener
         return true;
     }
 
+    private function scrubParticipant(\Entities\Participant $participant)
+    {
+        $program = $participant->getProgram()->getUniqueId();
+        $organization = $participant->getOrganization()->getUniqueId();
+        $address = $participant->getAddress();
+        if(!empty($address)) {
+            $address = $address->toArray();
+            unset($address['participant_id'], $address['id'], $address['reference_id']);
+        }
+        $meta = $participant->getMeta();
+        $participant = $participant->toArray();
+        $participant['program'] = $program;
+        $participant['organization'] = $organization;
+        $participant['address'] = $address;
+        $participant['meta'] = $meta;
+        unset($participant['program_id'], $participant['organization_id'], $participant['sso'], $participant['password'], $participant['id'], $participant['address_reference']);
+        return $participant;
+    }
+
     private function executeWebhook(
         Webhook $webhook,
-        TransactionItemRefund $refund
+        array $refund
     )
     {
-        $data = $refund->toArray();
-        unset($data['id']);
         // This is where we use a Webhook publishing service.
         $webhookPublisher = new WebhookPublisherService();
-        $webhookPublisher->publish($webhook, $data);
+        $webhookPublisher->publish($webhook, $refund);
     }
 
     /**
-     * @return \Entities\TransactionItemRefund|null
+     * @return TransactionItemRefund|null
+     * @throws \Exception
      */
     private function getTransactionItemRefund()
     {
