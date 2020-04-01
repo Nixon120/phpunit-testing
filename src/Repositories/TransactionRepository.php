@@ -12,6 +12,7 @@ use Entities\TransactionItemRefund;
 use Entities\TransactionMeta;
 use Entities\TransactionProduct;
 use Entities\Participant;
+use Entities\User;
 use Factories\AuthenticationTokenFactory;
 use \PDO as PDO;
 use Respect\Validation\Exceptions\NestedValidationException;
@@ -172,8 +173,27 @@ FROM transaction_item_refund
 WHERE transaction_item_id = (SELECT id FROM TransactionItem WHERE TransactionItem.guid = ?)
 SQL;
 
-        return $this->query($sql, [$guid], TransactionItemRefund::class);
+        /** @var TransactionItemRefund $refund */
+        $refund = $this->query($sql, [$guid], TransactionItemRefund::class);
+
+        if($refund !== null) {
+            $refund->setUser($this->getUser($refund->getUserId()));
+        }
+
+        return $refund;
     }
+
+    private function getUser($userId): ?User
+    {
+        $sql = "SELECT * FROM `User` WHERE id = ?";
+
+        if (!$user = $this->query($sql, [$userId], User::class)) {
+            return null;
+        }
+
+        return $user;
+    }
+
 
     /**
      * @param int $refundId

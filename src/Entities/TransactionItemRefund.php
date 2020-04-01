@@ -4,6 +4,13 @@ namespace Entities;
 
 class TransactionItemRefund extends Base
 {
+    public $user_id;
+
+    /**
+     * @var User
+     */
+    private $user;
+
     public $transaction_id;
 
     public $transaction_item_id;
@@ -11,6 +18,38 @@ class TransactionItemRefund extends Base
     public $notes;
 
     private $item;
+
+    /**
+     * @return mixed
+     */
+    public function getUserId()
+    {
+        return $this->user_id;
+    }
+
+    /**
+     * @param mixed $user_id
+     */
+    public function setUserId($user_id): void
+    {
+        $this->user_id = $user_id;
+    }
+
+    /**
+     * @return User
+     */
+    public function getUser(): User
+    {
+        return $this->user;
+    }
+
+    /**
+     * @param User $user
+     */
+    public function setUser(User $user): void
+    {
+        $this->user = $user;
+    }
 
     /**
      * @return mixed

@@ -2,6 +2,8 @@
 
 namespace Controllers\Participant;
 
+use Entities\User;
+use Services\Authentication\Authenticate;
 use Slim\Container;
 use Slim\Http\Request;
 use Slim\Http\Response;
@@ -49,6 +51,13 @@ class TransactionRefund
         $this->container = $container;
     }
 
+    public function getAuthUser():?User
+    {
+        /** @var Authenticate $auth */
+        $auth = $this->getContainer()->get('authentication');
+        return $auth->getUser();
+    }
+
     /**
      * @return mixed
      */
@@ -91,14 +100,18 @@ class TransactionRefund
     private function getRefundRequest($guid)
     {
         $refund = $this->getTransactionService()->getRefundByGuid($guid);
+
         if ($refund === null) {
             return $this->response = $this->response->withJson(['Resource does not exist'], 404);
         }
 
+        $aUser = $refund->getUser()->toArray();
         $aRefund = $refund->toArray();
-        $aRefund['item'] = $refund->getItem();
-        unset($aRefund['transaction_id'], $aRefund['transaction_item_id']);
 
+        unset($aUser['password'], $aUser['invite_token'], $aUser['organization_id']);
+        $aRefund['item'] = $refund->getItem();
+        $aRefund['user'] = $aUser;
+        unset($aRefund['transaction_id'], $aRefund['transaction_item_id']);
         return $this->response = $this->response->withJson($aRefund, 200);
     }
 
@@ -107,7 +120,7 @@ class TransactionRefund
         $notes = $this->request->getParsedBody()['notes'] ?? null;
 
         try {
-            $success = $this->getTransactionService()->initiateRefund($item, $notes);
+            $success = $this->getTransactionService()->initiateRefund($this->getAuthUser(), $item, $notes);
 
             if ($success === true) {
                 return $this->response = $this->response->withStatus(201);

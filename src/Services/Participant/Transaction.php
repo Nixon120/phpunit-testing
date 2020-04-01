@@ -9,8 +9,8 @@ use Entities\Adjustment;
 use Entities\Event;
 use Entities\TransactionItem;
 use Entities\TransactionItemRefund;
-use Entities\TransactionMeta;
 use Entities\TransactionProduct;
+use Entities\User;
 use Ramsey\Uuid\Uuid;
 use Repositories\BalanceRepository;
 use Repositories\TransactionRepository;
@@ -67,13 +67,17 @@ class Transaction
     }
 
     /**
+     * @param User|null $user
      * @param array $item
      * @param string|null $notes
      * @return bool
      * @throws \Exception
      */
-    public function initiateRefund(array $item, ?string $notes): bool
+    public function initiateRefund(?User $user, array $item, ?string $notes): bool
     {
+        if($user === null) {
+            throw new \Exception('Unable to find requesting user');
+        }
         $guid = $item['guid'];
         $transactionId = $item['transaction_id'];
         $transactionItemId = $item['id'];
@@ -84,6 +88,7 @@ class Transaction
         }
 
         $transactionRefund = new TransactionItemRefund;
+        $transactionRefund->setUserId($user->getId());
         $transactionRefund->setTransactionId($transactionId);
         $transactionRefund->setTransactionItemId($transactionItemId);
         $transactionRefund->setNotes($notes);
