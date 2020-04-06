@@ -11,9 +11,6 @@ declare -p | grep -Ev 'BASHOPTS|BASH_VERSINFO|EUID|PPID|SHELLOPTS|UID' > /contai
 # Run DB Migrations
 php /var/www/html/vendor/robmorgan/phinx/bin/phinx migrate -c /var/www/html/phinx.php
 
-# Temporary migration for the webhook log mongo migrations
-php /var/www/html/cli/migrate-mongo.php
-
 # Tail the application log
 tail -f /var/www/html/logs/app.log &
 
