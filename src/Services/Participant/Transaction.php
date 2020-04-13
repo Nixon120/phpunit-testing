@@ -110,7 +110,7 @@ class Transaction
                         if ($adjustedInventory < 0) {
                             throw new TransactionServiceException(
                                 $requestedProduct->getName()
-                                . ' (' . $requestedProduct->getSku() . ') has insufficient inventory. you requested a quantity of '
+                                . ' (' . $requestedProduct->getSku() . ') has insufficient inventory. You requested a quantity of '
                                 . $quantity
                                 . ' however, there are only '
                                 . $requestedProduct->getInventoryCount()
