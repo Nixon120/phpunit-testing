@@ -109,7 +109,12 @@ class Transaction
                         $adjustedInventory = $requestedProduct->getInventoryCount() - $quantity;
                         if ($adjustedInventory < 0) {
                             throw new TransactionServiceException(
-                                $requestedProduct->getName() . ' (' . $requestedProduct->getSku() . ') has insufficient inventory'
+                                $requestedProduct->getName()
+                                . ' (' . $requestedProduct->getSku() . ') has insufficient inventory. you requested a quantity of '
+                                . $quantity
+                                . ' however, there are only '
+                                . $requestedProduct->getInventoryCount()
+                                . ' available. Please update your order.'
                             );
                         }
 
