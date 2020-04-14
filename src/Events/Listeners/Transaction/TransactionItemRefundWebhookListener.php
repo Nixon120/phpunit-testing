@@ -68,10 +68,14 @@ class TransactionItemRefundWebhookListener extends AbstractListener
                 );
 
             $item = $refund->getItem();
+            $user = $refund->getUser()->toArray();
             $refund = $refund->toArray();
+
+            unset($user['organization'], $user['password'], $user['role'], $user['invite_token'], $user['organization_id'], $user['id']);
+            unset($refund['user_id'], $refund['transaction_item_id'], $refund['transaction_id']);
             $refund['item'] = $item;
+            $refund['user'] = $user;
             $refund['participant'] = $this->scrubParticipant($participant);
-            unset($refund['id']);
             // Iterate thru the webhooks & execute.
             foreach ($webhooks as $webhook) {
                 $this->executeWebhook($webhook, $refund);
