@@ -194,15 +194,21 @@ SQL;
         return $user;
     }
 
-
     /**
      * @param int $refundId
-     * @return mixed|null
+     * @return TransactionItemRefund|null
      */
     public function getTransactionItemRefundById(int $refundId):?TransactionItemRefund
     {
         $sql = "SELECT * FROM transaction_item_refund WHERE id = ?";
-        return $this->query($sql, [$refundId], TransactionItemRefund::class);
+        /** @var TransactionItemRefund $refund */
+        $refund = $this->query($sql, [$refundId], TransactionItemRefund::class);
+
+        if($refund !== null) {
+            $refund->setUser($this->getUser($refund->getUserId()));
+        }
+
+        return $refund;
     }
 
     public function addTransaction(Transaction $transaction)
