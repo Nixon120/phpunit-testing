@@ -1,7 +1,6 @@
 <?php
 
 use \Controllers\Participant as Controllers;
-use Services\Participant\ValidationMiddleware;
 
 $updateRoute = function ($request, $response, $args) {
     $participant = new Controllers\Modify($request, $response, $this->get('participant'));
@@ -157,8 +156,6 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
     });
 });
 
-$app->map(['post','get'], '/api/participant/{id}/transaction/{transaction_id}/refund/{item_guid}', Controllers\TransactionRefund::class);
-
 $app->group('/api/participant', function () use ($app, $createRoute, $updateRoute) {
     // Create
     $app->post('', $createRoute)->add(Services\Participant\ValidationMiddleware::class);
@@ -211,6 +208,8 @@ $app->group('/api/participant', function () use ($app, $createRoute, $updateRout
         $auth = $this->get('authentication');
         return $transaction->patchMeta($auth->getUser()->getOrganizationId(), $args['id'], $args['transaction_id']);
     });
+
+    $app->map(['post','get'], '/{id}/transaction/{transaction_id}/refund/{item_guid}', Controllers\TransactionRefund::class);
 
     $app->put('/{id}/transaction/{item_guid}/reissue_date', function ($request, $response, $args) {
         $transaction = new Controllers\Transaction($request, $response, $this->get('participant'));
