@@ -8,7 +8,9 @@ use AllDigitalRewards\Services\Catalog\Entity\InventoryHoldRequest;
 use Entities\Adjustment;
 use Entities\Event;
 use Entities\TransactionItem;
+use Entities\TransactionItemRefund;
 use Entities\TransactionProduct;
+use Entities\User;
 use Ramsey\Uuid\Uuid;
 use Repositories\BalanceRepository;
 use Repositories\TransactionRepository;
@@ -48,7 +50,8 @@ class Transaction
         ParticipantRepository $participantRepository,
         BalanceRepository $balanceRepository,
         MessagePublisher $eventPublisher
-    ) {
+    )
+    {
         $this->repository = $repository;
         $this->participantRepository = $participantRepository;
         $this->balanceRepository = $balanceRepository;
@@ -63,6 +66,60 @@ class Transaction
         return $this->repository;
     }
 
+    /**
+     * @param User|null $user
+     * @param array $item
+     * @param string|null $notes
+     * @return bool
+     * @throws \Exception
+     */
+    public function initiateRefund(?User $user, array $item, ?string $notes): bool
+    {
+        if($user === null) {
+            throw new \Exception('Unable to find requesting user');
+        }
+        $guid = $item['guid'];
+        $transactionId = $item['transaction_id'];
+        $transactionItemId = $item['id'];
+
+        $refund = $this->getRefundByGuid($guid);
+        if($refund !== null) {
+            return true;
+        }
+
+        $transactionRefund = new TransactionItemRefund;
+        $transactionRefund->setUserId($user->getId());
+        $transactionRefund->setTransactionId($transactionId);
+        $transactionRefund->setTransactionItemId($transactionItemId);
+        $transactionRefund->setNotes($notes);
+
+        // Create refund item
+        return $this->repository->createTransactionItemRefund($transactionRefund);
+    }
+
+    public function getRefundByGuid($guid): ?TransactionItemRefund
+    {
+        $refund = $this->repository->getTransactionItemRefund($guid);
+        if($refund === null) {
+            return null;
+        }
+
+        $item = $this->getSingleItem($guid);
+        $refund->setItem($item);
+        return $refund;
+    }
+
+    public function getRefundById(int $refundId): ?TransactionItemRefund
+    {
+        $refund = $this->repository->getTransactionItemRefundById($refundId);
+        if($refund === null) {
+            throw new \Exception('Unable to locate refund');
+        }
+
+        $item = $this->getSingleItemById($refund->getTransactionItemId());
+        $refund->setItem($item);
+        return $refund;
+    }
 
     /**
      * @param \Entities\Transaction $transaction
@@ -72,7 +129,8 @@ class Transaction
     private function addTransactionItems(
         \Entities\Transaction $transaction,
         array $data
-    ) {
+    )
+    {
         $products = $data['products'] ?? null;
         $skuContainer = array_column($products, 'sku');
         $this->requestedProductContainer = $this->repository->getProducts(
@@ -100,7 +158,7 @@ class Transaction
                             $transactionProduct->getValidationErrors(),
                             $transactionItem->getValidationErrors()
                         );
-                        
+
                         throw new TransactionServiceException(implode(', ', $errors));
                     }
 
@@ -146,7 +204,8 @@ class Transaction
     public function insertParticipantTransaction(
         \Entities\Participant $participant,
         $data
-    ) {
+    )
+    {
         $shipping = $data['shipping'] ?? null;
         $meta = $data['meta'] ?? null;
         $products = $data['products'] ?? null;
@@ -263,7 +322,8 @@ class Transaction
         $organization,
         $uniqueId,
         $data
-    ): ?\Entities\Transaction {
+    ): ?\Entities\Transaction
+    {
         $participant = $this
             ->participantRepository
             ->getParticipantByOrganization(
@@ -282,7 +342,7 @@ class Transaction
         return $this->insertParticipantTransaction($participant, $data);
     }
 
-    private function adjustPoints(
+    public function adjustPoints(
         \Entities\Participant $participant,
         $type,
         $total,
@@ -290,7 +350,8 @@ class Transaction
         $description = null,
         $reference = null,
         $completed_at = null
-    ) {
+    ): ?Adjustment
+    {
         $pointConversion = $participant->getProgram()->getPoint();
         $pointTotal = $total * $pointConversion;
         $adjustment = new Adjustment($participant);
@@ -320,6 +381,8 @@ class Transaction
 
             return $adjustment;
         }
+
+        return null;
     }
 
     public function get(\Entities\Participant $participant, $transactionUniqueIds = null, $year = null)
@@ -329,7 +392,8 @@ class Transaction
 
     public function getTransactionOrganization(
         \Entities\Transaction $transaction
-    ) {
+    )
+    {
 
         return $this
             ->repository
@@ -341,9 +405,14 @@ class Transaction
         return $this->repository->getParticipantTransaction($participant, $transactionId);
     }
 
-    public function getSingleItem($guid)
+    public function getSingleItem($guid): ?array
     {
         return $this->repository->getParticipantTransactionItem($guid);
+    }
+
+    public function getSingleItemById(int $id): ?array
+    {
+        return $this->repository->getParticipantTransactionItemById($id);
     }
 
     public function updateSingleItemMeta($transactionId, $meta)
