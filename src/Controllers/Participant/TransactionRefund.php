@@ -134,7 +134,7 @@ class TransactionRefund
         $aUser = $refund->getUser()->toArray();
         $aRefund = $refund->toArray();
         $item = $refund->getItem();
-        $participant = $this->scrubParticipant($this->getParticipantService()->getById($transaction->getId()));
+        $participant = $this->scrubParticipant($this->getParticipantService()->getById($transaction->getParticipantId()));
         unset($item['id']);
         unset($aUser['password'], $aUser['role'], $aUser['id'], $aUser['invite_token'], $aUser['organization_id']);
         unset($aRefund['user_id'], $aRefund['transaction_id'], $aRefund['transaction_item_id']);
