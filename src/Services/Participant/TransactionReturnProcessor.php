@@ -6,7 +6,7 @@ use Entities\Event;
 use Events\EventPublisherFactory;
 use Slim\Container;
 
-class TransactionRefundProcessor
+class TransactionReturnProcessor
 {
     /**
      * @var Container
@@ -73,43 +73,43 @@ class TransactionRefundProcessor
         return $this->getTransactionService()->getTransactionRepository()->getDatabase();
     }
 
-    public function processPendingRefundRequests(): bool
+    public function processPendingReturnRequests(): bool
     {
-        $pendingCollection = $this->getPendingRefunds();
-        foreach($pendingCollection as $refund) {
-            if($this->issueRefund($refund) === false) {
-                // Report incomplete refund issuance and continue
-                // Refund failed, so what now?
+        $pendingCollection = $this->getPendingReturns();
+        foreach($pendingCollection as $return) {
+            if($this->issueReturn($return) === false) {
+                // Report incomplete return issuance and continue
+                // Return failed, so what now?
                 exit(1);
             }
 
-            $this->setRefundAsProcessed($refund['id']);
-            $this->publishRefundWebhookEvent($refund['id']);
+            $this->setReturnAsProcessed($return['id']);
+            $this->publishReturnWebhookEvent($return['id']);
         }
 
         return true;
     }
 
-    private function issueRefund(array $refund): bool
+    private function issueReturn(array $return): bool
     {
-        $success = $this->issueCreditAdjustment($refund);
-        // send data to RA queue for dispatch to RA refund endpoint
+        $success = $this->issueCreditAdjustment($return);
+        // send data to RA queue for dispatch to RA return endpoint
         return $success;
     }
 
-    private function setRefundAsProcessed(int $refundId)
+    private function setReturnAsProcessed(int $returnId)
     {
         $this->getDatabase()->query(<<<SQL
-UPDATE transaction_item_refund SET complete = 1 WHERE id = {$refundId} 
+UPDATE transaction_item_return SET complete = 1 WHERE id = {$returnId} 
 SQL
         );
     }
 
-    private function publishRefundWebhookEvent($refundId)
+    private function publishReturnWebhookEvent($returnId)
     {
         $event = new Event();
-        $event->setName('TransactionItemRefundWebhook.create');
-        $event->setEntityId($refundId);
+        $event->setName('TransactionItemReturnWebhook.create');
+        $event->setEntityId($returnId);
         $this->getEventPublisher()->publish(json_encode($event));
     }
 
@@ -119,38 +119,38 @@ SQL
         return $eventPublisherFactory();
     }
 
-    private function issueCreditAdjustment(array $refund): bool
+    private function issueCreditAdjustment(array $return): bool
     {
-        $participant = $this->getParticipantService()->getSingle($refund['participant_unique_id']);
-        $description = 'Refund';
-        if(!empty(trim($refund['notes']))) {
-            $description .= ': ' . $refund['notes'];
+        $participant = $this->getParticipantService()->getSingle($return['participant_unique_id']);
+        $description = 'Return';
+        if(!empty(trim($return['notes']))) {
+            $description .= ': ' . $return['notes'];
         }
 
         return $this->getTransactionService()->adjustPoints(
             $participant,
             'credit',
-            $refund['total_refund_amount'],
-            $refund['transaction_id'],
+            $return['total_return_amount'],
+            $return['transaction_id'],
             $description,
-            $refund['guid']
+            $return['guid']
         ) !== null;
     }
 
-    private function getPendingRefunds(): array
+    private function getPendingReturns(): array
     {
         $sql = <<<SQL
 SELECT 
     (SELECT program.point FROM program WHERE program.id = participant.program_id) as program_point_value,
     participant.unique_id as participant_unique_id, 
-    ((transactionproduct.retail + transactionproduct.handling + transactionproduct.shipping) * transactionitem.quantity) as total_refund_amount,
+    ((transactionproduct.retail + transactionproduct.handling + transactionproduct.shipping) * transactionitem.quantity) as total_return_amount,
     transactionitem.transaction_id,
     transactionitem.guid,
-    transaction_item_refund.* 
-FROM transaction_item_refund 
-JOIN transactionitem ON transaction_item_refund.transaction_item_id = transactionitem.id
+    transaction_item_return.* 
+FROM transaction_item_return 
+JOIN transactionitem ON transaction_item_return.transaction_item_id = transactionitem.id
 JOIN transactionproduct ON transactionitem.reference_id = transactionproduct.reference_id
-JOIN `transaction` ON transaction_item_refund.transaction_id = `transaction`.id
+JOIN `transaction` ON transaction_item_return.transaction_id = `transaction`.id
 JOIN participant ON `transaction`.participant_id = participant.id
 WHERE complete = 0
 SQL;

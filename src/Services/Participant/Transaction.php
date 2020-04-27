@@ -8,7 +8,7 @@ use AllDigitalRewards\Services\Catalog\Entity\InventoryHoldRequest;
 use Entities\Adjustment;
 use Entities\Event;
 use Entities\TransactionItem;
-use Entities\TransactionItemRefund;
+use Entities\TransactionItemReturn;
 use Entities\TransactionProduct;
 use Entities\User;
 use Ramsey\Uuid\Uuid;
@@ -73,7 +73,7 @@ class Transaction
      * @return bool
      * @throws \Exception
      */
-    public function initiateRefund(?User $user, array $item, ?string $notes): bool
+    public function initiateReturn(?User $user, array $item, ?string $notes): bool
     {
         if($user === null) {
             throw new \Exception('Unable to find requesting user');
@@ -82,43 +82,43 @@ class Transaction
         $transactionId = $item['transaction_id'];
         $transactionItemId = $item['id'];
 
-        $refund = $this->getRefundByGuid($guid);
-        if($refund !== null) {
+        $return = $this->getReturnByGuid($guid);
+        if($return !== null) {
             return true;
         }
 
-        $transactionRefund = new TransactionItemRefund;
-        $transactionRefund->setUserId($user->getId());
-        $transactionRefund->setTransactionId($transactionId);
-        $transactionRefund->setTransactionItemId($transactionItemId);
-        $transactionRefund->setNotes($notes);
+        $transactionReturn = new TransactionItemReturn;
+        $transactionReturn->setUserId($user->getId());
+        $transactionReturn->setTransactionId($transactionId);
+        $transactionReturn->setTransactionItemId($transactionItemId);
+        $transactionReturn->setNotes($notes);
 
-        // Create refund item
-        return $this->repository->createTransactionItemRefund($transactionRefund);
+        // Create return item
+        return $this->repository->createTransactionItemReturn($transactionReturn);
     }
 
-    public function getRefundByGuid($guid): ?TransactionItemRefund
+    public function getReturnByGuid($guid): ?TransactionItemReturn
     {
-        $refund = $this->repository->getTransactionItemRefund($guid);
-        if($refund === null) {
+        $return = $this->repository->getTransactionItemReturn($guid);
+        if($return === null) {
             return null;
         }
 
         $item = $this->getSingleItem($guid);
-        $refund->setItem($item);
-        return $refund;
+        $return->setItem($item);
+        return $return;
     }
 
-    public function getRefundById(int $refundId): ?TransactionItemRefund
+    public function getReturnById(int $returnId): ?TransactionItemReturn
     {
-        $refund = $this->repository->getTransactionItemRefundById($refundId);
-        if($refund === null) {
-            throw new \Exception('Unable to locate refund');
+        $return = $this->repository->getTransactionItemReturnById($returnId);
+        if($return === null) {
+            throw new \Exception('Unable to locate return');
         }
 
-        $item = $this->getSingleItemById($refund->getTransactionItemId());
-        $refund->setItem($item);
-        return $refund;
+        $item = $this->getSingleItemById($return->getTransactionItemId());
+        $return->setItem($item);
+        return $return;
     }
 
     /**
