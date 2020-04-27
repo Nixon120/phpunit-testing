@@ -8,7 +8,7 @@ use Entities\Organization;
 use Entities\Address;
 use Entities\Transaction;
 use Entities\TransactionItem;
-use Entities\TransactionItemRefund;
+use Entities\TransactionItemReturn;
 use Entities\TransactionMeta;
 use Entities\TransactionProduct;
 use Entities\Participant;
@@ -146,16 +146,16 @@ SQL;
     }
 
     /**
-     * @param TransactionItemRefund $transactionItemRefund
+     * @param TransactionItemReturn $transactionItemReturn
      * @return bool
      * @throws \Exception
      */
-    public function createTransactionItemRefund(TransactionItemRefund $transactionItemRefund): bool
+    public function createTransactionItemReturn(TransactionItemReturn $transactionItemReturn): bool
     {
-        $this->table = 'transaction_item_refund';
-        $aRefundItem = $transactionItemRefund->toArray();
-        if (!parent::insert($aRefundItem)) {
-            throw new \Exception('Unable to insert refund. If this problem persist, please contact support');
+        $this->table = 'transaction_item_return';
+        $aReturnItem = $transactionItemReturn->toArray();
+        if (!parent::insert($aReturnItem)) {
+            throw new \Exception('Unable to insert return. If this problem persist, please contact support');
         }
 
         return true;
@@ -163,24 +163,24 @@ SQL;
 
     /**
      * @param $guid
-     * @return TransactionItemRefund|null
+     * @return TransactionItemReturn|null
      */
-    public function getTransactionItemRefund($guid):?TransactionItemRefund
+    public function getTransactionItemReturn($guid):?TransactionItemReturn
     {
         $sql = <<<SQL
 SELECT * 
-FROM transaction_item_refund 
+FROM transaction_item_return 
 WHERE transaction_item_id = (SELECT id FROM TransactionItem WHERE TransactionItem.guid = ?)
 SQL;
 
-        /** @var TransactionItemRefund $refund */
-        $refund = $this->query($sql, [$guid], TransactionItemRefund::class);
+        /** @var TransactionItemReturn $return */
+        $return = $this->query($sql, [$guid], TransactionItemReturn::class);
 
-        if($refund !== null) {
-            $refund->setUser($this->getUser($refund->getUserId()));
+        if($return !== null) {
+            $return->setUser($this->getUser($return->getUserId()));
         }
 
-        return $refund;
+        return $return;
     }
 
     private function getUser($userId): ?User
@@ -195,20 +195,20 @@ SQL;
     }
 
     /**
-     * @param int $refundId
-     * @return TransactionItemRefund|null
+     * @param int $returnId
+     * @return TransactionItemReturn|null
      */
-    public function getTransactionItemRefundById(int $refundId):?TransactionItemRefund
+    public function getTransactionItemReturnById(int $returnId):?TransactionItemReturn
     {
-        $sql = "SELECT * FROM transaction_item_refund WHERE id = ?";
-        /** @var TransactionItemRefund $refund */
-        $refund = $this->query($sql, [$refundId], TransactionItemRefund::class);
+        $sql = "SELECT * FROM transaction_item_return WHERE id = ?";
+        /** @var TransactionItemReturn $return */
+        $return = $this->query($sql, [$returnId], TransactionItemReturn::class);
 
-        if($refund !== null) {
-            $refund->setUser($this->getUser($refund->getUserId()));
+        if($return !== null) {
+            $return->setUser($this->getUser($return->getUserId()));
         }
 
-        return $refund;
+        return $return;
     }
 
     public function addTransaction(Transaction $transaction)
@@ -481,10 +481,10 @@ SELECT
     TransactionItem.quantity, 
     TransactionItem.guid, 
     TransactionItem.reissue_date,
-    (transaction_item_refund.id IS NOT NULL) as refunded
+    (transaction_item_return.id IS NOT NULL) as returned
 FROM `TransactionItem`
 JOIN TransactionProduct ON TransactionProduct.reference_id = TransactionItem.reference_id
-LEFT JOIN transaction_item_refund on TransactionItem.id = transaction_item_refund.transaction_item_id
+LEFT JOIN transaction_item_return on TransactionItem.id = transaction_item_return.transaction_item_id
 WHERE TransactionItem.transaction_id = ?
 SQL;
 
@@ -623,7 +623,7 @@ SQL;
             $aItem = $item->toArray();
             $transactionProduct = new TransactionProduct;
             $transactionProduct->exchange($aItem);
-            $transactionProduct->setRefunded($item->isRefunded() ? 1:0);
+            $transactionProduct->setReturned($item->isReturned() ? 1:0);
             $transactionItem = new TransactionItem;
             $transactionItem->setQuantity($item->getQuantity());
             $transactionItem->setTransactionId($transaction->getId());
