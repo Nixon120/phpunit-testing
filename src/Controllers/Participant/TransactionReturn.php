@@ -9,7 +9,7 @@ use Slim\Container;
 use Slim\Http\Request;
 use Slim\Http\Response;
 
-class TransactionRefund
+class TransactionReturn
 {
     /**
      * @var Request
@@ -116,33 +116,33 @@ class TransactionRefund
         }
 
         if ($this->request->isPost()) {
-            return $this->issueRefundRequest($item);
+            return $this->issueReturnRequest($item);
         }
 
-        return $this->getRefundRequest($guid);
+        return $this->getReturnRequest($guid);
     }
 
-    private function getRefundRequest($guid)
+    private function getReturnRequest($guid)
     {
-        $refund = $this->getTransactionService()->getRefundByGuid($guid);
+        $return = $this->getTransactionService()->getReturnByGuid($guid);
 
-        if ($refund === null) {
+        if ($return === null) {
             return $this->response = $this->response->withJson(['Resource does not exist'], 404);
         }
 
-        $transaction = $this->transactionService->getTransactionRepository()->getTransaction($refund->getTransactionId());
-        $aUser = $refund->getUser()->toArray();
-        $aRefund = $refund->toArray();
-        $item = $refund->getItem();
+        $transaction = $this->transactionService->getTransactionRepository()->getTransaction($return->getTransactionId());
+        $aUser = $return->getUser()->toArray();
+        $aReturn = $return->toArray();
+        $item = $return->getItem();
         $participant = $this->scrubParticipant($this->getParticipantService()->getById($transaction->getParticipantId()));
         unset($item['id']);
         unset($aUser['password'], $aUser['role'], $aUser['id'], $aUser['invite_token'], $aUser['organization_id']);
-        unset($aRefund['user_id'], $aRefund['transaction_id'], $aRefund['transaction_item_id']);
+        unset($aReturn['user_id'], $aReturn['transaction_id'], $aReturn['transaction_item_id']);
 
-        $aRefund['item'] = $item;
-        $aRefund['user'] = $aUser;
-        $aRefund['participant'] = $participant;
-        return $this->response = $this->response->withJson($aRefund, 200);
+        $aReturn['item'] = $item;
+        $aReturn['user'] = $aUser;
+        $aReturn['participant'] = $participant;
+        return $this->response = $this->response->withJson($aReturn, 200);
     }
 
     private function scrubParticipant(\Entities\Participant $participant)
@@ -164,12 +164,12 @@ class TransactionRefund
         return $participant;
     }
 
-    private function issueRefundRequest(array $item)
+    private function issueReturnRequest(array $item)
     {
         $notes = $this->request->getParsedBody()['notes'] ?? null;
 
         try {
-            $success = $this->getTransactionService()->initiateRefund($this->getAuthUser(), $item, $notes);
+            $success = $this->getTransactionService()->initiateReturn($this->getAuthUser(), $item, $notes);
 
             if ($success === true) {
                 return $this->response = $this->response->withStatus(201);
