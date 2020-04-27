@@ -763,6 +763,9 @@ SQL
 
         # Purge all existing users.
         $this->execute(<<<SQL
+SET FOREIGN_KEY_CHECKS=0;
+TRUNCATE `' . getenv('MYSQL_DATABASE') . '`.`user`;
+SET FOREIGN_KEY_CHECKS=1;
 DELETE FROM `user` WHERE 1=1;
 ALTER TABLE `user` AUTO_INCREMENT=1;
 SQL
