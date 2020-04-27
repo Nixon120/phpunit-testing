@@ -79,7 +79,7 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
         return $transaction->patchMeta($auth->getUser()->getOrganizationId(), $args['id'], $args['transaction_id']);
     });
 
-    $app->map(['post','get'], '/{id}/transaction/{transaction_id}/refund/{item_guid}', Controllers\TransactionRefund::class);
+    $app->map(['post','get'], '/{id}/transaction/{transaction_id}/return/{item_guid}', Controllers\TransactionReturn::class);
 
     $app->get('/{id}/transaction/{transaction_id}/{item_guid}', function ($request, $response, $args) {
         $transaction = new Controllers\Transaction($request, $response, $this->get('participant'));
@@ -209,7 +209,7 @@ $app->group('/api/participant', function () use ($app, $createRoute, $updateRout
         return $transaction->patchMeta($auth->getUser()->getOrganizationId(), $args['id'], $args['transaction_id']);
     });
 
-    $app->map(['post','get'], '/{id}/transaction/{transaction_id}/refund/{item_guid}', Controllers\TransactionRefund::class);
+    $app->map(['post','get'], '/{id}/transaction/{transaction_id}/return/{item_guid}', Controllers\TransactionReturn::class);
 
     $app->put('/{id}/transaction/{item_guid}/reissue_date', function ($request, $response, $args) {
         $transaction = new Controllers\Transaction($request, $response, $this->get('participant'));
