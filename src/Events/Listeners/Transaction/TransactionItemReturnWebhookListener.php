@@ -4,7 +4,7 @@ namespace Events\Listeners\Transaction;
 
 use AllDigitalRewards\AMQP\MessagePublisher;
 use Entities\Event;
-use Entities\TransactionItemRefund;
+use Entities\TransactionItemReturn;
 use Entities\Webhook;
 use Events\Listeners\AbstractListener;
 use League\Event\EventInterface;
@@ -15,7 +15,7 @@ use Services\Participant\ServiceFactory;
 use Services\Participant\Transaction;
 use Services\Webhook\WebhookPublisherService;
 
-class TransactionItemRefundWebhookListener extends AbstractListener
+class TransactionItemReturnWebhookListener extends AbstractListener
 {
     /**
      * @var WebhookRepository
@@ -55,8 +55,8 @@ class TransactionItemRefundWebhookListener extends AbstractListener
         $this->event = $event;
 
         try {
-            $refund = $this->getTransactionItemRefund();
-            $transaction = $this->transactionService->getTransactionRepository()->getTransaction($refund->getTransactionId());
+            $return = $this->getTransactionItemReturn();
+            $transaction = $this->transactionService->getTransactionRepository()->getTransaction($return->getTransactionId());
             $participant = $this->getParticipant($transaction->getParticipantId());
             $organization = $participant->getOrganization();
 
@@ -64,21 +64,21 @@ class TransactionItemRefundWebhookListener extends AbstractListener
                 ->webhookRepository
                 ->getOrganizationAndParentWebhooks(
                     $organization,
-                    'TransactionItemRefundWebhook.create'
+                    'TransactionItemReturnWebhook.create'
                 );
 
-            $item = $refund->getItem();
-            $user = $refund->getUser()->toArray();
-            $refund = $refund->toArray();
+            $item = $return->getItem();
+            $user = $return->getUser()->toArray();
+            $return = $return->toArray();
 
             unset($user['organization'], $user['password'], $user['role'], $user['invite_token'], $user['organization_id'], $user['id']);
-            unset($refund['user_id'], $refund['transaction_item_id'], $refund['transaction_id']);
-            $refund['item'] = $item;
-            $refund['user'] = $user;
-            $refund['participant'] = $this->scrubParticipant($participant);
+            unset($return['user_id'], $return['transaction_item_id'], $return['transaction_id']);
+            $return['item'] = $item;
+            $return['user'] = $user;
+            $return['participant'] = $this->scrubParticipant($participant);
             // Iterate thru the webhooks & execute.
             foreach ($webhooks as $webhook) {
-                $this->executeWebhook($webhook, $refund);
+                $this->executeWebhook($webhook, $return);
             }
         } catch(\Exception $e) {
             exit(1);
@@ -108,21 +108,21 @@ class TransactionItemRefundWebhookListener extends AbstractListener
 
     private function executeWebhook(
         Webhook $webhook,
-        array $refund
+        array $return
     )
     {
         // This is where we use a Webhook publishing service.
         $webhookPublisher = new WebhookPublisherService();
-        $webhookPublisher->publish($webhook, $refund);
+        $webhookPublisher->publish($webhook, $return);
     }
 
     /**
-     * @return TransactionItemRefund|null
+     * @return TransactionItemReturn|null
      * @throws \Exception
      */
-    private function getTransactionItemRefund()
+    private function getTransactionItemReturn()
     {
-        return $this->transactionService->getRefundById($this->event->getEntityId());
+        return $this->transactionService->getReturnById($this->event->getEntityId());
     }
 
     /**

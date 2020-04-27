@@ -2,12 +2,12 @@
 
 namespace Events\Providers;
 
-use Events\Listeners\Transaction\TransactionItemRefundWebhookListener;
+use Events\Listeners\Transaction\TransactionItemReturnWebhookListener;
 use League\Event\ListenerAcceptorInterface;
 use Repositories\WebhookRepository;
 use Services\Participant\ServiceFactory;
 
-class TransactionItemRefundWebhookProvider extends AbstractProvider
+class TransactionItemReturnWebhookProvider extends AbstractProvider
 {
     /**
      * @var ListenerAcceptorInterface
@@ -28,18 +28,18 @@ class TransactionItemRefundWebhookProvider extends AbstractProvider
 
     private function addListener()
     {
-        $events = ['TransactionItemRefundWebhook.create'];
+        $events = ['TransactionItemReturnWebhook.create'];
         array_map(function ($eventName) {
             $this->acceptor->addListener(
                 $eventName,
-                $this->getTransactionItemRefundWebhookListener()
+                $this->getTransactionItemReturnWebhookListener()
             );
         }, $events);
     }
 
-    private function getTransactionItemRefundWebhookListener()
+    private function getTransactionItemReturnWebhookListener()
     {
-        return new TransactionItemRefundWebhookListener(
+        return new TransactionItemReturnWebhookListener(
             $this->getMessagePublisher(),
             $this->participantServiceFactory,
             $this->getWebhookRepository()
