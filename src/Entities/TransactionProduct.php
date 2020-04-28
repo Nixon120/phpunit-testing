@@ -43,8 +43,6 @@ class TransactionProduct extends Base implements Validateable
 
     private $reissue_date;
 
-    private $returned = 0;
-
     /**
      * TransactionProduct constructor.
      * @param Product $product
@@ -335,22 +333,6 @@ class TransactionProduct extends Base implements Validateable
     public function setReissueDate($reissue_date): void
     {
         $this->reissue_date = $reissue_date;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isReturned(): bool
-    {
-        return (int)$this->returned === 1;
-    }
-
-    /**
-     * @param int $returned
-     */
-    public function setReturned(int $returned): void
-    {
-        $this->returned = $returned;
     }
 
     public function isValid(): bool
