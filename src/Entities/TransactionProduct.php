@@ -43,7 +43,7 @@ class TransactionProduct extends Base implements Validateable
 
     private $reissue_date;
 
-    private $refunded = 0;
+    private $returned = 0;
 
     /**
      * TransactionProduct constructor.
@@ -340,17 +340,17 @@ class TransactionProduct extends Base implements Validateable
     /**
      * @return bool
      */
-    public function isRefunded(): bool
+    public function isReturned(): bool
     {
-        return (int)$this->refunded === 1;
+        return (int)$this->returned === 1;
     }
 
     /**
-     * @param int $refunded
+     * @param int $returned
      */
-    public function setRefunded(int $refunded): void
+    public function setReturned(int $returned): void
     {
-        $this->refunded = $refunded;
+        $this->returned = $returned;
     }
 
     public function isValid(): bool

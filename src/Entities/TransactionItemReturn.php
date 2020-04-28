@@ -2,7 +2,7 @@
 
 namespace Entities;
 
-class TransactionItemRefund extends Base
+class TransactionItemReturn extends Base
 {
     public $user_id;
 

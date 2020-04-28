@@ -71,67 +71,69 @@ class TransactionRepositoryTest extends \PHPUnit\Framework\TestCase
         return $repository;
     }
 
-    public function testGetTransactionItemRefundByGuid()
+    public function testGetTransactionItemReturnByGuid()
     {
         $this->getMockPdo()
-            ->expects($this->once())
+            ->expects($this->exactly(2))
             ->method('prepare')
             ->with($this->isType('string'))
             ->willReturn($this->getMockStatement());
 
         $this->getMockStatement()
-            ->expects($this->once())
+            ->expects($this->exactly(2))
             ->method('execute')
-            ->with(['aguid']);
+            ->with($this->isType('array'));
 
+        $user = new \Entities\User;
+        $user->setId(1);
         $this->getMockStatement()
-            ->expects($this->once())
+            ->expects($this->exactly(2))
             ->method('setFetchMode')
-            ->with(PDO::FETCH_CLASS, \Entities\TransactionItemRefund::class)
-            ->willReturn(1);
+            ->with(PDO::FETCH_CLASS, $this->isType('string'));
 
-        $refundMock = new \Entities\TransactionItemRefund;
+        $returnMock = new \Entities\TransactionItemReturn;
+        $returnMock->setUserId(1);
         $this->getMockStatement()
-            ->expects($this->once())
+            ->expects($this->exactly(2))
             ->method('fetch')
-            ->willReturn(($refundMock));
+            ->willReturnOnConsecutiveCalls($returnMock, $user);
 
         $repository = $this->getTransactionRepository();
-        $this->assertSame($refundMock, $repository->getTransactionItemRefund('aguid'));
+        $this->assertSame($returnMock, $repository->getTransactionItemReturn('aguid'));
 
     }
 
-    public function testGetTransactionItemRefundById()
+    public function testGetTransactionItemReturnById()
     {
         $this->getMockPdo()
-            ->expects($this->once())
+            ->expects($this->exactly(2))
             ->method('prepare')
             ->with($this->isType('string'))
             ->willReturn($this->getMockStatement());
 
         $this->getMockStatement()
-            ->expects($this->once())
+            ->expects($this->exactly(2))
             ->method('execute')
-            ->with([1]);
+            ->with($this->isType('array'));
 
+        $user = new \Entities\User;
         $this->getMockStatement()
-            ->expects($this->once())
+            ->expects($this->exactly(2))
             ->method('setFetchMode')
-            ->with(PDO::FETCH_CLASS, \Entities\TransactionItemRefund::class)
-            ->willReturn(1);
+            ->with(PDO::FETCH_CLASS, $this->isType('string'));
 
-        $refundMock = new \Entities\TransactionItemRefund;
+        $returnMock = new \Entities\TransactionItemReturn;
         $this->getMockStatement()
-            ->expects($this->once())
+            ->expects($this->exactly(2))
             ->method('fetch')
-            ->willReturn(($refundMock));
+            ->willReturn($returnMock, $user);
 
         $repository = $this->getTransactionRepository();
-        $this->assertSame($refundMock, $repository->getTransactionItemRefund(1));
+        $this->assertSame($returnMock, $repository->getTransactionItemReturnById(1));
 
     }
 
-    public function testCreateTransactionItemRefund()
+    public function testCreateTransactionItemReturn()
     {
         $this->getMockPdo()
             ->expects($this->once())
@@ -139,19 +141,19 @@ class TransactionRepositoryTest extends \PHPUnit\Framework\TestCase
             ->with($this->isType('string'))
             ->willReturn($this->getMockStatement());
 
-        $refundMock = new \Entities\TransactionItemRefund;
-        $refundMock->setTransactionId(1);
-        $refundMock->setTransactionItemId(10);
-        $refundMock->setNotes('yolo');
-        $aRefund['id'] = null;
-        $aRefund = array_values($aRefund);
+        $returnMock = new \Entities\TransactionItemReturn;
+        $returnMock->setTransactionId(1);
+        $returnMock->setTransactionItemId(10);
+        $returnMock->setNotes('yolo');
+        $aReturn['id'] = null;
+        $aReturn = array_values($aReturn);
         $this->getMockStatement()
             ->expects($this->once())
             ->method('execute')
             ->with();
 
         $repository = $this->getTransactionRepository();
-        $this->assertSame(true, $repository->createTransactionItemRefund($refundMock));
+        $this->assertSame(true, $repository->createTransactionItemReturn($returnMock));
 
     }
 }
