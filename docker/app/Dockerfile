@@ -1,50 +1,39 @@
-FROM ubuntu:16.04
+FROM php:7.3-fpm-alpine
 
-MAINTAINER Josh Houghtelin
+LABEL authors="Josh Houghtelin, Zechariah Walden, AllDigitalRewards"
 
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 
-# Copy configuration files
-#COPY sql/base.sql /docker-entrypoint-initdb.d/
+RUN apk add --no-cache git curl bash libxml2-dev supervisor nginx gettext-dev autoconf icu-dev g++ make libzip-dev \
+    gettext-dev \
+    && rm -rf /var/cache/apk/*
 
-RUN apt-get update \
-    && apt-get install -y software-properties-common language-pack-en locales netcat \
-    && add-apt-repository ppa:ondrej/php \
-    && locale-gen en_US en_US.UTF-8
+RUN docker-php-ext-install pdo pdo_mysql bcmath exif sockets mbstring xml gettext \
+    && docker-php-ext-configure zip --with-libzip=/usr/include \
+    && docker-php-ext-install zip
 
-RUN apt-get update \
-    && apt-get install -y cron nginx curl zip unzip git supervisor libmemcached-dev zlib1g-dev libicu-dev g++ \
-    && apt-get install -y php7.2-fpm php7.2-cli php7.2-gd php7.2-mysql php-memcached php-redis \
-       php7.2-mbstring php7.2-xml php7.2-curl php7.2-bcmath php7.2-intl php7.2-zip php-xdebug \
-       php-mongodb php7.2-dev \
-    && mkdir /run/php \
-    && apt-get -y autoremove \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
-    && echo "daemon off;" >> /etc/nginx/nginx.conf
+RUN pecl install redis && docker-php-ext-enable redis
 
-RUN git clone git://github.com/xdebug/xdebug.git && cd xdebug && phpize && ./configure --enable-xdebug && make && make install
+RUN mkdir -p /run/nginx
+RUN mkdir -p /run/php
+RUN mkdir -p /etc/supervisor.d
 
-# Copy configuration files
-COPY nginx.conf /etc/nginx/sites-available/default
-COPY php-fpm.conf /etc/php/7.2/fpm/php-fpm.conf
-COPY www.conf /etc/php/7.2/fpm/pool.d/www.conf
-COPY php.ini /etc/php/7.2/fpm/php.ini
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY nginx.conf /etc/nginx/nginx.conf
+COPY php.ini /usr/local/etc/php/php.ini
+COPY supervisord.conf /etc/supervisord.conf
 COPY crontab /etc/crontab
-
-RUN crontab /etc/crontab
-
-# Copy container entry point script.
 COPY startup.sh /usr/local/bin/startup.sh
-# Copy app files and set permissions.
-COPY packaged/ /var/www/html/
 
-RUN chown -R www-data: /var/www/html
+RUN /usr/bin/crontab /etc/crontab
+
+# Copy app files and set permissions
+RUN mkdir -p /app
+
+COPY packaged/ /app
+RUN chown -R www-data: /app
 
 EXPOSE 80
 
 CMD ["/usr/local/bin/startup.sh"]
-

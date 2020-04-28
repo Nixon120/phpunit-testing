@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+# Cron job:  bash /app/bin/cron event-consumer.php
+/usr/local/bin/php /app/bin/$1 $2
