@@ -1,6 +1,27 @@
 version: '2'
 services:
   ingress:
+    container_name: ingress
+    depends_on:
+      - admin
+      - ng-admin
+      - mysql
+      - redis
+      - amqp
+      - mongodb
+      - fluentd
+      - mailcatcher
+      - product.catalog
+      - batch.facilitator
+      - product.image
+      - product.program-catalog
+      - email.transaction
+      - avs-service
+      - ssn
+      - program.content
+      - card.account
+      - redemption-campaigns-service
+      - report
     image: nginx:alpine
     volumes:
       - ./ingress.conf:/etc/nginx/conf.d/default.conf
@@ -11,11 +32,14 @@ services:
     networks:
       - adrnet
   admin:
+    depends_on:
+      - mysql
+    container_name: admin
     build:
       context: ./app
       dockerfile: Dockerfile
     volumes:
-      - ../:/var/www/html
+      - ../:/app
       - ./app/xdebug.ini:/etc/php/7.2/fpm/conf.d/xdebug.ini
       - ./app/startup.sh:/usr/local/bin/startup.sh
       - ./app/php-fpm.conf:/etc/php/7.2/fpm/php-fpm.conf
@@ -26,7 +50,7 @@ services:
       PHP_IDE_CONFIG: "serverName=admin"
       ENVIRONMENT: development
       MYSQL_ROOT_PASSWORD: 123
-      MYSQL_HOST: admin-mysql
+      MYSQL_HOST: mysql
       MYSQL_DATABASE: mpadmin
       MYSQL_USERNAME: root
       MYSQL_PASSWORD: 123
@@ -36,7 +60,7 @@ services:
       RA_USERNAME: claim
       RA_PASSWORD: claim
       JWT_SECRET: password
-      AMQP_HOST: admin-amqp
+      AMQP_HOST: amqp
       AMQP_PORT: "5672"
       AMQP_USERNAME: guest
       AMQP_PASSWORD: guest
@@ -60,7 +84,7 @@ services:
       MP_ADMIN_HOST: http://localhost
     networks:
       - adrnet
-  admin-mysql:
+  mysql:
     image: mariadb:10.2
     ports:
       - "3306:3306"
@@ -77,25 +101,20 @@ services:
       MYSQL_PASS: dbpass
     networks:
       - adrnet
-  admin-amqp:
-      image: rabbitmq:3-management
-      ports:
-        - "15672:15672"
-      expose:
-        - 5672
-      networks:
-        - adrnet
-  fluentd:
-    image: fluent/fluentd:stable
-    volumes:
-      - ../logs:/fluentd/log
+  amqp:
+    image: rabbitmq:3-management
+    ports:
+      - "15672:15672"
+    expose:
+      - 5672
     networks:
       - adrnet
-  mailcatcher:
-    image: yappabe/mailcatcher
+  redis:
+    image: redis:3.2
     ports:
-        - 1025:1025
-        - 1080:1080
+      - 6379:6379
+    expose:
+      - 6379
     networks:
       - adrnet
   mongodb:
@@ -107,13 +126,28 @@ services:
       - 27017
     networks:
       - adrnet
+  fluentd:
+    image: fluent/fluentd:stable
+    volumes:
+      - ../logs:/fluentd/log
+    networks:
+      - adrnet
+  mailcatcher:
+    image: yappabe/mailcatcher
+    ports:
+      - 1025:1025
+      - 1080:1080
+    networks:
+      - adrnet
   product.catalog:
+    depends_on:
+      - mysql
     image: gcr.io/green-talent-129607/catalog:latest
     expose:
       - 80
     environment:
       JWT_SECRET: password
-      MYSQL_HOST: admin-mysql
+      MYSQL_HOST: mysql
       MYSQL_DATABASE: catalog
       MYSQL_USERNAME: root
       MYSQL_PASSWORD: 123
@@ -126,6 +160,8 @@ services:
     networks:
       - adrnet
   batch.facilitator:
+    depends_on:
+      - mysql
     image: gcr.io/green-talent-129607/api-batch:latest
     expose:
       - 80
@@ -137,11 +173,11 @@ services:
       REWARDSTACK_USERNAME: "test@alldigitalrewards.com"
       REWARDSTACK_PASSWORD: "password"
       REWARDSTACK_ENDPOINT: http://admin
-      MYSQL_DB_HOST: admin-mysql
+      MYSQL_DB_HOST: mysql
       MYSQL_DB_DATABASE: api-batch
       MYSQL_DB_USERNAME: root
       MYSQL_DB_PASSWORD: 123
-      AMQP_HOST: admin-amqp
+      AMQP_HOST: amqp
       AMQP_PORT: "5672"
       AMQP_USERNAME: guest
       AMQP_PASSWORD: guest
@@ -156,11 +192,13 @@ services:
     networks:
       - adrnet
   product.image:
+    depends_on:
+      - mysql
     image: gcr.io/green-talent-129607/product-image:latest
     expose:
       - 80
     environment:
-      MYSQL_HOST: admin-mysql
+      MYSQL_HOST: mysql
       MYSQL_DATABASE: image
       MYSQL_USERNAME: root
       MYSQL_PASSWORD: 123
@@ -170,21 +208,23 @@ services:
     networks:
       - adrnet
   product.program-catalog:
+    depends_on:
+      - mysql
     image: gcr.io/green-talent-129607/program-catalog:latest
     expose:
       - 80
     environment:
-      MYSQL_DB_HOST: admin-mysql
+      MYSQL_DB_HOST: mysql
       MYSQL_DB_DATABASE: program-catalog
       MYSQL_DB_USERNAME: root
       MYSQL_DB_PASSWORD: 123
-      REWARDSTACK_DB_HOST: admin-mysql
+      REWARDSTACK_DB_HOST: mysql
       REWARDSTACK_DB_DATABASE: mpadmin
       REWARDSTACK_DB_USERNAME: root
       REWARDSTACK_DB_PASSWORD: 123
       JWT_SECRET: password
       ENVIRONMENT: development
-      REDIS_HOST: program-catalog-redis
+      REDIS_HOST: redis
       REDIS_PORT: 6379
       PROGRAM_CONFIG_URL: http://admin/api/program
       CATALOG_URL: http://product.catalog
@@ -192,13 +232,9 @@ services:
       LOG_PORT: "24224"
     networks:
       - adrnet
-  program-catalog-redis:
-    image: redis:3.2
-    expose:
-      - 6379
-    networks:
-      - adrnet
   email.transaction:
+    depends_on:
+      - mysql
     image: gcr.io/green-talent-129607/transaction-email:latest
     expose:
       - 80
@@ -230,13 +266,15 @@ services:
       TRANSACTION_ITEM_CHANNEL: transaction-item
       CATALOG_URL: http://product.catalog
       PROGRAM_CONFIG_URL: http://admin/api/program
-      MYSQL_DB_HOST: admin-mysql
+      MYSQL_DB_HOST: mysql
       MYSQL_DB_DATABASE: transaction-email
       MYSQL_DB_USERNAME: root
       MYSQL_DB_PASSWORD: 123
     networks:
       - adrnet
   avs-service:
+    depends_on:
+      - mysql
     image: gcr.io/green-talent-129607/address-verification-service:latest
     expose:
       - 80
@@ -244,7 +282,7 @@ services:
       - 85:80
     environment:
       ENVIRONMENT: development
-      MYSQL_HOST: admin-mysql
+      MYSQL_HOST: mysql
       MYSQL_DATABASE: avs
       MYSQL_USERNAME: root
       MYSQL_PASSWORD: 123
@@ -256,6 +294,8 @@ services:
     networks:
       - adrnet
   ssn:
+    depends_on:
+      - mysql
     image: gcr.io/green-talent-129607/ssn-service:latest
     expose:
       - 80
@@ -264,28 +304,22 @@ services:
     environment:
       JWT_SECRET: password
       ENVIRONMENT: development
-      MYSQL_HOST: admin-mysql
+      MYSQL_HOST: mysql
       MYSQL_DATABASE: ssn
       MYSQL_USERNAME: root
       MYSQL_PASSWORD: 123
     networks:
       - adrnet
-  redis:
-    image: redis:3.2
-    ports:
-      - 6379:6379
-    expose:
-      - 6379
-    networks:
-      - adrnet
   program.content:
+    depends_on:
+      - mysql
     image: gcr.io/green-talent-129607/program-content:latest
     expose:
       - 80
     environment:
       JWT_SECRET: password
       ENVIRONMENT: development
-      MYSQL_HOST: admin-mysql
+      MYSQL_HOST: mysql
       MYSQL_DATABASE: program-content
       MYSQL_USERNAME: root
       MYSQL_PASSWORD: 123
@@ -298,13 +332,15 @@ services:
     networks:
       - adrnet
   card.account:
+    depends_on:
+      - mysql
     image: gcr.io/green-talent-129607/card-account-admin:latest
     expose:
       - 80
     environment:
       JWT_SECRET: password
       ENVIRONMENT: development
-      MYSQL_HOST: admin-mysql
+      MYSQL_HOST: mysql
       MYSQL_DATABASE: ca-admin
       MYSQL_USERNAME: root
       MYSQL_PASSWORD: 123
@@ -313,13 +349,15 @@ services:
     networks:
       - adrnet
   redemption-campaigns-service:
+    depends_on:
+      - mysql
     image: gcr.io/green-talent-129607/redemption-campaign-service:latest
     ports:
-    - "88:80"
+      - "88:80"
     environment:
       JWT_SECRET: password
       ENVIRONMENT: development
-      MYSQL_HOST: admin-mysql
+      MYSQL_HOST: mysql
       MYSQL_DATABASE: rcs_admin
       MYSQL_USERNAME: root
       MYSQL_PASSWORD: 123
@@ -345,19 +383,21 @@ services:
           "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/sharecare-ssn-service-logger%40green-talent-129607.iam.gserviceaccount.com"
         }
     networks:
-    - adrnet
+      - adrnet
   report:
+    depends_on:
+      - mysql
     image: gcr.io/green-talent-129607/report-api:latest
     expose:
       - 80
     environment:
       ENVIRONMENT: development
       JWT_SECRET: password
-      MYSQL_DB_HOST: admin-mysql
+      MYSQL_DB_HOST: mysql
       MYSQL_DB_DATABASE: report
       MYSQL_DB_USERNAME: root
       MYSQL_DB_PASSWORD: 123
-      RS_DB_HOST: admin-mysql
+      RS_DB_HOST: mysql
       RS_DB_USER: root
       RS_DB_PASS: 123
       RS_DB_NAME: mpadmin
@@ -374,6 +414,8 @@ services:
       AMQP_TASKRUNNER: /app/bin/pending-report-task-runner
       AMQP_MAX_CONSUMER: 3
       AMQP_CONSUMER_RUNTIME: 180
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
     networks:
       - adrnet
 volumes:
