@@ -49,7 +49,7 @@ Or, you can manually run the integration tests.
 
 ```bash
 docker exec -it docker_admin_1 /bin/bash
-cd /var/www/html
+cd /app
 ./vendor/bin/phinx seed:run
 ./vendor/bin/phpunit --testsuite integration
 ```
@@ -58,7 +58,7 @@ To run ONLY the unit tests:
 
 ```bash
 docker exec -it docker_admin_1 /bin/bash
-cd /var/www/html
+cd /app
 ./vendor/bin/phpunit --testsuite unit
 ```
 
