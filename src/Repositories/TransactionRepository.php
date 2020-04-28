@@ -623,13 +623,13 @@ SQL;
             $aItem = $item->toArray();
             $transactionProduct = new TransactionProduct;
             $transactionProduct->exchange($aItem);
-            $transactionProduct->setReturned($item->isReturned() ? 1:0);
             $transactionItem = new TransactionItem;
             $transactionItem->setQuantity($item->getQuantity());
             $transactionItem->setTransactionId($transaction->getId());
             $transactionItem->setReferenceId($item->getReferenceId());
             $transactionItem->setGuid($item->getGuid());
             $transactionItem->setReissueDate($item->getReissueDate());
+            $transactionItem->setReturned($aItem['returned'] === 1 ? 1:0);
             $transaction->setItem($transactionItem, $transactionProduct);
         }
     }
