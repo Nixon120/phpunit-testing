@@ -17,6 +17,11 @@ class Adjustment extends Base
 
     public $transaction_id;
 
+    /**
+     * @var int|null
+     */
+    public $transaction_item_id = null;
+
     public $reference;
 
     public $description;
@@ -143,6 +148,22 @@ class Adjustment extends Base
     }
 
     /**
+     * @return int|null
+     */
+    public function getTransactionItemId(): ?int
+    {
+        return $this->transaction_item_id;
+    }
+
+    /**
+     * @param int|null $transactionItemId
+     */
+    public function setTransactionItemId(?int $transactionItemId): void
+    {
+        $this->transaction_item_id = $transactionItemId;
+    }
+
+    /**
      * @return string
      */
     public function getReference(): ?string
@@ -183,7 +204,7 @@ class Adjustment extends Base
     }
 
     /**
-     * @param Mixed_
+     * @param \DateTime
      */
     public function getCompletedAt()
     {

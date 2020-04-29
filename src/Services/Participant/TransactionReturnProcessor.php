@@ -133,7 +133,9 @@ SQL
             $return['total_return_amount'],
             $return['transaction_id'],
             $description,
-            $return['guid']
+            $return['guid'],
+            null,
+            $return['transactionItemId']
         ) !== null;
     }
 
@@ -144,6 +146,7 @@ SELECT
     (SELECT program.point FROM program WHERE program.id = participant.program_id) as program_point_value,
     participant.unique_id as participant_unique_id, 
     ((transactionproduct.retail + transactionproduct.handling + transactionproduct.shipping) * transactionitem.quantity) as total_return_amount,
+    transactionitem.id as transactionItemId,
     transactionitem.transaction_id,
     transactionitem.guid,
     transaction_item_return.* 
