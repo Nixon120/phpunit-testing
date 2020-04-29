@@ -11,7 +11,7 @@
 !/logs/.gitkeep
 /public/resources/app/layout/
 /public/resources/app/reports/
-
+supervisord.pid
 
 # Application
 logs/
