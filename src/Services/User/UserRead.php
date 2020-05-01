@@ -56,8 +56,8 @@ class UserRead
             ->repository
             ->getCollection(
                 $filter,
-                $input->getOffset(),
-                30
+                $input->getPage(),
+                $input->getLimit()
             );
         return $users;
     }

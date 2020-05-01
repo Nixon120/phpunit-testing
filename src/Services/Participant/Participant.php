@@ -54,8 +54,8 @@ class Participant
             ->repository
             ->getCollection(
                 $filter,
-                $input->getOffset(),
-                30
+                $input->getPage(),
+                $input->getLimit()
             );
         return $participants;
     }

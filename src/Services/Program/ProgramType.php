@@ -21,7 +21,7 @@ class ProgramType
     public function __construct(
         ProgramTypeRepository $repository
     ) {
-    
+
         $this->repository = $repository;
     }
 
@@ -32,7 +32,7 @@ class ProgramType
     public function get(Interfaces\InputNormalizer $input)
     {
         $filter = new ProgramTypeFilterNormalizer($input->getInput());
-        $programs = $this->repository->getCollection($filter, $input->getOffset(), 30);
+        $programs = $this->repository->getCollection($filter, $input->getPage(), $input->getLimit());
         return $programs;
     }
 

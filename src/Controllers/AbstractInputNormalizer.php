@@ -6,9 +6,8 @@ use Controllers\Interfaces\InputNormalizer;
 abstract class AbstractInputNormalizer implements InputNormalizer
 {
     private $input = [];
-
+    private $limit;
     private $offset;
-
     private $page;
 
     public function __construct(?array $input = null)
@@ -29,12 +28,22 @@ abstract class AbstractInputNormalizer implements InputNormalizer
         }
     }
 
+    public function getLimit():int
+    {
+        return $this->limit;
+    }
+
     private function setPaging()
     {
         $this->page = !empty($this->input['page']) ? (int) $this->input['page'] : 1;
-        $offset = !empty($this->input['offset']) ? (int) $this->input['offset'] : 30;
-        $this->offset = ((int)($this->page-1) * (int)$offset);
-        unset($this->input['offset'], $this->input['page']);
+        $this->limit = 30;
+        if(!empty($this->input['limit'])) {
+          $this->limit = $this->input['limit'];
+        }
+        else if(!empty($this->input['offset'])) {
+          $this->limit = $this->input['offset'];
+        }
+        unset($this->input['limit'], $this->input['offset'], $this->input['page']);
     }
 
     public function getPage(): int
@@ -42,8 +51,4 @@ abstract class AbstractInputNormalizer implements InputNormalizer
         return $this->page;
     }
 
-    public function getOffset(): int
-    {
-        return $this->offset;
-    }
 }

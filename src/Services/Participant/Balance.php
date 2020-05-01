@@ -99,7 +99,7 @@ class Balance
     {
         $filter = new BalanceFilterNormalizer($input->getInput());
         $this->repository->orderBy = " ORDER BY adjustment.created_at DESC ";
-        $adjustments = $this->repository->getCollection($filter, $input->getOffset(), 30);
+        $adjustments = $this->repository->getCollection($filter, $input->getPage(), $input->getLimit());
         return $adjustments;
     }
 
