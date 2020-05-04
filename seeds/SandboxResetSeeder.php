@@ -809,7 +809,7 @@ SQL
         # Purge all existing participant meta.
         $this->execute('
             SET FOREIGN_KEY_CHECKS=0;
-            TRUNCATE `' . getenv('MYSQL_DATABASE') . '`.`ParticipantMeta`;
+            TRUNCATE `' . getenv('MYSQL_DATABASE') . '`.`participant_meta_value`;
             TRUNCATE `' . getenv('MYSQL_DATABASE') . '`.`Participant`;
             SET FOREIGN_KEY_CHECKS=1;
         ');

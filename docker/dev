@@ -24,29 +24,29 @@ if [ $# -gt 0 ];then
         shift 1
         $COMPOSE exec $TTY \
             admin \
-            sh -c "cd /var/www/html && $@"
+            sh -c "cd /app && $@"
     elif [ "$1" == "composer" ]; then
         shift 1
         $COMPOSE run --rm \
-            -w /var/www/html $TTY \
+            -w /app $TTY \
             admin \
             composer "$@"
     elif [ "$1" == "migrate" ]; then
         shift 1
         $COMPOSE run --rm \
-            -w /var/www/html $TTY \
+            -w /app $TTY \
             admin \
-            /var/www/html/vendor/robmorgan/phinx/bin/phinx migrate -c /var/www/html/phinx.php
+            /app/vendor/robmorgan/phinx/bin/phinx migrate -c /app/phinx.php
     elif [ "$1" == "reset" ]; then
         shift 1
         $COMPOSE exec $TTY \
             admin \
-            sh -c "cd /var/www/html && ./vendor/robmorgan/phinx/bin/phinx seed:run"
+            sh -c "cd /app && ./vendor/robmorgan/phinx/bin/phinx seed:run"
     elif [ "$1" == "test" ]; then
         shift 1
         $COMPOSE exec $TTY \
             admin \
-            sh -c "cd /var/www/html && ./vendor/robmorgan/phinx/bin/phinx seed:run && ./vendor/phpunit/phpunit/phpunit $@"
+            sh -c "cd /app && ./vendor/robmorgan/phinx/bin/phinx seed:run && ./vendor/phpunit/phpunit/phpunit $@"
     else
         $COMPOSE "$@"
     fi
