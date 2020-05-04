@@ -349,7 +349,8 @@ class Transaction
         $transactionId = null,
         $description = null,
         $reference = null,
-        $completed_at = null
+        $completed_at = null,
+        $transactionItemId = null
     ): ?Adjustment
     {
         $pointConversion = $participant->getProgram()->getPoint();
@@ -358,6 +359,7 @@ class Transaction
         $adjustment->setType($type);
         $adjustment->setAmount($pointTotal);
         $adjustment->setTransactionId($transactionId);
+        $adjustment->setTransactionItemId($transactionItemId);
         $adjustment->setDescription($description);
         $adjustment->setReference($reference);
 

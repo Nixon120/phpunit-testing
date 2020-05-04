@@ -13,7 +13,6 @@
 /public/resources/app/reports/
 supervisord.pid
 
-
 # Application
 logs/
 app/Config/

@@ -4,4 +4,4 @@ require __DIR__ . "/../cli-bootstrap.php";
 /** @var \Slim\Container $container */
 
 $processor = new \Services\Participant\TransactionReturnProcessor($container);
-$processor->processPendingRefundRequests();
+$processor->processPendingReturnRequests();
