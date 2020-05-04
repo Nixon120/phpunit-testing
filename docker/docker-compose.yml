@@ -107,6 +107,8 @@ services:
       - "15672:15672"
     expose:
       - 5672
+    environment:
+      RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: "-rabbit log [{console,[{enabled,true},{level,warning}]}]"
     networks:
       - adrnet
   redis:
