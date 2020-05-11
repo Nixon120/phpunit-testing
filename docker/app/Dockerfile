@@ -14,6 +14,7 @@ RUN docker-php-ext-install pdo pdo_mysql bcmath exif sockets mbstring xml gettex
     && docker-php-ext-configure zip --with-libzip=/usr/include \
     && docker-php-ext-install zip
 
+RUN pecl install mongodb && docker-php-ext-enable mongodb
 RUN pecl install redis && docker-php-ext-enable redis
 
 RUN mkdir -p /run/nginx
