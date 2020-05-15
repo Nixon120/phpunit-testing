@@ -35,7 +35,7 @@ class Category
     public function get(Interfaces\InputNormalizer $input)
     {
         $filter = new CategoryFilterNormalizer($input->getInput());
-        $organizations = $this->repository->getCollection($filter, $input->getOffset(), 30);
+        $organizations = $this->repository->getCollection($filter, $input->getPage(), $input->getLimit());
         return $organizations;
     }
 

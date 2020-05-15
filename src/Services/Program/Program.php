@@ -61,7 +61,7 @@ class Program
     public function get(Interfaces\InputNormalizer $input)
     {
         $filter = new FilterNormalizer($input->getInput());
-        $programs = $this->repository->getCollection($filter, $input->getOffset(), 30);
+        $programs = $this->repository->getCollection($filter, $input->getPage(), $input->getLimit());
         return $programs;
     }
 

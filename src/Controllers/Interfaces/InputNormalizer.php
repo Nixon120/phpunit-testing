@@ -10,5 +10,5 @@ interface InputNormalizer
 
     public function getPage(): int;
 
-    public function getOffset(): int;
+    public function getLimit(): int;
 }

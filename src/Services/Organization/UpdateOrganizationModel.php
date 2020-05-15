@@ -36,7 +36,7 @@ class UpdateOrganizationModel extends AbstractOrganizationModel
     public function get(Interfaces\InputNormalizer $input)
     {
         $filter = new FilterNormalizer($input->getInput());
-        $organizations = $this->repository->getCollection($filter, $input->getOffset(), 30);
+        $organizations = $this->repository->getCollection($filter, $input->getPage(), $input->getLimit());
         return $organizations;
     }
 

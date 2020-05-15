@@ -239,10 +239,11 @@ SQL;
 
     public function getCollection(
         FilterNormalizer $filters = null,
-        $offset = 30,
+        $page = 1,
         // Why default offset to 30?
         $limit = 30
     ) {
+        $offset = ((int)($page-1)) * ((int)$limit);
         $sql = $this->getCollectionQuery() . ' ';
         $args = [];
 
@@ -260,7 +261,6 @@ SQL;
         }
 
         $sql .= " LIMIT " . $limit . " OFFSET " . $offset;
-
         if ($filters !== null) {
             $args = $filters->getFilterConditionArgs();
         }
@@ -283,8 +283,8 @@ SQL;
     private function getSafeColumnName(string $column): ?string
     {
         $sql = <<<SQL
-SELECT column_name, ordinal_position 
-FROM information_schema.columns 
+SELECT column_name, ordinal_position
+FROM information_schema.columns
 WHERE table_name = '{$this->table}'
 SQL;
 
