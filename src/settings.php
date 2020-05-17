@@ -69,6 +69,7 @@ return [
             'cardaccounts.all',
             'avs.all',
             'sftp.all',
+            'redemption-campaigns.all',
         ],
         'admin' => [
             'organization.all',
