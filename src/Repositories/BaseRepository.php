@@ -240,9 +240,9 @@ SQL;
     public function getCollection(
         FilterNormalizer $filters = null,
         $page = 1,
-        // Why default offset to 30?
         $limit = 30
     ) {
+        $page = $page < 1 ? 1 : $page;
         $offset = ((int)($page-1)) * ((int)$limit);
         $sql = $this->getCollectionQuery() . ' ';
         $args = [];

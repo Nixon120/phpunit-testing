@@ -45,7 +45,7 @@ SQL;
             ['organization_id' => $organization->getId()]
         );
 
-        return $this->getCollection($filters, 0, 100);
+        return $this->getCollection($filters, 1, 100);
     }
 
     /**
