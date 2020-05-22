@@ -10,5 +10,6 @@ while ! nc -w 1 -z $MYSQL_HOST 3306; do sleep 0.1; done;
 # Run DB Migrations
 php /app/vendor/robmorgan/phinx/bin/phinx migrate -c /app/phinx.php
 
-/usr/sbin/crond -l 8
+if [ "$ENABLE_CRON" = "1" ]; then crond -l 8;fi
+
 /usr/bin/supervisord -c /etc/supervisord.conf
