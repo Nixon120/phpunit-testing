@@ -34,6 +34,7 @@ class OutputNormalizer extends AbstractOutputNormalizer
         $return['meta'] = $participant->getMeta();
         $return['firstname'] = $participant->getFirstname();
         $return['lastname'] = $participant->getLastname();
+        $return['status'] = $participant->getStatus();
 
         $return = $this->scrub($return, [
             'address_reference',
@@ -41,7 +42,8 @@ class OutputNormalizer extends AbstractOutputNormalizer
             'sso',
             'id',
             'organization_id',
-            'program_id'
+            'program_id',
+            'frozen'
         ]);
         return $return;
     }

@@ -2,6 +2,7 @@
 namespace Controllers\Participant;
 
 use Controllers\AbstractModifyController;
+use Services\Authentication\Authenticate;
 use Slim\Http\Request;
 use Slim\Http\Response;
 use Services\Participant\ServiceFactory;
@@ -23,11 +24,11 @@ class Modify extends AbstractModifyController
         $this->service = $factory->getService();
     }
 
-    public function insert()
+    public function insert(string $agentEmailAddress)
     {
         $post = $this->request->getParsedBody()??[];
         unset($post['credit']);
-        if ($participant = $this->service->insert($post)) {
+        if ($participant = $this->service->insert($post, $agentEmailAddress)) {
             $output = new OutputNormalizer($participant);
             return $this->returnJson(201, $output->get());
         }
@@ -36,13 +37,13 @@ class Modify extends AbstractModifyController
         return $this->returnFormattedJsonError(400, $errors);
     }
 
-    public function update($id)
+    public function update($id, string $agentEmailAddress)
     {
         $post = $this->request->getParsedBody()??[];
         unset($post['credit']);
         //@TODO: perhaps we can figure out a clean way to remove unneeded fields without explicitly removing them
         //We don't need this.
-        if ($participant = $this->service->update($id, $post)) {
+        if ($participant = $this->service->update($id, $post, $agentEmailAddress)) {
             $output = new OutputNormalizer($participant);
             return $this->returnJson(200, $output->get());
         }

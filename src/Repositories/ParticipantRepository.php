@@ -7,6 +7,7 @@ use Entities\Contact;
 use Entities\Domain;
 use Entities\OfflineRedemption;
 use Entities\Organization;
+use Entities\ParticipantChangeLog;
 use Entities\Program;
 use Entities\Address;
 use Entities\Participant;
@@ -352,6 +353,23 @@ SQL;
         }
 
         return $this->setParticipantMeta($metaCollection);
+    }
+
+    public function logParticipantChange(Participant $participant, string $agentEmail, bool $create = false)
+    {
+        $action = $create === true ? 'create' : 'update';
+        $participantChangeLog = new ParticipantChangeLog();
+        $participantChangeLog->setAction($action);
+        $participantChangeLog->setLoggedAt((new \DateTime)->format('Y-m-d H:i:s'));
+        $participantChangeLog->setObjectId($participant->getId());
+        $participantChangeLog->setData(json_encode(['status' => $participant->getStatus()]));
+        $participantChangeLog->setUsername($agentEmail);
+        $this->table = 'participant_change_log';
+        if (!$this->place($participantChangeLog)) {
+            return false;
+        }
+        $this->table = 'Participant';
+        return true;
     }
 
     private function getMetaKey(string $keyName)

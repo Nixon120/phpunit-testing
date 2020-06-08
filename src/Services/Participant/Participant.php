@@ -178,9 +178,10 @@ class Participant
 
     /**
      * @param $data
+     * @param string $agentEmail
      * @return false|\Entities\Participant
      */
-    public function insert($data)
+    public function insert($data, string $agentEmail)
     {
         //@TODO API Exceptions
         if (!empty($data['program'])) {
@@ -211,6 +212,12 @@ class Participant
                 ->format('Y-m-d');
         } else {
             $data['birthdate'] = null;
+        }
+
+        if (isset($data['frozen']) && (int) $data['frozen'] === 1) {
+            $data['active'] = 0;
+        } else {
+            $data['frozen'] = 0;
         }
 
         if (isset($data['active']) && (int) $data['active'] === 0) {
@@ -252,6 +259,7 @@ class Participant
 
         if ($this->repository->insert($participant->toArray())) {
             $participant = $this->repository->getParticipant($participant->getUniqueId());
+            $this->repository->logParticipantChange($participant, $agentEmail, true);
             if ($address !== null) {
                 $participant->setAddress($address);
                 $this->repository->insertAddress($participant->getAddress());
@@ -278,9 +286,10 @@ class Participant
     /**
      * @param $id
      * @param $data
+     * @param string $agentEmailAddress
      * @return false|\Entities\Participant
      */
-    public function update($id, $data)
+    public function update($id, $data, string $agentEmailAddress)
     {
         $participant = $this->getSingle($id);
         //@TODO this sucks.. fix it someway
@@ -301,6 +310,12 @@ class Participant
             $data['birthdate'] = null;
         }
 
+        if (isset($data['frozen']) && (int) $data['frozen'] === 1) {
+            $data['active'] = 0;
+        } else {
+            $data['frozen'] = 0;
+        }
+
         if (isset($data['active'])) {
             $statusFlag = (int) $data['active'];
             if ($statusFlag === 1) {
@@ -315,6 +330,8 @@ class Participant
         unset($data['program'], $data['organization'], $data['password'], $data['address'], $data['meta'], $data['password_confirm'], $data['unique_id']);
 
         $participant->exchange($data);
+        $this->repository->logParticipantChange($participant, $agentEmailAddress);
+
         if ($address !== null) {
             $participant->setAddress($address);
             $data['address_reference'] = $participant->getAddressReference();

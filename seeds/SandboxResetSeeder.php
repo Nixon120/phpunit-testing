@@ -774,10 +774,11 @@ SQL
     private function seedParticipant()
     {
         $userContainerSeed = [];
+        $userContainerIds = [];
 
         for ($i = 1, $j = 0; $i <= 100; $i++, $j++) {
             $birthdate = $this->getFaker()->dateTimeBetween('-50 years', 'now')->format('Y-m-d');
-
+            $userContainerIds[] = $i;
             $userContainerSeed[] = [
                 'organization_id' => 2,
                 'program_id' => 2,
@@ -810,9 +811,19 @@ SQL
         $this->execute('
             SET FOREIGN_KEY_CHECKS=0;
             TRUNCATE `' . getenv('MYSQL_DATABASE') . '`.`participant_meta_value`;
+            TRUNCATE `' . getenv('MYSQL_DATABASE') . '`.`participant_change_log`;
             TRUNCATE `' . getenv('MYSQL_DATABASE') . '`.`Participant`;
             SET FOREIGN_KEY_CHECKS=1;
         ');
+
+        # Write participant change logs
+        foreach ($userContainerIds as $participantId) {
+            $sql = <<<SQL
+INSERT INTO participant_change_log (action, logged_at, object_id, data, username)
+VALUES ('create', NOW(), $participantId, '{"status": "active"}', 'system')
+SQL;
+            $this->execute($sql);
+        }
 
         # Load participants.
         $participants->insert($userContainerSeed)
