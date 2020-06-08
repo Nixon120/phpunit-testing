@@ -374,6 +374,14 @@ class Participant extends Base
     }
 
     /**
+     * @return mixed
+     */
+    public function getFrozen()
+    {
+        return $this->frozen;
+    }
+
+    /**
      * @param mixed $frozen
      */
     public function setFrozen($frozen): void
@@ -386,11 +394,12 @@ class Participant extends Base
      */
     public function getStatus()
     {
-        if ($this->isActive() === true) {
-            return 'active';
-        }
         if ($this->isFrozen() === true) {
             return 'frozen';
+        }
+
+        if ($this->isActive() === true) {
+            return 'active';
         }
 
         return 'inactive';

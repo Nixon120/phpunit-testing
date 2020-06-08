@@ -214,9 +214,7 @@ class Participant
             $data['birthdate'] = null;
         }
 
-        if (isset($data['frozen']) && (int) $data['frozen'] === 1) {
-            $data['active'] = 0;
-        } else {
+        if (isset($data['frozen']) === false) {
             $data['frozen'] = 0;
         }
 
@@ -310,10 +308,8 @@ class Participant
             $data['birthdate'] = null;
         }
 
-        if (isset($data['frozen']) && (int) $data['frozen'] === 1) {
-            $data['active'] = 0;
-        } else {
-            $data['frozen'] = 0;
+        if (isset($data['frozen']) === false) {
+            $data['frozen'] = $participant->isFrozen() ? 1 : 0;
         }
 
         if (isset($data['active'])) {

@@ -43,7 +43,6 @@ class OutputNormalizer extends AbstractOutputNormalizer
             'id',
             'organization_id',
             'program_id',
-            'frozen'
         ]);
         return $return;
     }

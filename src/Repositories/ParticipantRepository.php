@@ -49,7 +49,7 @@ SQL;
         return <<<SQL
 SELECT Participant.id, Participant.program_id, Program.unique_id as program_reference, 
     Organization.unique_id as organization_reference, email_address, 
-    Participant.unique_id, credit, firstname, lastname, Participant.active, 
+    Participant.unique_id, credit, firstname, lastname, Participant.active, Participant.frozen, Participant.deactivated_at, 
     Participant.updated_at, Participant.created_at FROM Participant
 JOIN Organization ON Organization.id = Participant.organization_id
 JOIN Program ON Program.id = Participant.program_id

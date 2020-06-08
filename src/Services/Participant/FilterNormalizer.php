@@ -10,7 +10,11 @@ class FilterNormalizer extends AbstractFilterNormalizer
         $string = "";
 
         if ($value !== "") {
-            $string = "`Participant`.`active` = ?";
+            if (in_array($value, ["0", "1"])) {
+                return "`Participant`.`active` = ?";
+            }
+            //value comes in as 2 so we need to just set where frozen is 1
+            $string = "`Participant`.`frozen` = 1";
         }
 
         return $string;
@@ -20,7 +24,7 @@ class FilterNormalizer extends AbstractFilterNormalizer
     {
         $args = [];
 
-        if ($value !== "") {
+        if ($value !== "" && $value !== "2") {
             $args[] = $value;
         }
 
