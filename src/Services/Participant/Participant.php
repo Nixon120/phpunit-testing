@@ -330,7 +330,6 @@ class Participant
         unset($data['program'], $data['organization'], $data['password'], $data['address'], $data['meta'], $data['password_confirm'], $data['unique_id']);
 
         $participant->exchange($data);
-        $this->repository->logParticipantChange($participant, $agentEmailAddress);
 
         if ($address !== null) {
             $participant->setAddress($address);
@@ -352,6 +351,9 @@ class Participant
             if ($meta !== null) {
                 $this->repository->saveMeta($participant->getId(), $meta);
             }
+
+            $this->repository->logParticipantChange($participant, $agentEmailAddress);
+
             return $this->repository->getParticipant($participant->getUniqueId());
         }
 

@@ -805,6 +805,9 @@ SQL
             'active' => 1,
         ];
 
+        //add last id, since not in loop
+        $userContainerIds[] = count($userContainerSeed);
+
         $participants = $this->table('Participant');
 
         # Purge all existing participant meta.
