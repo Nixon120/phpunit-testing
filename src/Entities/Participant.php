@@ -10,7 +10,7 @@ use Entities\Traits\TimestampTrait;
  * Class Participant
  * @package Entities
  */
-class Participant extends \Entities\Base
+class Participant extends Base
 {
     use StatusTrait;
     use TimestampTrait;
