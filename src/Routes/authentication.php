@@ -4,10 +4,10 @@ $app->post("/token", function ($request, $response, $args) use ($app) {
     $container = $app->getContainer();
     /** @var \Services\Authentication\Authenticate $authentication */
     $authentication = $container->get('authentication');
-    $requestedScope = $request->getParsedBody() ?:[];
+    $roles = $container->get('roles');
 
     // Now compare this to the request body
-    return $authentication->establishApiIsAuthenticated($requestedScope);
+    return $authentication->establishApiIsAuthenticated($roles);
 });
 
 $app->get("/healthz", function ($request, $response) {
