@@ -70,6 +70,7 @@ return [
             'avs.all',
             'sftp.all',
             'redemption-campaigns.all',
+            'game-vendor.all'
         ],
         'admin' => [
             'organization.all',
