@@ -247,13 +247,13 @@ class Authenticate
         return $this->response = $this->response->withRedirect($this->getAuthRedirectUrl(), 200);
     }
 
-    public function establishApiIsAuthenticated($scope)
+    public function establishApiIsAuthenticated($roles)
     {
-        $this->getToken()->setRequestedScopes($scope);
         //Need to pull email from server params
         $server = $this->request->getServerParams();
         $email = $server["PHP_AUTH_USER"];
         $this->getUserFromDatabase($email);
+        $this->getToken()->setRequestedScopes($roles[$this->getUser()->getRole()]);
         $data = $this->getToken()->generateUserToken($this->getUser());
         //@TODO change to $this->>response()->withJson
         return $this->response->withStatus(201)
