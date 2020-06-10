@@ -41,6 +41,9 @@ class Transaction
         $participant = $this->service->participantRepository->getParticipantByOrganization($organizationId, $uniqueId);
 
         if ($participant !== null) {
+            if ($participant->isFrozen() === true || $participant->isActive() === false) {
+                return $this->returnJson(400, ['Transaction not allowed. Participant is ' . $participant->getStatus()]);
+            }
             $post = $this->request->getParsedBody() ?? [];
 
             try {
@@ -63,6 +66,9 @@ class Transaction
         $participant = $this->service->participantRepository->getParticipantByOrganization($organizationId, $uniqueId);
 
         if ($participant !== null) {
+            if ($participant->isFrozen() === true || $participant->isActive() === false) {
+                return $this->returnJson(400, ['Transaction not allowed. Participant is ' . $participant->getStatus()]);
+            }
             $post = $this->request->getParsedBody() ?? [];
             $post['issue_points'] = false;
             $offlineRedemptions = $this->service->participantRepository->getOfflineRedemptions($participant->getProgram());

@@ -7,6 +7,7 @@ use Entities\Contact;
 use Entities\Domain;
 use Entities\OfflineRedemption;
 use Entities\Organization;
+use Entities\ParticipantChangeLog;
 use Entities\Program;
 use Entities\Address;
 use Entities\Participant;
@@ -46,10 +47,27 @@ SQL;
         }
 
         return <<<SQL
-SELECT Participant.id, Participant.program_id, Program.unique_id as program_reference, 
-    Organization.unique_id as organization_reference, email_address, 
-    Participant.unique_id, credit, firstname, lastname, Participant.active, 
-    Participant.updated_at, Participant.created_at FROM Participant
+SELECT 
+   Participant.id,
+   Participant.program_id,
+   Program.unique_id as program_reference, 
+   Organization.unique_id as organization_reference,
+   email_address, 
+   Participant.unique_id,
+   credit,
+   firstname,
+   lastname,
+   Participant.active,
+   Participant.frozen,
+   Participant.deactivated_at, 
+   Participant.updated_at,
+   Participant.created_at, 
+   CASE
+    WHEN Participant.frozen = 1 THEN 'frozen'
+    WHEN Participant.active = 1 AND Participant.frozen = 0 THEN 'active'
+    WHEN Participant.active = 0 AND Participant.frozen = 0 THEN 'inactive'
+    END as status
+FROM Participant
 JOIN Organization ON Organization.id = Participant.organization_id
 JOIN Program ON Program.id = Participant.program_id
 {$where}
@@ -352,6 +370,23 @@ SQL;
         }
 
         return $this->setParticipantMeta($metaCollection);
+    }
+
+    public function logParticipantChange(Participant $participant, string $agentEmail, bool $create = false)
+    {
+        $action = $create === true ? 'create' : 'update';
+        $participantChangeLog = new ParticipantChangeLog();
+        $participantChangeLog->setAction($action);
+        $participantChangeLog->setLoggedAt((new \DateTime)->format('Y-m-d H:i:s'));
+        $participantChangeLog->setParticipantId($participant->getId());
+        $participantChangeLog->setData(json_encode(['status' => $participant->getStatus()]));
+        $participantChangeLog->setUsername($agentEmail);
+        $this->table = 'participant_change_log';
+        if (!$this->place($participantChangeLog)) {
+            return false;
+        }
+        $this->table = 'Participant';
+        return true;
     }
 
     private function getMetaKey(string $keyName)

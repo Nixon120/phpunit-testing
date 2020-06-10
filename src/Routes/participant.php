@@ -1,16 +1,21 @@
 <?php
 
 use \Controllers\Participant as Controllers;
+use Services\Authentication\Authenticate;
 
 $updateRoute = function ($request, $response, $args) {
     $participant = new Controllers\Modify($request, $response, $this->get('participant'));
     $participantId = $args['id'];
-    return $participant->update($participantId);
+    /** @var Authenticate $auth */
+    $auth = $this->get('authentication');
+    return $participant->update($participantId, $auth->getUser()->getEmailAddress());
 };
 
 $createRoute = function ($request, $response) {
     $participant = new Controllers\Modify($request, $response, $this->get('participant'));
-    return $participant->insert();
+    /** @var Authenticate $auth */
+    $auth = $this->get('authentication');
+    return $participant->insert($auth->getUser()->getEmailAddress());
 };
 
 $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
@@ -40,15 +45,15 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
     $app->post('/{id}/sso', function ($request, $response, $args) {
         $participant = new Controllers\Sso($request, $response, $this->get('participant'));
         $uniqueId = $args['id'];
-        /** @var \Services\Authentication\Authenticate $auth */
+        /** @var Authenticate $auth */
         $auth = $this->get('authentication');
-        return $participant->generateSso($auth->getUser()->getOrganizationId(), $uniqueId);
+        return $participant->generateSso($auth->getUser(), $uniqueId);
     })->add(\Middleware\ParticipantStatusValidator::class);
 
     $app->get('/{id}/sso', function ($request, $response, $args) {
         $participant = new Controllers\Sso($request, $response, $this->get('participant'));
         $uniqueId = $args['id'];
-        /** @var \Services\Authentication\Authenticate $auth */
+        /** @var Authenticate $auth */
         $auth = $this->get('authentication');
         return $participant->authenticateSsoToken($auth->getUser()->getOrganizationId(), $uniqueId);
     });
@@ -57,7 +62,7 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
         $transaction = new Controllers\Transaction($request, $response, $this->get('participant'));
         $uniqueId = $args['id'];
         $year = $request->getParam('year');
-        /** @var \Services\Authentication\Authenticate $auth */
+        /** @var Authenticate $auth */
         $auth = $this->get('authentication');
         return $transaction->transactionList($auth->getUser()->getOrganizationId(), $uniqueId, $year);
     });
@@ -66,7 +71,7 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
         $transaction = new Controllers\Transaction($request, $response, $this->get('participant'));
         $uniqueId = $args['id'];
         $transactionId = $args['transaction_id'];
-        /** @var \Services\Authentication\Authenticate $auth */
+        /** @var Authenticate $auth */
         $auth = $this->get('authentication');
         return $transaction->single($auth->getUser()->getOrganizationId(), $uniqueId, $transactionId);
     });
@@ -74,7 +79,7 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
     $app->patch('/{id}/transaction/{transaction_id}/meta', function ($request, $response, $args) {
         // Update Transaction Meta using Transaction ID OR Transaction Item GUID.
         $transaction = new Controllers\Transaction($request, $response, $this->get('participant'));
-        /** @var \Services\Authentication\Authenticate $auth */
+        /** @var Authenticate $auth */
         $auth = $this->get('authentication');
         return $transaction->patchMeta($auth->getUser()->getOrganizationId(), $args['id'], $args['transaction_id']);
     });
@@ -85,7 +90,7 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
         $transaction = new Controllers\Transaction($request, $response, $this->get('participant'));
         $uniqueId = $args['id'];
         $itemGuid = $args['item_guid'];
-        /** @var \Services\Authentication\Authenticate $auth */
+        /** @var Authenticate $auth */
         $auth = $this->get('authentication');
         return $transaction->singleItem($auth->getUser()->getOrganizationId(), $uniqueId, $itemGuid);
     });
@@ -94,7 +99,7 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
         $transaction = new Controllers\Transaction($request, $response, $this->get('participant'));
         $uniqueId = $args['id'];
         $itemGuid = $args['item_guid'];
-        /** @var \Services\Authentication\Authenticate $auth */
+        /** @var Authenticate $auth */
         $auth = $this->get('authentication');
         return $transaction->addReissueDate(
             $auth->getUser()->getOrganizationId(),
@@ -106,7 +111,7 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
     $app->post('/{id}/transaction', function ($request, $response, $args) {
         $transaction = new Controllers\Transaction($request, $response, $this->get('participant'));
         $uniqueId = $args['id'];
-        /** @var \Services\Authentication\Authenticate $auth */
+        /** @var Authenticate $auth */
         $auth = $this->get('authentication');
 
         return $transaction->addTransaction($auth->getUser()->getOrganizationId(), $uniqueId);
@@ -116,7 +121,7 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
     $app->post('/{id}/customerservice_transaction', function ($request, $response, $args) {
         $transaction = new Controllers\Transaction($request, $response, $this->get('participant'));
         $uniqueId = $args['id'];
-        /** @var \Services\Authentication\Authenticate $auth */
+        /** @var Authenticate $auth */
         $auth = $this->get('authentication');
 
         return $transaction->customerServiceTransaction($auth->getUser()->getOrganizationId(), $uniqueId);
@@ -126,7 +131,7 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
     $app->get('/{id}/adjustment', function ($request, $response, $args) {
         $balance = new Controllers\Balance($request, $response, $this->get('participant'));
         $uniqueId = $args['id'];
-        /** @var \Services\Authentication\Authenticate $auth */
+        /** @var Authenticate $auth */
         $auth = $this->get('authentication');
         return $balance->list($auth->getUser()->getOrganizationId(), $uniqueId);
     });
@@ -134,14 +139,14 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
     $app->post('/{id}/adjustment', function ($request, $response, $args) {
         $balance = new Controllers\Balance($request, $response, $this->get('participant'));
         $uniqueId = $args['id'];
-        /** @var \Services\Authentication\Authenticate $auth */
+        /** @var Authenticate $auth */
         $auth = $this->get('authentication');
         return $balance->insert($auth->getUser()->getOrganizationId(), $uniqueId);
     })->add(\Middleware\ParticipantStatusValidator::class);
 
     $app->patch('/{id}/adjustment/{adjustment_id}', function ($request, $response, $args) {
         $balance = new Controllers\Balance($request, $response, $this->get('participant'));
-        /** @var \Services\Authentication\Authenticate $auth */
+        /** @var Authenticate $auth */
         $auth = $this->get('authentication');
         return $balance->update($auth->getUser()->getOrganizationId(), $args['id'], $args['adjustment_id']);
     })->add(\Middleware\ParticipantStatusValidator::class);
@@ -149,7 +154,7 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
     $app->post('/{id}/sweepstake', function ($request, $response, $args) {
         $sweepstake = new Controllers\SweepstakeEntry($request, $response, $this->get('participant'));
         $uniqueId = $args['id'];
-        /** @var \Services\Authentication\Authenticate $auth */
+        /** @var Authenticate $auth */
         $auth = $this->get('authentication');
 
         return $sweepstake->create($auth->getUser()->getOrganizationId(), $uniqueId);
@@ -182,21 +187,21 @@ $app->group('/api/participant', function () use ($app, $createRoute, $updateRout
     $app->get('/{id}/adjustment', function ($request, $response, $args) {
         $balance = new Controllers\Balance($request, $response, $this->get('participant'));
         $uniqueId = $args['id'];
-        /** @var \Services\Authentication\Authenticate $auth */
+        /** @var Authenticate $auth */
         $auth = $this->get('authentication');
         return $balance->list($auth->getUser()->getOrganizationId(), $uniqueId);
     });
 
     $app->patch('/{id}/adjustment/{adjustment_id}', function ($request, $response, $args) {
         $balance = new Controllers\Balance($request, $response, $this->get('participant'));
-        /** @var \Services\Authentication\Authenticate $auth */
+        /** @var Authenticate $auth */
         $auth = $this->get('authentication');
         return $balance->update($auth->getUser()->getOrganizationId(), $args['id'], $args['adjustment_id']);
     })->add(\Middleware\ParticipantStatusValidator::class);
 
     $app->get('/{id}/transaction/{transaction_id}', function ($request, $response, $args) {
         $transaction = new Controllers\Transaction($request, $response, $this->get('participant'));
-        /** @var \Services\Authentication\Authenticate $auth */
+        /** @var Authenticate $auth */
         $auth = $this->get('authentication');
         return $transaction->single($auth->getUser()->getOrganizationId(), $args['id'], $args['transaction_id']);
     });
@@ -204,7 +209,7 @@ $app->group('/api/participant', function () use ($app, $createRoute, $updateRout
     $app->patch('/{id}/transaction/{transaction_id}/meta', function ($request, $response, $args) {
         // Update Transaction Meta using Transaction ID OR Transaction Item GUID.
         $transaction = new Controllers\Transaction($request, $response, $this->get('participant'));
-        /** @var \Services\Authentication\Authenticate $auth */
+        /** @var Authenticate $auth */
         $auth = $this->get('authentication');
         return $transaction->patchMeta($auth->getUser()->getOrganizationId(), $args['id'], $args['transaction_id']);
     });
@@ -215,7 +220,7 @@ $app->group('/api/participant', function () use ($app, $createRoute, $updateRout
         $transaction = new Controllers\Transaction($request, $response, $this->get('participant'));
         $uniqueId = $args['id'];
         $itemGuid = $args['item_guid'];
-        /** @var \Services\Authentication\Authenticate $auth */
+        /** @var Authenticate $auth */
         $auth = $this->get('authentication');
         return $transaction->addReissueDate(
             $auth->getUser()->getOrganizationId(),

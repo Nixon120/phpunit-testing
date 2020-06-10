@@ -230,6 +230,7 @@ abstract class AbstractParticipantServiceTest extends \PHPUnit\Framework\TestCas
             'address_reference' => null,
             'phone' => '1231231234',
             'birthdate' => null,
+            'frozen' => 0,
             'deactivated_at' => null,
             'active' => 1,
             'created_at' => '2017-12-06 01:28:09',

@@ -4,6 +4,7 @@ namespace Services\Participant;
 
 use AllDigitalRewards\RewardStack\Traits\MetaValidationTrait;
 use Controllers\Interfaces as Interfaces;
+use Entities\User;
 use Repositories\ParticipantRepository;
 
 class Participant
@@ -73,7 +74,8 @@ class Participant
         $filter = new FilterNormalizer([
             'program' => $program_unique_id,
             'points_greater_than' => $points,
-            'status' => 1,
+            'status' => 1, //status will retrieve active
+            'frozen' => 0, //filter out frozen participants
         ]);
 
         $participants = $this
@@ -91,7 +93,12 @@ class Participant
     {
         $participant = $this->repository->getParticipantByOrganization($organization, $uniqueId);
 
-        if ($participant !== null && $participant->getSso() === $token && $this->repository->purgeParticipantSso($participant->getId())) {
+        if ($participant !== null
+            && $participant->isFrozen() === false
+            && $participant->isActive() === true
+            && $participant->getSso() === $token
+            && $this->repository->purgeParticipantSso($participant->getId())
+        ) {
             return $participant;
         }
 
@@ -110,6 +117,11 @@ class Participant
             return false;
         }
 
+        if ($participant->isFrozen() === true) {
+            $this->errorMessage = 'Participant ' . $participant->getUniqueId() . ' is frozen';
+            return false;
+        }
+
         $program = $participant->getProgram();
         $programNameString = 'Program ' . $program->getName() . '[' . $program->getUniqueId() . ']';
         if ($program->isPublished() === false) {
@@ -125,9 +137,9 @@ class Participant
         return true;
     }
 
-    public function generateSso($organization, $uniqueId): ?array
+    public function generateSso(User $authUser, $uniqueId): ?array
     {
-        $participant = $this->repository->getParticipantByOrganization($organization, $uniqueId);
+        $participant = $this->repository->getParticipantByOrganization($authUser->getOrganizationId(), $uniqueId);
         if ($this->isSsoRequestValid($participant) === false) {
             return [
                 'error' => true,
@@ -137,7 +149,7 @@ class Participant
 
         $participant->setSso($participant->generateSsoToken());
         $aParticipantUpdateRequest = ['sso' => $participant->getSso()];
-        if ($this->update($participant->getUniqueId(), $aParticipantUpdateRequest)) {
+        if ($this->update($participant->getUniqueId(), $aParticipantUpdateRequest, $authUser->getEmailAddress())) {
             $program = $participant->getProgram();
             $domain = $program->getDomain();
             $exchange = implode('.', [$program->getUrl(), $domain->getUrl()]);
@@ -178,9 +190,10 @@ class Participant
 
     /**
      * @param $data
+     * @param string $agentEmail
      * @return false|\Entities\Participant
      */
-    public function insert($data)
+    public function insert($data, string $agentEmail)
     {
         //@TODO API Exceptions
         if (!empty($data['program'])) {
@@ -211,6 +224,10 @@ class Participant
                 ->format('Y-m-d');
         } else {
             $data['birthdate'] = null;
+        }
+
+        if (isset($data['frozen']) === false) {
+            $data['frozen'] = 0;
         }
 
         if (isset($data['active']) && (int) $data['active'] === 0) {
@@ -252,6 +269,7 @@ class Participant
 
         if ($this->repository->insert($participant->toArray())) {
             $participant = $this->repository->getParticipant($participant->getUniqueId());
+            $this->repository->logParticipantChange($participant, $agentEmail, true);
             if ($address !== null) {
                 $participant->setAddress($address);
                 $this->repository->insertAddress($participant->getAddress());
@@ -278,9 +296,10 @@ class Participant
     /**
      * @param $id
      * @param $data
+     * @param string $agentEmailAddress
      * @return false|\Entities\Participant
      */
-    public function update($id, $data)
+    public function update($id, $data, string $agentEmailAddress)
     {
         $participant = $this->getSingle($id);
         //@TODO this sucks.. fix it someway
@@ -301,6 +320,10 @@ class Participant
             $data['birthdate'] = null;
         }
 
+        if (isset($data['frozen']) === false) {
+            $data['frozen'] = $participant->isFrozen() ? 1 : 0;
+        }
+
         if (isset($data['active'])) {
             $statusFlag = (int) $data['active'];
             if ($statusFlag === 1) {
@@ -315,6 +338,7 @@ class Participant
         unset($data['program'], $data['organization'], $data['password'], $data['address'], $data['meta'], $data['password_confirm'], $data['unique_id']);
 
         $participant->exchange($data);
+
         if ($address !== null) {
             $participant->setAddress($address);
             $data['address_reference'] = $participant->getAddressReference();
@@ -335,6 +359,9 @@ class Participant
             if ($meta !== null) {
                 $this->repository->saveMeta($participant->getId(), $meta);
             }
+
+            $this->repository->logParticipantChange($participant, $agentEmailAddress);
+
             return $this->repository->getParticipant($participant->getUniqueId());
         }
 

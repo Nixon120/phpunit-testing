@@ -10,7 +10,11 @@ class FilterNormalizer extends AbstractFilterNormalizer
         $string = "";
 
         if ($value !== "") {
-            $string = "`Participant`.`active` = ?";
+            if (in_array(trim($value), ["0", "1"])) {
+                return "`Participant`.`active` = ?";
+            }
+            //value comes in as 2 so we need to just set where frozen is 1
+            $string = "`Participant`.`frozen` = 1";
         }
 
         return $string;
@@ -20,8 +24,30 @@ class FilterNormalizer extends AbstractFilterNormalizer
     {
         $args = [];
 
+        if ($value !== "" && $value !== "2") {
+            $args[] = trim($value);
+        }
+
+        return $args;
+    }
+
+    public function getFrozenFilter($value)
+    {
+        $string = "";
+
         if ($value !== "") {
-            $args[] = $value;
+            $string = "`Participant`.`frozen` = ?";
+        }
+
+        return $string;
+    }
+
+    public function getFrozenFilterArgs($value)
+    {
+        $args = [];
+
+        if ($value !== "") {
+            $args[] = trim($value);
         }
 
         return $args;
@@ -41,7 +67,7 @@ class FilterNormalizer extends AbstractFilterNormalizer
         $args = [];
 
         if ($value !== "") {
-            $args[] = $value;
+            $args[] = trim($value);
         }
 
         return $args;
@@ -61,7 +87,7 @@ class FilterNormalizer extends AbstractFilterNormalizer
         $args = [];
 
         if ($value !== "") {
-            $args[] = $value . '%';
+            $args[] = trim($value) . '%';
         }
 
         return $args;
@@ -81,7 +107,7 @@ class FilterNormalizer extends AbstractFilterNormalizer
         $args = [];
 
         if ($value !== "") {
-            $args[] = '%' . $value . '%';
+            $args[] = '%' . trim($value) . '%';
         }
 
         return $args;
@@ -101,7 +127,7 @@ class FilterNormalizer extends AbstractFilterNormalizer
         $args = [];
 
         if ($value !== "") {
-            $args[] = $value;
+            $args[] = trim($value);
         }
 
         return $args;
@@ -121,7 +147,7 @@ class FilterNormalizer extends AbstractFilterNormalizer
         $args = [];
 
         if ($value !== "") {
-            $args[] = $value;
+            $args[] = trim($value);
         }
 
         return $args;
@@ -141,9 +167,9 @@ class FilterNormalizer extends AbstractFilterNormalizer
         $args = [];
 
         if ($value !== "") {
-            $args[] = '%' . $value . '%';
-            $args[] = '%' . $value . '%';
-            $args[] = '%' . $value . '%';
+            $args[] = '%' . trim($value) . '%';
+            $args[] = '%' . trim($value) . '%';
+            $args[] = '%' . trim($value) . '%';
         }
 
         return $args;
@@ -163,7 +189,7 @@ class FilterNormalizer extends AbstractFilterNormalizer
         $args = [];
 
         if ($value !== "") {
-            $args[] = $value;
+            $args[] = trim($value);
         }
 
         return $args;

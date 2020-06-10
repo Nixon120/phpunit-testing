@@ -10,7 +10,7 @@ use Entities\Traits\TimestampTrait;
  * Class Participant
  * @package Entities
  */
-class Participant extends \Entities\Base
+class Participant extends Base
 {
     use StatusTrait;
     use TimestampTrait;
@@ -38,6 +38,8 @@ class Participant extends \Entities\Base
     public $phone;
 
     public $birthdate;
+
+    public $frozen;
 
     /**
      * @var ParticipantMeta[]
@@ -363,4 +365,43 @@ class Participant extends \Entities\Base
         $this->deactivated_at = $time;
     }
 
+    /**
+     * @return mixed
+     */
+    public function isFrozen()
+    {
+        return $this->frozen === 1;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getFrozen()
+    {
+        return $this->frozen;
+    }
+
+    /**
+     * @param mixed $frozen
+     */
+    public function setFrozen($frozen): void
+    {
+        $this->frozen = $frozen;
+    }
+
+    /**
+     * @return string
+     */
+    public function getStatus()
+    {
+        if ($this->isFrozen() === true) {
+            return 'frozen';
+        }
+
+        if ($this->isActive() === true) {
+            return 'active';
+        }
+
+        return 'inactive';
+    }
 }
