@@ -117,6 +117,11 @@ class Participant
             return false;
         }
 
+        if ($participant->isFrozen() === true) {
+            $this->errorMessage = 'Participant ' . $participant->getUniqueId() . ' is frozen';
+            return false;
+        }
+
         $program = $participant->getProgram();
         $programNameString = 'Program ' . $program->getName() . '[' . $program->getUniqueId() . ']';
         if ($program->isPublished() === false) {
