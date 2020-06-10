@@ -10,7 +10,7 @@ class FilterNormalizer extends AbstractFilterNormalizer
         $string = "";
 
         if ($value !== "") {
-            if (in_array($value, ["0", "1"])) {
+            if (in_array(trim($value), ["0", "1"])) {
                 return "`Participant`.`active` = ?";
             }
             //value comes in as 2 so we need to just set where frozen is 1
@@ -25,7 +25,7 @@ class FilterNormalizer extends AbstractFilterNormalizer
         $args = [];
 
         if ($value !== "" && $value !== "2") {
-            $args[] = $value;
+            $args[] = trim($value);
         }
 
         return $args;
@@ -45,7 +45,7 @@ class FilterNormalizer extends AbstractFilterNormalizer
         $args = [];
 
         if ($value !== "") {
-            $args[] = $value;
+            $args[] = trim($value);
         }
 
         return $args;
@@ -65,7 +65,7 @@ class FilterNormalizer extends AbstractFilterNormalizer
         $args = [];
 
         if ($value !== "") {
-            $args[] = $value . '%';
+            $args[] = trim($value) . '%';
         }
 
         return $args;
@@ -85,7 +85,7 @@ class FilterNormalizer extends AbstractFilterNormalizer
         $args = [];
 
         if ($value !== "") {
-            $args[] = '%' . $value . '%';
+            $args[] = '%' . trim($value) . '%';
         }
 
         return $args;
@@ -105,7 +105,7 @@ class FilterNormalizer extends AbstractFilterNormalizer
         $args = [];
 
         if ($value !== "") {
-            $args[] = $value;
+            $args[] = trim($value);
         }
 
         return $args;
@@ -125,7 +125,7 @@ class FilterNormalizer extends AbstractFilterNormalizer
         $args = [];
 
         if ($value !== "") {
-            $args[] = $value;
+            $args[] = trim($value);
         }
 
         return $args;
@@ -145,9 +145,9 @@ class FilterNormalizer extends AbstractFilterNormalizer
         $args = [];
 
         if ($value !== "") {
-            $args[] = '%' . $value . '%';
-            $args[] = '%' . $value . '%';
-            $args[] = '%' . $value . '%';
+            $args[] = '%' . trim($value) . '%';
+            $args[] = '%' . trim($value) . '%';
+            $args[] = '%' . trim($value) . '%';
         }
 
         return $args;
@@ -167,7 +167,7 @@ class FilterNormalizer extends AbstractFilterNormalizer
         $args = [];
 
         if ($value !== "") {
-            $args[] = $value;
+            $args[] = trim($value);
         }
 
         return $args;

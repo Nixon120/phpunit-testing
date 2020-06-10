@@ -266,7 +266,7 @@ SQL;
         }
 
         $sth = $this->database->prepare($sql);
-        $sth->execute($args);
+        $sth->execute(['%jmuto@alldigitalrewards.com%']);
 
         return $sth->fetchAll(
             PDO::FETCH_CLASS,

@@ -47,10 +47,27 @@ SQL;
         }
 
         return <<<SQL
-SELECT Participant.id, Participant.program_id, Program.unique_id as program_reference, 
-    Organization.unique_id as organization_reference, email_address, 
-    Participant.unique_id, credit, firstname, lastname, Participant.active, Participant.frozen, Participant.deactivated_at, 
-    Participant.updated_at, Participant.created_at FROM Participant
+SELECT 
+   Participant.id,
+   Participant.program_id,
+   Program.unique_id as program_reference, 
+   Organization.unique_id as organization_reference,
+   email_address, 
+   Participant.unique_id,
+   credit,
+   firstname,
+   lastname,
+   Participant.active,
+   Participant.frozen,
+   Participant.deactivated_at, 
+   Participant.updated_at,
+   Participant.created_at, 
+   CASE
+    WHEN Participant.frozen = 1 THEN 'frozen'
+    WHEN Participant.active = 1 AND Participant.frozen = 0 THEN 'active'
+    WHEN Participant.active = 0 AND Participant.frozen = 0 THEN 'inactive'
+    END as status
+FROM Participant
 JOIN Organization ON Organization.id = Participant.organization_id
 JOIN Program ON Program.id = Participant.program_id
 {$where}
