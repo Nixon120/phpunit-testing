@@ -31,6 +31,28 @@ class FilterNormalizer extends AbstractFilterNormalizer
         return $args;
     }
 
+    public function getFrozenFilter($value)
+    {
+        $string = "";
+
+        if ($value !== "") {
+            $string = "`Participant`.`frozen` = ?";
+        }
+
+        return $string;
+    }
+
+    public function getFrozenFilterArgs($value)
+    {
+        $args = [];
+
+        if ($value !== "") {
+            $args[] = trim($value);
+        }
+
+        return $args;
+    }
+
     public function getPointsGreaterThanFilter($value)
     {
         if ($value !== "") {
