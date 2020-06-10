@@ -10,12 +10,12 @@ class ParticipantServiceTest extends AbstractParticipantServiceTest
         $sthMock = $this->getPdoStatementMock();
 
         $this->getMockDatabase()
-            ->expects($this->exactly(28))
+            ->expects($this->exactly(29))
             ->method('prepare')
             ->with($this->isType('string'))
             ->will($this->returnValue($sthMock));
 
-        $sthMock->expects($this->exactly(28))
+        $sthMock->expects($this->exactly(29))
             ->method('execute')
             ->with($this->isType('array'));
 
@@ -61,6 +61,7 @@ class ParticipantServiceTest extends AbstractParticipantServiceTest
             'phone' => '1231231234',
             'password' => 'password',
             'active' => 1,
+            'frozen' => 0,
             'address' => [
                 'firstname' => 'John',
                 'lastname' => 'Smith',
@@ -77,7 +78,7 @@ class ParticipantServiceTest extends AbstractParticipantServiceTest
             ]
         ];
 
-        $participant = $participantService->insert($data);
+        $participant = $participantService->insert($data, 'system');
         $row = $this->getMockParticipantRow();
         $row['password'] = $participant->getPassword();
         $row['updated_at'] = $participant->getUpdatedAt();
@@ -93,7 +94,7 @@ class ParticipantServiceTest extends AbstractParticipantServiceTest
         $sthMock = $this->getPdoStatementMock();
 
         $this->getMockDatabase()
-            ->expects($this->exactly(27))
+            ->expects($this->exactly(28))
             ->method('prepare')
             ->with($this->isType('string'))
             ->will($this->returnValue($sthMock));
@@ -107,7 +108,7 @@ class ParticipantServiceTest extends AbstractParticipantServiceTest
             ->method('commit')
             ->will($this->returnValue(true));
 
-        $sthMock->expects($this->exactly(27))
+        $sthMock->expects($this->exactly(28))
             ->method('execute')
             ->with($this->isType('array'));
 
@@ -166,7 +167,7 @@ class ParticipantServiceTest extends AbstractParticipantServiceTest
             ]
         ];
 
-        $participant = $participantService->update(1, $data);
+        $participant = $participantService->update(1, $data, 'system');
 
         $row = $this->getMockParticipantRow();
         $row['password'] = $participant->getPassword();
