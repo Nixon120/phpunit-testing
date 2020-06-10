@@ -1,6 +1,7 @@
 <?php
 namespace Controllers\Participant;
 
+use Entities\User;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Services\Participant\ServiceFactory;
@@ -47,9 +48,9 @@ class Sso
         return $this->returnJson(400, ['No token match']);
     }
 
-    public function generateSso($programId, $uniqueId)
+    public function generateSso(User $user, $uniqueId)
     {
-        $participantToken = $this->service->generateSso($programId, $uniqueId);
+        $participantToken = $this->service->generateSso($user, $uniqueId);
 
         if (!isset($participantToken['error'])) {
             //@TODO: implement output normalization

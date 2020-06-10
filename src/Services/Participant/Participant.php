@@ -4,6 +4,7 @@ namespace Services\Participant;
 
 use AllDigitalRewards\RewardStack\Traits\MetaValidationTrait;
 use Controllers\Interfaces as Interfaces;
+use Entities\User;
 use Repositories\ParticipantRepository;
 
 class Participant
@@ -125,9 +126,9 @@ class Participant
         return true;
     }
 
-    public function generateSso($organization, $uniqueId): ?array
+    public function generateSso(User $authUser, $uniqueId): ?array
     {
-        $participant = $this->repository->getParticipantByOrganization($organization, $uniqueId);
+        $participant = $this->repository->getParticipantByOrganization($authUser->getOrganizationId(), $uniqueId);
         if ($this->isSsoRequestValid($participant) === false) {
             return [
                 'error' => true,
@@ -137,7 +138,7 @@ class Participant
 
         $participant->setSso($participant->generateSsoToken());
         $aParticipantUpdateRequest = ['sso' => $participant->getSso()];
-        if ($this->update($participant->getUniqueId(), $aParticipantUpdateRequest)) {
+        if ($this->update($participant->getUniqueId(), $aParticipantUpdateRequest, $authUser->getEmailAddress())) {
             $program = $participant->getProgram();
             $domain = $program->getDomain();
             $exchange = implode('.', [$program->getUrl(), $domain->getUrl()]);

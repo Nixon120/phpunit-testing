@@ -47,7 +47,7 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
         $uniqueId = $args['id'];
         /** @var Authenticate $auth */
         $auth = $this->get('authentication');
-        return $participant->generateSso($auth->getUser()->getOrganizationId(), $uniqueId);
+        return $participant->generateSso($auth->getUser(), $uniqueId);
     })->add(\Middleware\ParticipantStatusValidator::class);
 
     $app->get('/{id}/sso', function ($request, $response, $args) {
