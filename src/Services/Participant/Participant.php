@@ -92,7 +92,12 @@ class Participant
     {
         $participant = $this->repository->getParticipantByOrganization($organization, $uniqueId);
 
-        if ($participant !== null && $participant->getSso() === $token && $this->repository->purgeParticipantSso($participant->getId())) {
+        if ($participant !== null
+            && $participant->isFrozen() === false
+            && $participant->isActive() === true
+            && $participant->getSso() === $token
+            && $this->repository->purgeParticipantSso($participant->getId())
+        ) {
             return $participant;
         }
 
