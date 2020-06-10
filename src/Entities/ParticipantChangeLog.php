@@ -6,7 +6,7 @@ class ParticipantChangeLog extends Base
     public $id;
     public $action;
     public $logged_at;
-    public $object_id;
+    public $participant_id;
     public $data;
     public $username;
 
@@ -61,17 +61,17 @@ class ParticipantChangeLog extends Base
     /**
      * @return mixed
      */
-    public function getObjectId()
+    public function getParticipantId()
     {
-        return $this->object_id;
+        return $this->participant_id;
     }
 
     /**
-     * @param mixed $object_id
+     * @param mixed $participant_id
      */
-    public function setObjectId($object_id): void
+    public function setParticipantId($participant_id): void
     {
-        $this->object_id = $object_id;
+        $this->participant_id = $participant_id;
     }
 
     /**

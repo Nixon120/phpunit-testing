@@ -819,18 +819,18 @@ SQL
             SET FOREIGN_KEY_CHECKS=1;
         ');
 
+        # Load participants.
+        $participants->insert($userContainerSeed)
+            ->save();
+
         # Write participant change logs
         foreach ($userContainerIds as $participantId) {
             $sql = <<<SQL
-INSERT INTO participant_change_log (action, logged_at, object_id, data, username)
+INSERT INTO participant_change_log (action, logged_at, participant_id, data, username)
 VALUES ('create', NOW(), $participantId, '{"status": "active"}', 'system')
 SQL;
             $this->execute($sql);
         }
-
-        # Load participants.
-        $participants->insert($userContainerSeed)
-            ->save();
     }
 
     private function seedParticipantAddress()

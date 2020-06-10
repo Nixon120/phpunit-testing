@@ -378,7 +378,7 @@ SQL;
         $participantChangeLog = new ParticipantChangeLog();
         $participantChangeLog->setAction($action);
         $participantChangeLog->setLoggedAt((new \DateTime)->format('Y-m-d H:i:s'));
-        $participantChangeLog->setObjectId($participant->getId());
+        $participantChangeLog->setParticipantId($participant->getId());
         $participantChangeLog->setData(json_encode(['status' => $participant->getStatus()]));
         $participantChangeLog->setUsername($agentEmail);
         $this->table = 'participant_change_log';
