@@ -827,7 +827,7 @@ SQL
         foreach ($userContainerIds as $participantId) {
             $sql = <<<SQL
 INSERT INTO participant_change_log (action, logged_at, participant_id, data, username)
-VALUES ('create', NOW(), $participantId, '{"status": "active"}', 'system')
+VALUES ('create', NOW(), $participantId, '{"is_active": "active", "is_frozen": "unfrozen"}', 'system')
 SQL;
             $this->execute($sql);
         }
