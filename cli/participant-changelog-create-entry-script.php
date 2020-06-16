@@ -25,7 +25,7 @@ try {
     foreach ($rows as $row) {
         $sql = <<<SQL
 INSERT INTO participant_change_log (action, logged_at, participant_id, data, username)
-VALUES ('create', ?, ?, '{"status": "active"}', 'system')
+VALUES ('create', ?, ?, '{"is_active": "active", "is_frozen": "unfrozen"}', 'system')
 SQL;
         $sth = $pdo->prepare($sql);
         $sth->execute([$row['created_at'], $row['id']]);
