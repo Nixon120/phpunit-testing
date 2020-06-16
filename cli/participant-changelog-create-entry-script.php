@@ -15,7 +15,7 @@ SELECT
    `participant`.`id`,
    `participant`.`created_at`
 FROM `participant`
-WHERE `participant`.`created_at` >= '2017-01-01 00:00:00'
+WHERE `participant`.`created_at` >= '2020-01-01 00:00:00'
 SQL;
 
 $sth = $pdo->prepare($sql);
