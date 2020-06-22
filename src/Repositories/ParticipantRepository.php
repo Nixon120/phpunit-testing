@@ -379,10 +379,8 @@ SQL;
         $participantChangeLog->setAction($action);
         $participantChangeLog->setLoggedAt((new \DateTime)->format('Y-m-d H:i:s'));
         $participantChangeLog->setParticipantId($participant->getId());
-        $participantChangeLog->setData(json_encode([
-            'is_active' => $participant->isActive() === true ? 'active' : 'inactive',
-            'is_frozen' => $participant->isFrozen() === true ? 'frozen' : 'unfrozen'
-        ]));
+        $participantChangeLog->setData(json_encode($participant));
+        $participantChangeLog->setStatus($participant->getStatus());
         $participantChangeLog->setUsername($agentEmail);
         $this->table = 'participant_change_log';
         if (!$this->place($participantChangeLog)) {

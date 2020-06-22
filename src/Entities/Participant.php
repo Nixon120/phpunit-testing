@@ -395,7 +395,7 @@ class Participant extends Base
     public function getStatus()
     {
         if ($this->isFrozen() === true) {
-            return 'frozen';
+            return 'hold';
         }
 
         if ($this->isActive() === true) {
