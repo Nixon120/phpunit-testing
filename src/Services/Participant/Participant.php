@@ -118,7 +118,7 @@ class Participant
         }
 
         if ($participant->isFrozen() === true) {
-            $this->errorMessage = 'Participant ' . $participant->getUniqueId() . ' is frozen';
+            $this->errorMessage = 'Participant ' . $participant->getUniqueId() . ' has a hold status';
             return false;
         }
 
