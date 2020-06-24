@@ -264,9 +264,7 @@ SQL;
         if ($filters !== null) {
             $args = $filters->getFilterConditionArgs();
         }
-        print_r($args);
-        print_r($sql);
-        die;
+
         $sth = $this->database->prepare($sql);
         $sth->execute($args);
 
