@@ -62,14 +62,8 @@ SELECT
    Participant.deactivated_at, 
    Participant.updated_at,
    Participant.created_at, 
-   participant_change_log.`status`
+   IF(Participant.frozen = 1, 'hold', IF(Participant.active = 1, 'active', 'inactive')) as `status`
 FROM Participant
-JOIN participant_change_log on participant_change_log.participant_id = `Participant`.id
-    AND participant_change_log.logged_at = (
-        SELECT MAX(t2.logged_at)
-        FROM participant_change_log t2
-        WHERE t2.participant_id = participant_change_log.participant_id
-    )
 JOIN Organization ON Organization.id = Participant.organization_id
 JOIN Program ON Program.id = Participant.program_id
 {$where}
