@@ -62,11 +62,7 @@ SELECT
    Participant.deactivated_at, 
    Participant.updated_at,
    Participant.created_at, 
-   CASE
-    WHEN Participant.frozen = 1 THEN 'frozen'
-    WHEN Participant.active = 1 AND Participant.frozen = 0 THEN 'active'
-    WHEN Participant.active = 0 AND Participant.frozen = 0 THEN 'inactive'
-    END as status
+   IF(Participant.frozen = 1, 'hold', IF(Participant.active = 1, 'active', 'inactive')) as status
 FROM Participant
 JOIN Organization ON Organization.id = Participant.organization_id
 JOIN Program ON Program.id = Participant.program_id
