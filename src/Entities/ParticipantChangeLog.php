@@ -8,6 +8,7 @@ class ParticipantChangeLog extends Base
     public $logged_at;
     public $participant_id;
     public $data;
+    public $status;
     public $username;
 
     /**
@@ -104,5 +105,21 @@ class ParticipantChangeLog extends Base
     public function setUsername($username): void
     {
         $this->username = $username;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getStatus()
+    {
+        return $this->status;
+    }
+
+    /**
+     * @param mixed $status
+     */
+    public function setStatus($status): void
+    {
+        $this->status = $status;
     }
 }

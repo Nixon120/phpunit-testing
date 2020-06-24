@@ -774,12 +774,13 @@ SQL
     private function seedParticipant()
     {
         $userContainerSeed = [];
+        $userChangeLogSeed = [];
         $userContainerIds = [];
 
         for ($i = 1, $j = 0; $i <= 100; $i++, $j++) {
             $birthdate = $this->getFaker()->dateTimeBetween('-50 years', 'now')->format('Y-m-d');
             $userContainerIds[] = $i;
-            $userContainerSeed[] = [
+            $participant = [
                 'organization_id' => 2,
                 'program_id' => 2,
                 'email_address' => $this->participantEmailContainerSeed[$j],
@@ -792,9 +793,19 @@ SQL
                 'created_at' => "2017-01-01",
                 'birthdate' => $birthdate
             ];
+            $userContainerSeed[] = $participant;
+            unset($participant['password']);
+            $userChangeLogSeed[] = [
+                'action' => 'create',
+                'logged_at' => "2017-01-01",
+                'participant_id' => $i,
+                'data' => json_encode($participant),
+                'status' => 'active',
+                'username' => 'system',
+            ];
         }
 
-        $userContainerSeed[] = [
+        $participant = [
             'organization_id' => 2,
             'program_id' => 2,
             'email_address' => 'test@alldigitalrewards.com',
@@ -804,9 +815,16 @@ SQL
             'lastname' => 'User',
             'active' => 1,
         ];
-
-        //add last id, since not in loop
-        $userContainerIds[] = count($userContainerSeed);
+        $userContainerSeed[] = $participant;
+        unset($participant['password']);
+        $userChangeLogSeed[] = [
+            'action' => 'create',
+            'logged_at' => "2017-01-01",
+            'participant_id' => 101,
+            'data' => json_encode($participant),
+            'status' => 'active',
+            'username' => 'system',
+        ];
 
         $participants = $this->table('Participant');
 
@@ -824,13 +842,11 @@ SQL
             ->save();
 
         # Write participant change logs
-        foreach ($userContainerIds as $participantId) {
-            $sql = <<<SQL
-INSERT INTO participant_change_log (action, logged_at, participant_id, data, username)
-VALUES ('create', NOW(), $participantId, '{"is_active": "active", "is_frozen": "unfrozen"}', 'system')
-SQL;
-            $this->execute($sql);
-        }
+        $participantChangeLog = $this->table('participant_change_log');
+        $participantChangeLog->insert($userChangeLogSeed)
+            ->save();
+
+        $participants = $this->table('Participant');
     }
 
     private function seedParticipantAddress()
