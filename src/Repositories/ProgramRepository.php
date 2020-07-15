@@ -577,11 +577,19 @@ SQL;
         $sth = $this->database->prepare($sql);
         $updated = $sth->execute($args);
         if ($updated === true) {
+            //need to delete all the Clone To Id rows first
+            $sql = <<<SQL
+DELETE FROM `FeaturedProduct` WHERE program_id = ?
+SQL;
+            $sth = $this->database->prepare($sql);
+            $sth->execute([$toId]);
+
             $sql = <<<SQL
 INSERT INTO `FeaturedProduct`(program_id, sku, created_at, updated_at)
 SELECT ?, sku, NOW(), NOW() FROM `FeaturedProduct` fp WHERE program_id = ?
 ON DUPLICATE KEY UPDATE sku = fp.sku
 SQL;
+
             $sth = $this->database->prepare($sql);
             return $sth->execute($args);
         }
