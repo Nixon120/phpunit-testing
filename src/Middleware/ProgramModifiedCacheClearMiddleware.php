@@ -108,14 +108,12 @@ SQL;
         }
 
         if ($programUniqueId !== null) {
-            $this->getCacheService()->cacheItem($programUniqueId, $programUniqueId . '_update');
+            $this->getCacheService()->clearItem($programUniqueId);
 
             $programUrl = $this->getProgramSubDomainAndDomain($programUniqueId);
             if (empty($programUrl) === false) {
                 $url = strtolower($programUrl);
-                if ($this->getCacheService()->cachedItemExists($url) === true) {
-                    $this->getCacheService()->clearItem($url);
-                }
+                $this->getCacheService()->clearItem($url);
             }
         }
     }
