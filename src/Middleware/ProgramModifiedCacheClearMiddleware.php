@@ -108,6 +108,8 @@ SQL;
         }
 
         if ($programUniqueId !== null) {
+            //this is for Redemption Campaign to recognize
+            $this->getCacheService()->clearItem($programUniqueId . '_redemption_campaign_parent');
             $this->getCacheService()->clearItem($programUniqueId);
 
             $programUrl = $this->getProgramSubDomainAndDomain($programUniqueId);
