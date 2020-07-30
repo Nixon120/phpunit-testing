@@ -65,7 +65,7 @@ SELECT
    IF(Participant.frozen = 1, 'hold', IF(Participant.active = 1, 'active', 'inactive')) as `status`
 FROM Participant
 JOIN Organization ON Organization.id = Participant.organization_id
-JOIN Program ON Program.id = Participant.program_id
+JOIN Program ON Program.id = Participant.program_id AND Program.organization_id = Organization.id
 {$where}
 SQL;
     }
