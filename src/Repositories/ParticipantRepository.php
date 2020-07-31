@@ -37,7 +37,7 @@ class ParticipantRepository extends BaseRepository
 
     public function getCollectionQuery(): string
     {
-        $where = "";
+        $where = " WHERE 1 = 1 ";
         $forcedIndex = "USE INDEX (IXName)";
         if (!empty($this->getProgramIdContainer())) {
             $forcedIndex = "";
