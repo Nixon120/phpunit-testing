@@ -113,7 +113,7 @@ $container["Cors"] = function ($container) {
         ],
         "headers.expose" => ["Authorization", "Etag"],
         "credentials" => true,
-        "cache" => 60,
+        "cache" => 86400,
         "error" => function ($request, $response, $args) {
             throw new \Exception($args['message']);
         }
