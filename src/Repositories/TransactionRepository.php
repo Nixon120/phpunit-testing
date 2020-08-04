@@ -115,6 +115,7 @@ SQL;
             /** @var TransactionProduct $product */
 
             $this->table = 'TransactionProduct';
+            $product->setUpdatedAt(new \DateTime());
             if (!parent::insert($product->toArray(), true)) {
                 return false;
             }

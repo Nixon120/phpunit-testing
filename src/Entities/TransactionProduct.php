@@ -81,6 +81,7 @@ class TransactionProduct extends Base implements Validateable
             'wholesale' => $this->getWholesale(),
             'retail' => $this->getRetail(),
             'handling' => $this->getHandling(),
+            'shipping' => $this->getShipping(),
             'vendor_code' => $this->getVendorCode(),
             'kg' => $this->getKg(),
             'name' => $this->getName(),
