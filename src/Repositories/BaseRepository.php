@@ -33,6 +33,8 @@ abstract class BaseRepository implements Repository
 
     public $groupBy;
 
+    public $indexHint = null;
+
     /**
      * @var array
      */
@@ -128,6 +130,22 @@ SQL;
     public function setErrors(array $errors)
     {
         $this->errors = $errors;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getIndexHint()
+    {
+        return $this->indexHint;
+    }
+
+    /**
+     * @param null $indexHint
+     */
+    public function setIndexHint($indexHint): void
+    {
+        $this->indexHint = $indexHint;
     }
 
     public function setSkip(array $skipFields)
@@ -247,8 +265,11 @@ SQL;
         $sql = $this->getCollectionQuery() . ' ';
         $args = [];
 
-        if ($filters !== null) {
+        if ($filters !== null && trim($filters->getFilterConditionSql()) !== '') {
+            $sql = str_replace('{{INDEXHINT}}', '', $sql);
             $sql .= $filters->getFilterConditionSql();
+        } else {
+            $sql = str_replace('{{INDEXHINT}}', $this->getIndexHint(), $sql);
         }
 
         if ($this->groupBy !== null) {
