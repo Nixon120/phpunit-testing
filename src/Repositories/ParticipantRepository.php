@@ -37,11 +37,8 @@ class ParticipantRepository extends BaseRepository
 
     public function getCollectionQuery(): string
     {
-        $this->setIndexHint('USE INDEX (IXName)');
         $where = " WHERE 1 = 1 ";
-        $indexHintPlaceholder = "{{INDEXHINT}}";
         if (!empty($this->getProgramIdContainer())) {
-            $indexHintPlaceholder = "";
             $programIdString = implode(',', $this->getProgramIdContainer());
             $where = <<<SQL
 WHERE Program.id IN ({$programIdString})
@@ -65,7 +62,7 @@ SELECT
    Participant.updated_at,
    Participant.created_at, 
    IF(Participant.frozen = 1, 'hold', IF(Participant.active = 1, 'active', 'inactive')) as `status`
-FROM Participant {$indexHintPlaceholder}
+FROM Participant USE INDEX FOR ORDER BY (IXName)
 JOIN Organization ON Organization.id = Participant.organization_id
 JOIN Program ON Program.id = Participant.program_id AND Program.organization_id = Organization.id
 {$where}
