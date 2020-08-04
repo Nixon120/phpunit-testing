@@ -33,7 +33,7 @@ abstract class BaseRepository implements Repository
 
     public $groupBy;
 
-    public $indexHint = null;
+    public $indexHint = '';
 
     /**
      * @var array
@@ -133,17 +133,17 @@ SQL;
     }
 
     /**
-     * @return string|null
+     * @return string
      */
-    public function getIndexHint()
+    public function getIndexHint(): string
     {
         return $this->indexHint;
     }
 
     /**
-     * @param null $indexHint
+     * @param string $indexHint
      */
-    public function setIndexHint($indexHint): void
+    public function setIndexHint(string $indexHint): void
     {
         $this->indexHint = $indexHint;
     }
