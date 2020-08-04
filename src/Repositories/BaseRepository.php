@@ -247,7 +247,7 @@ SQL;
         $sql = $this->getCollectionQuery() . ' ';
         $args = [];
 
-        if ($filters !== null) {
+        if ($filters !== null && trim($filters->getFilterConditionSql()) !== '') {
             $sql .= $filters->getFilterConditionSql();
         }
 
