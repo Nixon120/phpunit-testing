@@ -91,18 +91,25 @@ class JsonView extends AbstractViewController
                 ->withJson([
                     'message' => 'Sorry, invalid email and/or password.',
                     'status' => 'failed'
-
                 ]);
             return $response;
             //redirect with error
         }
 
-        $this->factory->getUserRecovery()->sendRecoveryEmail($user);
+        $result = $this->factory->getUserRecovery()->sendRecoveryEmail($user);
+        if ($result === true) {
+            $response = $this->response->withStatus(200)
+                ->withJson([
+                    'message' => 'An email with instructions to recover your password has been sent.',
+                    'status' => 'success'
+                ]);
+            return $response;
+        }
 
-        $response = $this->response->withStatus(200)
+        $response = $this->response->withStatus(400)
             ->withJson([
-                'message' => 'An email with instructions to recover your password has been sent.',
-                'status' => 'success'
+                'message' => implode('<br />', $this->factory->getUserRecovery()->getErrors()),
+                'status' => 'failed'
             ]);
         return $response;
     }

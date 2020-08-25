@@ -12,6 +12,10 @@ class ServiceFactory extends AbstractServiceFactory
      * @var UserRepository
      */
     private $userRepository;
+    /**
+     * @var UserRecovery
+     */
+    private $userRecoveryService;
 
     public function getUserRepository(): UserRepository
     {
@@ -43,9 +47,16 @@ class ServiceFactory extends AbstractServiceFactory
         return new UserInvite($this);
     }
 
+    /**
+     * @return UserRecovery
+     */
     public function getUserRecovery(): UserRecovery
     {
-        return new UserRecovery($this);
+        if ($this->userRecoveryService === null) {
+            $this->userRecoveryService = new UserRecovery($this);
+        }
+
+        return $this->userRecoveryService;
     }
 
     public function getEmailPublisherService()
