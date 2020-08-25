@@ -192,4 +192,13 @@ class User extends \Entities\Base
     {
         $this->programOwnershipIdentificationCollection = $programOwnershipIdentificationCollection;
     }
+
+    public function toArray()
+    {
+        $data = parent::toArray();
+        $organization = $this->getOrganization();
+        $data['organization_id'] = $organization !== null ? $organization->getId() : null;
+
+        return $data;
+    }
 }

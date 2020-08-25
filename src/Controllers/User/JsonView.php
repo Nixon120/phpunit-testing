@@ -97,7 +97,11 @@ class JsonView extends AbstractViewController
             //redirect with error
         }
 
-        $this->factory->getUserRecovery()->sendRecoveryEmail($user);
+        $result = $this->factory->getUserRecovery()->sendRecoveryEmail($user);
+        if ($result === false) {
+            return $this->response->withStatus(400)
+                ->withJson($this->factory->getUserRecovery()->getErrors());
+        }
 
         $response = $this->response->withStatus(200)
             ->withJson([

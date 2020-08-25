@@ -91,7 +91,6 @@ class UserModify
         $oldEmail = $user->getEmailAddress();
         $user->exchange($data);
 
-
         $isUnique = $this
             ->factory
             ->getUserRepository()

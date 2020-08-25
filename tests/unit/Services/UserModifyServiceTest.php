@@ -27,12 +27,14 @@ class UserModifyServiceTest extends AbstractUserServiceTest
         $sthMock->expects($this->exactly(4))
             ->method('setFetchMode');
 
+        $this->getUserEntityWithOrg()->setOrganization($this->getUserOrganizationEntity());
+
         $sthMock->expects($this->exactly(4))
             ->method('fetch')
             ->will($this->onConsecutiveCalls(
                 $this->getUserOrganizationEntity(),
                 false,
-                $this->getUserEntity(),
+                $this->getUserEntityWithOrg(),
                 $this->getUserOrganizationEntity(),
                 null
             ));
@@ -45,12 +47,12 @@ class UserModifyServiceTest extends AbstractUserServiceTest
             'role' => 'superadmin',
             'invite_token' => null,
             'active' => 1,
-            'organization' => 'testorg'
+            'organization' => 'organizationtest'
         ];
 
         $user = $modify->insert($data);
 
-        $row = $this->getMockUserRow();
+        $row = $this->getMockUserRowWithOrg();
         $row['password'] = $user->getPassword();
         $row['updated_at'] = $user->getUpdatedAt();
         $this->assertSame($user->toArray(), $row);

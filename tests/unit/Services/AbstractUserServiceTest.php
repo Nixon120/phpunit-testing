@@ -10,6 +10,8 @@ abstract class AbstractUserServiceTest extends \PHPUnit\Framework\TestCase
 
     public $mockDatabase;
 
+    private $mockUser;
+
     protected function getPdoStatementMock()
     {
         return $this->getMockBuilder(PDOStatement::class)
@@ -93,6 +95,14 @@ abstract class AbstractUserServiceTest extends \PHPUnit\Framework\TestCase
         return new \Entities\User($this->getMockUserRow());
     }
 
+    protected function getUserEntityWithOrg()
+    {
+        if ($this->mockUser === null) {
+            $this->mockUser = new \Entities\User($this->getMockOrganizationRow());
+        }
+        return $this->mockUser;
+    }
+
     protected function getMockUserRow()
     {
         return [
@@ -107,6 +117,23 @@ abstract class AbstractUserServiceTest extends \PHPUnit\Framework\TestCase
             'created_at' => '2017-12-06 01:28:09',
             'updated_at' => null,
             'organization_id' => null
+        ];
+    }
+
+    protected function getMockUserRowWithOrg()
+    {
+        return [
+            'id' => 1,
+            'email_address' => 'john+smith@alldigitalrewards.com',
+            'password' => 'password',
+            'firstname' => 'John',
+            'lastname' => 'Smith',
+            'role' => 'superadmin',
+            'invite_token' => null,
+            'active' => 1,
+            'created_at' => '2017-12-06 01:28:09',
+            'updated_at' => null,
+            'organization_id' => 1
         ];
     }
 }

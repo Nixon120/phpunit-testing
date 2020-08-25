@@ -12,17 +12,38 @@ class UserRecovery
      * @var ServiceFactory
      */
     public $factory;
+    /**
+     * @var array
+     */
+    private $errors = [];
 
     public function __construct(ServiceFactory $factory)
     {
         $this->factory = $factory;
     }
 
+    /**
+     * @return array
+     */
+    public function getErrors(): array
+    {
+        return $this->errors;
+    }
+
+    /**
+     * @param User $user
+     * @return bool
+     */
     public function sendRecoveryEmail(User $user)
     {
-        $this->factory->getUserModify()->update($user->getId(), [
+        $result = $this->factory->getUserModify()->update($user->getId(), [
             'invite_token' => bin2hex(random_bytes(64))
         ]);
+
+        if (!$result instanceof User) {
+            $this->errors = $this->factory->getUserModify()->getErrors();
+            return false;
+        }
 
         $user = $this->factory->getUserRead()->getById($user->getId());
 
@@ -32,6 +53,8 @@ class UserRecovery
             ->factory
             ->getEmailPublisherService()
             ->publishJson($email);
+
+        return true;
     }
 
     private function generateEmail(User $user)
