@@ -67,7 +67,7 @@ class UserModify
      */
     public function update($id, $data)
     {
-        if (!empty($data['organization'])) {
+        if (empty($data['organization']) === false) {
             $organization = $this
                 ->factory
                 ->getUserRepository()
@@ -77,8 +77,6 @@ class UserModify
                 );
 
             $data['organization_id'] = $organization->getId();
-        } else {
-            $data['organization_id'] = null;
         }
 
         if (!empty($data['password'])) {
@@ -91,17 +89,13 @@ class UserModify
         $oldEmail = $user->getEmailAddress();
         $user->exchange($data);
 
-
         $isUnique = $this
             ->factory
             ->getUserRepository()
             ->isUserEmailUnique($user->getEmailAddress());
 
-        if ($oldEmail !== $user->getEmailAddress()
-            && $isUnique === false
-        ) {
+        if ($oldEmail !== $user->getEmailAddress() && $isUnique === false) {
             // unique_id has already been assigned to another Organization.
-
             $this->factory->getUserRepository()->setErrors([
                 'The email ' . $user->getEmailAddress() . ' is already assigned to another user.'
             ]);
