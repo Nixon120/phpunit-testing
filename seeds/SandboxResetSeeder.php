@@ -759,13 +759,12 @@ SQL
         $users = $this->table('User');
 
         # Purge all existing users.
-        $this->execute(<<<SQL
-SET FOREIGN_KEY_CHECKS=0;
-TRUNCATE `' . getenv('MYSQL_DATABASE') . '`.`transaction_item_return`;
-TRUNCATE `' . getenv('MYSQL_DATABASE') . '`.`user`;
-SET FOREIGN_KEY_CHECKS=1;
-SQL
-        );
+        $this->execute('
+            SET FOREIGN_KEY_CHECKS=0;
+            TRUNCATE `' . getenv('MYSQL_DATABASE') . '`.`transaction_item_return`;
+            TRUNCATE `' . getenv('MYSQL_DATABASE') . '`.`user`;
+            SET FOREIGN_KEY_CHECKS=1;
+        ');
 
         # Load users.
         $users->insert($data)->save();

@@ -3,6 +3,7 @@
 namespace Services\User;
 
 use Entities\Email;
+use Entities\Organization;
 use Entities\User;
 use Slim\Views\PhpRenderer;
 
@@ -20,8 +21,11 @@ class UserRecovery
 
     public function sendRecoveryEmail(User $user)
     {
+        /** @var Organization|null $organization */
+        $organization = $user->getOrganization();
         $this->factory->getUserModify()->update($user->getId(), [
-            'invite_token' => bin2hex(random_bytes(64))
+            'invite_token' => bin2hex(random_bytes(64)),
+            'organization' => $organization !== null ? $organization->getId() : null
         ]);
 
         $user = $this->factory->getUserRead()->getById($user->getId());
