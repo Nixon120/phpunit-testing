@@ -73,54 +73,6 @@ $app->group('/user', function () use ($app, $createRoute, $updateRoute) {
             return $userImport->importUsers();
         });
     });
-
-    $app->get('/recovery', function ($request, $response, $args) {
-        // Shows the email input field for initial step of password recovery
-        $controller = new Controllers\UserRecovery(
-            $request,
-            $response,
-            $this->get('renderer'),
-            $this->get('user')
-        );
-
-        return $controller->renderRecoveryForm();
-    });
-
-    $app->post('/recovery', function ($request, $response, $args) {
-        // Takes email from step 1 and dispatches a generated email to enduser with instructions
-        $controller = new Controllers\UserRecovery(
-            $request,
-            $response,
-            $this->get('renderer'),
-            $this->get('user')
-        );
-
-        return $controller->submitRecoveryForm();
-    });
-
-    $app->get('/recovery/{token}', function ($request, $response, $args) {
-        // Shows the password recovery fields
-        $controller = new Controllers\UserRecovery(
-            $request,
-            $response,
-            $this->get('renderer'),
-            $this->get('user')
-        );
-
-        return $controller->renderPasswordRecoveryForm($args['token']);
-    });
-
-    $app->post('/recovery/{token}', function ($request, $response, $args) {
-        // Updates password based on supplied input
-        $controller = new Controllers\UserRecovery(
-            $request,
-            $response,
-            $this->get('renderer'),
-            $this->get('user')
-        );
-
-        return $controller->submitRecoveryPassword($args['token']);
-    });
 });
 
 
