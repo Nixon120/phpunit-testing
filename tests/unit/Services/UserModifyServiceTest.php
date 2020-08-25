@@ -28,6 +28,7 @@ class UserModifyServiceTest extends AbstractUserServiceTest
             ->method('setFetchMode');
 
         $this->getUserEntityWithOrg()->setOrganization($this->getUserOrganizationEntity());
+        $modify->setUser($this->getUserEntityWithOrg());
 
         $sthMock->expects($this->exactly(4))
             ->method('fetch')
@@ -47,7 +48,7 @@ class UserModifyServiceTest extends AbstractUserServiceTest
             'role' => 'superadmin',
             'invite_token' => null,
             'active' => 1,
-            'organization' => 'organizationtest'
+            'organization' => 'testorg'
         ];
 
         $user = $modify->insert($data);

@@ -2,12 +2,18 @@
 
 namespace Services\User;
 
+use Entities\User;
+
 class UserModify
 {
     /**
      * @var ServiceFactory
      */
     public $factory;
+    /**
+     * @var User
+     */
+    private $user;
 
     public function __construct(ServiceFactory $factory)
     {
@@ -28,12 +34,11 @@ class UserModify
                     $data['organization'],
                     true
                 );
-
             $data['organization_id'] = $organization->getId();
             unset($data['organization']);
         }
 
-        $user = new \Entities\User;
+        $user = $this->getUser();
         $user->exchange($data);
 
         $isUnique = $this
@@ -119,6 +124,26 @@ class UserModify
         }
 
         return false;
+    }
+
+    /**
+     * @return User
+     */
+    public function getUser(): User
+    {
+        if ($this->user === null) {
+            $this->user = new User();
+        }
+
+        return $this->user;
+    }
+
+    /**
+     * @param User $user
+     */
+    public function setUser(User $user): void
+    {
+        $this->user = $user;
     }
 
     private function hydratePassword($data, \Entities\User $user)
