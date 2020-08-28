@@ -4,6 +4,7 @@ namespace Entities;
 
 use Entities\Traits\OrganizationTrait;
 use Entities\Traits\StatusTrait;
+use DateTime;
 
 class Program extends Base
 {
@@ -382,6 +383,33 @@ class Program extends Base
             $end_date = new \DateTime($end_date);
             $this->end_date = $end_date->format('Y-m-d H:i:s');
         }
+    }
+
+    /**
+     * @return bool
+     */
+    public function isExpired(): bool
+    {
+        if ($this->end_date === null) {
+            return false;
+        }
+        $gracePeriod = $this->grace_period ?? 0;
+        $timezone = $this->getTimezone() ?? 'America/Phoenix';
+        $endDate = new DateTime($this->end_date, new \DateTimeZone("UTC"));
+        $endDate->setTimezone(new \DateTimeZone($timezone));
+        $endDate->modify("+$gracePeriod day");
+        $endOfDayToday = date("Y-m-d", strtotime("now")) . ' 23:59:59';
+        $endOfDayToday = new DateTime($endOfDayToday);
+
+        return $endOfDayToday > $endDate;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isActiveAndNotExpired(): bool
+    {
+        return $this->isActive() === true && $this->isExpired() === false;
     }
 
     /**

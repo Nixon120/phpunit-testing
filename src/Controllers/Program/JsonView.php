@@ -57,7 +57,7 @@ class JsonView extends AbstractViewController
     {
         // Look up by ID first.
         $program = $this->service->getSingle($id);
-
+        
         if (is_null($program)) {
             // Failing that, lookup up by domain.
             $program = $this->service->repository->getProgramByDomain($id);
@@ -242,6 +242,11 @@ class JsonView extends AbstractViewController
             return $this->renderJson404();
         }
 
+        if ($program->isActiveAndNotExpired() === false) {
+            return $response = $this->response->withStatus(400)
+                ->withJson(['Program is inactive']);
+        }
+
         if ($data !== null) {
             $saved = $repository->saveProgramAutoRedemption($program, $data);
             if ($saved === true) {
@@ -264,6 +269,11 @@ class JsonView extends AbstractViewController
 
         if (is_null($program) === true) {
             return $this->renderJson404();
+        }
+
+        if ($program->isActiveAndNotExpired() === false) {
+            return $response = $this->response->withStatus(400)
+                ->withJson(['Program is inactive']);
         }
 
         if ($this->request->getParsedBody() !== null) {
