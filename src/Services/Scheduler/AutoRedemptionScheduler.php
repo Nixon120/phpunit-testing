@@ -81,6 +81,13 @@ class AutoRedemptionScheduler
      */
     private function queueTask(AutoRedemption $autoRedemption): bool
     {
+        //if program is inactive or expired set autoRedemption to inactive
+        $program = $autoRedemption->getProgram();
+        if ($program->isActiveAndNotExpired() === false) {
+            $autoRedemption->setActive(0);
+            return $this->repository->place($autoRedemption);
+        }
+
         $scheduledRedemptionTask = new ScheduledRedemption();
         $scheduledRedemptionTask->setAutoRedemption($autoRedemption);
         $scheduledRedemptionTask->setExpression(

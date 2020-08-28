@@ -2,6 +2,7 @@
 
 namespace Services\Program;
 
+use Entities\AutoRedemption;
 use \PDO as PDO;
 use Psr\Container\ContainerInterface;
 use Repositories\ProgramRepository;
@@ -30,12 +31,20 @@ class OneTimeAutoRedemptionProcessor
 
     public function run()
     {
+        /** @var OneTimeAutoRedemption[] $oneTimeAutoRedemptions */
         $oneTimeAutoRedemptions = $this->getOneTimeAutoRedmeptions();
-        foreach ($oneTimeAutoRedemptions as $redemption) {
-            $scheduledRedemptionTask = new OneTimeScheduledRedemption();
-            $scheduledRedemptionTask->setAutoRedemption($redemption);
-            $scheduledRedemptionTask->setContainer($this->container);
-            $scheduledRedemptionTask->run();
+
+        foreach ($oneTimeAutoRedemptions as $oneTimeAutoRedemption) {
+            $program = $oneTimeAutoRedemption->getProgram();
+            if ($program->isActiveAndNotExpired() === false) {
+                $oneTimeAutoRedemption->setActive(0);
+                $this->repository->place($oneTimeAutoRedemption);
+            } else {
+                $scheduledRedemptionTask = new OneTimeScheduledRedemption();
+                $scheduledRedemptionTask->setAutoRedemption($oneTimeAutoRedemption);
+                $scheduledRedemptionTask->setContainer($this->container);
+                $scheduledRedemptionTask->run();
+            }
         }
     }
 

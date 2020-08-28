@@ -56,6 +56,53 @@ class ProgramTest extends TestCase
         $this->assertEquals($this->mockLayoutRowWithNullLabel()['label'], $program->getLayoutRows()['label']);
     }
 
+    public function testProgramIsActiveAndNotExpiredDueToEndDateReturnsFalse()
+    {
+        //dont set h:i:s so it defaults to beginning of day for testing purposes
+        $endDate = date("Y-m-d", strtotime("now"));
+        $program = new Program();
+        $program->setActive(1);
+        $program->setGracePeriod(0);
+        $program->setEndDate($endDate);
+
+        $this->assertFalse($program->isActiveAndNotExpired());
+    }
+
+    public function testProgramIsActiveAndNotExpiredDueToActiveStatusReturnsFalse()
+    {
+        $endDate = date("Y-m-d", strtotime("tomorrow"));
+        $program = new Program();
+        $program->setActive(0);
+        $program->setGracePeriod(0);
+        $program->setEndDate($endDate);
+
+        $this->assertFalse($program->isActiveAndNotExpired());
+    }
+
+    public function testProgramIsActiveAndNotExpiredReturnsTrue()
+    {
+        //dont set h:i:s so it defaults to beginning of day for testing purposes
+        $endDate = date("Y-m-d", strtotime("tomorrow"));
+        $program = new Program();
+        $program->setActive(1);
+        $program->setGracePeriod(0);
+        $program->setEndDate($endDate);
+
+        $this->assertTrue($program->isActiveAndNotExpired());
+    }
+
+    public function testProgramIsActiveAndNotExpiredDueToGracePeriodDaysReturnsTrue()
+    {
+        //dont set h:i:s so it defaults to beginning of day for testing purposes
+        $endDate = date("Y-m-d", strtotime("yesterday"));
+        $program = new Program();
+        $program->setActive(1);
+        $program->setGracePeriod(3);
+        $program->setEndDate($endDate);
+
+        $this->assertTrue($program->isActiveAndNotExpired());
+    }
+
     private function mockProgram()
     {
         if (!$this->program) {
