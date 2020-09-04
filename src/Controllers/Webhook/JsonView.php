@@ -48,7 +48,9 @@ class JsonView extends AbstractViewController
             ->webhookRepository
             ->getOrganizationWebhooks($organization);
 
-        return $this->response->withJson($webhooks);
+        $output = new OutputNormalizer($webhooks);
+
+        return $this->response->withJson($output->getList());
     }
 
     private function getOrg($org_id)
@@ -62,11 +64,12 @@ class JsonView extends AbstractViewController
         $webhook = $this
             ->webhookRepository
             ->getWebhook($webhook_id);
+        $webhookOutput = new OutputNormalizer($webhook);
 
         $org = $this->getOrg($org_id);
 
         if (is_null($webhook)
-            || $webhook->getOrganizationId() != $org->getId()) {
+            || $webhook->getOrganizationId() !== $org->getId()) {
             return $this
                 ->response
                 ->withStatus(404);
@@ -74,11 +77,26 @@ class JsonView extends AbstractViewController
 
         return $this
             ->response
-            ->withJson([
-                'webhook'=>$webhook,
-                'organization'=>$org,
-                'webhookLogs'=> $this->getWebhookLogs($webhook_id)
-            ]);
+            ->withJson($webhookOutput->get());
+    }
+
+    public function listWebhookLogs($org_id, $webhook_id)
+    {
+        $webhook = $this
+            ->webhookRepository
+            ->getWebhook($webhook_id);
+
+        $org = $this->getOrg($org_id);
+
+        if (is_null($webhook) || $webhook->getOrganizationId() !== $org->getId()) {
+            return $this
+                ->response
+                ->withStatus(404);
+        }
+
+        return $this
+            ->response
+            ->withJson($this->getWebhookLogs($webhook_id));
     }
 
     public function viewWebhookLog($org_id, $webhook_id, $webhook_log_id)
@@ -90,7 +108,7 @@ class JsonView extends AbstractViewController
         $org = $this->getOrg($org_id);
 
         if (is_null($webhook)
-            || $webhook->getOrganizationId() != $org->getId()) {
+            || $webhook->getOrganizationId() !== $org->getId()) {
             return $this->renderGui404();
         }
 
@@ -102,13 +120,7 @@ class JsonView extends AbstractViewController
 
         return $this
             ->response
-            ->withJson(
-                [
-                    'webhook' => $webhook,
-                    'organization' => $org,
-                    'log' => $log
-                ]
-            );
+            ->withJson($log);
     }
 
     public function replayWebhookLog($org_id, $webhook_id, $webhook_log_id)
@@ -140,9 +152,8 @@ class JsonView extends AbstractViewController
             ->withJson(['http_status_code' => $http_status_code]);
     }
 
-    private function getWebhookLogs(
-        $webhook_id
-    ) {
+    private function getWebhookLogs($webhook_id)
+    {
         $collection = $this
             ->getMongo()
             ->selectCollection(
@@ -159,7 +170,7 @@ class JsonView extends AbstractViewController
             ];
         }
 
-        if (!empty($query_params['status_code']) && $query_params['status_code'] != 'All') {
+        if (!empty($query_params['status_code']) && $query_params['status_code'] !== 'All') {
             $status_code = $query_params['status_code'];
 
             if (is_numeric($query_params['status_code'])) {
@@ -171,14 +182,22 @@ class JsonView extends AbstractViewController
             ];
         }
 
-        $cursor = $collection->find($filter, [
-            'limit' => 100,
-            'sort' => [
-                '_id' => -1
+        $cursor = $collection->find(
+            $filter,
+            [
+                'limit' => 100,
+                'sort' => [
+                    '_id' => -1
+                ]
             ]
-        ]);
+        );
 
-        return $cursor->toArray();
+        return array_map(
+            function ($item) {
+                return $this->removeAuthHeaderFromLog($item);
+            },
+            $cursor->toArray()
+        );
     }
 
     private function getWebhookLog($webhook_id, $webhook_log_id)
@@ -189,12 +208,29 @@ class JsonView extends AbstractViewController
                 'webhook_' . $webhook_id
             );
 
-        return $collection->findOne(['_id' => new ObjectID($webhook_log_id)]);
+        $log = $collection->findOne(['_id' => new ObjectID($webhook_log_id)]);
+        return $this->removeAuthHeaderFromLog($log);
+    }
+
+    private function removeAuthHeaderFromLog($log)
+    {
+        if (isset($log['request']['headers']['Authorization'])) {
+            unset($log['request']['headers']['Authorization']);
+        }
+
+        return $log;
     }
 
     public function insertWebhook($organization_id)
     {
+        $organization = $this->getOrg($organization_id);
+
+        if (is_null($organization)) {
+            return $this->renderGui404();
+        }
+
         $post = $this->request->getParsedBody() ?? [];
+        $post['organization_id'] = $organization->getId();
 
         $webhook = new Webhook();
         $webhook->exchange($post);
@@ -212,70 +248,53 @@ class JsonView extends AbstractViewController
 
         return $this
             ->response
-            ->withStatus(201)
-            ->withJson($webhook);
+            ->withStatus(204);
     }
 
     public function deleteWebhook($org_id, $webhook_id)
     {
-        $isDeleted = $this
-            ->webhookRepository
-            ->delete($webhook_id);
-
-        $org = $this->getOrg($org_id);
-
-        if (!$isDeleted
-            || is_null($org)) {
-            return $this->renderGui404();
+        if (!$this->getOrg($org_id)) {
+            return $this->renderJson404();
         }
 
-        return json_encode(['success' => true]);
-    }
-
-    public function webhookSingle($org_id, $webhook_id)
-    {
-        $webhook = $this
-            ->webhookRepository
-            ->getWebhook($webhook_id);
-
-        $org = $this->getOrg($org_id);
-
-        if (is_null($webhook)
-            || $webhook->getOrganizationId() != $org->getId()) {
-            return $this->renderGui404();
+        if ($this->webhookRepository->delete($webhook_id)) {
+            return $this->response->withStatus(204);
         }
 
-        return json_encode(
-            [
-                'webhook' => $webhook,
-                'organization' => $org,
-            ]
-        );
+        // Something failed and I'm too lazy to decipher the matrix to throw a proper error.
+        //  All I see here is blond, brunette...
+        return $this->renderJson404();
     }
 
     public function modifyWebhook($webhook_id)
     {
-        $post = $this->request->getParsedBody() ?? [];
+        // This should only modify if the webhook is mutable.
+        $webhook = $this
+            ->webhookRepository
+            ->getWebhook($webhook_id);
 
-        $webhook = new Webhook;
-        $webhook->setTitle($post['title']);
-        $webhook->setEvent($post['event']);
-        $webhook->setOrganizationId((int)$post['organization_id']);
-        $webhook->setUrl($post['url']);
-        $webhook->setUsername($post['username']);
-        $webhook->setPassword($post['password']);
-
-        if (!$this->webhookRepository->isValid($webhook)
-            || !$this->webhookRepository->updateWebhook($webhook_id, $post)
-        ) {
-            $errors = $this->webhookRepository->getErrors();
-            return json_encode([
-                'error' => $errors
-            ]);
+        if ($webhook->isImmutable()) {
+            return $this->response->withStatus(400)->withJson(['error' => ['Webhook is immutable.']]);
         }
 
-        return json_encode([
-            'success' => true
-        ]);
+        $post = $this->request->getParsedBody() ?? [];
+
+        $webhook->exchange($post);
+
+//        $webhook = new Webhook;
+//        $webhook->setTitle($post['title']);
+//        $webhook->setEvent($post['event']);
+//        $webhook->setUrl($post['url']);
+//        $webhook->setUsername($post['username']);
+//        $webhook->setPassword($post['password']);
+
+        if (!$this->webhookRepository->isValid($webhook)
+            || !$this->webhookRepository->updateWebhook($webhook_id, $webhook->toArray())
+        ) {
+            $errors = $this->webhookRepository->getErrors();
+            return $this->response->withStatus(400)->withJson(['error' => $errors]);
+        }
+
+        return $this->response->withStatus(204);
     }
 }
