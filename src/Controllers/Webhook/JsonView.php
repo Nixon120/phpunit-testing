@@ -113,7 +113,9 @@ class JsonView extends AbstractViewController
         }
 
         try {
-            $log = $this->getWebhookLog($webhook_id, $webhook_log_id);
+            $log = $this->removeAuthHeaderFromLog(
+                $this->getWebhookLog($webhook_id, $webhook_log_id)
+            );
         } catch (\MongoDB\Driver\Exception\InvalidArgumentException $e) {
             return $this->renderGui404();
         }
@@ -208,8 +210,7 @@ class JsonView extends AbstractViewController
                 'webhook_' . $webhook_id
             );
 
-        $log = $collection->findOne(['_id' => new ObjectID($webhook_log_id)]);
-        return $this->removeAuthHeaderFromLog($log);
+        return $collection->findOne(['_id' => new ObjectID($webhook_log_id)]);
     }
 
     private function removeAuthHeaderFromLog($log)
