@@ -40,6 +40,11 @@ class Modify extends AbstractModifyController
     public function update($id, string $agentEmailAddress)
     {
         $post = $this->request->getParsedBody()??[];
+
+        if (is_null($this->service->getSingle($id))) {
+            return $this->returnJson(400, ['Resource does not exist']);
+        }
+
         unset($post['credit']);
         //@TODO: perhaps we can figure out a clean way to remove unneeded fields without explicitly removing them
         //We don't need this.
