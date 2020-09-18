@@ -106,12 +106,14 @@ SQL;
     public function updateWebhook(int $id, array $data)
     {
         $active = empty($data['active']) ? 0 : 1;
+        $immutable = empty($data['immutable']) ? 0 : 1;
 
         $sql = <<<SQL
 UPDATE `webhook` 
 SET title = ?, 
     url = ?, 
     active = $active, 
+    immutable = $immutable,
     event = ?, 
     username = ?, 
     password = ?
