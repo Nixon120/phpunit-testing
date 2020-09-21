@@ -125,7 +125,8 @@ SQL;
         $validator = Validator::attribute('participant_id', Validator::notEmpty()->numeric()->setName('Participant'))
             ->attribute('type', Validator::notEmpty()->numeric()->length(1, 1))
             ->attribute('reference', Validator::optional(Validator::notEmpty()))
-            ->attribute('description', Validator::optional(Validator::stringType()->length(0, 255)));
+            ->attribute('description', Validator::optional(Validator::stringType()->length(0, 255)))
+            ->attribute('activity', Validator::optional(Validator::length(0, 255)));
 
         if ($adjustment->getType() === 'debit') {
             $validator->attribute('amount', Validator::max($credit)->notEmpty()->floatVal());

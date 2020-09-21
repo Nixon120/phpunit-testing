@@ -101,6 +101,12 @@ class Balance
             $adjustment->setCompletedAt($post['completed_at']);
         }
 
+        if (!empty($post['activity'])) {
+            $adjustment->setActivity($post['activity']);
+        } else {
+            $adjustment->setActivity('');
+        }
+
         if ($this->service->updateAdjustment($adjustment)) {
             return $this->response->withStatus(202);
         }
