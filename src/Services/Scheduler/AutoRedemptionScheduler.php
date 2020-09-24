@@ -3,15 +3,19 @@
 namespace Services\Scheduler;
 
 use Entities\AutoRedemption;
-use Entities\Task;
+use Entities\Program;
 use pmill\Scheduler as Schedule;
 use Psr\Container\ContainerInterface;
+use Repositories\ProgramRepository;
 use Repositories\SchedulerRepository;
 use Services\Scheduler\Tasks\ScheduledRedemption;
 use Stringy\Stringy;
+use Traits\LoggerAwareTrait;
 
 class AutoRedemptionScheduler
 {
+    use LoggerAwareTrait;
+
     const TASK_PATH = ROOT . '/src/Services/Scheduler/Tasks';
 
     const NAMESPACE = __NAMESPACE__ . '\\Tasks\\';
@@ -30,6 +34,10 @@ class AutoRedemptionScheduler
      * @var ContainerInterface
      */
     private $container;
+    /**
+     * @var ProgramRepository
+     */
+    private $programRepository;
 
     public function __construct(
         SchedulerRepository $repository,
@@ -39,6 +47,22 @@ class AutoRedemptionScheduler
         $this->repository = $repository;
         $this->schedule = $schedule;
         $this->container = $container;
+    }
+
+    /**
+     * @return ProgramRepository
+     */
+    public function getProgramRepository(): ProgramRepository
+    {
+        return $this->programRepository;
+    }
+
+    /**
+     * @param ProgramRepository $programRepository
+     */
+    public function setProgramRepository(ProgramRepository $programRepository): void
+    {
+        $this->programRepository = $programRepository;
     }
 
     /**
@@ -82,8 +106,7 @@ class AutoRedemptionScheduler
     private function queueTask(AutoRedemption $autoRedemption): bool
     {
         //if program is inactive or expired set autoRedemption to inactive
-        $program = $autoRedemption->getProgram();
-        if ($program->isActiveAndNotExpired() === false) {
+        if ($this->isProgramActiveAndNotExpired($autoRedemption) === false) {
             $autoRedemption->setActive(0);
             return $this->repository->place($autoRedemption);
         }
@@ -123,5 +146,31 @@ class AutoRedemptionScheduler
         $this->prepareTaskQueue();
         $this->schedule->run();
         return $this->schedule->getOutput();
+    }
+
+    /**
+     * @param AutoRedemption $autoRedemption
+     * @return bool
+     */
+    private function isProgramActiveAndNotExpired(AutoRedemption $autoRedemption)
+    {
+        $program = $this->getProgramRepository()->getProgram(
+            $autoRedemption->getProgramId(),
+            false
+        );
+
+        if ($program === null) {
+            $this->getLogger()->error(
+                'AutoRedemption Scheduler- Program does not exist.',
+                [
+                    'action' => 'get',
+                    'autoredemption_id' => $autoRedemption->getId(),
+                    'success' => false,
+                ]
+            );
+            return false;
+        }
+
+        return $program->isActiveAndNotExpired();
     }
 }
