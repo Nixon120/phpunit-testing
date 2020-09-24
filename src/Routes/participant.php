@@ -11,8 +11,8 @@ $app->group(
         // Create
         $app->post(
             '',
-            function ($request, $response) {
-                $participant = new Controllers\Modify($request, $response, $this->get('participant'));
+            function ($request, $response, $args) {
+                $participant = new Controllers\Modify($request, $response, $args, $this->get('participant'));
                 /** @var Authenticate $auth */
                 $auth = $this->get('authentication');
                 return $participant->insert($auth->getUser()->getEmailAddress());
@@ -43,7 +43,7 @@ $app->group(
         $app->put(
             '/{id}',
             function ($request, $response, $args) {
-                $participant = new Controllers\Modify($request, $response, $this->get('participant'));
+                $participant = new Controllers\Modify($request, $response, $args, $this->get('participant'));
                 $participantId = $args['id'];
                 /** @var Authenticate $auth */
                 $auth = $this->get('authentication');

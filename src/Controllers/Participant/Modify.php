@@ -15,18 +15,30 @@ class Modify extends AbstractModifyController
      */
     private $service;
 
+    /**
+     * @var array
+     */
+    private $args;
+
     public function __construct(
         Request $request,
         Response $response,
+        array $args,
         ServiceFactory $factory
     ) {
         parent::__construct($request, $response);
+        $this->args = $args;
         $this->service = $factory->getService();
     }
 
     public function insert(string $agentEmailAddress)
     {
         $post = $this->request->getParsedBody()??[];
+        // This uses our nested URL parameter (if set, not old routes), for the program, instead of being passed
+        // in payload.
+        if(!empty($this->args['programUuid'])) {
+            $post['program'] = $this->args['programUuid'];
+        }
         unset($post['credit']);
         if ($participant = $this->service->insert($post, $agentEmailAddress)) {
             $output = new OutputNormalizer($participant);

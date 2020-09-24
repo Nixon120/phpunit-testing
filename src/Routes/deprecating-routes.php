@@ -6,15 +6,15 @@ use \Controllers\Participant as Controllers;
 use Services\Authentication\Authenticate;
 
 $updateRoute = function ($request, $response, $args) {
-    $participant = new Controllers\Modify($request, $response, $this->get('participant'));
+    $participant = new Controllers\Modify($request, $response, $args, $this->get('participant'));
     $participantId = $args['id'];
     /** @var Authenticate $auth */
     $auth = $this->get('authentication');
     return $participant->update($participantId, $auth->getUser()->getEmailAddress());
 };
 
-$createRoute = function ($request, $response) {
-    $participant = new Controllers\Modify($request, $response, $this->get('participant'));
+$createRoute = function ($request, $response, $args) {
+    $participant = new Controllers\Modify($request, $response, $args, $this->get('participant'));
     /** @var Authenticate $auth */
     $auth = $this->get('authentication');
     return $participant->insert($auth->getUser()->getEmailAddress());

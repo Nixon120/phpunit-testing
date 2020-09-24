@@ -86,6 +86,10 @@ class ValidationMiddleware
 
 
         $this->input = $this->request->getParsedBody() ?? [];
+        if(!empty($this->routeArguments['programUuid'])) {
+            $this->input['program'] = $this->routeArguments['programUuid'];
+        }
+
         $this->setValidationMessages();
         if ($access === 'write' && $this->validate() === false) {
             //if GUI we can throw one way, if API we can throw structured way, or just make JS consume it as it's rendered
