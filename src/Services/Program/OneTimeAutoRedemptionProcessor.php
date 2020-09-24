@@ -8,9 +8,11 @@ use Psr\Container\ContainerInterface;
 use Repositories\ProgramRepository;
 use Entities\OneTimeAutoRedemption;
 use Services\Scheduler\Tasks\OneTimeScheduledRedemption;
+use Traits\LoggerAwareTrait;
 
 class OneTimeAutoRedemptionProcessor
 {
+    use LoggerAwareTrait;
     /**
      * @var ProgramRepository
      */
@@ -35,8 +37,7 @@ class OneTimeAutoRedemptionProcessor
         $oneTimeAutoRedemptions = $this->getOneTimeAutoRedmeptions();
 
         foreach ($oneTimeAutoRedemptions as $oneTimeAutoRedemption) {
-            $program = $oneTimeAutoRedemption->getProgram();
-            if ($program->isActiveAndNotExpired() === false) {
+            if ($this->isProgramActiveAndNotExpired($oneTimeAutoRedemption) === false) {
                 $oneTimeAutoRedemption->setActive(0);
                 $this->repository->place($oneTimeAutoRedemption);
             } else {
@@ -56,5 +57,31 @@ class OneTimeAutoRedemptionProcessor
         $sth = $database->prepare($sql);
         $sth->execute();
         return $sth->fetchAll(PDO::FETCH_CLASS, OneTimeAutoRedemption::class);
+    }
+
+    /**
+     * @param OneTimeAutoRedemption $oneTimeAutoRedemption
+     * @return bool
+     */
+    private function isProgramActiveAndNotExpired(OneTimeAutoRedemption $oneTimeAutoRedemption)
+    {
+        $program = $this->repository->getProgram(
+            $oneTimeAutoRedemption->getProgramId(),
+            false
+        );
+
+        if ($program === null) {
+            $this->getLogger()->error(
+                'OneTimeAutoRedemption Scheduler- Program does not exist.',
+                [
+                    'action' => 'get',
+                    'onetimeautoredemption_id' => $oneTimeAutoRedemption->getId(),
+                    'success' => false,
+                ]
+            );
+            return false;
+        }
+
+        return $program->isActiveAndNotExpired();
     }
 }

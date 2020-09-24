@@ -1,7 +1,9 @@
 <?php
 namespace Services\Scheduler;
 
+use pmill\Scheduler\TaskList;
 use Psr\Container\ContainerInterface;
+use Repositories\ProgramRepository;
 use Repositories\SchedulerRepository;
 
 class ServiceFactory
@@ -19,12 +21,25 @@ class ServiceFactory
             $this->container->get('database')
         );
 
-        $tasks = new \pmill\Scheduler\TaskList;
+        $tasks = new TaskList;
 
-        return new \Services\Scheduler\AutoRedemptionScheduler(
+        $scheduler = new AutoRedemptionScheduler(
             $repository,
             $tasks,
             $this->container
         );
+
+        $scheduler->setProgramRepository($this->getProgramRepo());
+
+        return $scheduler;
+    }
+
+    /**
+     * @return ProgramRepository
+     */
+    private function getProgramRepo(): ProgramRepository
+    {
+        $factory = new \Services\Program\ServiceFactory($this->container);
+        return $factory->getProgramRepository();
     }
 }
