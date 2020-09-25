@@ -47,6 +47,7 @@ class Balance
         $reference = $data['reference'] ?? null;
         $description = $data['description'] ?? null;
         $completedAt = $data['completed_at'] ?? null;
+        $activity = $data['activity'] ?? null;
 
         $adjustment = new Adjustment($participant);
         $adjustment->setType($data['type']);
@@ -54,6 +55,7 @@ class Balance
         $adjustment->setReference($reference);
         $adjustment->setDescription($description);
         $adjustment->setCompletedAt($completedAt);
+        $adjustment->setActivity($activity);
 
         if ($this->repository->validate($adjustment) && $this->repository->addAdjustment($adjustment)) {
             $adjustment = $this->repository->getAdjustment($participant, $this->repository->getLastInsertId());

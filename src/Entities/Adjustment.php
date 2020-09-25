@@ -28,6 +28,8 @@ class Adjustment extends Base
 
     public $completed_at;
 
+    public $activity;
+
     /**
      * @var Participant|null
      */
@@ -209,5 +211,21 @@ class Adjustment extends Base
     public function getCompletedAt()
     {
         return $this->completed_at;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getActivity()
+    {
+        return $this->activity;
+    }
+
+    /**
+     * @param mixed $activity
+     */
+    public function setActivity($activity): void
+    {
+        $this->activity = $activity;
     }
 }
