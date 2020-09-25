@@ -494,6 +494,21 @@ SQL;
         return $return;
     }
 
+    private function getGroups($groups)
+    {
+        $return = [];
+        if (!empty($groups)) {
+            $vendorGroups = $this->catalog->getGroups();
+            foreach ($vendorGroups as $group) {
+                if (in_array($group->getUniqueId(), $groups)) {
+                    $return[] = $group;
+                }
+            }
+        }
+
+        return $return;
+    }
+
     private function getExcludedBrands($brands)
     {
         $return = [];
@@ -615,6 +630,7 @@ SQL;
         $criteria->setFeaturedPageTitle($criteria->getFeaturedPageTitle());
         $criteria->setCategories($this->getCategories($criteria->getCategoryFilter()));
         $criteria->setBrands($this->getBrands($criteria->getBrandFilter()));
+        $criteria->setGroups($this->getGroups($criteria->getGroupFilter()));
         $criteria->setProducts($this->getProducts($criteria->getProductFilter()));
         $criteria->setExcludeProducts($this->getExcludedProducts($criteria->getExcludeProductsFilter()));
         $criteria->setExcludeBrands($this->getExcludedBrands($criteria->getExcludeBrandsFilter()));
