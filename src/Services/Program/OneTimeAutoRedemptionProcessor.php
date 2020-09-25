@@ -65,10 +65,7 @@ class OneTimeAutoRedemptionProcessor
      */
     private function isProgramActiveAndNotExpired(OneTimeAutoRedemption $oneTimeAutoRedemption)
     {
-        $program = $this->repository->getProgram(
-            $oneTimeAutoRedemption->getProgramId(),
-            false
-        );
+        $program = $this->repository->getProgram($oneTimeAutoRedemption->getProgramId());
 
         if ($program === null) {
             $this->getLogger()->error(
