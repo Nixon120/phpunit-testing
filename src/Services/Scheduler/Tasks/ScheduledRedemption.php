@@ -280,6 +280,17 @@ class ScheduledRedemption extends ScheduledTask
             $participant,
             $this->getRedemptionContainer($participant)
         );
+
+        if (!$transaction instanceof \Entities\Transaction) {
+            $this->getLogger()->error(
+                'IssueParticipantRedemption- Insert Transaction failure.',
+                [
+                    'action' => 'save',
+                    'participant_id' => $participant->getId(),
+                    'success' => false,
+                ]
+            );
+        }
     }
 
     private function getParticipantPointConsumptionValue(
