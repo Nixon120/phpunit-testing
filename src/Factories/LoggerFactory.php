@@ -3,6 +3,7 @@
 namespace Factories;
 
 use FluentHandler\FluentHandler;
+use Google\Cloud\Logging\LoggingClient;
 use Monolog\Logger;
 
 class LoggerFactory
@@ -15,19 +16,20 @@ class LoggerFactory
     public static function getInstance()
     {
         if (self::$logger === null) {
-            $logger = new Logger('RewardStack');
+            $logger = new \Monolog\Logger('Rewardstack');
+            $logger->pushHandler(new \Monolog\Handler\StreamHandler(
+                'php://stdout',
+                \Monolog\Logger::INFO
+            ));
 
-            $logger->pushHandler(
-                new FluentHandler(
-                    null,
-                    getenv('LOG_HOST'),
-                    getenv('LOG_PORT')
-                )
-            );
+            $logging = new LoggingClient([
+                'projectId' => 'green-talent-129607',
+                'keyFile' => json_decode(getenv('STACKDRIVER_KEYFILE'), true)
+            ]);
+            $logger = $logging->psrLogger(getenv('ENVIRONMENT') . '_Rewardstack');
 
             self::$logger = $logger;
         }
-
         return self::$logger;
     }
 }
