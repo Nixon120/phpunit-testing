@@ -39,6 +39,7 @@ class OutputNormalizer extends AbstractOutputNormalizer
         $categories = $program->getProductCriteria()->getCategories();
         $products = $program->getProductCriteria()->getProducts();
         $brands = $program->getProductCriteria()->getBrands();
+        $groups = $program->getProductCriteria()->getGroups();
         $excludeProducts = $program->getProductCriteria()->getExcludeProducts();
         $excludeBrands = $program->getProductCriteria()->getExcludeBrands();
         $excludeVendors = $program->getProductCriteria()->getExcludeVendors();
@@ -51,6 +52,7 @@ class OutputNormalizer extends AbstractOutputNormalizer
             'categories' => $categories,
             'products' => $products,
             'brands' => $brands,
+            'groups' => $groups,
             'exclude_products' => $excludeProducts,
             'exclude_brands' => $excludeBrands,
             'exclude_vendors' => $excludeVendors,

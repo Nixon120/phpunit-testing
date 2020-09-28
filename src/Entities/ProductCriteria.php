@@ -3,6 +3,7 @@ namespace Entities;
 
 use AllDigitalRewards\Services\Catalog\Entity\Brand;
 use AllDigitalRewards\Services\Catalog\Entity\Category;
+use AllDigitalRewards\Services\Catalog\Entity\Group;
 use Entities\Traits\TimestampTrait;
 
 class ProductCriteria extends Base
@@ -18,6 +19,8 @@ class ProductCriteria extends Base
     private $categories;
 
     private $brands;
+
+    private $groups;
 
     private $products;
 
@@ -42,6 +45,8 @@ class ProductCriteria extends Base
     private $excludeVendorsFilter;
 
     private $brandFilter;
+
+    private $groupFilter;
 
     /**
      * @return mixed
@@ -103,6 +108,19 @@ class ProductCriteria extends Base
     public function setBrands(array $brands)
     {
         $this->brands = $brands;
+    }
+
+    /**
+     * @return Group[]|null
+     */
+    public function getGroups()
+    {
+        return $this->groups;
+    }
+
+    public function setGroups(array $groups)
+    {
+        $this->groups = $groups;
     }
 
     /**
@@ -228,6 +246,7 @@ class ProductCriteria extends Base
         $this->setProductFilter($filters->products);
         $this->setCategoryFilter($filters->category);
         $this->setBrandFilter($filters->brand);
+        $this->setGroupFilter($filters->group);
 
         if (!empty($filters->exclude_products)) {
             $this->setExcludeProductsFilter($filters->exclude_products);
@@ -336,6 +355,19 @@ class ProductCriteria extends Base
         $this->brandFilter = $brands;
     }
 
+    public function getGroupFilter()
+    {
+        return $this->groupFilter;
+    }
+
+    /**
+     * @param $groups
+     */
+    public function setGroupFilter($groups)
+    {
+        $this->groupFilter = $groups;
+    }
+
     /**
      * Format the filter for storage
      * @param array $filters
@@ -353,7 +385,8 @@ class ProductCriteria extends Base
             'exclude_brands' => [],
             'exclude_vendors' => [],
             'category' => [],
-            'brand' => []
+            'brand' => [],
+            'group' => []
         ];
 
         //need to handle undefined property error
@@ -392,6 +425,9 @@ class ProductCriteria extends Base
         }
         if (!empty($filters['brands'])) {
             $filter['brand'] = $filters['brands'];
+        }
+        if (!empty($filters['groups'])) {
+            $filter['group'] = $filters['groups'];
         }
 
         return json_encode($filter);
