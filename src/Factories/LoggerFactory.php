@@ -22,12 +22,15 @@ class LoggerFactory
                 \Monolog\Logger::INFO
             ));
 
-            $logging = new LoggingClient([
-                'projectId' => 'green-talent-129607',
-                'keyFile' => json_decode(getenv('STACKDRIVER_KEYFILE'), true)
-            ]);
-            $logger = $logging->psrLogger(getenv('ENVIRONMENT') . '_Rewardstack');
-
+            if(getenv('ENVIRONMENT') !== 'development') {
+                $logging = new LoggingClient(
+                    [
+                        'projectId' => 'green-talent-129607',
+                        'keyFile' => json_decode(getenv('STACKDRIVER_KEYFILE'), true)
+                    ]
+                );
+                $logger = $logging->psrLogger(getenv('ENVIRONMENT') . '_Rewardstack');
+            }
             self::$logger = $logger;
         }
         return self::$logger;
