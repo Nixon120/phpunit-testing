@@ -419,10 +419,11 @@ SQL;
      * @param $status
      * @return bool
      */
-    public function saveStatus($participantId, $status)
+    public function saveParticipantStatus($participantId, $status)
     {
         $currentStatus = $this->getCurrentParticipantStatus($participantId);
-        //get current status if exists and if same as insert then just return
+        //get current participant status if exists
+        //if same as insert then just return
         if ($currentStatus && $currentStatus->status == $status) {
             return true;
         }

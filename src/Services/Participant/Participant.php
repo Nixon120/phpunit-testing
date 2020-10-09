@@ -227,18 +227,28 @@ class Participant
             $data['birthdate'] = null;
         }
 
-        if (isset($data['frozen']) === false) {
-            $data['frozen'] = 0;
-        }
-
         if (isset($data['active']) && (int) $data['active'] === 0) {
             $data['deactivated_at'] = (new \DateTime)->format('Y-m-d H:i:s');
         }
+
+        //backwards compatibility
+        list($status, $data) = $this->getStatus($data);
 
         $participant = new \Entities\Participant;
         $participant->exchange($data);
         if ($address !== null) {
             $participant->setAddress($address);
+        }
+
+        if ($this->repository->hasValidStatus($status) === false) {
+            $this->repository->setErrors(
+                [
+                    'status' => [
+                        'Status::ILLEGAL_CHARACTERS' => _("The status is not valid, please refer to docs for acceptable types.")
+                    ]
+                ]
+            );
+            return false;
         }
 
         if (!$this->participantIdIsUnique($participant->getUniqueId())) {
@@ -270,6 +280,7 @@ class Participant
 
         if ($this->repository->insert($participant->toArray())) {
             $participant = $this->repository->getParticipant($participant->getUniqueId());
+            $this->repository->saveParticipantStatus($participant->getId(), $status);
             $this->repository->logParticipantChange($participant, $agentEmail, true);
             if ($address !== null) {
                 $participant->setAddress($address);
@@ -322,14 +333,7 @@ class Participant
             $data['birthdate'] = null;
         }
 
-        //set for backwards compatibility
-        if (isset($data['frozen']) === false) {
-            $data['status'] = $participant->isFrozen() ? StatusEnum::HOLD : StatusEnum::ACTIVE;
-        } else {
-            $data['status'] = $data['frozen'] == 1 ? StatusEnum::HOLD : StatusEnum::ACTIVE;
-        }
-
-        if (isset($data['active'])) {
+        if (array_key_exists('active', $data) === true) {
             $statusFlag = (int) $data['active'];
             if ($statusFlag === 1) {
                 $data['deactivated_at'] = null;
@@ -338,13 +342,18 @@ class Participant
             }
         }
 
-        if (array_key_exists('status', $data) === true) {
-            if ($this->repository->hasValidStatus($data['status']) === false) {
-                return false;
-            }
-            //set Status in table
-            $this->repository->saveStatus($participant->getId(), $data['status']);
+        list($status, $data) = $this->getStatus($data);
+        if ($this->repository->hasValidStatus($status) === false) {
+            $this->repository->setErrors(
+                [
+                    'status' => [
+                        'Status::ILLEGAL_CHARACTERS' => _("The status is not valid, please refer to docs for acceptable types.")
+                    ]
+                ]
+            );
+            return false;
         }
+        $this->repository->saveParticipantStatus($participant->getId(), $status);
 
         $address = $data['address'] ?? null;
         $meta = $data['meta'] ?? null;
@@ -478,5 +487,29 @@ class Participant
     public function getErrors()
     {
         return $this->repository->getErrors();
+    }
+
+    /**
+     * For backwards compatibility
+     *
+     * @param $data
+     * @return array
+     */
+    private function getStatus($data): array
+    {
+        $status = StatusEnum::ACTIVE;
+        if (array_key_exists('frozen', $data) === false) {
+            $data['frozen'] = 0;
+        } else {
+            $status = $data['frozen'] == 1 ? StatusEnum::HOLD : StatusEnum::ACTIVE;
+        }
+
+        //if `status` exists this will take precedence
+        if (array_key_exists('status', $data) === true) {
+            $status = $data['status'];
+            unset($data['status']);
+        }
+
+        return array($status, $data);
     }
 }
