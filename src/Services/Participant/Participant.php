@@ -233,13 +233,6 @@ class Participant
 
         //backwards compatibility
         list($status, $data) = $this->getStatus($data);
-
-        $participant = new \Entities\Participant;
-        $participant->exchange($data);
-        if ($address !== null) {
-            $participant->setAddress($address);
-        }
-
         if ($this->repository->hasValidStatus($status) === false) {
             $this->repository->setErrors(
                 [
@@ -249,6 +242,12 @@ class Participant
                 ]
             );
             return false;
+        }
+
+        $participant = new \Entities\Participant;
+        $participant->exchange($data);
+        if ($address !== null) {
+            $participant->setAddress($address);
         }
 
         if (!$this->participantIdIsUnique($participant->getUniqueId())) {
