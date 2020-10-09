@@ -1,6 +1,8 @@
 <?php
 namespace Repositories;
 
+use AllDigitalRewards\RewardStack\Entities\ParticipantStatus;
+use AllDigitalRewards\RewardStack\Services\Participant\StatusEnum\StatusEnum;
 use AllDigitalRewards\Services\Catalog\Client;
 use Entities\AutoRedemption;
 use Entities\Contact;
@@ -387,6 +389,15 @@ SQL;
         return true;
     }
 
+    /**
+     * @param $status
+     * @return bool
+     */
+    public function hasValidStatus($status)
+    {
+         return StatusEnum::isValidValue($status);
+    }
+
     private function getMetaKey(string $keyName)
     {
         $sql = "SELECT `participant_meta_key`.`id` FROM `participant_meta_key` WHERE `keyName` = ?";
@@ -401,5 +412,34 @@ SQL;
         }
 
         return $keyId;
+    }
+
+    /**
+     * @param $participantId
+     * @param $status
+     * @return bool
+     */
+    public function saveStatus($participantId, $status)
+    {
+        $currentStatus = $this->getCurrentParticipantStatus($participantId);
+        //get current status if exists and if same as insert then just return
+        if ($currentStatus && $currentStatus->status == $status) {
+            return true;
+        }
+        $this->table = 'participant_status';
+        $participantStatus = new ParticipantStatus();
+        $participantStatus->setParticipantId($participantId);
+        $participantStatus->setStatus((int)$status);
+        $this->place($participantStatus);
+        $this->table = 'Participant';
+        return true;
+    }
+
+    public function getCurrentParticipantStatus($participantId)
+    {
+        //get current status if exists
+        $sql = "SELECT * FROM `participant_status` WHERE participant_id = ? ORDER BY id DESC LIMIT 1";
+        $args = [$participantId];
+        return $this->query($sql, $args, ParticipantStatus::class);
     }
 }

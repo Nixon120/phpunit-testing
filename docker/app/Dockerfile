@@ -17,6 +17,14 @@ RUN docker-php-ext-install pdo pdo_mysql bcmath exif sockets mbstring xml gettex
 RUN pecl install mongodb && docker-php-ext-enable mongodb
 RUN pecl install redis && docker-php-ext-enable redis
 
+RUN git clone git://github.com/xdebug/xdebug.git --branch 2.9.6 --depth=1 \
+   && cd xdebug \
+   && phpize \
+   && ./configure --enable-xdebug \
+   && make \
+   && make install \
+   && rm -rf /app/xdebug
+
 RUN mkdir -p /run/nginx
 RUN mkdir -p /run/php
 RUN mkdir -p /etc/supervisor.d

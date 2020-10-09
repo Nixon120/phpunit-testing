@@ -2,6 +2,7 @@
 
 namespace Services\Participant;
 
+use AllDigitalRewards\RewardStack\Services\Participant\StatusEnum\StatusEnum;
 use AllDigitalRewards\RewardStack\Traits\MetaValidationTrait;
 use Controllers\Interfaces as Interfaces;
 use Entities\User;
@@ -302,6 +303,7 @@ class Participant
     public function update($id, $data, string $agentEmailAddress)
     {
         $participant = $this->getSingle($id);
+
         //@TODO this sucks.. fix it someway
         //@TODO API Exceptions
         if (!empty($data['program'])) {
@@ -320,8 +322,11 @@ class Participant
             $data['birthdate'] = null;
         }
 
+        //set for backwards compatibility
         if (isset($data['frozen']) === false) {
-            $data['frozen'] = $participant->isFrozen() ? 1 : 0;
+            $data['status'] = $participant->isFrozen() ? StatusEnum::HOLD : StatusEnum::ACTIVE;
+        } else {
+            $data['status'] = $data['frozen'] == 1 ? StatusEnum::HOLD : StatusEnum::ACTIVE;
         }
 
         if (isset($data['active'])) {
@@ -333,9 +338,17 @@ class Participant
             }
         }
 
+        if (array_key_exists('status', $data) === true) {
+            if ($this->repository->hasValidStatus($data['status']) === false) {
+                return false;
+            }
+            //set Status in table
+            $this->repository->saveStatus($participant->getId(), $data['status']);
+        }
+
         $address = $data['address'] ?? null;
         $meta = $data['meta'] ?? null;
-        unset($data['program'], $data['organization'], $data['password'], $data['address'], $data['meta'], $data['password_confirm'], $data['unique_id']);
+        unset($data['status'], $data['frozen'], $data['program'], $data['organization'], $data['password'], $data['address'], $data['meta'], $data['password_confirm'], $data['unique_id']);
 
         $participant->exchange($data);
 
