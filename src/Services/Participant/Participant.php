@@ -232,7 +232,7 @@ class Participant
         }
 
         //backwards compatibility
-        list($status, $data) = $this->getStatus($data);
+        list($status, $data) = $this->repository->getParticipantStatus($data);
         unset($data['status']);
 
         if ($this->repository->hasValidStatus($status) === false) {
@@ -346,7 +346,7 @@ class Participant
             }
         }
 
-        list($status, $data) = $this->getStatus($data);
+        list($status, $data) = $this->repository->getParticipantStatus($data);
         if ($this->repository->hasValidStatus($status) === false) {
             $this->repository->setErrors(
                 [
@@ -491,29 +491,5 @@ class Participant
     public function getErrors()
     {
         return $this->repository->getErrors();
-    }
-
-    /**
-     * For backwards compatibility
-     *
-     * @param $data
-     * @return array
-     */
-    private function getStatus($data): array
-    {
-        $status = StatusEnum::ACTIVE;
-        if (array_key_exists('frozen', $data) === false) {
-            $data['frozen'] = 0;
-        } else {
-            $status = $data['frozen'] == 1 ? StatusEnum::HOLD : StatusEnum::ACTIVE;
-        }
-
-        //if `status` exists this will take precedence
-        if (array_key_exists('status', $data) === true) {
-            $status = $data['status'];
-            unset($data['status']);
-        }
-
-        return array($status, $data);
     }
 }

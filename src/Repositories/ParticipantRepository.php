@@ -25,6 +25,10 @@ class ParticipantRepository extends BaseRepository
      * @var Client
      */
     private $catalog;
+    /**
+     * @var ParticipantStatusRepository
+     */
+    private $participantStatusRepo;
 
     public function __construct(PDO $database, Client $catalog)
     {
@@ -139,7 +143,8 @@ SQL;
             }
         }
 
-        $statusName = $this->hydrateParticipantStatusResponse($participant);
+        $statusName = $this->getParticipantStatusRepository()
+            ->hydrateParticipantStatusResponse($participant);
         $participant->setStatus($statusName);
 
         return $participant;
@@ -393,15 +398,6 @@ SQL;
         return true;
     }
 
-    /**
-     * @param $status
-     * @return bool
-     */
-    public function hasValidStatus($status)
-    {
-         return StatusEnum::isValidValue($status) || StatusEnum::isValidName($status);
-    }
-
     private function getMetaKey(string $keyName)
     {
         $sql = "SELECT `participant_meta_key`.`id` FROM `participant_meta_key` WHERE `keyName` = ?";
@@ -419,57 +415,48 @@ SQL;
     }
 
     /**
+     * @param $status
+     * @return bool
+     */
+    public function hasValidStatus($status)
+    {
+        return $this->getParticipantStatusRepository()
+            ->hasValidStatus($status);
+    }
+
+    /**
      * @param $participantId
      * @param $status
      * @return bool
      */
     public function saveParticipantStatus($participantId, $status)
     {
-        $status = StatusEnum::hydrateStatus($status);
-        $currentStatus = $this->getCurrentParticipantStatus($participantId);
-        //get current participant status if exists
-        //if same as insert then just return
-        if ($currentStatus && $currentStatus->status == $status) {
-            return true;
-        }
-        $this->table = 'participant_status';
-        $participantStatus = new ParticipantStatus();
-        $participantStatus->setParticipantId($participantId);
-        $participantStatus->setStatus((int)$status);
-        $this->place($participantStatus);
-        $this->table = 'Participant';
-        return true;
-    }
-
-    public function getCurrentParticipantStatus($participantId)
-    {
-        //get current status if exists
-        $sql = "SELECT * FROM `participant_status` WHERE participant_id = ? ORDER BY id DESC LIMIT 1";
-        $args = [$participantId];
-        return $this->query($sql, $args, ParticipantStatus::class);
+        return $this->getParticipantStatusRepository()
+            ->saveParticipantStatus($participantId, $status);
     }
 
     /**
-     * @param Participant $participant
-     * @return int|mixed|string
+     * @param $data
+     * @return array
      */
-    private function hydrateParticipantStatusResponse(Participant $participant)
+    public function getParticipantStatus($data)
     {
-        $status = StatusEnum::INACTIVE;
-        //we still do this for backwards compatibility
-        if ($participant->isActive() === true) {
-            $status = StatusEnum::ACTIVE;
-        }
-        if ($participant->isFrozen() === true) {
-            $status = StatusEnum::HOLD;
+        return $this->getParticipantStatusRepository()
+            ->getStatus($data);
+    }
+
+    /**
+     * @return ParticipantStatusRepository
+     */
+    private function getParticipantStatusRepository(): ParticipantStatusRepository
+    {
+        if ($this->participantStatusRepo === null) {
+            $this->participantStatusRepo = new ParticipantStatusRepository(
+                $this->getDatabase(),
+                $this->catalog
+            );
         }
 
-        //lets make sure it exists in new table
-        $participantStatus = $this->getCurrentParticipantStatus($participant->getId());
-        if ($participantStatus) {
-            $status = $participantStatus->status;
-        }
-
-        return StatusEnum::hydrateStatus($status, true);
+        return $this->participantStatusRepo;
     }
 }
