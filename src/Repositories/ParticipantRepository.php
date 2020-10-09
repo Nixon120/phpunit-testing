@@ -138,6 +138,10 @@ SQL;
                 $participant->setAddress($address->toArray());
             }
         }
+
+        $statusName = $this->hydrateParticipantStatusResponse($participant);
+        $participant->setStatus($statusName);
+
         return $participant;
     }
 
@@ -443,5 +447,29 @@ SQL;
         $sql = "SELECT * FROM `participant_status` WHERE participant_id = ? ORDER BY id DESC LIMIT 1";
         $args = [$participantId];
         return $this->query($sql, $args, ParticipantStatus::class);
+    }
+
+    /**
+     * @param Participant $participant
+     * @return int|mixed|string
+     */
+    private function hydrateParticipantStatusResponse(Participant $participant)
+    {
+        $status = StatusEnum::INACTIVE;
+        //we still do this for backwards compatibility
+        if ($participant->isActive() === true) {
+            $status = StatusEnum::ACTIVE;
+        }
+        if ($participant->isFrozen() === true) {
+            $status = StatusEnum::HOLD;
+        }
+
+        //lets make sure it exists in new table
+        $participantStatus = $this->getCurrentParticipantStatus($participant->getId());
+        if ($participantStatus) {
+            $status = $participantStatus->status;
+        }
+
+        return StatusEnum::hydrateStatus($status, true);
     }
 }

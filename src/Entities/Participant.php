@@ -41,6 +41,8 @@ class Participant extends Base
 
     public $frozen;
 
+    public $status;
+
     /**
      * @var ParticipantMeta[]
      */
@@ -389,19 +391,16 @@ class Participant extends Base
         $this->frozen = $frozen;
     }
 
+    public function setStatus($status)
+    {
+        $this->status = $status;
+    }
+
     /**
      * @return string
      */
     public function getStatus()
     {
-        if ($this->isFrozen() === true) {
-            return 'hold';
-        }
-
-        if ($this->isActive() === true) {
-            return 'active';
-        }
-
-        return 'inactive';
+        return $this->status;
     }
 }

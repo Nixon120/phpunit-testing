@@ -48,15 +48,16 @@ abstract class BasicEnum
      * be sure the value will be returned searching by KEY or VALUE
      *
      * @param $status
+     * @param bool $returnKeyName //get KEY or VALUE
      * @return mixed
      */
-    public static function hydrateStatus($status)
+    public static function hydrateStatus($status, $returnKeyName = false)
     {
         $status = strtolower($status);
         $values = self::getConstants();
         foreach ($values as $key => $value) {
             if ($status === strtolower($key) || $status === strtolower($value)) {
-                return $value;
+                return $returnKeyName === false ? $value : $key;
             }
         }
     }
