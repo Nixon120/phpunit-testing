@@ -1,8 +1,6 @@
 <?php
 namespace Repositories;
 
-use AllDigitalRewards\RewardStack\Entities\ParticipantStatus;
-use AllDigitalRewards\RewardStack\Services\Participant\StatusEnum\StatusEnum;
 use AllDigitalRewards\Services\Catalog\Client;
 use Entities\AutoRedemption;
 use Entities\Contact;
@@ -143,8 +141,7 @@ SQL;
             }
         }
 
-        $statusName = $this->getParticipantStatusRepository()
-            ->hydrateParticipantStatusResponse($participant);
+        $statusName = $this->hydrateParticipantStatusResponse($participant);
         $participant->setStatus($statusName);
 
         return $participant;
@@ -443,6 +440,16 @@ SQL;
     {
         return $this->getParticipantStatusRepository()
             ->getStatus($data);
+    }
+
+    /**
+     * @param Participant $participant
+     * @return int|mixed|string
+     */
+    public function hydrateParticipantStatusResponse(Participant $participant)
+    {
+        return $this->getParticipantStatusRepository()
+            ->hydrateParticipantStatusResponse($participant);
     }
 
     /**

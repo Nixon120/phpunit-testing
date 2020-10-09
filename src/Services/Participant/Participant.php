@@ -2,7 +2,6 @@
 
 namespace Services\Participant;
 
-use AllDigitalRewards\RewardStack\Services\Participant\StatusEnum\StatusEnum;
 use AllDigitalRewards\RewardStack\Traits\MetaValidationTrait;
 use Controllers\Interfaces as Interfaces;
 use Entities\User;
@@ -59,6 +58,13 @@ class Participant
                 $input->getPage(),
                 $input->getLimit()
             );
+
+        foreach ($participants as $key => $participant) {
+            $statusName = $this->repository->hydrateParticipantStatusResponse($participant);
+            $participant->setStatus($statusName);
+            $participants[$key] = $participant;
+        }
+
         return $participants;
     }
 
