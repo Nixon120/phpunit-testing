@@ -42,4 +42,22 @@ abstract class BasicEnum
         $values = array_values(self::getConstants());
         return in_array((int) $value, $values, $strict);
     }
+
+    /**
+     * Validation has already happened at this point so we can
+     * be sure the value will be returned searching by KEY or VALUE
+     *
+     * @param $status
+     * @return mixed
+     */
+    public static function hydrateStatus($status)
+    {
+        $status = strtolower($status);
+        $values = self::getConstants();
+        foreach ($values as $key => $value) {
+            if ($status === strtolower($key) || $status === strtolower($value)) {
+                return $value;
+            }
+        }
+    }
 }

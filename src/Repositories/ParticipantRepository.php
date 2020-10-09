@@ -395,7 +395,7 @@ SQL;
      */
     public function hasValidStatus($status)
     {
-         return StatusEnum::isValidValue($status);
+         return StatusEnum::isValidValue($status) || StatusEnum::isValidName($status);
     }
 
     private function getMetaKey(string $keyName)
@@ -421,6 +421,7 @@ SQL;
      */
     public function saveParticipantStatus($participantId, $status)
     {
+        $status = StatusEnum::hydrateStatus($status);
         $currentStatus = $this->getCurrentParticipantStatus($participantId);
         //get current participant status if exists
         //if same as insert then just return
