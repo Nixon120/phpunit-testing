@@ -233,6 +233,8 @@ class Participant
 
         //backwards compatibility
         list($status, $data) = $this->getStatus($data);
+        unset($data['status']);
+
         if ($this->repository->hasValidStatus($status) === false) {
             $this->repository->setErrors(
                 [
@@ -277,7 +279,10 @@ class Participant
             return false;
         }
 
-        if ($this->repository->insert($participant->toArray())) {
+        $participantArray = $participant->toArray();
+        unset($participantArray['status']); //causes error
+
+        if ($this->repository->insert($participantArray)) {
             $participant = $this->repository->getParticipant($participant->getUniqueId());
             $this->repository->saveParticipantStatus($participant->getId(), $status);
             $this->repository->logParticipantChange($participant, $agentEmail, true);
