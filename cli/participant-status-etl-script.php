@@ -15,13 +15,7 @@ $rows = changeLogSql($pdo);
 while (empty($rows) === false) {
     try {
         foreach ($rows as $row) {
-            $sql = <<<SQL
-    INSERT INTO participant_status (participant_id, status, created_at)
-    VALUES (?,?,?)
-SQL;
-            $sth = $pdo->prepare($sql);
-            $status = StatusEnum::hydrateStatus($row['status']);
-            $sth->execute([$row['participant_id'], $status, $row['logged_at']]);
+            insertStatus($pdo, $row);
         }
         $offset = count($rows) + 1;
         $rows = changeLogSql($pdo, $offset);
@@ -44,4 +38,15 @@ SQL;
     $sth = $pdo->prepare($changeLogSql);
     $sth->execute([$limit, $offset]);
     return $sth->fetchAll();
+}
+
+function insertStatus(PDO $pdo, $row)
+{
+    $sql = <<<SQL
+    INSERT INTO participant_status (participant_id, status, created_at)
+    VALUES (?,?,?)
+SQL;
+    $sth = $pdo->prepare($sql);
+    $status = StatusEnum::hydrateStatus($row['status']);
+    $sth->execute([$row['participant_id'], $status, $row['logged_at']]);
 }
