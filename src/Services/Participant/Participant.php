@@ -81,8 +81,8 @@ class Participant
         $filter = new FilterNormalizer([
             'program' => $program_unique_id,
             'points_greater_than' => $points,
-            'status' => 1, //status will retrieve active
-            'frozen' => 0, //filter out frozen participants
+            'status' => StatusEnum::ACTIVE,
+            'active' => 1,
         ]);
 
         $participants = $this

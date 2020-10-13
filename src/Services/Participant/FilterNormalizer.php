@@ -47,6 +47,26 @@ class FilterNormalizer extends AbstractFilterNormalizer
         return $args;
     }
 
+    public function getActiveFilter($value)
+    {
+        if ($value !== "") {
+            return "`Participant`.`active` = ?";
+        }
+
+        return false;
+    }
+
+    public function getActiveFilterArgs($value)
+    {
+        $args = [];
+
+        if ($value !== "") {
+            $args[] = trim($value);
+        }
+
+        return $args;
+    }
+
     public function getUniqueIdFilter($value)
     {
         if ($value !== "") {
