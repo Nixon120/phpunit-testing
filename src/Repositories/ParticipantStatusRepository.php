@@ -96,6 +96,7 @@ class ParticipantStatusRepository extends BaseRepository
     {
         $status = StatusEnum::ACTIVE;
 
+        //keeping this for backwards compatibility
         if (array_key_exists('frozen', $data) === true) {
             $status = $data['frozen'] == 1 ? StatusEnum::HOLD : StatusEnum::ACTIVE;
             if (array_key_exists('active', $data) === true) {
