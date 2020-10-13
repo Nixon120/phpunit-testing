@@ -2,6 +2,7 @@
 
 namespace Controllers\Participant;
 
+use AllDigitalRewards\RewardStack\Services\Participant\StatusEnum\StatusEnum;
 use Services\Participant\ServiceFactory;
 use Services\Program\Exception\SweepstakeServiceException;
 use Slim\Http\Request;
@@ -41,9 +42,6 @@ class SweepstakeEntry
             ->getParticipantByOrganization($organizationId, $uniqueId);
 
         if ($participant !== null) {
-            if ($participant->isFrozen() === true || $participant->isActive() === false) {
-                return $this->returnJson(400, ['Sweepstake entry not allowed. Participant is ' . $participant->getStatus()]);
-            }
             $post = $this->request->getParsedBody() ?? [];
             try {
                 $sweepstakeService = $this->factory->getSweepstakeService();

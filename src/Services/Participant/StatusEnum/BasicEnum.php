@@ -61,4 +61,13 @@ abstract class BasicEnum
             }
         }
     }
+
+    /**
+     * @param $status
+     * @return bool
+     */
+    public static function isActive($status)
+    {
+        return self::hydrateStatus($status) === StatusEnum::ACTIVE;
+    }
 }
