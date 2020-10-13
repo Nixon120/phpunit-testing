@@ -46,15 +46,7 @@ class ParticipantStatusRepository extends BaseRepository
     public function hydrateParticipantStatusResponse(Participant $participant)
     {
         $status = StatusEnum::INACTIVE;
-        //we still do this for backwards compatibility
-        if ($participant->isActive() === true) {
-            $status = StatusEnum::ACTIVE;
-        }
-        if ($participant->isFrozen() === true) {
-            $status = StatusEnum::HOLD;
-        }
-
-        //lets make sure it exists in new table
+        //table should be updated with all statuses from ETL
         $participantStatus = $this->getCurrentParticipantStatus($participant->getId());
         if ($participantStatus) {
             $status = $participantStatus->status;
@@ -100,7 +92,7 @@ class ParticipantStatusRepository extends BaseRepository
      * @param $data
      * @return array
      */
-    public function getStatus($data): array
+    public function getHydratedStatusRequest($data): array
     {
         $status = StatusEnum::ACTIVE;
 

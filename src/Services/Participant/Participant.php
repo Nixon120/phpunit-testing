@@ -237,7 +237,7 @@ class Participant
             $data['deactivated_at'] = (new \DateTime)->format('Y-m-d H:i:s');
         }
 
-        list($status, $data) = $this->repository->getParticipantStatus($data);
+        list($status, $data) = $this->repository->hydrateParticipantStatusRequest($data);
 
         if ($this->repository->hasValidStatus($status) === false) {
             $this->repository->setErrors(
@@ -349,7 +349,7 @@ class Participant
             }
         }
 
-        list($status, $data) = $this->repository->getParticipantStatus($data);
+        list($status, $data) = $this->repository->hydrateParticipantStatusRequest($data);
         if ($this->repository->hasValidStatus($status) === false) {
             $this->repository->setErrors(
                 [
@@ -364,7 +364,7 @@ class Participant
 
         $address = $data['address'] ?? null;
         $meta = $data['meta'] ?? null;
-        unset($data['status'], $data['frozen'], $data['program'], $data['organization'], $data['password'], $data['address'], $data['meta'], $data['password_confirm'], $data['unique_id']);
+        unset($data['program'], $data['organization'], $data['password'], $data['address'], $data['meta'], $data['password_confirm'], $data['unique_id']);
 
         $participant->exchange($data);
 

@@ -447,10 +447,10 @@ SQL;
      * @param $data
      * @return array
      */
-    public function getParticipantStatus($data)
+    public function hydrateParticipantStatusRequest($data)
     {
         return $this->getParticipantStatusRepository()
-            ->getStatus($data);
+            ->getHydratedStatusRequest($data);
     }
 
     /**
