@@ -7,9 +7,12 @@ use AllDigitalRewards\RewardStack\Services\Participant\StatusEnum\StatusEnum;
 use AllDigitalRewards\Services\Catalog\Client;
 use Entities\Participant;
 use PDO;
+use Traits\LoggerAwareTrait;
 
 class ParticipantStatusRepository extends BaseRepository
 {
+    use LoggerAwareTrait;
+
     protected $table = 'Participant';
 
     /**
@@ -100,17 +103,18 @@ class ParticipantStatusRepository extends BaseRepository
     public function getStatus($data): array
     {
         $status = StatusEnum::ACTIVE;
-        if (array_key_exists('frozen', $data) === false) {
-            $data['frozen'] = 0;
-        } else {
+
+        if (array_key_exists('frozen', $data) === true) {
             $status = $data['frozen'] == 1 ? StatusEnum::HOLD : StatusEnum::ACTIVE;
         }
 
         //if `status` exists this will take precedence
         if (array_key_exists('status', $data) === true) {
             $status = $data['status'];
-            unset($data['status']);
         }
+
+        unset($data['status']);
+        unset($data['frozen']);
 
         return array($status, $data);
     }

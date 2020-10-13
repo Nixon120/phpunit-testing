@@ -237,9 +237,7 @@ class Participant
             $data['deactivated_at'] = (new \DateTime)->format('Y-m-d H:i:s');
         }
 
-        //backwards compatibility
         list($status, $data) = $this->repository->getParticipantStatus($data);
-        unset($data['status']);
 
         if ($this->repository->hasValidStatus($status) === false) {
             $this->repository->setErrors(
@@ -285,10 +283,7 @@ class Participant
             return false;
         }
 
-        $participantArray = $participant->toArray();
-        unset($participantArray['status']); //causes error
-
-        if ($this->repository->insert($participantArray)) {
+        if ($this->repository->insert($participant->toArray())) {
             $participant = $this->repository->getParticipant($participant->getUniqueId());
             $this->repository->saveParticipantStatus($participant->getId(), $status);
             $this->repository->logParticipantChange($participant, $agentEmail, true);
