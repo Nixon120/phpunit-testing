@@ -57,7 +57,7 @@ class ParticipantStatusValidator
             return $response->withJson(['message' => 'Resource does not exist'], 400);
         }
 
-        if (StatusEnum::isActive($participant->getStatus()) === false) {
+        if ($participant->isActive() === false) {
             return $response->withJson(['message' => 'Participant not active'], 400);
         }
 
