@@ -403,14 +403,4 @@ class Participant extends Base
     {
         return $this->status;
     }
-
-    public function toArray()
-    {
-        $data = parent::toArray();
-        //we use ParticipantStatus to set the response Status
-        //so unset so toArray on insert doesnt complain
-        unset($data['status']);
-
-        return $data;
-    }
 }

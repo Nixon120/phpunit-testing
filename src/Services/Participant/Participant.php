@@ -2,6 +2,7 @@
 
 namespace Services\Participant;
 
+use AllDigitalRewards\RewardStack\Services\Participant\StatusEnum\StatusEnum;
 use AllDigitalRewards\RewardStack\Traits\MetaValidationTrait;
 use Controllers\Interfaces as Interfaces;
 use Entities\User;
@@ -60,7 +61,7 @@ class Participant
             );
 
         foreach ($participants as $key => $participant) {
-            $statusName = $this->repository->hydrateParticipantStatusResponse($participant);
+            $statusName = StatusEnum::hydrateStatus($participant->getStatus(), true);
             $participant->setStatus($statusName);
             $participants[$key] = $participant;
         }
@@ -76,8 +77,7 @@ class Participant
     public function getProgramParticipantsWithPointsGreaterThan(
         $program_unique_id,
         $points
-    )
-    {
+    ) {
         $filter = new FilterNormalizer([
             'program' => $program_unique_id,
             'points_greater_than' => $points,
@@ -283,7 +283,9 @@ class Participant
             return false;
         }
 
-        if ($this->repository->insert($participant->toArray())) {
+        $participantArray = $participant->toArray();
+        unset($participantArray['status']); //prevent insert error
+        if ($this->repository->insert($participantArray)) {
             $participant = $this->repository->getParticipant($participant->getUniqueId());
             $this->repository->saveParticipantStatus($participant->getId(), $status);
             $this->repository->logParticipantChange($participant, $agentEmail, true);

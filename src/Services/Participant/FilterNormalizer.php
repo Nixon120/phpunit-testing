@@ -10,39 +10,13 @@ class FilterNormalizer extends AbstractFilterNormalizer
         $string = "";
 
         if ($value !== "") {
-            if (in_array(trim($value), ["0", "1"])) {
-                return "`Participant`.`active` = ? AND `Participant`.`frozen` = 0";
-            }
-            //value comes in as 2 so we need to just set where frozen is 1
-            $string = "`Participant`.`frozen` = 1";
+            return "`participant_status`.`status` = ?";
         }
 
         return $string;
     }
 
     public function getStatusFilterArgs($value)
-    {
-        $args = [];
-
-        if ($value !== "" && $value !== "2") {
-            $args[] = trim($value);
-        }
-
-        return $args;
-    }
-
-    public function getFrozenFilter($value)
-    {
-        $string = "";
-
-        if ($value !== "") {
-            $string = "`Participant`.`frozen` = ?";
-        }
-
-        return $string;
-    }
-
-    public function getFrozenFilterArgs($value)
     {
         $args = [];
 
