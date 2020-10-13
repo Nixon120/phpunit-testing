@@ -110,6 +110,10 @@ class ParticipantStatusRepository extends BaseRepository
             if (array_key_exists('active', $data) === true) {
                 $data['active'] = StatusEnum::isActive($status) ? 1 : 0;
             }
+            //CANCELLED === deplete points
+            if (StatusEnum::hydrateStatus($status) === StatusEnum::CANCELLED) {
+                $data['credit'] = 0.00;
+            }
         }
 
         unset($data['status']);

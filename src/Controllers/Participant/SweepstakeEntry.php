@@ -2,7 +2,6 @@
 
 namespace Controllers\Participant;
 
-use AllDigitalRewards\RewardStack\Services\Participant\StatusEnum\StatusEnum;
 use Services\Participant\ServiceFactory;
 use Services\Program\Exception\SweepstakeServiceException;
 use Slim\Http\Request;

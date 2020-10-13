@@ -2,7 +2,6 @@
 
 namespace Middleware;
 
-use AllDigitalRewards\RewardStack\Services\Participant\StatusEnum\StatusEnum;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Services\Participant\ServiceFactory;
@@ -57,7 +56,7 @@ class ParticipantStatusValidator
             return $response->withJson(['message' => 'Resource does not exist'], 400);
         }
 
-        if ($participant->isActive() === false) {
+        if ($participant->isActive() == false) {
             return $response->withJson(['message' => 'Participant not active'], 400);
         }
 

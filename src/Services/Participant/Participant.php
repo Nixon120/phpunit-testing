@@ -233,7 +233,7 @@ class Participant
             $data['birthdate'] = null;
         }
 
-        if (isset($data['active']) && StatusEnum::isActive($data['active']) === false) {
+        if (isset($data['active']) && $data['active'] != 1) {
             $data['deactivated_at'] = (new \DateTime)->format('Y-m-d H:i:s');
         }
 

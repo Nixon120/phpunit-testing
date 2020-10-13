@@ -50,15 +50,6 @@ WHERE Program.id IN ({$programIdString})
 SQL;
         }
 
-        $statusQuery = <<<SQL
-JOIN participant_status on participant_status.participant_id = `Participant`.id
-    AND participant_status.created_at = (
-        SELECT MAX(t2.created_at)
-        FROM participant_status t2
-        WHERE t2.participant_id = participant_status.participant_id
-    )
-SQL;
-
         return <<<SQL
 SELECT 
    Participant.id,
@@ -77,7 +68,12 @@ SELECT
    Participant.created_at, 
    participant_status.status as `status`
 FROM Participant USE INDEX FOR ORDER BY (IXName)
-{$statusQuery}
+JOIN participant_status on participant_status.participant_id = `Participant`.id
+    AND participant_status.created_at = (
+        SELECT MAX(t2.created_at)
+        FROM participant_status t2
+        WHERE t2.participant_id = participant_status.participant_id
+    )
 JOIN Organization ON Organization.id = Participant.organization_id
 JOIN Program ON Program.id = Participant.program_id AND Program.organization_id = Organization.id
 {$where}

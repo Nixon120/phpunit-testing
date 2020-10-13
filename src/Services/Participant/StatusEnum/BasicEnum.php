@@ -68,6 +68,6 @@ abstract class BasicEnum
      */
     public static function isActive($status)
     {
-        return self::hydrateStatus($status) === StatusEnum::ACTIVE;
+        return self::hydrateStatus($status) === StatusEnum::ACTIVE || self::hydrateStatus($status) === StatusEnum::HOLD;
     }
 }
