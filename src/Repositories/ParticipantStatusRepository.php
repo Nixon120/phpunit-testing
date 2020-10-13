@@ -94,15 +94,7 @@ class ParticipantStatusRepository extends BaseRepository
      */
     public function getHydratedStatusRequest($data): array
     {
-        $status = StatusEnum::ACTIVE;
-
-        //keeping this for backwards compatibility
-        if (array_key_exists('frozen', $data) === true) {
-            $status = $data['frozen'] == 1 ? StatusEnum::HOLD : StatusEnum::ACTIVE;
-            if (array_key_exists('active', $data) === true) {
-                $data['active'] = $data['frozen'] == 1 ? 0 : 1;
-            }
-        }
+        list($status, $data) = $this->setStatusForBackwardsCompatibility($data);
 
         //if `status` exists this will take precedence
         //set active based on status passed in
@@ -120,6 +112,22 @@ class ParticipantStatusRepository extends BaseRepository
         unset($data['status']);
         unset($data['frozen']);
 
+        return array($status, $data);
+    }
+
+    /**
+     * @param $data
+     * @return array
+     */
+    private function setStatusForBackwardsCompatibility($data): array
+    {
+        $status = StatusEnum::ACTIVE;
+        if (array_key_exists('frozen', $data) === true) {
+            $status = $data['frozen'] == 1 ? StatusEnum::HOLD : StatusEnum::ACTIVE;
+            if (array_key_exists('active', $data) === true) {
+                $data['active'] = $data['frozen'] == 1 ? 0 : 1;
+            }
+        }
         return array($status, $data);
     }
 }
