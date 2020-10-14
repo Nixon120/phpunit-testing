@@ -1,7 +1,6 @@
 <?php
 namespace Repositories;
 
-use AllDigitalRewards\RewardStack\Services\Participant\StatusEnum\StatusEnum;
 use AllDigitalRewards\Services\Catalog\Client;
 use Entities\AutoRedemption;
 use Entities\Contact;
@@ -62,15 +61,14 @@ SELECT
    firstname,
    lastname,
    Participant.active,
-   Participant.frozen,
    Participant.deactivated_at, 
    Participant.updated_at,
    Participant.created_at, 
    participant_status.status as `status`
 FROM Participant USE INDEX FOR ORDER BY (IXName)
 JOIN participant_status on participant_status.participant_id = `Participant`.id
-    AND participant_status.created_at = (
-        SELECT MAX(t2.created_at)
+    AND participant_status.id = (
+        SELECT MAX(t2.id)
         FROM participant_status t2
         WHERE t2.participant_id = participant_status.participant_id
     )

@@ -101,7 +101,7 @@ class Participant
         $participant = $this->repository->getParticipantByOrganization($organization, $uniqueId);
 
         if ($participant !== null
-            && $participant->isFrozen() === false
+            && StatusEnum::hydrateStatus($participant->getStatus()) === StatusEnum::ACTIVE
             && $participant->isActive() === true
             && $participant->getSso() === $token
             && $this->repository->purgeParticipantSso($participant->getId())
@@ -124,7 +124,7 @@ class Participant
             return false;
         }
 
-        if ($participant->isFrozen() === true) {
+        if (StatusEnum::hydrateStatus($participant->getStatus()) === StatusEnum::HOLD) {
             $this->errorMessage = 'Participant ' . $participant->getUniqueId() . ' has a hold status';
             return false;
         }

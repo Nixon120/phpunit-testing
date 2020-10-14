@@ -39,8 +39,6 @@ class Participant extends Base
 
     public $birthdate;
 
-    public $frozen;
-
     public $status;
 
     /**
@@ -365,30 +363,6 @@ class Participant extends Base
     public function setDeactivatedAt($time)
     {
         $this->deactivated_at = $time;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function isFrozen()
-    {
-        return $this->frozen === 1;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getFrozen()
-    {
-        return $this->frozen;
-    }
-
-    /**
-     * @param mixed $frozen
-     */
-    public function setFrozen($frozen): void
-    {
-        $this->frozen = $frozen;
     }
 
     public function setStatus($status)

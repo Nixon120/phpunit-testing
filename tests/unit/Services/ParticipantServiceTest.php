@@ -61,7 +61,7 @@ class ParticipantServiceTest extends AbstractParticipantServiceTest
             'phone' => '1231231234',
             'password' => 'password',
             'active' => 1,
-            'frozen' => 0,
+            'status' => 1,
             'address' => [
                 'firstname' => 'John',
                 'lastname' => 'Smith',
