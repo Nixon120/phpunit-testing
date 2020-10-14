@@ -125,7 +125,7 @@ class ParticipantStatusRepository extends BaseRepository
         if (array_key_exists('frozen', $data) === true) {
             $status = $data['frozen'] == 1 ? StatusEnum::HOLD : StatusEnum::ACTIVE;
             if (array_key_exists('active', $data) === true) {
-                $data['active'] = $data['frozen'] == 1 ? 0 : 1;
+                $data['active'] = $data['frozen'] == 1 ? 1 : (int)$data['active'];
             }
         }
         return array($status, $data);
