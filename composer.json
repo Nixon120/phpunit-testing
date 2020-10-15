@@ -70,7 +70,8 @@
     "ext-json": "*",
     "ext-exif": "*",
     "box/spout": "^3.0",
-    "google/cloud-logging": "^1.18"
+    "google/cloud-logging": "^1.18",
+    "alldigitalrewards/statusenum": "^1.0"
   },
   "require-dev": {
     "phpunit/phpunit": "^7.0",
@@ -85,6 +86,10 @@
     "amqp": {
       "type": "vcs",
       "url": "git@bitbucket.org:alldigitalrewards/amqp.git"
+    },
+    "statusenum": {
+      "type": "vcs",
+      "url": "git@bitbucket.org:alldigitalrewards/statusenum.git"
     },
     "rap": {
       "type": "vcs",

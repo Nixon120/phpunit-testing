@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 use Psr\Container\ContainerInterface;
-use AllDigitalRewards\RewardStack\Services\Participant\StatusEnum\StatusEnum;
+use AllDigitalRewards\StatusEnum\StatusEnum;
 
 /**
  * @var ContainerInterface $container
@@ -47,6 +47,7 @@ function insertStatus(PDO $pdo, $row)
     VALUES (?,?,?)
 SQL;
     $sth = $pdo->prepare($sql);
-    $status = StatusEnum::hydrateStatus($row['status']);
+    $statusEnum = new AllDigitalRewards\StatusEnum\StatusEnum();
+    $status = $statusEnum->hydrateStatus($row['status']);
     $sth->execute([$row['participant_id'], $status, $row['logged_at']]);
 }

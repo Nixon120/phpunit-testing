@@ -2,9 +2,10 @@
 
 namespace Services\Participant;
 
-use AllDigitalRewards\RewardStack\Services\Participant\StatusEnum\StatusEnum;
 use AllDigitalRewards\RewardStack\Traits\MetaValidationTrait;
+use AllDigitalRewards\StatusEnum\StatusEnum;
 use Controllers\Interfaces as Interfaces;
+use Controllers\Participant\InputNormalizer;
 use Entities\User;
 use Repositories\ParticipantRepository;
 
@@ -16,7 +17,10 @@ class Participant
      * @var ParticipantRepository
      */
     public $repository;
-
+    /**
+     * @var StatusEnum
+     */
+    private $statusEnumService;
     /**
      * @var string
      */
@@ -25,6 +29,25 @@ class Participant
     public function __construct(ParticipantRepository $repository)
     {
         $this->repository = $repository;
+    }
+
+    /**
+     * @return StatusEnum
+     */
+    public function getStatusEnumService(): StatusEnum
+    {
+        if ($this->statusEnumService === null) {
+            $this->statusEnumService = new StatusEnum();
+        }
+        return $this->statusEnumService;
+    }
+
+    /**
+     * @param StatusEnum $statusEnumService
+     */
+    public function setStatusEnumService(StatusEnum $statusEnumService): void
+    {
+        $this->statusEnumService = $statusEnumService;
     }
 
     public function getById($id): ?\Entities\Participant
@@ -61,7 +84,7 @@ class Participant
             );
 
         foreach ($participants as $key => $participant) {
-            $statusName = StatusEnum::hydrateStatus($participant->getStatus(), true);
+            $statusName = $this->getStatusEnumService()->hydrateStatus($participant->getStatus(), true);
             $participant->setStatus($statusName);
             $participants[$key] = $participant;
         }
@@ -81,7 +104,7 @@ class Participant
         $filter = new FilterNormalizer([
             'program' => $program_unique_id,
             'points_greater_than' => $points,
-            'status' => StatusEnum::ACTIVE,
+            'status' => $this->getStatusEnumService()::ACTIVE,
             'active' => 1,
         ]);
 
@@ -101,7 +124,7 @@ class Participant
         $participant = $this->repository->getParticipantByOrganization($organization, $uniqueId);
 
         if ($participant !== null
-            && StatusEnum::hydrateStatus($participant->getStatus()) === StatusEnum::ACTIVE
+            && $this->getStatusEnumService()->hydrateStatus($participant->getStatus()) === $this->getStatusEnumService()::ACTIVE
             && $participant->isActive() === true
             && $participant->getSso() === $token
             && $this->repository->purgeParticipantSso($participant->getId())
@@ -110,38 +133,6 @@ class Participant
         }
 
         return null;
-    }
-
-    private function isSsoRequestValid(?\Entities\Participant $participant): bool
-    {
-        if ($participant === null) {
-            $this->errorMessage = 'Resource does not exist';
-            return false;
-        }
-
-        if ($participant->isActive() === false) {
-            $this->errorMessage = 'Participant ' . $participant->getUniqueId() . ' is not active';
-            return false;
-        }
-
-        if (StatusEnum::hydrateStatus($participant->getStatus()) === StatusEnum::HOLD) {
-            $this->errorMessage = 'Participant ' . $participant->getUniqueId() . ' has a hold status';
-            return false;
-        }
-
-        $program = $participant->getProgram();
-        $programNameString = 'Program ' . $program->getName() . '[' . $program->getUniqueId() . ']';
-        if ($program->isPublished() === false) {
-            $this->errorMessage = $programNameString . ' is not published';
-            return false;
-        }
-
-        if ($program->getDomain() === null) {
-            $this->errorMessage = $programNameString . ' does not have a marketplace domain configured';
-            return false;
-        };
-
-        return true;
     }
 
     public function generateSso(User $authUser, $uniqueId): ?array
@@ -177,22 +168,6 @@ class Participant
             'error' => true,
             'message' => 'There was a problem with your request'
         ];
-    }
-
-    private function participantIdIsUnique($unique_id)
-    {
-        $exists = $this
-            ->repository
-            ->getParticipant(
-                $unique_id,
-                false
-            );
-
-        if (is_null($exists)) {
-            return true;
-        }
-
-        return false;
     }
 
     /**
@@ -238,7 +213,6 @@ class Participant
         }
 
         list($status, $data) = $this->repository->hydrateParticipantStatusRequest($data);
-
         if ($this->repository->hasValidStatus($status) === false) {
             $this->repository->setErrors(
                 [
@@ -287,7 +261,7 @@ class Participant
         unset($participantArray['status']); //prevent insert error
         if ($this->repository->insert($participantArray)) {
             $participant = $this->repository->getParticipant($participant->getUniqueId());
-            $this->repository->saveParticipantStatus($participant->getId(), $status);
+            $this->repository->saveParticipantStatus($participant, $status);
             $this->repository->logParticipantChange($participant, $agentEmail, true);
             if ($address !== null) {
                 $participant->setAddress($address);
@@ -301,15 +275,6 @@ class Participant
         }
 
         return false;
-    }
-
-    private function isParticipantUniqueIdValid($uniqueId)
-    {
-        if(preg_match('/[^a-z_\-0-9]/i', $uniqueId)) {
-            return false;
-        }
-
-        return true;
     }
 
     /**
@@ -360,7 +325,7 @@ class Participant
             );
             return false;
         }
-        $this->repository->saveParticipantStatus($participant->getId(), $status);
+        $this->repository->saveParticipantStatus($participant, $status);
 
         $address = $data['address'] ?? null;
         $meta = $data['meta'] ?? null;
@@ -417,22 +382,6 @@ class Participant
     }
 
     /**
-     * Make meta collection easier to work with (for temporary assignments, updates, etc)
-     *
-     * @param $collection
-     * @return array
-     */
-    private function simplifyMetaCollection($collection)
-    {
-        $returnCollection = [];
-        foreach($collection as $value) {
-            $returnCollection[key($value)] = $value[key($value)];
-        }
-
-        return $returnCollection;
-    }
-
-    /**
      * @param \Entities\Participant $participant
      * @param $metaData
      * @return bool
@@ -441,7 +390,7 @@ class Participant
     {
         $meta = array_merge($this->simplifyMetaCollection($participant->getMeta()), $this->simplifyMetaCollection($metaData));
         $metaCollection = [];
-        foreach($meta as $k=>$v) {
+        foreach ($meta as $k => $v) {
             $metaCollection[] = [$k => $v];
         }
 
@@ -458,6 +407,104 @@ class Participant
         // We need to clear existing meta.
         $this->repository->deleteParticipantMeta($participant->getId());
         return $this->repository->saveMeta($participant->getId(), $meta);
+    }
+
+    /**
+     * @param Balance $balanceService
+     * @param \Entities\Participant $participant
+     */
+    public function setParticipantCreditsToZeroIfCancelled(Balance $balanceService, \Entities\Participant $participant)
+    {
+        if ($this->getStatusEnumService()->hydrateStatus($participant->getStatus())
+            === $this->getStatusEnumService()::CANCELLED
+        ) {
+            $data = [
+                'type' => 'debit',
+                'amount' => $participant->getCredit(),
+                'description' => 'Participant' . $participant->getUniqueId() . ' is cancelled status',
+                'completed_at' => date('Y-m-d H:i:s', strtotime('now'))
+            ];
+            $input = new InputNormalizer($data);
+            $balanceService->createAdjustment($participant, $input);
+        }
+    }
+
+    public function getErrors()
+    {
+        return $this->repository->getErrors();
+    }
+
+    private function isParticipantUniqueIdValid($uniqueId)
+    {
+        if(preg_match('/[^a-z_\-0-9]/i', $uniqueId)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Make meta collection easier to work with (for temporary assignments, updates, etc)
+     *
+     * @param $collection
+     * @return array
+     */
+    private function simplifyMetaCollection($collection)
+    {
+        $returnCollection = [];
+        foreach ($collection as $value) {
+            $returnCollection[key($value)] = $value[key($value)];
+        }
+
+        return $returnCollection;
+    }
+
+    private function isSsoRequestValid(?\Entities\Participant $participant): bool
+    {
+        if ($participant === null) {
+            $this->errorMessage = 'Resource does not exist';
+            return false;
+        }
+
+        if ($participant->isActive() === false) {
+            $this->errorMessage = 'Participant ' . $participant->getUniqueId() . ' is not active';
+            return false;
+        }
+
+        if ($this->getStatusEnumService()->hydrateStatus($participant->getStatus()) === $this->getStatusEnumService()::HOLD) {
+            $this->errorMessage = 'Participant ' . $participant->getUniqueId() . ' has a hold status';
+            return false;
+        }
+
+        $program = $participant->getProgram();
+        $programNameString = 'Program ' . $program->getName() . '[' . $program->getUniqueId() . ']';
+        if ($program->isPublished() === false) {
+            $this->errorMessage = $programNameString . ' is not published';
+            return false;
+        }
+
+        if ($program->getDomain() === null) {
+            $this->errorMessage = $programNameString . ' does not have a marketplace domain configured';
+            return false;
+        };
+
+        return true;
+    }
+
+    private function participantIdIsUnique($unique_id)
+    {
+        $exists = $this
+            ->repository
+            ->getParticipant(
+                $unique_id,
+                false
+            );
+
+        if (is_null($exists)) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -489,10 +536,5 @@ class Participant
         }
 
         return $data;
-    }
-
-    public function getErrors()
-    {
-        return $this->repository->getErrors();
     }
 }

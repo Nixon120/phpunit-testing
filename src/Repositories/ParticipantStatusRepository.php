@@ -3,8 +3,8 @@
 namespace Repositories;
 
 use AllDigitalRewards\RewardStack\Entities\ParticipantStatus;
-use AllDigitalRewards\RewardStack\Services\Participant\StatusEnum\StatusEnum;
 use AllDigitalRewards\Services\Catalog\Client;
+use AllDigitalRewards\StatusEnum\StatusEnum;
 use Entities\Participant;
 use PDO;
 use Traits\LoggerAwareTrait;
@@ -19,6 +19,10 @@ class ParticipantStatusRepository extends BaseRepository
      * @var Client
      */
     private $catalog;
+    /**
+     * @var StatusEnum
+     */
+    private $statusEnumService;
 
     public function __construct(PDO $database, Client $catalog)
     {
@@ -26,16 +30,39 @@ class ParticipantStatusRepository extends BaseRepository
         $this->catalog = $catalog;
     }
 
+    /**
+     * @return StatusEnum
+     */
+    public function getStatusEnumService(): StatusEnum
+    {
+        if ($this->statusEnumService === null) {
+            $this->statusEnumService = new StatusEnum();
+        }
+        return $this->statusEnumService;
+    }
+
+    /**
+     * @param StatusEnum $statusEnumService
+     */
+    public function setStatusEnumService(StatusEnum $statusEnumService): void
+    {
+        $this->statusEnumService = $statusEnumService;
+    }
+
     public function getRepositoryEntity()
     {
         return ParticipantStatus::class;
     }
 
-    public function getCurrentParticipantStatus($participantId)
+    /**
+     * @param Participant $participant
+     * @return mixed|null
+     */
+    public function getCurrentParticipantStatus(Participant $participant)
     {
         //get current status if exists
         $sql = "SELECT * FROM `participant_status` WHERE participant_id = ? ORDER BY id DESC LIMIT 1";
-        $args = [$participantId];
+        $args = [$participant->getId()];
         return $this->query($sql, $args, ParticipantStatus::class);
     }
 
@@ -45,25 +72,25 @@ class ParticipantStatusRepository extends BaseRepository
      */
     public function hydrateParticipantStatusResponse(Participant $participant)
     {
-        $status = StatusEnum::INACTIVE;
+        $status = $this->getStatusEnumService()::INACTIVE;
         //table should be updated with all statuses from ETL
-        $participantStatus = $this->getCurrentParticipantStatus($participant->getId());
+        $participantStatus = $this->getCurrentParticipantStatus($participant);
         if ($participantStatus) {
             $status = $participantStatus->status;
         }
 
-        return StatusEnum::hydrateStatus($status, true);
+        return $this->getStatusEnumService()->hydrateStatus($status, true);
     }
 
     /**
-     * @param $participantId
+     * @param Participant $participant
      * @param $status
      * @return bool
      */
-    public function saveParticipantStatus($participantId, $status)
+    public function saveParticipantStatus(Participant $participant, $status)
     {
-        $status = StatusEnum::hydrateStatus($status);
-        $currentStatus = $this->getCurrentParticipantStatus($participantId);
+        $status = $this->getStatusEnumService()->hydrateStatus($status);
+        $currentStatus = $this->getCurrentParticipantStatus($participant);
         //get current participant status if exists
         //if same as insert then just return
         if ($currentStatus && $currentStatus->status == $status) {
@@ -71,7 +98,7 @@ class ParticipantStatusRepository extends BaseRepository
         }
         $this->table = 'participant_status';
         $participantStatus = new ParticipantStatus();
-        $participantStatus->setParticipantId($participantId);
+        $participantStatus->setParticipantId($participant->getId());
         $participantStatus->setStatus((int)$status);
         $this->place($participantStatus);
         return true;
@@ -83,7 +110,7 @@ class ParticipantStatusRepository extends BaseRepository
      */
     public function hasValidStatus($status)
     {
-        return StatusEnum::isValidValue($status) || StatusEnum::isValidName($status);
+        return $this->getStatusEnumService()->isValidStatus($status);
     }
 
     /**
@@ -95,22 +122,14 @@ class ParticipantStatusRepository extends BaseRepository
     public function getHydratedStatusRequest($data): array
     {
         list($status, $data) = $this->setStatusForBackwardsCompatibility($data);
-
         //if `status` exists this will take precedence
         //set active based on status passed in
         if (array_key_exists('status', $data) === true) {
             $status = $data['status'];
-            if (array_key_exists('active', $data) === true) {
-                $data['active'] = StatusEnum::isActive($status) ? 1 : 0;
-            }
-            //CANCELLED === deplete points
-            if (StatusEnum::hydrateStatus($status) === StatusEnum::CANCELLED) {
-                $data['credit'] = 0.00;
-            }
+            $data['active'] = $this->getStatusEnumService()->isActive($status) ? 1 : 0;
         }
 
-        unset($data['status']);
-        unset($data['frozen']);
+        unset($data['status'], $data['frozen']);
 
         return array($status, $data);
     }
@@ -121,13 +140,21 @@ class ParticipantStatusRepository extends BaseRepository
      */
     private function setStatusForBackwardsCompatibility($data): array
     {
-        $status = StatusEnum::ACTIVE;
+        $status = $this->getStatusEnumService()::ACTIVE;
         if (array_key_exists('frozen', $data) === true) {
-            $status = $data['frozen'] == 1 ? StatusEnum::HOLD : StatusEnum::ACTIVE;
-            if (array_key_exists('active', $data) === true) {
-                $data['active'] = $data['frozen'] == 1 ? 1 : (int)$data['active'];
-            }
+            $status = (int)$data['frozen'] === 1
+                ? $this->getStatusEnumService()::HOLD
+                : $this->getStatusEnumService()::ACTIVE;
         }
+        if (array_key_exists('inactive', $data) === true) {
+            $status = (int)$data['inactive'] === 1
+                ? $this->getStatusEnumService()::HOLD :
+                $this->getStatusEnumService()::ACTIVE;
+        }
+        if (array_key_exists('active', $data) === true) {
+            $data['active'] = $this->getStatusEnumService()->isActive($status) ? 1 : 0;
+        }
+
         return array($status, $data);
     }
 }

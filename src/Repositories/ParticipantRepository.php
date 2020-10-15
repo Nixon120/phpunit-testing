@@ -406,7 +406,7 @@ SQL;
         $sth = $this->getDatabase()->prepare($sql);
         $sth->execute([$keyName]);
         $keyId = $sth->fetchColumn(0);
-        if(empty($keyId)) {
+        if (empty($keyId)) {
             $sql = "INSERT INTO `participant_meta_key` (`keyName`) VALUES (?)";
             $sth = $this->getDatabase()->prepare($sql);
             $sth->execute([$keyName]);
@@ -427,14 +427,14 @@ SQL;
     }
 
     /**
-     * @param $participantId
+     * @param Participant $participant
      * @param $status
      * @return bool
      */
-    public function saveParticipantStatus($participantId, $status)
+    public function saveParticipantStatus(Participant $participant, $status)
     {
         return $this->getParticipantStatusRepository()
-            ->saveParticipantStatus($participantId, $status);
+            ->saveParticipantStatus($participant, $status);
     }
 
     /**
