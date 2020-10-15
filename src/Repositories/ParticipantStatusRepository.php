@@ -2,7 +2,7 @@
 
 namespace Repositories;
 
-use AllDigitalRewards\RewardStack\Entities\ParticipantStatus;
+use Entities\ParticipantStatus;
 use AllDigitalRewards\Services\Catalog\Client;
 use AllDigitalRewards\StatusEnum\StatusEnum;
 use Entities\Participant;

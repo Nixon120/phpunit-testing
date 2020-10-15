@@ -1,6 +1,6 @@
 <?php
 
-namespace AllDigitalRewards\RewardStack\Entities;
+namespace Entities;
 
 use Entities\Base;
 use Entities\Traits\TimestampTrait;

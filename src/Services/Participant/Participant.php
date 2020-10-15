@@ -124,7 +124,9 @@ class Participant
         $participant = $this->repository->getParticipantByOrganization($organization, $uniqueId);
 
         if ($participant !== null
-            && $this->getStatusEnumService()->hydrateStatus($participant->getStatus()) === $this->getStatusEnumService()::ACTIVE
+            && $this->getStatusEnumService()
+                ->hydrateStatus($participant->getStatus())
+                === $this->getStatusEnumService()::ACTIVE
             && $participant->isActive() === true
             && $participant->getSso() === $token
             && $this->repository->purgeParticipantSso($participant->getId())

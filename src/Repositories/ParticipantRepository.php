@@ -460,7 +460,7 @@ SQL;
     /**
      * @return ParticipantStatusRepository
      */
-    private function getParticipantStatusRepository(): ParticipantStatusRepository
+    public function getParticipantStatusRepository(): ParticipantStatusRepository
     {
         if ($this->participantStatusRepo === null) {
             $this->participantStatusRepo = new ParticipantStatusRepository(
@@ -470,5 +470,13 @@ SQL;
         }
 
         return $this->participantStatusRepo;
+    }
+
+    /**
+     * @param ParticipantStatusRepository $participantStatusRepo
+     */
+    public function setParticipantStatusRepo(ParticipantStatusRepository $participantStatusRepo): void
+    {
+        $this->participantStatusRepo = $participantStatusRepo;
     }
 }
