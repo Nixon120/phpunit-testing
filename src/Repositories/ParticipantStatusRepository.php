@@ -56,18 +56,6 @@ class ParticipantStatusRepository extends BaseRepository
 
     /**
      * @param Participant $participant
-     * @return mixed|null
-     */
-    public function getCurrentParticipantStatus(Participant $participant)
-    {
-        //get current status if exists
-        $sql = "SELECT * FROM `participant_status` WHERE participant_id = ? ORDER BY id DESC LIMIT 1";
-        $args = [$participant->getId()];
-        return $this->query($sql, $args, ParticipantStatus::class);
-    }
-
-    /**
-     * @param Participant $participant
      * @return int|mixed|string
      */
     public function hydrateParticipantStatusResponse(Participant $participant)
@@ -132,6 +120,18 @@ class ParticipantStatusRepository extends BaseRepository
         unset($data['status'], $data['frozen']);
 
         return array($status, $data);
+    }
+
+    /**
+     * @param Participant $participant
+     * @return mixed|null
+     */
+    private function getCurrentParticipantStatus(Participant $participant)
+    {
+        //get current status if exists
+        $sql = "SELECT * FROM `participant_status` WHERE participant_id = ? ORDER BY id DESC LIMIT 1";
+        $args = [$participant->getId()];
+        return $this->query($sql, $args, ParticipantStatus::class);
     }
 
     /**
