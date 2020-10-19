@@ -6,6 +6,7 @@ class ParticipantServiceTest extends AbstractParticipantServiceTest
     {
         $factory = $this->getParticipantServiceFactory();
         $participantService = $factory->getService();
+        $participantService->repository->setParticipantStatusRepo($this->getMockParticipantStatusRepo());
 
         $sthMock = $this->getPdoStatementMock();
 
@@ -78,6 +79,30 @@ class ParticipantServiceTest extends AbstractParticipantServiceTest
             ]
         ];
 
+        $this->getMockParticipantStatusRepo()
+            ->expects($this->once())
+            ->method('getHydratedStatusRequest')
+            ->with($this->isType('array'))
+            ->willReturn([1,$data]);
+
+        $this->getMockParticipantStatusRepo()
+            ->expects($this->once())
+            ->method('hasValidStatus')
+            ->with(1)
+            ->willReturn(true);
+
+        $this->getMockParticipantStatusRepo()
+            ->expects($this->once())
+            ->method('saveParticipantStatus')
+            ->with($this->isType('object'), 1)
+            ->willReturn(true);
+
+        $this->getMockParticipantStatusRepo()
+            ->expects($this->once())
+            ->method('hydrateParticipantStatusResponse')
+            ->with($this->isType('object'))
+            ->willReturn(1);
+
         $participant = $participantService->insert($data, 'system');
         $row = $this->getMockParticipantRow();
         $row['password'] = $participant->getPassword();
@@ -90,6 +115,7 @@ class ParticipantServiceTest extends AbstractParticipantServiceTest
     {
         $factory = $this->getParticipantServiceFactory();
         $participantService = $factory->getService();
+        $participantService->repository->setParticipantStatusRepo($this->getMockParticipantStatusRepo());
 
         $sthMock = $this->getPdoStatementMock();
 
@@ -152,6 +178,8 @@ class ParticipantServiceTest extends AbstractParticipantServiceTest
             'firstname' => 'John',
             'lastname' => 'Smith',
             'phone' => '1231231234',
+            'active' => 1,
+            'status' => 1,
             'password' => 'password',
             'address' => [
                 'firstname' => 'John',
@@ -166,6 +194,29 @@ class ParticipantServiceTest extends AbstractParticipantServiceTest
                 ['hello' => 'world']
             ]
         ];
+        $this->getMockParticipantStatusRepo()
+            ->expects($this->once())
+            ->method('getHydratedStatusRequest')
+            ->with($this->isType('array'))
+            ->willReturn([1,$data]);
+
+        $this->getMockParticipantStatusRepo()
+            ->expects($this->once())
+            ->method('hasValidStatus')
+            ->with(1)
+            ->willReturn(true);
+
+        $this->getMockParticipantStatusRepo()
+            ->expects($this->once())
+            ->method('saveParticipantStatus')
+            ->with($this->isType('object'), 1)
+            ->willReturn(true);
+
+        $this->getMockParticipantStatusRepo()
+            ->expects($this->once())
+            ->method('hydrateParticipantStatusResponse')
+            ->with($this->isType('object'))
+            ->willReturn(1);
 
         $participant = $participantService->update(1, $data, 'system');
 

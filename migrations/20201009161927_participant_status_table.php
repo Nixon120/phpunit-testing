@@ -16,6 +16,7 @@ CREATE TABLE participant_status (
     `created_at` datetime(0) NULL DEFAULT current_timestamp(0),
     FOREIGN KEY (participant_id) REFERENCES participant (id) ON DELETE CASCADE,
     INDEX `status`(`status`) USING BTREE,
+    INDEX `created_at`(`created_at`) USING BTREE,
     PRIMARY KEY(id)) 
     DEFAULT CHARACTER SET utf8 
     COLLATE utf8_unicode_ci ENGINE = InnoDB

@@ -14,9 +14,7 @@ $pdo = $container->get('database');
 $rows = changeLogSql($pdo);
 while (empty($rows) === false) {
     try {
-        foreach ($rows as $row) {
-            insertStatus($pdo, $row);
-        }
+        insertStatus($pdo, $rows);
         $offset = count($rows) + 1;
         $rows = changeLogSql($pdo, $offset);
     } catch (\Exception $exception) {
@@ -29,8 +27,13 @@ function changeLogSql(PDO $pdo, $offset = 0)
 {
     $limit = 1000;
     $changeLogSql = <<<SQL
-SELECT *
-FROM `participant_change_log`
+SELECT participant_id,
+CASE WHEN `status` = 'active' THEN 1
+    WHEN `status` = 'hold' THEN 2
+    WHEN `status` = 'inactive' THEN 3
+    END `status`,
+logged_at
+FROM participant_change_log
 LIMIT ?
 OFFSET ?
 SQL;
@@ -40,14 +43,22 @@ SQL;
     return $sth->fetchAll();
 }
 
-function insertStatus(PDO $pdo, $row)
+function insertStatus(PDO $pdo, $rows)
 {
-    $sql = <<<SQL
-    INSERT INTO participant_status (participant_id, status, created_at)
-    VALUES (?,?,?)
-SQL;
+    $args = [];
+    foreach ($rows as $row) {
+        $args = array_merge($args, array_values($row));
+    }
+
+    $sql = "INSERT INTO participant_status (participant_id, status, created_at) VALUES ";
+    $count = count($rows);
+    for ($i = 1; $i <= $count; $i++) {
+        if ($count === $i) {
+            $sql .= '(?,?,?)';
+        } else {
+            $sql .= '(?,?,?),';
+        }
+    }
     $sth = $pdo->prepare($sql);
-    $statusEnum = new AllDigitalRewards\StatusEnum\StatusEnum();
-    $status = $statusEnum->hydrateStatus($row['status']);
-    $sth->execute([$row['participant_id'], $status, $row['logged_at']]);
+    $sth->execute($args);
 }
