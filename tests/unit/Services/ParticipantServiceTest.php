@@ -7,7 +7,6 @@ class ParticipantServiceTest extends AbstractParticipantServiceTest
         $factory = $this->getParticipantServiceFactory();
         $participantService = $factory->getService();
         $participantService->repository->setParticipantStatusRepo($this->getMockParticipantStatusRepo());
-
         $sthMock = $this->getPdoStatementMock();
 
         $this->getMockDatabase()
@@ -72,8 +71,8 @@ class ParticipantServiceTest extends AbstractParticipantServiceTest
                 'state' => 'CA',
                 'zip' => '90210'
             ],
-            'program' => 'testprogram',
-            'organization' => 'testorganization',
+            'program' => 'programtest',
+            'organization' => 'organizationtest',
             'meta' => [
                 ['hello' => 'world']
             ]
@@ -97,16 +96,11 @@ class ParticipantServiceTest extends AbstractParticipantServiceTest
             ->with($this->isType('object'), 1)
             ->willReturn(true);
 
-        $this->getMockParticipantStatusRepo()
-            ->expects($this->once())
-            ->method('hydrateParticipantStatusResponse')
-            ->with($this->isType('object'))
-            ->willReturn(1);
-
         $participant = $participantService->insert($data, 'system');
         $row = $this->getMockParticipantRow();
         $row['password'] = $participant->getPassword();
         $row['updated_at'] = $participant->getUpdatedAt();
+        $row['status'] = null;
 
         $this->assertSame($participant->toArray(), $row);
     }
@@ -212,17 +206,12 @@ class ParticipantServiceTest extends AbstractParticipantServiceTest
             ->with($this->isType('object'), 1)
             ->willReturn(true);
 
-        $this->getMockParticipantStatusRepo()
-            ->expects($this->once())
-            ->method('hydrateParticipantStatusResponse')
-            ->with($this->isType('object'))
-            ->willReturn(1);
-
         $participant = $participantService->update(1, $data, 'system');
 
         $row = $this->getMockParticipantRow();
         $row['password'] = $participant->getPassword();
         $row['updated_at'] = $participant->getUpdatedAt();
+        $row['status'] = null;
         $this->assertSame($participant->toArray(), $row);
     }
 }
