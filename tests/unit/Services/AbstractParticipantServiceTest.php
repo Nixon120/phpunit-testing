@@ -112,6 +112,11 @@ abstract class AbstractParticipantServiceTest extends \PHPUnit\Framework\TestCas
         return new \Entities\Program($this->getMockProgramRow());
     }
 
+    protected function getParticipantStatusEntity()
+    {
+        return new \Entities\ParticipantStatus($this->getMockParticipantStatusRow());
+    }
+
     protected function getMockParticipantStatusRow()
     {
         return [
@@ -122,6 +127,7 @@ abstract class AbstractParticipantServiceTest extends \PHPUnit\Framework\TestCas
             'updated_at' => null,
         ];
     }
+
     protected function getMockProgramRow()
     {
         return [
