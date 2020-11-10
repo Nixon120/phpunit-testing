@@ -78,11 +78,13 @@ class ParticipantServiceTest extends AbstractParticipantServiceTest
             ]
         ];
 
+        $removedData = $data;
+        unset($removedData['program'], $removedData['organization']);
         $this->getMockParticipantStatusRepo()
             ->expects($this->once())
             ->method('getHydratedStatusRequest')
             ->with($this->isType('array'))
-            ->willReturn([1,$data]);
+            ->willReturn([1,$removedData]);
 
         $this->getMockParticipantStatusRepo()
             ->expects($this->once())
