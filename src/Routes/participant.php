@@ -224,6 +224,6 @@ $app->group(
 
                 return $sweepstake->create($auth->getUser()->getOrganizationId(), $uniqueId);
             }
-        );
+        ) ->add(Middleware\ParticipantStatusValidator::class);
     }
 )->add(Middleware\ProgramValidator::class);

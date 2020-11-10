@@ -39,7 +39,7 @@ class Participant extends Base
 
     public $birthdate;
 
-    public $frozen;
+    public $status;
 
     /**
      * @var ParticipantMeta[]
@@ -365,28 +365,9 @@ class Participant extends Base
         $this->deactivated_at = $time;
     }
 
-    /**
-     * @return mixed
-     */
-    public function isFrozen()
+    public function setStatus($status)
     {
-        return $this->frozen === 1;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getFrozen()
-    {
-        return $this->frozen;
-    }
-
-    /**
-     * @param mixed $frozen
-     */
-    public function setFrozen($frozen): void
-    {
-        $this->frozen = $frozen;
+        $this->status = $status;
     }
 
     /**
@@ -394,14 +375,6 @@ class Participant extends Base
      */
     public function getStatus()
     {
-        if ($this->isFrozen() === true) {
-            return 'hold';
-        }
-
-        if ($this->isActive() === true) {
-            return 'active';
-        }
-
-        return 'inactive';
+        return $this->status;
     }
 }

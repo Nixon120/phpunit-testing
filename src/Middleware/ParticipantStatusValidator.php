@@ -52,7 +52,6 @@ class ParticipantStatusValidator
         $args = ($request->getAttribute('route'))->getArguments();
 
         $participant = $this->participantService->getService()->getSingle($args['id']);
-
         if (is_null($participant) === true) {
             return $response->withJson(['message' => 'Resource does not exist'], 400);
         }
