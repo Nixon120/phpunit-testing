@@ -7,7 +7,7 @@ class FilterNormalizer extends AbstractFilterNormalizer
 {
     public function getUniqueIdFilter($value)
     {
-        if (!empty($value[0])) {
+        if (!empty($value) && !empty($value[0])) {
             $placeholders = rtrim(str_repeat('?, ', count($value)), ', ');
             return " `Program`.`unique_id` IN ({$placeholders})";
         }
