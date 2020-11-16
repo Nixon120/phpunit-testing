@@ -774,6 +774,7 @@ SQL
     {
         $userContainerSeed = [];
         $userChangeLogSeed = [];
+        $userStatusSeed = [];
         $userContainerIds = [];
 
         for ($i = 1, $j = 0; $i <= 100; $i++, $j++) {
@@ -802,6 +803,12 @@ SQL
                 'status' => 'active',
                 'username' => 'system',
             ];
+            $userStatusSeed[] = [
+                'created_at' => "2017-01-01",
+                'participant_id' => $i,
+                'status' => 1,
+            ];
+
         }
 
         $participant = [
@@ -824,7 +831,11 @@ SQL
             'status' => 'active',
             'username' => 'system',
         ];
-
+        $userStatusSeed[] = [
+            'created_at' => "2017-01-01",
+            'participant_id' => 101,
+            'status' => 1,
+        ];
         $participants = $this->table('Participant');
 
         # Purge all existing participant meta.
@@ -832,6 +843,7 @@ SQL
             SET FOREIGN_KEY_CHECKS=0;
             TRUNCATE `' . getenv('MYSQL_DATABASE') . '`.`participant_meta_value`;
             TRUNCATE `' . getenv('MYSQL_DATABASE') . '`.`participant_change_log`;
+            TRUNCATE `' . getenv('MYSQL_DATABASE') . '`.`participant_status`;
             TRUNCATE `' . getenv('MYSQL_DATABASE') . '`.`Participant`;
             SET FOREIGN_KEY_CHECKS=1;
         ');
@@ -843,6 +855,11 @@ SQL
         # Write participant change logs
         $participantChangeLog = $this->table('participant_change_log');
         $participantChangeLog->insert($userChangeLogSeed)
+            ->save();
+
+        # Write participant status
+        $participantStatus = $this->table('participant_status');
+        $participantStatus->insert($userStatusSeed)
             ->save();
 
         $participants = $this->table('Participant');

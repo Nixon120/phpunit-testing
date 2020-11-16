@@ -7,6 +7,10 @@ abstract class AbstractParticipantServiceTest extends \PHPUnit\Framework\TestCas
     private $participantServiceFactory;
 
     public $mockDatabase;
+    /**
+     * @var \Repositories\ParticipantStatusRepository
+     */
+    public $mockParticipantStatusRepo;
 
     protected function getPdoStatementMock()
     {
@@ -27,6 +31,27 @@ abstract class AbstractParticipantServiceTest extends \PHPUnit\Framework\TestCas
         }
 
         return $this->mockDatabase;
+    }
+
+    /**
+     * @return \PHPUnit\Framework\MockObject\MockObject|\Repositories\ParticipantStatusRepository
+     */
+    protected function getMockParticipantStatusRepo()
+    {
+        if (!$this->mockParticipantStatusRepo) {
+            $this->mockParticipantStatusRepo = $this
+                ->getMockBuilder(\Repositories\ParticipantStatusRepository::class)
+                ->disableOriginalConstructor()
+                ->setMethods([
+                    "getHydratedStatusRequest",
+                    "hasValidStatus",
+                    "saveParticipantStatus",
+                    "hydrateParticipantStatusResponse"
+                ])
+                ->getMock();
+        }
+
+        return $this->mockParticipantStatusRepo;
     }
 
     protected function getMockSlimContainer()
@@ -85,6 +110,22 @@ abstract class AbstractParticipantServiceTest extends \PHPUnit\Framework\TestCas
     protected function getParticipantProgramEntity()
     {
         return new \Entities\Program($this->getMockProgramRow());
+    }
+
+    protected function getParticipantStatusEntity()
+    {
+        return new \Entities\ParticipantStatus($this->getMockParticipantStatusRow());
+    }
+
+    protected function getMockParticipantStatusRow()
+    {
+        return [
+            'id' => 1,
+            'participant_id' => 1,
+            'status' => 1,
+            'created_at' => '2017-12-06 01:28:09',
+            'updated_at' => null,
+        ];
     }
 
     protected function getMockProgramRow()
@@ -230,7 +271,7 @@ abstract class AbstractParticipantServiceTest extends \PHPUnit\Framework\TestCas
             'address_reference' => null,
             'phone' => '1231231234',
             'birthdate' => null,
-            'frozen' => 0,
+            'status' => 1,
             'deactivated_at' => null,
             'active' => 1,
             'created_at' => '2017-12-06 01:28:09',

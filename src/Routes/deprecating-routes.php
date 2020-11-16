@@ -160,7 +160,7 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
         $auth = $this->get('authentication');
 
         return $sweepstake->create($auth->getUser()->getOrganizationId(), $uniqueId);
-    });
+    })->add(\Middleware\ParticipantStatusValidator::class);
 });
 $app->group('/api/participant', function () use ($app, $createRoute, $updateRoute) {
     // Create

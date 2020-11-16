@@ -23,6 +23,10 @@ class ParticipantRepository extends BaseRepository
      * @var Client
      */
     private $catalog;
+    /**
+     * @var ParticipantStatusRepository
+     */
+    private $participantStatusRepo;
 
     public function __construct(PDO $database, Client $catalog)
     {
@@ -57,12 +61,17 @@ SELECT
    firstname,
    lastname,
    Participant.active,
-   Participant.frozen,
    Participant.deactivated_at, 
    Participant.updated_at,
    Participant.created_at, 
-   IF(Participant.frozen = 1, 'hold', IF(Participant.active = 1, 'active', 'inactive')) as `status`
+   participant_status.status as `status`
 FROM Participant USE INDEX FOR ORDER BY (IXName)
+JOIN participant_status on participant_status.participant_id = `Participant`.id
+    AND participant_status.id = (
+        SELECT MAX(t2.id)
+        FROM participant_status t2
+        WHERE t2.participant_id = participant_status.participant_id
+    )
 JOIN Organization ON Organization.id = Participant.organization_id
 JOIN Program ON Program.id = Participant.program_id AND Program.organization_id = Organization.id
 {$where}
@@ -136,6 +145,10 @@ SQL;
                 $participant->setAddress($address->toArray());
             }
         }
+
+        $statusName = $this->hydrateParticipantStatusResponse($participant);
+        $participant->setStatus($statusName);
+
         return $participant;
     }
 
@@ -393,7 +406,7 @@ SQL;
         $sth = $this->getDatabase()->prepare($sql);
         $sth->execute([$keyName]);
         $keyId = $sth->fetchColumn(0);
-        if(empty($keyId)) {
+        if (empty($keyId)) {
             $sql = "INSERT INTO `participant_meta_key` (`keyName`) VALUES (?)";
             $sth = $this->getDatabase()->prepare($sql);
             $sth->execute([$keyName]);
@@ -401,5 +414,69 @@ SQL;
         }
 
         return $keyId;
+    }
+
+    /**
+     * @param $status
+     * @return bool
+     */
+    public function hasValidStatus($status)
+    {
+        return $this->getParticipantStatusRepository()
+            ->hasValidStatus($status);
+    }
+
+    /**
+     * @param Participant $participant
+     * @param $status
+     * @return bool
+     */
+    public function saveParticipantStatus(Participant $participant, $status)
+    {
+        return $this->getParticipantStatusRepository()
+            ->saveParticipantStatus($participant, $status);
+    }
+
+    /**
+     * @param $data
+     * @return array
+     */
+    public function hydrateParticipantStatusRequest($data)
+    {
+        return $this->getParticipantStatusRepository()
+            ->getHydratedStatusRequest($data);
+    }
+
+    /**
+     * @param Participant $participant
+     * @return int|mixed|string
+     */
+    public function hydrateParticipantStatusResponse(Participant $participant)
+    {
+        return $this->getParticipantStatusRepository()
+            ->hydrateParticipantStatusResponse($participant);
+    }
+
+    /**
+     * @return ParticipantStatusRepository
+     */
+    public function getParticipantStatusRepository(): ParticipantStatusRepository
+    {
+        if ($this->participantStatusRepo === null) {
+            $this->participantStatusRepo = new ParticipantStatusRepository(
+                $this->getDatabase(),
+                $this->catalog
+            );
+        }
+
+        return $this->participantStatusRepo;
+    }
+
+    /**
+     * @param ParticipantStatusRepository $participantStatusRepo
+     */
+    public function setParticipantStatusRepo(ParticipantStatusRepository $participantStatusRepo): void
+    {
+        $this->participantStatusRepo = $participantStatusRepo;
     }
 }

@@ -6,7 +6,7 @@ class ParticipantServiceTest extends AbstractParticipantServiceTest
     {
         $factory = $this->getParticipantServiceFactory();
         $participantService = $factory->getService();
-
+        $participantService->repository->setParticipantStatusRepo($this->getMockParticipantStatusRepo());
         $sthMock = $this->getPdoStatementMock();
 
         $this->getMockDatabase()
@@ -61,7 +61,7 @@ class ParticipantServiceTest extends AbstractParticipantServiceTest
             'phone' => '1231231234',
             'password' => 'password',
             'active' => 1,
-            'frozen' => 0,
+            'status' => 1,
             'address' => [
                 'firstname' => 'John',
                 'lastname' => 'Smith',
@@ -71,17 +71,38 @@ class ParticipantServiceTest extends AbstractParticipantServiceTest
                 'state' => 'CA',
                 'zip' => '90210'
             ],
-            'program' => 'testprogram',
-            'organization' => 'testorganization',
+            'program' => 'programtest',
+            'organization' => 'organizationtest',
             'meta' => [
                 ['hello' => 'world']
             ]
         ];
 
+        $removedData = $data;
+        unset($removedData['program'], $removedData['organization']);
+        $this->getMockParticipantStatusRepo()
+            ->expects($this->once())
+            ->method('getHydratedStatusRequest')
+            ->with($this->isType('array'))
+            ->willReturn([1,$removedData]);
+
+        $this->getMockParticipantStatusRepo()
+            ->expects($this->once())
+            ->method('hasValidStatus')
+            ->with(1)
+            ->willReturn(true);
+
+        $this->getMockParticipantStatusRepo()
+            ->expects($this->once())
+            ->method('saveParticipantStatus')
+            ->with($this->isType('object'), 1)
+            ->willReturn(true);
+
         $participant = $participantService->insert($data, 'system');
         $row = $this->getMockParticipantRow();
         $row['password'] = $participant->getPassword();
         $row['updated_at'] = $participant->getUpdatedAt();
+        $row['status'] = null;
 
         $this->assertSame($participant->toArray(), $row);
     }
@@ -90,6 +111,7 @@ class ParticipantServiceTest extends AbstractParticipantServiceTest
     {
         $factory = $this->getParticipantServiceFactory();
         $participantService = $factory->getService();
+        $participantService->repository->setParticipantStatusRepo($this->getMockParticipantStatusRepo());
 
         $sthMock = $this->getPdoStatementMock();
 
@@ -152,6 +174,8 @@ class ParticipantServiceTest extends AbstractParticipantServiceTest
             'firstname' => 'John',
             'lastname' => 'Smith',
             'phone' => '1231231234',
+            'active' => 1,
+            'status' => 1,
             'password' => 'password',
             'address' => [
                 'firstname' => 'John',
@@ -166,12 +190,30 @@ class ParticipantServiceTest extends AbstractParticipantServiceTest
                 ['hello' => 'world']
             ]
         ];
+        $this->getMockParticipantStatusRepo()
+            ->expects($this->once())
+            ->method('getHydratedStatusRequest')
+            ->with($this->isType('array'))
+            ->willReturn([1,$data]);
+
+        $this->getMockParticipantStatusRepo()
+            ->expects($this->once())
+            ->method('hasValidStatus')
+            ->with(1)
+            ->willReturn(true);
+
+        $this->getMockParticipantStatusRepo()
+            ->expects($this->once())
+            ->method('saveParticipantStatus')
+            ->with($this->isType('object'), 1)
+            ->willReturn(true);
 
         $participant = $participantService->update(1, $data, 'system');
 
         $row = $this->getMockParticipantRow();
         $row['password'] = $participant->getPassword();
         $row['updated_at'] = $participant->getUpdatedAt();
+        $row['status'] = null;
         $this->assertSame($participant->toArray(), $row);
     }
 }

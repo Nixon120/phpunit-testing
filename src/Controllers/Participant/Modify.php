@@ -14,6 +14,10 @@ class Modify extends AbstractModifyController
      * @var Participant
      */
     private $service;
+    /**
+     * @var \Services\Participant\Balance
+     */
+    private $balanceService;
 
     public function __construct(
         Request $request,
@@ -22,6 +26,7 @@ class Modify extends AbstractModifyController
     ) {
         parent::__construct($request, $response);
         $this->service = $factory->getService();
+        $this->balanceService = $factory->getBalanceService();
     }
 
     public function insert(string $agentEmailAddress)
@@ -29,6 +34,10 @@ class Modify extends AbstractModifyController
         $post = $this->request->getParsedBody()??[];
         unset($post['credit']);
         if ($participant = $this->service->insert($post, $agentEmailAddress)) {
+            $this->service->setParticipantCreditsToZeroIfCancelled(
+                $this->balanceService,
+                $participant
+            );
             $output = new OutputNormalizer($participant);
             return $this->returnJson(201, $output->get());
         }
@@ -44,6 +53,10 @@ class Modify extends AbstractModifyController
         //@TODO: perhaps we can figure out a clean way to remove unneeded fields without explicitly removing them
         //We don't need this.
         if ($participant = $this->service->update($id, $post, $agentEmailAddress)) {
+            $this->service->setParticipantCreditsToZeroIfCancelled(
+                $this->balanceService,
+                $participant
+            );
             $output = new OutputNormalizer($participant);
             return $this->returnJson(200, $output->get());
         }
