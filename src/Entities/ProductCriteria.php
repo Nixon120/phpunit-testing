@@ -374,7 +374,7 @@ class ProductCriteria extends Base
     {
         //comes in as array or json string
         if (is_string($filters)) {
-            $filters = (array)json_decode($filters, true);
+            $filters = json_decode($filters, true);
         }
 
         $filter = [
