@@ -125,6 +125,16 @@ class ProgramTest extends TestCase
         $this->assertTrue($expectedDecoded == $decodedFilter);
     }
 
+    public function testProductCriteriaWithEmptyArrayFormattingFilterReturnsSameStructure()
+    {
+        $criteria = new \Entities\ProductCriteria();
+        $criteria->setFilter([]);
+        $expectedDecoded = json_decode($this->jsonProductCriteriaEmptyAttributesExpectedResponse());
+        $decodedFilter = json_decode($criteria->getFilter());
+
+        $this->assertTrue($expectedDecoded == $decodedFilter);
+    }
+
     private function mockProgram()
     {
         if (!$this->program) {
@@ -213,6 +223,22 @@ class ProgramTest extends TestCase
                 "exclude_brands":[],
                 "exclude_vendors":["omnicard"],
                 "category":["10","13","16","21","23","1","11","26","1000001","44","6","53","71","83","86","89","12","92","95"],
+                "brand":[],
+                "group":[]
+            }
+        ';
+    }
+
+    private function jsonProductCriteriaEmptyAttributesExpectedResponse()
+    {
+        return '
+            {
+                "price":{"min":"","max":""},
+                "products":[],
+                "exclude_products":[],
+                "exclude_brands":[],
+                "exclude_vendors":[],
+                "category":[],
                 "brand":[],
                 "group":[]
             }
