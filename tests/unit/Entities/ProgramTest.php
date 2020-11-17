@@ -103,6 +103,28 @@ class ProgramTest extends TestCase
         $this->assertTrue($program->isActiveAndNotExpired());
     }
 
+    public function testProductCriteriaJsonFormattingFilterReturnsSameStructure()
+    {
+        $jsonCriteria = $this->jsonProductCriteriaWithMissingAttributes();
+        $criteria = new \Entities\ProductCriteria();
+        $criteria->setFilter($jsonCriteria);
+        $expectedDecoded = json_decode($this->jsonProductCriteriaExpectedResponse());
+        $decodedFilter = json_decode($criteria->getFilter());
+
+        $this->assertTrue($expectedDecoded == $decodedFilter);
+    }
+
+    public function testProductCriteriaArrayFormattingFilterReturnsSameStructure()
+    {
+        $jsonCriteria = $this->arrayProductCriteriaWithMissingAttributes();
+        $criteria = new \Entities\ProductCriteria();
+        $criteria->setFilter($jsonCriteria);
+        $expectedDecoded = json_decode($this->jsonProductCriteriaExpectedResponse());
+        $decodedFilter = json_decode($criteria->getFilter());
+
+        $this->assertTrue($expectedDecoded == $decodedFilter);
+    }
+
     private function mockProgram()
     {
         if (!$this->program) {
@@ -178,6 +200,53 @@ class ProgramTest extends TestCase
            'program_id' => $this->program,
            'priority' => 1,
            'label' => ''
+        ];
+    }
+
+    private function jsonProductCriteriaExpectedResponse()
+    {
+        return '
+            {
+                "price":{"min":"","max":""},
+                "products":["IP0011199160-493","VVISA01","GAME2","WORVISA01","GAME5","ASIP0011334630-4925VV","GAME7","GAME6","GAME1","IP0011199160-492","IP0011334630-4950VV","IP0011334630-49VV","IP0011199160-494","IP0011199160-491","GAME8","PVISA01","IP0011199160-49","GAME16","WBIC120","GAME4"],
+                "exclude_products":[],
+                "exclude_brands":[],
+                "exclude_vendors":["omnicard"],
+                "category":["10","13","16","21","23","1","11","26","1000001","44","6","53","71","83","86","89","12","92","95"],
+                "brand":[],
+                "group":[]
+            }
+        ';
+    }
+
+    private function jsonProductCriteriaWithMissingAttributes()
+    {
+        return '
+            {
+                "min": "",
+                "max": "",
+                "products":["IP0011199160-493","VVISA01","GAME2","WORVISA01","GAME5","ASIP0011334630-4925VV","GAME7","GAME6","GAME1","IP0011199160-492","IP0011334630-4950VV","IP0011334630-49VV","IP0011199160-494","IP0011199160-491","GAME8","PVISA01","IP0011199160-49","GAME16","WBIC120","GAME4"],
+                "exclude_products":[],
+                "exclude_brands":[],
+                "exclude_vendors":["omnicard"],
+                "categories":["10","13","16","21","23","1","11","26","1000001","44","6","53","71","83","86","89","12","92","95"],
+                "brands":[]
+            }
+        ';
+    }
+
+    private function arrayProductCriteriaWithMissingAttributes()
+    {
+        return [
+
+                "min"=> "",
+                "max"=> "",
+                "products"=> ["IP0011199160-493","VVISA01","GAME2","WORVISA01","GAME5","ASIP0011334630-4925VV","GAME7","GAME6","GAME1","IP0011199160-492","IP0011334630-4950VV","IP0011334630-49VV","IP0011199160-494","IP0011199160-491","GAME8","PVISA01","IP0011199160-49","GAME16","WBIC120","GAME4"],
+                "exclude_products"=>[],
+                "exclude_brands"=>[],
+                "exclude_vendors"=> ["omnicard"],
+                "categories"=>["10","13","16","21","23","1","11","26","1000001","44","6","53","71","83","86","89","12","92","95"],
+                "brands"=>[]
         ];
     }
 }
