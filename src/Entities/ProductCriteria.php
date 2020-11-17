@@ -235,9 +235,7 @@ class ProductCriteria extends Base
             $filters = [];
         }
 
-        if (is_array($filters)) {
-            $filters = $this->formatFilter($filters);
-        }
+        $filters = $this->formatFilter($filters);
         $this->filter = $filters;
         $filters = json_decode($filters);
 
@@ -370,11 +368,15 @@ class ProductCriteria extends Base
 
     /**
      * Format the filter for storage
-     * @param array $filters
+     * @param array|string $filters
      * @return string
      */
-    private function formatFilter(array $filters)
+    private function formatFilter($filters)
     {
+        //comes in as array or json string
+        if (is_string($filters)) {
+            $filters = (array)json_decode($filters);
+        }
         $filter = [
             'price' => [
                 'min' => '',
@@ -398,6 +400,9 @@ class ProductCriteria extends Base
         }
         if (isset($filters['exclude_vendors']) === false) {
             $filters['exclude_vendors'] = [];
+        }
+        if (isset($filters['groups']) === false) {
+            $filters['groups'] = [];
         }
 
         if (!empty($filters['max'])) {
