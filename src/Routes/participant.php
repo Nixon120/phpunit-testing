@@ -39,6 +39,18 @@ $app->group(
             }
         );
 
+        // Delete Single
+        $app->delete(
+            '/{id}',
+            function ($request, $response, $args) {
+                $participant = new Controllers\Modify($request, $response, $this->get('participant'));
+                $participantId = $args['id'];
+                /** @var Authenticate $auth */
+                $auth = $this->get('authentication');
+                return $participant->remove($participantId, $auth->getUser()->getEmailAddress());
+            }
+        );
+
         // Update
         $app->put(
             '/{id}',

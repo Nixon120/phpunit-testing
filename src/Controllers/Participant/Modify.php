@@ -64,4 +64,26 @@ class Modify extends AbstractModifyController
         $errors = $this->service->getErrors();
         return $this->returnFormattedJsonError(400, $errors);
     }
+
+    /**
+     * @param $id
+     * @param string $agentEmailAddress
+     * @return Response
+     */
+    public function remove($id, string $agentEmailAddress)
+    {
+        /** @var \Entities\Participant $participant */
+        $participant = $this->service->repository->getParticipant($id);
+
+        if (is_null($participant)) {
+            return $this->returnJson(404, ['Participant not valid']);
+        }
+
+        if ($this->service->remove($participant, $agentEmailAddress) === true) {
+            return $this->response->withStatus(204);
+        }
+
+        $errors = $this->service->getErrors();
+        return $this->returnFormattedJsonError(400, $errors);
+    }
 }

@@ -539,4 +539,19 @@ class Participant
 
         return $data;
     }
+
+    /**
+     * @param \Entities\Participant $participant
+     * @param string $agentEmailAddress
+     * @return bool
+     */
+    public function remove(\Entities\Participant $participant, string $agentEmailAddress)
+    {
+        $statusName = $this->getStatusEnumService()->hydrateStatus(StatusEnum::DATADEL, true);
+
+        $participant->setStatus($statusName);
+        $this->repository->saveParticipantStatus($participant, $statusName);
+        $this->repository->logParticipantChange($participant, $agentEmailAddress);
+        return true;
+    }
 }
