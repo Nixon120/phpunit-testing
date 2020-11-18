@@ -15,6 +15,7 @@ $totalRecords = 0;
 $page = 1;
 $rows = changeLogSql($pdo, $page);
 $totalRecords += count($rows);
+
 while (empty($rows) === false) {
     try {
         insertStatus($pdo, $rows);
@@ -27,11 +28,12 @@ while (empty($rows) === false) {
     }
 }
 
-echo 'done processing ' . $totalRecords . ' records';
+echo 'done processing ' . $totalRecords . ' records' . PHP_EOL;
 
 function changeLogSql(PDO $pdo, $page)
 {
-    $offset = $page * 1000;
+    $limit = 1000;
+    $offset = $page === 1 ? 0 : ($page - 1) * $limit;
     $changeLogSql = <<<SQL
 SELECT participant_id,
 CASE WHEN `status` = 'active' THEN 1
@@ -45,7 +47,7 @@ OFFSET ?
 SQL;
 
     $sth = $pdo->prepare($changeLogSql);
-    $sth->execute([1000, $offset]);
+    $sth->execute([$limit, $offset]);
     return $sth->fetchAll();
 }
 
