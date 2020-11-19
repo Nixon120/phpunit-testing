@@ -11,21 +11,29 @@ require __DIR__ . "/../cli-bootstrap.php";
 /** @var PDO $pdo */
 $pdo = $container->get('database');
 
-$rows = changeLogSql($pdo);
+$totalRecords = 0;
+$page = 1;
+$rows = changeLogSql($pdo, $page);
+$totalRecords += count($rows);
+
 while (empty($rows) === false) {
     try {
         insertStatus($pdo, $rows);
-        $offset = count($rows) + 1;
-        $rows = changeLogSql($pdo, $offset);
+        $page++;
+        $rows = changeLogSql($pdo, $page);
+        $totalRecords += count($rows);
     } catch (\Exception $exception) {
         echo $exception->getMessage();
         exit(1);
     }
 }
 
-function changeLogSql(PDO $pdo, $offset = 0)
+echo 'done processing ' . $totalRecords . ' records' . PHP_EOL;
+
+function changeLogSql(PDO $pdo, $page)
 {
     $limit = 1000;
+    $offset = $page === 1 ? 0 : ($page - 1) * $limit;
     $changeLogSql = <<<SQL
 SELECT participant_id,
 CASE WHEN `status` = 'active' THEN 1
