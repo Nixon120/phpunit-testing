@@ -360,7 +360,7 @@ services:
     environment:
         ENVIRONMENT: development
         JWT_SECRET: password
-        MYSQL_HOST: pps-mysql
+        MYSQL_HOST: mysql
         MYSQL_DATABASE: pps
         MYSQL_USERNAME: root
         MYSQL_PASSWORD: 123
