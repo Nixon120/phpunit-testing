@@ -548,7 +548,7 @@ class Participant
     public function remove(\Entities\Participant $participant, string $agentEmailAddress)
     {
         $statusName = $this->getStatusEnumService()->hydrateStatus(StatusEnum::DATADEL, true);
-
+        //loop thru ALL transactions and remove first/last name and address from each, phone number
         $participant->setStatus($statusName);
         $this->repository->saveParticipantStatus($participant, $statusName);
         $this->repository->logParticipantChange($participant, $agentEmailAddress);
