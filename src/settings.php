@@ -70,7 +70,8 @@ return [
             'avs.all',
             'sftp.all',
             'redemption-campaigns.all',
-            'game-vendor.all'
+            'game-vendor.all',
+            'program-participant.all',
         ],
         'admin' => [
             'organization.all',
@@ -85,14 +86,12 @@ return [
             'organization.all',
             'program.all',
             'participant.all',
-//            'user.read',
             'report.all',
             'administrators.read'
         ],
         'reports' => [
             'report.all',
             'participant.read',
-//            'user.read',
             'program.read',
             'organization.read',
             'administrators.read',
