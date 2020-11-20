@@ -379,67 +379,101 @@ class ProductCriteria extends Base
 
         $filter = [
             'price' => [
-                'min' => '',
-                'max' => ''
+                'min' => $this->hydrateMinPriceFilter($filters),
+                'max' => $this->hydrateMaxPriceFilter($filters)
             ],
-            'products' => [],
-            'exclude_products' => [],
-            'exclude_brands' => [],
-            'exclude_vendors' => [],
-            'category' => [],
-            'brand' => [],
-            'group' => []
+            'products' => empty($filters['products']) === false ? $filters['products'] : [],
+            'exclude_products' => empty($filters['exclude_products']) === false ? $filters['exclude_products'] : [],
+            'exclude_brands' => empty($filters['exclude_brands']) === false ? $filters['exclude_brands'] : [],
+            'exclude_vendors' => empty($filters['exclude_vendors']) === false ? $filters['exclude_vendors'] : [],
+            'category' => $this->hydrateCategoryFilter($filters),
+            'brand' => $this->hydrateBrandsFilter($filters),
+            'group' => $this->hydrateGroupFilter($filters)
         ];
 
-        //need to handle undefined property error
-        if (isset($filters['exclude_products']) === false) {
-            $filters['exclude_products'] = [];
-        }
-        if (isset($filters['exclude_brands']) === false) {
-            $filters['exclude_brands'] = [];
-        }
-        if (isset($filters['exclude_vendors']) === false) {
-            $filters['exclude_vendors'] = [];
-        }
-        if (isset($filters['groups']) === false) {
-            $filters['groups'] = [];
-        }
-
-        if (empty($filters['price']) === false) {
-            $filter['price']['min'] = $filters['price']['min'] ?? '';
-            $filter['price']['max'] = $filters['price']['max'] ?? '';
-        }
-
-        if (!empty($filters['max'])) {
-            $filter['price']['max'] = $filters['max'];
-        }
-
-        if (!empty($filters['min'])) {
-            $filter['price']['min'] = $filters['min'];
-        }
-
-        if (!empty($filters['products'])) {
-            $filter['products'] = $filters['products'];
-        }
-        if (!empty($filters['exclude_products'])) {
-            $filter['exclude_products'] = $filters['exclude_products'];
-        }
-        if (!empty($filters['exclude_brands'])) {
-            $filter['exclude_brands'] = $filters['exclude_brands'];
-        }
-        if (!empty($filters['exclude_vendors'])) {
-            $filter['exclude_vendors'] = $filters['exclude_vendors'];
-        }
-        if (!empty($filters['categories'])) {
-            $filter['category'] = $filters['categories'];
-        }
-        if (!empty($filters['brands'])) {
-            $filter['brand'] = $filters['brands'];
-        }
-        if (!empty($filters['groups'])) {
-            $filter['group'] = $filters['groups'];
-        }
-
         return json_encode($filter);
+    }
+
+    /**
+     * @param $filters
+     * @return string
+     */
+    private function hydrateMinPriceFilter($filters)
+    {
+        if (empty($filters['price']) === false) {
+            return $filters['price']['min'] ?? '';
+        }
+
+        if (empty($filters['min']) === false) {
+            return $filters['min'];
+        }
+
+        return '';
+    }
+
+    /**
+     * @param $filters
+     * @return string
+     */
+    private function hydrateMaxPriceFilter($filters)
+    {
+        if (empty($filters['price']) === false) {
+            return $filters['price']['max'] ?? '';
+        }
+
+        if (empty($filters['max']) === false) {
+            return $filters['max'];
+        }
+
+        return '';
+    }
+
+    /**
+     * @param $filters
+     * @return array
+     */
+    private function hydrateCategoryFilter($filters): array
+    {
+        //stored singular in db so we check as well
+        if (empty($filters['category']) === false) {
+            return $filters['category'];
+        }
+        if (empty($filters['categories']) === false) {
+            return $filters['categories'];
+        }
+
+        return [];
+    }
+
+    /**
+     * @param $filters
+     * @return array
+     */
+    private function hydrateBrandsFilter($filters): array
+    {
+        //stored singular in db so we check as well
+        if (empty($filters['brand']) === false) {
+            return $filters['brand'];
+        }
+        if (empty($filters['brands']) === false) {
+            return $filters['brands'];
+        }
+        return [];
+    }
+
+    /**
+     * @param $filters
+     * @return array
+     */
+    private function hydrateGroupFilter($filters): array
+    {
+        //stored singular in db so we check as well
+        if (empty($filters['group']) === false) {
+            return $filters['group'];
+        }
+        if (empty($filters['groups']) === false) {
+            return $filters['groups'];
+        }
+        return [];
     }
 }
