@@ -556,13 +556,16 @@ class Participant
             if ($statusName === $participant->getStatus()) {
                 return true;
             }
-            $this->setParticipantTransactionEmailAddressToEmpty($participant->getId());
-            $this->setParticipantAddressPiiToEmpty($participant->getId());
+            $id = $participant->getId();
+            $this->repository->setParticipantTransactionEmailAddressToEmpty($id);
+            $this->repository->setParticipantAddressPiiToEmpty($id);
             $participant->setStatus($statusName);
             $this->repository->saveParticipantStatus($participant, $statusName);
             $this->repository->logParticipantChange($participant, $agentEmailAddress);
+            $this->repository->setParticipantToInactive($id);
             return true;
         } catch (Exception $exception) {
+            $this->repository->setErrors([$exception->getMessage()]);
             $this->getLogger()->error(
                 'Participant PII Delete Failure',
                 [
@@ -574,37 +577,5 @@ class Participant
             );
             return false;
         }
-    }
-
-    /**
-     * @param int $id
-     * @return bool
-     */
-    private function setParticipantTransactionEmailAddressToEmpty(int $id)
-    {
-        $sql = <<<SQL
-UPDATE Transaction
-SET email_address = ''
-WHERE participant_id = ?
-SQL;
-
-        $sth = $this->repository->getDatabase()->prepare($sql);
-        return $sth->execute([$id]);
-    }
-
-    /**
-     * @param int $id
-     * @return bool
-     */
-    private function setParticipantAddressPiiToEmpty(int $id)
-    {
-        $sql = <<<SQL
-UPDATE Address
-SET firstname = '', lastname = '', address1 = '', address2 = '', city = '', state = '', zip = ''
-WHERE participant_id = ?
-SQL;
-
-        $sth = $this->repository->getDatabase()->prepare($sql);
-        return $sth->execute([$id]);
     }
 }

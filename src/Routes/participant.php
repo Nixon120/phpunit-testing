@@ -162,7 +162,7 @@ $app->group(
                     $itemGuid
                 );
             }
-        );
+        )->add(Middleware\ParticipantStatusValidator::class);
 
         $app->post(
             '/{id}/transaction',
