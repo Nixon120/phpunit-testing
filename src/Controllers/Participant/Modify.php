@@ -70,7 +70,7 @@ class Modify extends AbstractModifyController
      * @param string $agentEmailAddress
      * @return Response
      */
-    public function remove($id, string $agentEmailAddress)
+    public function removeParticipantPii($id, string $agentEmailAddress)
     {
         /** @var \Entities\Participant $participant */
         $participant = $this->service->repository->getParticipant($id);
@@ -79,7 +79,7 @@ class Modify extends AbstractModifyController
             return $this->returnJson(404, ['Participant not valid']);
         }
 
-        if ($this->service->remove($participant, $agentEmailAddress) === true) {
+        if ($this->service->removeParticipantPii($participant, $agentEmailAddress) === true) {
             return $this->response->withStatus(204);
         }
 

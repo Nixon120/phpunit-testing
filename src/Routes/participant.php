@@ -47,7 +47,7 @@ $app->group(
                 $participantId = $args['id'];
                 /** @var Authenticate $auth */
                 $auth = $this->get('authentication');
-                return $participant->remove($participantId, $auth->getUser()->getEmailAddress());
+                return $participant->removeParticipantPii($participantId, $auth->getUser()->getEmailAddress());
             }
         );
 

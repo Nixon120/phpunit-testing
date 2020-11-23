@@ -7,11 +7,14 @@ use AllDigitalRewards\StatusEnum\StatusEnum;
 use Controllers\Interfaces as Interfaces;
 use Controllers\Participant\InputNormalizer;
 use Entities\User;
+use Exception;
 use Repositories\ParticipantRepository;
+use Traits\LoggerAwareTrait;
 
 class Participant
 {
     use MetaValidationTrait;
+    use LoggerAwareTrait;
 
     /**
      * @var ParticipantRepository
@@ -545,13 +548,59 @@ class Participant
      * @param string $agentEmailAddress
      * @return bool
      */
-    public function remove(\Entities\Participant $participant, string $agentEmailAddress)
+    public function removeParticipantPii(\Entities\Participant $participant, string $agentEmailAddress)
     {
-        $statusName = $this->getStatusEnumService()->hydrateStatus(StatusEnum::DATADEL, true);
-        //loop thru ALL transactions and remove first/last name and address from each, phone number
-        $participant->setStatus($statusName);
-        $this->repository->saveParticipantStatus($participant, $statusName);
-        $this->repository->logParticipantChange($participant, $agentEmailAddress);
-        return true;
+        try {
+            $statusName = $this->getStatusEnumService()->hydrateStatus(StatusEnum::DATADEL, true);
+            $this->setParticipantTransactionEmailAddressToEmpty($participant->getId());
+            $this->setParticipantAddressPiiToEmpty($participant->getId());
+            $participant->setStatus($statusName);
+            $this->repository->saveParticipantStatus($participant, $statusName);
+            $this->repository->logParticipantChange($participant, $agentEmailAddress);
+            return true;
+        } catch (Exception $exception) {
+            $this->getLogger()->error(
+                'Participant PII Delete Failure',
+                [
+                    'success' => false,
+                    'action' => 'update',
+                    'uuid' => $participant->getUniqueId(),
+                    'error' => $exception->getMessage()
+                ]
+            );
+            return false;
+        }
+    }
+
+    /**
+     * @param int $id
+     * @return bool
+     */
+    private function setParticipantTransactionEmailAddressToEmpty(int $id)
+    {
+        $sql = <<<SQL
+UPDATE Transaction
+SET email_address = ''
+WHERE participant_id = ?
+SQL;
+
+        $sth = $this->repository->getDatabase()->prepare($sql);
+        return $sth->execute([$id]);
+    }
+
+    /**
+     * @param int $id
+     * @return bool
+     */
+    private function setParticipantAddressPiiToEmpty(int $id)
+    {
+        $sql = <<<SQL
+UPDATE Address
+SET firstname = '', lastname = '', address1 = '', address2 = '', city = '', state = '', zip = ''
+WHERE participant_id = ?
+SQL;
+
+        $sth = $this->repository->getDatabase()->prepare($sql);
+        return $sth->execute([$id]);
     }
 }
