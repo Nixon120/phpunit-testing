@@ -76,7 +76,7 @@ class Modify extends AbstractModifyController
         $participant = $this->service->repository->getParticipant($id);
 
         if (is_null($participant)) {
-            return $this->returnJson(404, ['Participant not valid']);
+            return $this->returnJson(404, _('Participant not valid'));
         }
 
         if ($this->service->removeParticipantPii($participant, $agentEmailAddress) === true) {
