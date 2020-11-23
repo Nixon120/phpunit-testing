@@ -552,6 +552,10 @@ class Participant
     {
         try {
             $statusName = $this->getStatusEnumService()->hydrateStatus(StatusEnum::DATADEL, true);
+            //no need to delete again
+            if ($statusName === $participant->getStatus()) {
+                return true;
+            }
             $this->setParticipantTransactionEmailAddressToEmpty($participant->getId());
             $this->setParticipantAddressPiiToEmpty($participant->getId());
             $participant->setStatus($statusName);

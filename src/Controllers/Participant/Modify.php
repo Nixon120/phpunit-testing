@@ -1,6 +1,7 @@
 <?php
 namespace Controllers\Participant;
 
+use AllDigitalRewards\StatusEnum\StatusEnum;
 use Controllers\AbstractModifyController;
 use Services\Authentication\Authenticate;
 use Slim\Http\Request;
