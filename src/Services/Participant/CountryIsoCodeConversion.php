@@ -258,10 +258,12 @@ class CountryIsoCodeConversion
      */
     public static function hydrateCountryCode($country)
     {
-        $values = self::getConstants();
-        foreach ($values as $key => $value) {
-            if ($country == (int)$value) {
-                return $key;
+        if (empty($country) === false) {
+            $values = self::getConstants();
+            foreach ($values as $key => $value) {
+                if ($country === (int)$value) {
+                    return $key;
+                }
             }
         }
         return '';
