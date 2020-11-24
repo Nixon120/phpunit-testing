@@ -260,7 +260,7 @@ class CountryIsoCodeConversion
     {
         $values = self::getConstants();
         foreach ($values as $key => $value) {
-            if ($country == strtolower($value)) {
+            if ($country == (int)$value) {
                 return $key;
             }
         }
