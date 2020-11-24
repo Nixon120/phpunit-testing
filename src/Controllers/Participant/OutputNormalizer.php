@@ -2,6 +2,7 @@
 
 namespace Controllers\Participant;
 
+use AllDigitalRewards\RewardStack\Services\Participant\CountryIsoCodeConversion;
 use Controllers\AbstractOutputNormalizer;
 use Entities\Address;
 use Entities\TransactionItem;
@@ -18,6 +19,7 @@ class OutputNormalizer extends AbstractOutputNormalizer
                 'participant_id',
                 'reference_id'
             ]);
+            $address['country'] = CountryIsoCodeConversion::hydrateCountryCode($address['country']);
         }
 
         return $address;
