@@ -7,11 +7,14 @@ use AllDigitalRewards\StatusEnum\StatusEnum;
 use Controllers\Interfaces as Interfaces;
 use Controllers\Participant\InputNormalizer;
 use Entities\User;
+use Exception;
 use Repositories\ParticipantRepository;
+use Traits\LoggerAwareTrait;
 
 class Participant
 {
     use MetaValidationTrait;
+    use LoggerAwareTrait;
 
     /**
      * @var ParticipantRepository
@@ -538,5 +541,41 @@ class Participant
         }
 
         return $data;
+    }
+
+    /**
+     * @param \Entities\Participant $participant
+     * @param string $agentEmailAddress
+     * @return bool
+     */
+    public function removeParticipantPii(\Entities\Participant $participant, string $agentEmailAddress)
+    {
+        try {
+            $statusName = $this->getStatusEnumService()->hydrateStatus(StatusEnum::DATADEL, true);
+            //no need to delete again
+            if ($statusName === $participant->getStatus()) {
+                return true;
+            }
+            $id = $participant->getId();
+            $this->repository->setParticipantTransactionEmailAddressToEmpty($id);
+            $this->repository->setParticipantAddressPiiToEmpty($id);
+            $participant->setStatus($statusName);
+            $this->repository->saveParticipantStatus($participant, $statusName);
+            $this->repository->logParticipantChange($participant, $agentEmailAddress);
+            $this->repository->setParticipantToInactive($id);
+            return true;
+        } catch (Exception $exception) {
+            $this->repository->setErrors([$exception->getMessage()]);
+            $this->getLogger()->error(
+                'Participant PII Delete Failure',
+                [
+                    'success' => false,
+                    'action' => 'update',
+                    'uuid' => $participant->getUniqueId(),
+                    'error' => $exception->getMessage()
+                ]
+            );
+            return false;
+        }
     }
 }

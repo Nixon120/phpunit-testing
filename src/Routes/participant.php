@@ -39,6 +39,18 @@ $app->group(
             }
         );
 
+        // Delete Single
+        $app->delete(
+            '/{id}',
+            function ($request, $response, $args) {
+                $participant = new Controllers\Modify($request, $response, $this->get('participant'));
+                $participantId = $args['id'];
+                /** @var Authenticate $auth */
+                $auth = $this->get('authentication');
+                return $participant->removeParticipantPii($participantId, $auth->getUser()->getEmailAddress());
+            }
+        );
+
         // Update
         $app->put(
             '/{id}',
@@ -150,7 +162,7 @@ $app->group(
                     $itemGuid
                 );
             }
-        );
+        )->add(Middleware\ParticipantStatusValidator::class);
 
         $app->post(
             '/{id}/transaction',

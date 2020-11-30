@@ -40,6 +40,18 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
     // Update
     $app->put('/{id}', $updateRoute)->add(Services\Participant\ValidationMiddleware::class);
 
+    // Delete Single
+    $app->delete(
+        '/{id}',
+        function ($request, $response, $args) {
+            $participant = new Controllers\Modify($request, $response, $this->get('participant'));
+            $participantId = $args['id'];
+            /** @var Authenticate $auth */
+            $auth = $this->get('authentication');
+            return $participant->removeParticipantPii($participantId, $auth->getUser()->getEmailAddress());
+        }
+    );
+
     //@TODO: misc. routes that need to be duplicated to /participant
     $app->put('/{id}/meta', Controllers\UpdateMeta::class);
     $app->patch('/{id}/meta', Controllers\PatchMeta::class);
@@ -108,7 +120,7 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
             $uniqueId,
             $itemGuid
         );
-    });
+    })->add(\Middleware\ParticipantStatusValidator::class);
 
     $app->post('/{id}/transaction', function ($request, $response, $args) {
         $transaction = new Controllers\Transaction($request, $response, $this->get('participant'));
@@ -228,5 +240,5 @@ $app->group('/api/participant', function () use ($app, $createRoute, $updateRout
             $uniqueId,
             $itemGuid
         );
-    });
+    })->add(\Middleware\ParticipantStatusValidator::class);
 });
