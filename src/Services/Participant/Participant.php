@@ -552,14 +552,13 @@ class Participant
     {
         try {
             $statusName = $this->getStatusEnumService()->hydrateStatus(StatusEnum::DATADEL, true);
-            $id = $participant->getId();
-            $this->repository->setParticipantTransactionEmailAddressToEmpty($id);
-            $this->repository->setParticipantAddressPiiToEmpty($id);
-            $this->repository->setParticipantPiiToEmpty($id);
+            $this->repository->setParticipantTransactionEmailAddressToEmpty($participant->getId());
+            $this->repository->setParticipantAddressPiiToEmpty($participant->getId());
+            $this->repository->setParticipantPiiToEmpty($participant->getId());
             $participant->setStatus($statusName);
             $this->repository->saveParticipantStatus($participant, $statusName);
             $this->repository->logParticipantChange($participant, $agentEmailAddress);
-            $this->repository->setParticipantToInactive($id);
+            $this->repository->setParticipantToInactive($participant->getId());
             return true;
         } catch (Exception $exception) {
             $this->repository->setErrors([$exception->getMessage()]);
