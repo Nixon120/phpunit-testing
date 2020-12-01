@@ -1,6 +1,7 @@
 <?php
 
 use Controllers\Participant as Controllers;
+use Middleware\ParticipantStatusDeleteValidator;
 use Services\Authentication\Authenticate;
 
 /** @var Slim\App $app */
@@ -17,8 +18,8 @@ $app->group(
                 $auth = $this->get('authentication');
                 return $participant->insert($auth->getUser()->getEmailAddress());
             }
-        )
-            ->add(Services\Participant\ValidationMiddleware::class);
+        )->add(Services\Participant\ValidationMiddleware::class)
+            ->add(ParticipantStatusDeleteValidator::class);
 
         // List
         $app->get(
@@ -61,8 +62,8 @@ $app->group(
                 $auth = $this->get('authentication');
                 return $participant->update($participantId, $auth->getUser()->getEmailAddress());
             }
-        )
-            ->add(Services\Participant\ValidationMiddleware::class);
+        )->add(Services\Participant\ValidationMiddleware::class)
+            ->add(ParticipantStatusDeleteValidator::class);
 
         $app->put('/{id}/meta', Controllers\UpdateMeta::class);
 
