@@ -277,7 +277,6 @@ class Participant
                 $this->repository->saveMeta($participant->getId(), $meta);
             }
 
-            $this->setParticipantPiiToEmptyIfDataDelStatus($participant, $agentEmail, $status);
             return $this->repository->getParticipant($participant->getUniqueId());
         }
 
@@ -363,7 +362,6 @@ class Participant
 
             $this->repository->logParticipantChange($participant, $agentEmailAddress);
 
-            $this->setParticipantPiiToEmptyIfDataDelStatus($participant, $agentEmailAddress, $status);
             return $this->repository->getParticipant($participant->getUniqueId());
         }
 
@@ -575,22 +573,6 @@ class Participant
                 ]
             );
             return false;
-        }
-    }
-
-    /**
-     * @param \Entities\Participant $participant
-     * @param string $agentEmailAddress
-     * @param $status
-     */
-    private function setParticipantPiiToEmptyIfDataDelStatus(
-        \Entities\Participant $participant,
-        string $agentEmailAddress,
-        $status
-    ): void {
-        $statusId = $this->getStatusEnumService()->hydrateStatus($status);
-        if ($statusId === StatusEnum::DATADEL) {
-            $this->removeParticipantPii($participant, $agentEmailAddress);
         }
     }
 }
