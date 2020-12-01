@@ -555,6 +555,7 @@ class Participant
             $id = $participant->getId();
             $this->repository->setParticipantTransactionEmailAddressToEmpty($id);
             $this->repository->setParticipantAddressPiiToEmpty($id);
+            $this->repository->setParticipantPiiToEmpty($id);
             $participant->setStatus($statusName);
             $this->repository->saveParticipantStatus($participant, $statusName);
             $this->repository->logParticipantChange($participant, $agentEmailAddress);

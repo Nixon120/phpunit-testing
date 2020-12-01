@@ -528,4 +528,20 @@ SQL;
         $sth = $this->database->prepare($sql);
         return $sth->execute([$id]);
     }
+
+    /**
+     * @param int $id
+     * @return bool
+     */
+    public function setParticipantPiiToEmpty(int $id)
+    {
+        $sql = <<<SQL
+UPDATE Participant
+SET firstname = '', lastname = '', phone = '', email_address = ''
+WHERE id = ?
+SQL;
+
+        $sth = $this->database->prepare($sql);
+        return $sth->execute([$id]);
+    }
 }
