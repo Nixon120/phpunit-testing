@@ -35,7 +35,9 @@ $app->group(
             function ($request, $response, $args) {
                 $participant = new Controllers\JsonView($request, $response, $this->get('participant'));
                 $participantId = $args['id'];
-                return $participant->single($participantId);
+                /** @var Authenticate $auth */
+                $auth = $this->get('authentication');
+                return $participant->single($participantId, $auth->getUser()->getRole());
             }
         );
 

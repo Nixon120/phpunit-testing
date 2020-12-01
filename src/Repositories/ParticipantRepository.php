@@ -27,11 +27,28 @@ class ParticipantRepository extends BaseRepository
      * @var ParticipantStatusRepository
      */
     private $participantStatusRepo;
+    private $userRole;
 
     public function __construct(PDO $database, Client $catalog)
     {
         parent::__construct($database);
         $this->catalog = $catalog;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUserRole()
+    {
+        return $this->userRole;
+    }
+
+    /**
+     * @param mixed $userRole
+     */
+    public function setUserRole($userRole): void
+    {
+        $this->userRole = $userRole;
     }
 
     public function getRepositoryEntity()

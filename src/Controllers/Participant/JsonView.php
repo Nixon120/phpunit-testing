@@ -36,8 +36,9 @@ class JsonView extends AbstractViewController
         return $response;
     }
 
-    public function single($id)
+    public function single($id, $role)
     {
+        $this->service->repository->setUserRole($role);
         /** @var \Entities\Participant $participant */
         $participant = $this->service->repository->getParticipant($id);
 
