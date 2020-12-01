@@ -77,8 +77,7 @@ $app->group(
                 $auth = $this->get('authentication');
                 return $participant->generateSso($auth->getUser(), $uniqueId);
             }
-        )
-            ->add(Middleware\ParticipantStatusValidator::class);
+        )->add(Middleware\ParticipantStatusValidator::class);
 
         $app->get(
             '/{id}/sso',
