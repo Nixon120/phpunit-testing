@@ -1,6 +1,7 @@
 <?php
 namespace Services\Authentication;
 
+use AllDigitalRewards\UserAccessLevelEnum\UserAccessLevelEnum;
 use Entities\User;
 use Firebase\JWT\JWT;
 
@@ -102,7 +103,8 @@ class Token
             "user" => [
                 'id' => $user->getId(),
                 'firstname' => $user->getFirstname(),
-                'lastname' => $user->getLastname()
+                'lastname' => $user->getLastname(),
+                'access_level' => (new UserAccessLevelEnum())->hydrateLevel($user->getAccessLevel(), true)
             ],
             "scope" => $this->getRequestedScopes()
         ];

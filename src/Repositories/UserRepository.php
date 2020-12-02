@@ -27,7 +27,7 @@ SQL;
 
         return <<<SQL
 SELECT User.id, Organization.unique_id as organization_reference, email_address,
-  firstname, lastname, User.active, User.role, User.updated_at, User.created_at 
+  firstname, lastname, User.active, User.role, User.access_level, User.updated_at, User.created_at 
 FROM User
 LEFT JOIN Organization ON Organization.id = User.organization_id
 {$where}
@@ -122,7 +122,7 @@ SQL;
         return $userAuthContainer;
     }
     
-    public function validate(\Entities\User $user)
+    public function validate(User $user)
     {
         try {
             $this->getValidator($user)->assert((object) $user->toArray());
@@ -136,13 +136,14 @@ SQL;
     /**
      * @return Validator
      */
-    private function getValidator(\Entities\User $user)
+    private function getValidator(User $user)
     {
         $validator = Validator::attribute('role', Validator::notEmpty()->setName('role'))
             ->attribute('email_address', Validator::notEmpty()->email()->setName('email'))
             ->attribute('password', Validator::notEmpty()->stringType()->setName('password'))
             ->attribute('firstname', Validator::notEmpty()->setName('First Name'))
-            ->attribute('lastname', Validator::notEmpty()->setName('Last Name'));
+            ->attribute('lastname', Validator::notEmpty()->setName('Last Name'))
+            ->attribute('access_level', Validator::notEmpty()->setName('Access Level'));
 
         if ($user->getRole() !== 'superadmin') {
             $validator->attribute('organization_id', Validator::notEmpty()->setName('organization'));

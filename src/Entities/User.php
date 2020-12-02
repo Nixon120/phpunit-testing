@@ -27,6 +27,8 @@ class User extends \Entities\Base
 
     public $role;
 
+    public $access_level = 1;
+
     public $invite_token;
 
     private $organizationOwnershipIdentificationCollection = [];
@@ -146,6 +148,22 @@ class User extends \Entities\Base
     public function setRole($role)
     {
         $this->role = $role;
+    }
+
+    /**
+     * @return int
+     */
+    public function getAccessLevel(): int
+    {
+        return $this->access_level;
+    }
+
+    /**
+     * @param int $access_level
+     */
+    public function setAccessLevel(int $access_level): void
+    {
+        $this->access_level = $access_level;
     }
 
     /**
