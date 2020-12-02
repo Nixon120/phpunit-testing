@@ -554,7 +554,7 @@ SQL;
     {
         $sql = <<<SQL
 UPDATE Participant
-SET firstname = '', lastname = '', phone = '', email_address = ''
+SET firstname = '', lastname = '', phone = '', email_address = '', birthdate = null
 WHERE id = ?
 SQL;
 
