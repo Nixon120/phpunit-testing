@@ -71,6 +71,7 @@
     "box/spout": "^3.0",
     "google/cloud-logging": "^1.18",
     "alldigitalrewards/statusenum": "^1.0",
+    "alldigitalrewards/useraccesslevelenum": "^0.1.0",
     "ext-gettext": "*"
   },
   "require-dev": {
@@ -90,6 +91,10 @@
     "statusenum": {
       "type": "vcs",
       "url": "git@bitbucket.org:alldigitalrewards/statusenum.git"
+    },
+    "useraccesslevelenum": {
+      "type": "vcs",
+      "url": "git@bitbucket.org:alldigitalrewards/useraccesslevelenum.git"
     },
     "rap": {
       "type": "vcs",
