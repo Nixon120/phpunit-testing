@@ -3,6 +3,7 @@
 namespace Middleware;
 
 use AllDigitalRewards\StatusEnum\StatusEnum;
+use Entities\Participant;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Services\Participant\ServiceFactory;
@@ -46,6 +47,10 @@ class ParticipantStatusDeleteValidator
         if ($request->getMethod() === 'PUT') {
             $args = ($request->getAttribute('route'))->getArguments();
             $participant = $this->participantService->getService()->getSingle($args['id']);
+            if (!$participant instanceof Participant) {
+                return $response->withJson(['message' => _('Resource does not exist')], 400);
+            }
+
             if ($this->hasDeleteStatus($participant->getStatus())) {
                 return $response->withJson(
                     [
