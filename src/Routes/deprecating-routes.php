@@ -3,6 +3,7 @@
 /** @deprecated */
 
 use \Controllers\Participant as Controllers;
+use Middleware\ParticipantStatusDeleteValidator;
 use Services\Authentication\Authenticate;
 
 $updateRoute = function ($request, $response, $args) {
@@ -22,7 +23,9 @@ $createRoute = function ($request, $response) {
 
 $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
     // Create
-    $app->post('', $createRoute)->add(Services\Participant\ValidationMiddleware::class);
+    $app->post('', $createRoute)
+        ->add(Services\Participant\ValidationMiddleware::class)
+        ->add(ParticipantStatusDeleteValidator::class);
 
     // List
     $app->get('', function ($request, $response) {
@@ -38,7 +41,9 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
     });
 
     // Update
-    $app->put('/{id}', $updateRoute)->add(Services\Participant\ValidationMiddleware::class);
+    $app->put('/{id}', $updateRoute)
+        ->add(Services\Participant\ValidationMiddleware::class)
+        ->add(ParticipantStatusDeleteValidator::class);
 
     // Delete Single
     $app->delete(
@@ -176,7 +181,9 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
 });
 $app->group('/api/participant', function () use ($app, $createRoute, $updateRoute) {
     // Create
-    $app->post('', $createRoute)->add(Services\Participant\ValidationMiddleware::class);
+    $app->post('', $createRoute)
+        ->add(Services\Participant\ValidationMiddleware::class)
+        ->add(ParticipantStatusDeleteValidator::class);
 
     // List
     $app->get('', function ($request, $response) {
@@ -192,7 +199,9 @@ $app->group('/api/participant', function () use ($app, $createRoute, $updateRout
     });
 
     // Update
-    $app->put('/{id}', $updateRoute)->add(Services\Participant\ValidationMiddleware::class);
+    $app->put('/{id}', $updateRoute)
+        ->add(Services\Participant\ValidationMiddleware::class)
+        ->add(ParticipantStatusDeleteValidator::class);
 
     $app->put('/{id}/meta', Controllers\UpdateMeta::class);
     $app->patch('/{id}/meta', Controllers\PatchMeta::class);

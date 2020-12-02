@@ -515,10 +515,10 @@ SQL;
 
 
     /**
-     * @param int $id
+     * @param int $participantId
      * @return bool
      */
-    public function setParticipantTransactionEmailAddressToEmpty(int $id)
+    public function setParticipantTransactionEmailAddressToEmpty(int $participantId)
     {
         $sql = <<<SQL
 UPDATE Transaction
@@ -527,14 +527,14 @@ WHERE participant_id = ?
 SQL;
 
         $sth = $this->database->prepare($sql);
-        return $sth->execute([$id]);
+        return $sth->execute([$participantId]);
     }
 
     /**
-     * @param int $id
+     * @param int $participantId
      * @return bool
      */
-    public function setParticipantAddressPiiToEmpty(int $id)
+    public function setParticipantAddressPiiToEmpty(int $participantId)
     {
         $sql = <<<SQL
 UPDATE Address
@@ -543,6 +543,22 @@ WHERE participant_id = ?
 SQL;
 
         $sth = $this->database->prepare($sql);
-        return $sth->execute([$id]);
+        return $sth->execute([$participantId]);
+    }
+
+    /**
+     * @param int $participantId
+     * @return bool
+     */
+    public function setParticipantPiiToEmpty(int $participantId)
+    {
+        $sql = <<<SQL
+UPDATE Participant
+SET firstname = '', lastname = '', phone = '', email_address = ''
+WHERE id = ?
+SQL;
+
+        $sth = $this->database->prepare($sql);
+        return $sth->execute([$participantId]);
     }
 }

@@ -258,7 +258,7 @@ class Participant
             return false;
         }
 
-        if($this->hasValidMeta($meta) === false) {
+        if ($this->hasValidMeta($meta) === false) {
             return false;
         }
 
@@ -276,6 +276,7 @@ class Participant
             if (empty($meta) === false) {
                 $this->repository->saveMeta($participant->getId(), $meta);
             }
+
             return $this->repository->getParticipant($participant->getUniqueId());
         }
 
@@ -350,7 +351,7 @@ class Participant
             $data = $this->hydratePassword($data, $participant);
         }
 
-        if($this->hasValidMeta($meta) === false) {
+        if ($this->hasValidMeta($meta) === false) {
             return false;
         }
 
@@ -552,17 +553,13 @@ class Participant
     {
         try {
             $statusName = $this->getStatusEnumService()->hydrateStatus(StatusEnum::DATADEL, true);
-            //no need to delete again
-            if ($statusName === $participant->getStatus()) {
-                return true;
-            }
-            $id = $participant->getId();
-            $this->repository->setParticipantTransactionEmailAddressToEmpty($id);
-            $this->repository->setParticipantAddressPiiToEmpty($id);
+            $this->repository->setParticipantTransactionEmailAddressToEmpty($participant->getId());
+            $this->repository->setParticipantAddressPiiToEmpty($participant->getId());
+            $this->repository->setParticipantPiiToEmpty($participant->getId());
             $participant->setStatus($statusName);
             $this->repository->saveParticipantStatus($participant, $statusName);
             $this->repository->logParticipantChange($participant, $agentEmailAddress);
-            $this->repository->setParticipantToInactive($id);
+            $this->repository->setParticipantToInactive($participant->getId());
             return true;
         } catch (Exception $exception) {
             $this->repository->setErrors([$exception->getMessage()]);
