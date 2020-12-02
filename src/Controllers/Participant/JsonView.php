@@ -25,7 +25,7 @@ class JsonView extends AbstractViewController
         $this->factory = $factory;
     }
 
-    public function list()
+    public function list($userAccessLevel)
     {
         $get = $this->request->getQueryParams();
         $input = new InputNormalizer($get);
@@ -36,9 +36,9 @@ class JsonView extends AbstractViewController
         return $response;
     }
 
-    public function single($id, $role)
+    public function single($id, $userAccessLevel)
     {
-        $this->service->repository->setUserRole($role);
+        $this->service->repository->setUserAccessLevel($userAccessLevel);
         /** @var \Entities\Participant $participant */
         $participant = $this->service->repository->getParticipant($id);
 

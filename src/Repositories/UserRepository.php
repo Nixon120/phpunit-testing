@@ -1,6 +1,7 @@
 <?php
 namespace Repositories;
 
+use AllDigitalRewards\UserAccessLevelEnum\UserAccessLevelEnum;
 use Entities\Organization;
 use Entities\User;
 use Respect\Validation\Exceptions\NestedValidationException;
@@ -126,6 +127,10 @@ SQL;
     {
         try {
             $this->getValidator($user)->assert((object) $user->toArray());
+            if ((new UserAccessLevelEnum())->isValidLevel($user->getAccessLevel()) === false) {
+                $this->errors[] = "Access Level {$user->getAccessLevel()} is not valid";
+                return false;
+            }
             return true;
         } catch (NestedValidationException$exception) {
             $this->errors = $exception->getMessages();
@@ -142,8 +147,7 @@ SQL;
             ->attribute('email_address', Validator::notEmpty()->email()->setName('email'))
             ->attribute('password', Validator::notEmpty()->stringType()->setName('password'))
             ->attribute('firstname', Validator::notEmpty()->setName('First Name'))
-            ->attribute('lastname', Validator::notEmpty()->setName('Last Name'))
-            ->attribute('access_level', Validator::notEmpty()->setName('Access Level'));
+            ->attribute('lastname', Validator::notEmpty()->setName('Last Name'));
 
         if ($user->getRole() !== 'superadmin') {
             $validator->attribute('organization_id', Validator::notEmpty()->setName('organization'));
