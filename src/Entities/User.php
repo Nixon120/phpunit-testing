@@ -27,7 +27,7 @@ class User extends \Entities\Base
 
     public $role;
 
-    public $access_level = 1;
+    public $access_level = 2;
 
     public $invite_token;
 
