@@ -176,7 +176,9 @@ $app->post('/user/login', function ($request, $response, $args) {
     $auth = new AuthControllers\ApiLogin(
         $this->get('authentication'),
         $this->get('roles'),
-        $this->get('defaultRoutes')
+        $this->get('defaultRoutes'),
+        $this->get('cacheService'),
+        $this->get('renderer')
     );
 
     return $auth($request, $response, $args);

@@ -1,9 +1,12 @@
 <?php
+
 namespace Controllers\Authentication;
 
 use Services\Authentication\Authenticate;
+use Services\Authentication\ValidAttemptValidation;
 use Slim\Http\Request;
 use Slim\Http\Response;
+use Services\CacheService;
 
 class ApiLogin
 {
@@ -31,18 +34,29 @@ class ApiLogin
 
     private $authRoutes;
 
+    protected $cacheService;
+
+    /**
+     * @var ValidAttemptValidation
+     */
+    private $validAttemptValidation;
+
     public function __construct(
         Authenticate $auth,
         array $roles,
-        array $routes
+        array $routes,
+        CacheService $cacheService
     ) {
         $this->auth = $auth;
         $this->roles = $roles;
         $this->authRoutes = $routes;
+        $this->cacheService = $cacheService;
+        $this->validAttemptValidation = new ValidAttemptValidation($this->cacheService);
     }
 
     public function __invoke(Request $request, Response $response, $args)
     {
+
         $this->request = $request;
         $this->response = $response;
         $this->args = $args;
@@ -51,6 +65,11 @@ class ApiLogin
         $this->auth->setRequest($this->request);
 
         $post = $this->request->getParsedBody();
+
+        $validation_blocked = $this->validAttemptValidation->__invoke($this->request, $this->response);
+        if ($validation_blocked) {
+            return $validation_blocked;
+        }
 
         //@TODO validation will solve if post isn't set
         if ($post && $this->processLogin() === true) {
@@ -82,10 +101,27 @@ class ApiLogin
 
     private function processLogin()
     {
+
         if (!$this->auth->validate()) {
+            $this->cacheInvalidAttempt();
             return false;
         }
 
         return true;
+    }
+
+    protected function cacheInvalidAttempt(): void
+    {
+        $attempts = 0;
+        $ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'];
+        $key = 'LOCKOUT_' . $ip;
+
+        if ($this->cacheService->cachedItemExists($key) === true) {
+            $attempts = $this->cacheService->getCachedItem($key);
+        }
+
+        $attempts++;
+
+        $this->cacheService->cacheItem($attempts, $key);
     }
 }
