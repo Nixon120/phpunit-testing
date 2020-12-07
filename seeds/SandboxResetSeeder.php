@@ -692,7 +692,7 @@ SQL
                 'lastname' => 'API',
                 'organization_id' => 2,
                 'role' => 'admin',
-                'access_level' => 2,
+                'access_level' => 1,
                 'active' => 1,
             ],
             [
