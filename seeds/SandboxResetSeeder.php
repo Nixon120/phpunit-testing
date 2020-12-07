@@ -692,7 +692,7 @@ SQL
                 'lastname' => 'API',
                 'organization_id' => 2,
                 'role' => 'admin',
-                'access_level' => 1,
+                'access_level' => 2,
                 'active' => 1,
             ],
             [
@@ -701,7 +701,7 @@ SQL
                 'firstname' => 'Test',
                 'lastname' => 'API',
                 'role' => 'superadmin',
-                'access_level' => 1,
+                'access_level' => 2,
                 'active' => 1,
             ],
             [
@@ -710,7 +710,7 @@ SQL
                 'firstname' => 'Test',
                 'lastname' => 'Admin',
                 'role' => 'superadmin',
-                'access_level' => 1,
+                'access_level' => 2,
                 'active' => 1,
             ],
             [
@@ -719,7 +719,7 @@ SQL
                 'firstname' => 'Super',
                 'lastname' => 'Admin',
                 'role' => 'superadmin',
-                'access_level' => 1,
+                'access_level' => 2,
                 'active' => 1,
             ],
             [
@@ -729,7 +729,7 @@ SQL
                 'firstname' => 'Client',
                 'lastname' => 'Admin',
                 'role' => 'admin',
-                'access_level' => 1,
+                'access_level' => 2,
                 'active' => 1,
             ],
             [
@@ -739,7 +739,7 @@ SQL
                 'firstname' => 'Config',
                 'lastname' => 'Admin',
                 'role' => 'configs',
-                'access_level' => 1,
+                'access_level' => 2,
                 'active' => 1,
             ],
             [
@@ -749,7 +749,7 @@ SQL
                 'firstname' => 'Report',
                 'lastname' => 'Admin',
                 'role' => 'reports',
-                'access_level' => 1,
+                'access_level' => 2,
                 'active' => 1,
             ],
             [
@@ -759,7 +759,7 @@ SQL
                 'firstname' => 'Accounting',
                 'lastname' => 'Admin',
                 'role' => 'accounting',
-                'access_level' => 1,
+                'access_level' => 2,
                 'active' => 1,
             ]
         ];
