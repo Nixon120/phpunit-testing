@@ -213,12 +213,10 @@ class Participant
             $data['birthdate'] = null;
         }
 
-        if (isset($data['active']) && $data['active'] != 1) {
-            $data['deactivated_at'] = (new \DateTime)->format('Y-m-d H:i:s');
-        }
+        $data['active'] = isset($data['active']) ? $data['active'] : 1;
 
-        list($status, $data) = $this->repository->hydrateParticipantStatusRequest($data);
-        if ($this->repository->hasValidStatus($status) === false) {
+        $data = $this->repository->hydrateParticipantStatusRequest($data);
+        if ($this->repository->hasValidStatus($data['status']) === false) {
             $this->repository->setErrors(
                 [
                     'status' => [
@@ -227,6 +225,10 @@ class Participant
                 ]
             );
             return false;
+        }
+
+        if (isset($data['active']) && $data['active'] != 1) {
+            $data['deactivated_at'] = (new \DateTime)->format('Y-m-d H:i:s');
         }
 
         $participant = new \Entities\Participant;
@@ -266,7 +268,7 @@ class Participant
         unset($participantArray['status']); //prevent insert error
         if ($this->repository->insert($participantArray)) {
             $participant = $this->repository->getParticipant($participant->getUniqueId());
-            $this->repository->saveParticipantStatus($participant, $status);
+            $this->repository->saveParticipantStatus($participant, $data['status']);
             $this->repository->logParticipantChange($participant, $agentEmail, true);
             if ($address !== null) {
                 $participant->setAddress($address);
@@ -311,17 +313,11 @@ class Participant
             $data['birthdate'] = null;
         }
 
-        if (array_key_exists('active', $data) === true) {
-            $statusFlag = (int) $data['active'];
-            if ($statusFlag === 1) {
-                $data['deactivated_at'] = null;
-            } else {
-                $data['deactivated_at'] = (new \DateTime)->format('Y-m-d H:i:s');
-            }
-        }
+        //if not updating status, use current status
+        $data['active'] = isset($data['active']) ? $data['active'] : $participant->isActive() ? 1 : 0;
 
-        list($status, $data) = $this->repository->hydrateParticipantStatusRequest($data);
-        if ($this->repository->hasValidStatus($status) === false) {
+        $data = $this->repository->hydrateParticipantStatusRequest($data);
+        if ($this->repository->hasValidStatus($data['status']) === false) {
             $this->repository->setErrors(
                 [
                     'status' => [
@@ -331,11 +327,13 @@ class Participant
             );
             return false;
         }
-        $this->repository->saveParticipantStatus($participant, $status);
+        $this->repository->saveParticipantStatus($participant, $data['status']);
+
+        $data['deactivated_at'] = (int) $data['active'] === 1 ? null : (new \DateTime)->format('Y-m-d H:i:s');
 
         $address = $data['address'] ?? null;
         $meta = $data['meta'] ?? null;
-        unset($data['program'], $data['organization'], $data['password'], $data['address'], $data['meta'], $data['password_confirm'], $data['unique_id']);
+        unset($data['status'], $data['program'], $data['organization'], $data['password'], $data['address'], $data['meta'], $data['password_confirm'], $data['unique_id']);
 
         $participant->exchange($data);
 
