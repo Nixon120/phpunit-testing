@@ -4,6 +4,8 @@
 
 use \Controllers\Participant as Controllers;
 use Middleware\ParticipantStatusDeleteValidator;
+use Middleware\ParticipantStatusValidator;
+use Middleware\UserAccessValidator;
 use Services\Authentication\Authenticate;
 
 $updateRoute = function ($request, $response, $args) {
@@ -28,7 +30,8 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
     // Create
     $app->post('', $createRoute)
         ->add(Services\Participant\ValidationMiddleware::class)
-        ->add(ParticipantStatusDeleteValidator::class);
+        ->add(ParticipantStatusDeleteValidator::class)
+        ->add(UserAccessValidator::class);
 
     // List
     $app->get('', function ($request, $response) use ($auth) {
@@ -46,7 +49,9 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
     // Update
     $app->put('/{id}', $updateRoute)
         ->add(Services\Participant\ValidationMiddleware::class)
-        ->add(ParticipantStatusDeleteValidator::class);
+        ->add(ParticipantStatusDeleteValidator::class)
+        ->add(UserAccessValidator::class);
+
 
     // Delete Single
     $app->delete(
@@ -66,7 +71,9 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
         $participant = new Controllers\Sso($request, $response, $this->get('participant'));
         $uniqueId = $args['id'];
         return $participant->generateSso($auth->getUser(), $uniqueId);
-    })->add(\Middleware\ParticipantStatusValidator::class);
+    })->add(ParticipantStatusValidator::class)
+        ->add(UserAccessValidator::class);
+
 
     $app->get('/{id}/sso', function ($request, $response, $args) use ($auth) {
         $participant = new Controllers\Sso($request, $response, $this->get('participant'));
@@ -131,7 +138,7 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
             $uniqueId,
             $itemGuid
         );
-    })->add(\Middleware\ParticipantStatusValidator::class);
+    })->add(ParticipantStatusValidator::class);
 
     $app->post('/{id}/transaction', function ($request, $response, $args) use ($auth) {
         $transaction = new Controllers\Transaction($request, $response, $this->get('participant'));
@@ -142,7 +149,7 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
             $auth->getUser()->getAccessLevel()
         );
     })->add(\Middleware\ParticipantProgramIsActiveValidator::class)
-        ->add(\Middleware\ParticipantStatusValidator::class);
+        ->add(ParticipantStatusValidator::class);
 
     $app->post('/{id}/customerservice_transaction', function ($request, $response, $args) use ($auth) {
         $transaction = new Controllers\Transaction($request, $response, $this->get('participant'));
@@ -153,7 +160,7 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
             $auth->getUser()->getAccessLevel()
         );
     })->add(\Middleware\ParticipantProgramIsActiveValidator::class)
-        ->add(\Middleware\ParticipantStatusValidator::class);
+        ->add(ParticipantStatusValidator::class);
 
     $app->get('/{id}/adjustment', function ($request, $response, $args) use ($auth) {
         $balance = new Controllers\Balance($request, $response, $this->get('participant'));
@@ -165,18 +172,18 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
         $balance = new Controllers\Balance($request, $response, $this->get('participant'));
         $uniqueId = $args['id'];
         return $balance->insert($auth->getUser()->getOrganizationId(), $uniqueId, $auth->getUser()->getAccessLevel());
-    })->add(\Middleware\ParticipantStatusValidator::class);
+    })->add(ParticipantStatusValidator::class);
 
     $app->patch('/{id}/adjustment/{adjustment_id}', function ($request, $response, $args) use ($auth) {
         $balance = new Controllers\Balance($request, $response, $this->get('participant'));
         return $balance->update($auth->getUser()->getOrganizationId(), $args['id'], $args['adjustment_id']);
-    })->add(\Middleware\ParticipantStatusValidator::class);
+    })->add(ParticipantStatusValidator::class);
 
     $app->post('/{id}/sweepstake', function ($request, $response, $args) use ($auth) {
         $sweepstake = new Controllers\SweepstakeEntry($request, $response, $this->get('participant'));
         $uniqueId = $args['id'];
         return $sweepstake->create($auth->getUser()->getOrganizationId(), $uniqueId);
-    })->add(\Middleware\ParticipantStatusValidator::class);
+    })->add(ParticipantStatusValidator::class);
 });
 $app->group('/api/participant', function () use ($app, $createRoute, $updateRoute) {
     /** @var Authenticate $auth */
@@ -185,7 +192,8 @@ $app->group('/api/participant', function () use ($app, $createRoute, $updateRout
     // Create
     $app->post('', $createRoute)
         ->add(Services\Participant\ValidationMiddleware::class)
-        ->add(ParticipantStatusDeleteValidator::class);
+        ->add(ParticipantStatusDeleteValidator::class)
+        ->add(UserAccessValidator::class);
 
     // List
     $app->get('', function ($request, $response) use ($auth) {
@@ -203,7 +211,8 @@ $app->group('/api/participant', function () use ($app, $createRoute, $updateRout
     // Update
     $app->put('/{id}', $updateRoute)
         ->add(Services\Participant\ValidationMiddleware::class)
-        ->add(ParticipantStatusDeleteValidator::class);
+        ->add(ParticipantStatusDeleteValidator::class)
+        ->add(UserAccessValidator::class);
 
     $app->put('/{id}/meta', Controllers\UpdateMeta::class);
     $app->patch('/{id}/meta', Controllers\PatchMeta::class);
@@ -217,7 +226,7 @@ $app->group('/api/participant', function () use ($app, $createRoute, $updateRout
     $app->patch('/{id}/adjustment/{adjustment_id}', function ($request, $response, $args) use ($auth) {
         $balance = new Controllers\Balance($request, $response, $this->get('participant'));
         return $balance->update($auth->getUser()->getOrganizationId(), $args['id'], $args['adjustment_id']);
-    })->add(\Middleware\ParticipantStatusValidator::class);
+    })->add(ParticipantStatusValidator::class);
 
     $app->get('/{id}/transaction/{transaction_id}', function ($request, $response, $args) use ($auth) {
         $transaction = new Controllers\Transaction($request, $response, $this->get('participant'));
@@ -250,5 +259,5 @@ $app->group('/api/participant', function () use ($app, $createRoute, $updateRout
             $uniqueId,
             $itemGuid
         );
-    })->add(\Middleware\ParticipantStatusValidator::class);
+    })->add(ParticipantStatusValidator::class);
 });

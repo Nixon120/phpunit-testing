@@ -2,6 +2,7 @@
 
 use Controllers\Participant as Controllers;
 use Middleware\ParticipantStatusDeleteValidator;
+use Middleware\UserAccessValidator;
 use Services\Authentication\Authenticate;
 
 /** @var Slim\App $app */
@@ -19,7 +20,8 @@ $app->group(
                 return $participant->insert($auth->getUser());
             }
         )->add(Services\Participant\ValidationMiddleware::class)
-            ->add(ParticipantStatusDeleteValidator::class);
+            ->add(ParticipantStatusDeleteValidator::class)
+            ->add(UserAccessValidator::class);
 
         // List
         $app->get(
@@ -59,7 +61,8 @@ $app->group(
                 return $participant->update($participantId, $auth->getUser());
             }
         )->add(Services\Participant\ValidationMiddleware::class)
-            ->add(ParticipantStatusDeleteValidator::class);
+            ->add(ParticipantStatusDeleteValidator::class)
+            ->add(UserAccessValidator::class);
 
         $app->put('/{id}/meta', Controllers\UpdateMeta::class);
 
@@ -72,7 +75,8 @@ $app->group(
                 $uniqueId = $args['id'];
                 return $participant->generateSso($auth->getUser(), $uniqueId);
             }
-        )->add(Middleware\ParticipantStatusValidator::class);
+        )->add(Middleware\ParticipantStatusValidator::class)
+            ->add(UserAccessValidator::class);
 
         $app->get(
             '/{id}/sso',
