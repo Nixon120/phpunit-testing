@@ -16,7 +16,7 @@ $app->group(
             '',
             function ($request, $response) use ($auth) {
                 $participant = new Controllers\Modify($request, $response, $this->get('participant'));
-                return $participant->insert($auth->getUser()->getEmailAddress());
+                return $participant->insert($auth->getUser());
             }
         )->add(Services\Participant\ValidationMiddleware::class)
             ->add(ParticipantStatusDeleteValidator::class);
@@ -46,7 +46,7 @@ $app->group(
             function ($request, $response, $args) use ($auth) {
                 $participant = new Controllers\Modify($request, $response, $this->get('participant'));
                 $participantId = $args['id'];
-                return $participant->removeParticipantPii($participantId, $auth->getUser()->getEmailAddress());
+                return $participant->removeParticipantPii($participantId, $auth->getUser());
             }
         );
 
@@ -56,7 +56,7 @@ $app->group(
             function ($request, $response, $args) use ($auth) {
                 $participant = new Controllers\Modify($request, $response, $this->get('participant'));
                 $participantId = $args['id'];
-                return $participant->update($participantId, $auth->getUser()->getEmailAddress());
+                return $participant->update($participantId, $auth->getUser());
             }
         )->add(Services\Participant\ValidationMiddleware::class)
             ->add(ParticipantStatusDeleteValidator::class);
@@ -89,7 +89,12 @@ $app->group(
                 $transaction = new Controllers\Transaction($request, $response, $this->get('participant'));
                 $uniqueId = $args['id'];
                 $year = $request->getParam('year');
-                return $transaction->transactionList($auth->getUser()->getOrganizationId(), $uniqueId, $year);
+                return $transaction->transactionList(
+                    $auth->getUser()->getOrganizationId(),
+                    $uniqueId,
+                    $auth->getUser()->getAccessLevel(),
+                    $year
+                );
             }
         );
 
@@ -99,7 +104,12 @@ $app->group(
                 $transaction = new Controllers\Transaction($request, $response, $this->get('participant'));
                 $uniqueId = $args['id'];
                 $transactionId = $args['transaction_id'];
-                return $transaction->single($auth->getUser()->getOrganizationId(), $uniqueId, $transactionId);
+                return $transaction->single(
+                    $auth->getUser()->getOrganizationId(),
+                    $uniqueId,
+                    $transactionId,
+                    $auth->getUser()->getAccessLevel()
+                );
             }
         );
 
@@ -128,7 +138,12 @@ $app->group(
                 $transaction = new Controllers\Transaction($request, $response, $this->get('participant'));
                 $uniqueId = $args['id'];
                 $itemGuid = $args['item_guid'];
-                return $transaction->singleItem($auth->getUser()->getOrganizationId(), $uniqueId, $itemGuid);
+                return $transaction->singleItem(
+                    $auth->getUser()->getOrganizationId(),
+                    $uniqueId,
+                    $itemGuid,
+                    $auth->getUser()->getAccessLevel()
+                );
             }
         );
 
@@ -151,7 +166,11 @@ $app->group(
             function ($request, $response, $args) use ($auth) {
                 $transaction = new Controllers\Transaction($request, $response, $this->get('participant'));
                 $uniqueId = $args['id'];
-                return $transaction->addTransaction($auth->getUser()->getOrganizationId(), $uniqueId);
+                return $transaction->addTransaction(
+                    $auth->getUser()->getOrganizationId(),
+                    $uniqueId,
+                    $auth->getUser()->getAccessLevel()
+                );
             }
         )
             ->add(Middleware\ParticipantProgramIsActiveValidator::class)
@@ -162,7 +181,11 @@ $app->group(
             function ($request, $response, $args) use ($auth) {
                 $transaction = new Controllers\Transaction($request, $response, $this->get('participant'));
                 $uniqueId = $args['id'];
-                return $transaction->customerServiceTransaction($auth->getUser()->getOrganizationId(), $uniqueId);
+                return $transaction->customerServiceTransaction(
+                    $auth->getUser()->getOrganizationId(),
+                    $uniqueId,
+                    $auth->getUser()->getAccessLevel()
+                );
             }
         )
             ->add(Middleware\ParticipantProgramIsActiveValidator::class)
@@ -182,7 +205,7 @@ $app->group(
             function ($request, $response, $args) use ($auth) {
                 $balance = new Controllers\Balance($request, $response, $this->get('participant'));
                 $uniqueId = $args['id'];
-                return $balance->insert($auth->getUser()->getOrganizationId(), $uniqueId);
+                return $balance->insert($auth->getUser()->getOrganizationId(), $uniqueId, $auth->getUser()->getAccessLevel());
             }
         )->add(Middleware\ParticipantStatusValidator::class);
 

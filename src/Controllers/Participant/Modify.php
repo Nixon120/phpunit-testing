@@ -3,6 +3,7 @@ namespace Controllers\Participant;
 
 use AllDigitalRewards\StatusEnum\StatusEnum;
 use Controllers\AbstractModifyController;
+use Entities\User;
 use Services\Authentication\Authenticate;
 use Slim\Http\Request;
 use Slim\Http\Response;
@@ -30,16 +31,17 @@ class Modify extends AbstractModifyController
         $this->balanceService = $factory->getBalanceService();
     }
 
-    public function insert(string $agentEmailAddress)
+    public function insert(User $user)
     {
         $post = $this->request->getParsedBody()??[];
         unset($post['credit']);
-        if ($participant = $this->service->insert($post, $agentEmailAddress)) {
+        if ($participant = $this->service->insert($post, $user->getEmailAddress())) {
             $this->service->setParticipantCreditsToZeroIfCancelled(
                 $this->balanceService,
                 $participant
             );
             $output = new OutputNormalizer($participant);
+            $output->setUserAccessLevel($user->getAccessLevel());
             return $this->returnJson(201, $output->get());
         }
 
@@ -47,18 +49,19 @@ class Modify extends AbstractModifyController
         return $this->returnFormattedJsonError(400, $errors);
     }
 
-    public function update($id, string $agentEmailAddress)
+    public function update($id, User $user)
     {
         $post = $this->request->getParsedBody()??[];
         unset($post['credit']);
         //@TODO: perhaps we can figure out a clean way to remove unneeded fields without explicitly removing them
         //We don't need this.
-        if ($participant = $this->service->update($id, $post, $agentEmailAddress)) {
+        if ($participant = $this->service->update($id, $post, $user->getEmailAddress())) {
             $this->service->setParticipantCreditsToZeroIfCancelled(
                 $this->balanceService,
                 $participant
             );
             $output = new OutputNormalizer($participant);
+            $output->setUserAccessLevel($user->getAccessLevel());
             return $this->returnJson(200, $output->get());
         }
 
@@ -68,10 +71,10 @@ class Modify extends AbstractModifyController
 
     /**
      * @param $id
-     * @param string $agentEmailAddress
+     * @param User $user
      * @return Response
      */
-    public function removeParticipantPii($id, string $agentEmailAddress)
+    public function removeParticipantPii($id, User $user)
     {
         /** @var \Entities\Participant $participant */
         $participant = $this->service->repository->getParticipant($id);
@@ -80,7 +83,7 @@ class Modify extends AbstractModifyController
             return $this->returnJson(404, _('Participant not valid'));
         }
 
-        if ($this->service->removeParticipantPii($participant, $agentEmailAddress) === true) {
+        if ($this->service->removeParticipantPii($participant, $user->getEmailAddress()) === true) {
             return $this->response->withStatus(204);
         }
 

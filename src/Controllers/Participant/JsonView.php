@@ -31,6 +31,7 @@ class JsonView extends AbstractViewController
         $input = new InputNormalizer($get);
         $return = $this->service->get($input);
         $output = new OutputNormalizer($return);
+        $output->setUserAccessLevel($userAccessLevel);
         $response = $this->response->withStatus(200)
             ->withJson($output->getList());
         return $response;
@@ -38,7 +39,6 @@ class JsonView extends AbstractViewController
 
     public function single($id, $userAccessLevel)
     {
-        $this->service->repository->setUserAccessLevel($userAccessLevel);
         /** @var \Entities\Participant $participant */
         $participant = $this->service->repository->getParticipant($id);
 
@@ -46,6 +46,7 @@ class JsonView extends AbstractViewController
             return $this->renderJson404();
         }
         $output = new OutputNormalizer($participant);
+        $output->setUserAccessLevel($userAccessLevel);
         $response = $this->response->withStatus(200)
             ->withJson($output->get());
         return $response;

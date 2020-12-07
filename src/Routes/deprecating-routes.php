@@ -11,14 +11,14 @@ $updateRoute = function ($request, $response, $args) {
     $participantId = $args['id'];
     /** @var Authenticate $auth */
     $auth = $this->get('authentication');
-    return $participant->update($participantId, $auth->getUser()->getEmailAddress());
+    return $participant->update($participantId, $auth->getUser());
 };
 
 $createRoute = function ($request, $response) {
     $participant = new Controllers\Modify($request, $response, $this->get('participant'));
     /** @var Authenticate $auth */
     $auth = $this->get('authentication');
-    return $participant->insert($auth->getUser()->getEmailAddress());
+    return $participant->insert($auth->getUser());
 };
 
 $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
@@ -54,7 +54,7 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
         function ($request, $response, $args) use ($auth) {
             $participant = new Controllers\Modify($request, $response, $this->get('participant'));
             $participantId = $args['id'];
-            return $participant->removeParticipantPii($participantId, $auth->getUser()->getEmailAddress());
+            return $participant->removeParticipantPii($participantId, $auth->getUser());
         }
     );
 
@@ -78,14 +78,24 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
         $transaction = new Controllers\Transaction($request, $response, $this->get('participant'));
         $uniqueId = $args['id'];
         $year = $request->getParam('year');
-        return $transaction->transactionList($auth->getUser()->getOrganizationId(), $uniqueId, $year);
+        return $transaction->transactionList(
+            $auth->getUser()->getOrganizationId(),
+            $uniqueId,
+            $auth->getUser()->getAccessLevel(),
+            $year
+        );
     });
 
     $app->get('/{id}/transaction/{transaction_id}', function ($request, $response, $args) use ($auth) {
         $transaction = new Controllers\Transaction($request, $response, $this->get('participant'));
         $uniqueId = $args['id'];
         $transactionId = $args['transaction_id'];
-        return $transaction->single($auth->getUser()->getOrganizationId(), $uniqueId, $transactionId);
+        return $transaction->single(
+            $auth->getUser()->getOrganizationId(),
+            $uniqueId,
+            $transactionId,
+            $auth->getUser()->getAccessLevel()
+        );
     });
 
     $app->patch('/{id}/transaction/{transaction_id}/meta', function ($request, $response, $args) use ($auth) {
@@ -104,7 +114,12 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
         $transaction = new Controllers\Transaction($request, $response, $this->get('participant'));
         $uniqueId = $args['id'];
         $itemGuid = $args['item_guid'];
-        return $transaction->singleItem($auth->getUser()->getOrganizationId(), $uniqueId, $itemGuid);
+        return $transaction->singleItem(
+            $auth->getUser()->getOrganizationId(),
+            $uniqueId,
+            $itemGuid,
+            $auth->getUser()->getAccessLevel()
+        );
     });
 
     $app->put('/{id}/transaction/{item_guid}/reissue_date', function ($request, $response, $args) use ($auth) {
@@ -121,14 +136,22 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
     $app->post('/{id}/transaction', function ($request, $response, $args) use ($auth) {
         $transaction = new Controllers\Transaction($request, $response, $this->get('participant'));
         $uniqueId = $args['id'];
-        return $transaction->addTransaction($auth->getUser()->getOrganizationId(), $uniqueId);
+        return $transaction->addTransaction(
+            $auth->getUser()->getOrganizationId(),
+            $uniqueId,
+            $auth->getUser()->getAccessLevel()
+        );
     })->add(\Middleware\ParticipantProgramIsActiveValidator::class)
         ->add(\Middleware\ParticipantStatusValidator::class);
 
     $app->post('/{id}/customerservice_transaction', function ($request, $response, $args) use ($auth) {
         $transaction = new Controllers\Transaction($request, $response, $this->get('participant'));
         $uniqueId = $args['id'];
-        return $transaction->customerServiceTransaction($auth->getUser()->getOrganizationId(), $uniqueId);
+        return $transaction->customerServiceTransaction(
+            $auth->getUser()->getOrganizationId(),
+            $uniqueId,
+            $auth->getUser()->getAccessLevel()
+        );
     })->add(\Middleware\ParticipantProgramIsActiveValidator::class)
         ->add(\Middleware\ParticipantStatusValidator::class);
 
@@ -141,7 +164,7 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
     $app->post('/{id}/adjustment', function ($request, $response, $args) use ($auth) {
         $balance = new Controllers\Balance($request, $response, $this->get('participant'));
         $uniqueId = $args['id'];
-        return $balance->insert($auth->getUser()->getOrganizationId(), $uniqueId);
+        return $balance->insert($auth->getUser()->getOrganizationId(), $uniqueId, $auth->getUser()->getAccessLevel());
     })->add(\Middleware\ParticipantStatusValidator::class);
 
     $app->patch('/{id}/adjustment/{adjustment_id}', function ($request, $response, $args) use ($auth) {
@@ -198,7 +221,12 @@ $app->group('/api/participant', function () use ($app, $createRoute, $updateRout
 
     $app->get('/{id}/transaction/{transaction_id}', function ($request, $response, $args) use ($auth) {
         $transaction = new Controllers\Transaction($request, $response, $this->get('participant'));
-        return $transaction->single($auth->getUser()->getOrganizationId(), $args['id'], $args['transaction_id']);
+        return $transaction->single(
+            $auth->getUser()->getOrganizationId(),
+            $args['id'],
+            $args['transaction_id'],
+            $auth->getUser()->getAccessLevel()
+        );
     });
 
     $app->patch('/{id}/transaction/{transaction_id}/meta', function ($request, $response, $args) use ($auth) {

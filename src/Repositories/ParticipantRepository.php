@@ -27,28 +27,11 @@ class ParticipantRepository extends BaseRepository
      * @var ParticipantStatusRepository
      */
     private $participantStatusRepo;
-    private $userAccessLevel;
 
     public function __construct(PDO $database, Client $catalog)
     {
         parent::__construct($database);
         $this->catalog = $catalog;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getUserAccessLevel()
-    {
-        return $this->userAccessLevel;
-    }
-
-    /**
-     * @param mixed $userAccessLevel
-     */
-    public function setUserAccessLevel($userAccessLevel): void
-    {
-        $this->userAccessLevel = $userAccessLevel;
     }
 
     public function getRepositoryEntity()
