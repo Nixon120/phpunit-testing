@@ -2,6 +2,7 @@
 
 namespace Services\Participant;
 
+use AllDigitalRewards\StatusEnum\StatusEnum;
 use Particle\Validator\Exception\InvalidValueException;
 use Particle\Validator\Rule\Alpha;
 use Particle\Validator\Rule\Datetime;
@@ -210,6 +211,8 @@ class ValidationMiddleware
             $context->optional('program')->allowEmpty(false)->lengthBetween(2, 45);
             $context->optional('firstname')->allowEmpty(true)->lengthBetween(1, 50);
             $context->optional('lastname')->allowEmpty(true)->lengthBetween(1, 50);
+            $this->isActiveValidValueIfSet($context);
+            $this->isStatusValidValueIfSet($context);
             $context->optional('email_address')->allowEmpty(false)->email();
             $context->optional('birthdate')->datetime('Y-m-d');
             $context->optional('password_confirm')->callback(function ($value, $values) {
@@ -237,6 +240,8 @@ class ValidationMiddleware
             $context->optional('firstname')->allowEmpty(true)->lengthBetween(1, 50);
             $context->optional('lastname')->allowEmpty(true)->lengthBetween(1, 50);
             $context->optional('birthdate')->datetime('Y-m-d');
+            $this->isActiveValidValueIfSet($context);
+            $this->isStatusValidValueIfSet($context);
             if (isset($this->input['password']) === true) {
                 $context->optional('password_confirm')->equals($this->input['password']);
             }
@@ -260,6 +265,8 @@ class ValidationMiddleware
             $context->optional('firstname')->allowEmpty(true)->lengthBetween(1, 50);
             $context->optional('lastname')->allowEmpty(true)->lengthBetween(1, 50);
             $context->optional('birthdate')->datetime('Y-m-d');
+            $this->isActiveValidValueIfSet($context);
+            $this->isStatusValidValueIfSet($context);
         });
     }
 
@@ -279,6 +286,40 @@ class ValidationMiddleware
             $context->optional('firstname')->allowEmpty(true)->lengthBetween(1, 50);
             $context->optional('lastname')->allowEmpty(true)->lengthBetween(1, 50);
             $context->optional('birthdate')->datetime('Y-m-d');
+            $this->isActiveValidValueIfSet($context);
+            $this->isStatusValidValueIfSet($context);
+        });
+    }
+
+    /**
+     * @param $context
+     */
+    private function isActiveValidValueIfSet($context)
+    {
+        $context->optional('active')->callback(function ($value, $values) {
+            if (in_array($value, [0, '0', 1, '1', true, false], true) === false) {
+                throw new InvalidValueException(
+                    'Active must have a boolean type value',
+                    'Match::DOES_NOT_MATCH'
+                );
+            }
+            return true;
+        });
+    }
+
+    /**
+     * @param $context
+     */
+    private function isStatusValidValueIfSet($context)
+    {
+        $context->optional('status')->callback(function ($value, $values) {
+            if ((new StatusEnum())->isValidStatus($value) === false) {
+                throw new InvalidValueException(
+                    "The status is not valid, please refer to docs for acceptable types.",
+                    'Match::DOES_NOT_MATCH'
+                );
+            }
+            return true;
         });
     }
 
