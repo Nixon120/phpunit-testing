@@ -3,7 +3,7 @@
 namespace Controllers\Authentication;
 
 use Services\Authentication\Authenticate;
-use Services\Authentication\ValidAttemptValidation;
+use Services\Authentication\AuthAttemptValidation;
 use Slim\Http\Request;
 use Slim\Http\Response;
 use Services\CacheService;
@@ -59,8 +59,8 @@ class ApiLogin
         $this->auth->setRequest($this->request);
 
         $post = $this->request->getParsedBody();
-        $validAttemptValidation = new ValidAttemptValidation($this->cacheService);
-        $validation_blocked = $validAttemptValidation($this->request, $this->response);
+        $authAttemptValidation = new AuthAttemptValidation($this->cacheService);
+        $validation_blocked = $authAttemptValidation($this->request, $this->response);
         if ($validation_blocked) {
             return $validation_blocked;
         }

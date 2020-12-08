@@ -6,7 +6,7 @@ use Services\CacheService;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-class ValidAttemptValidation
+class AuthAttemptValidation
 {
     /**
      * @var CacheService
