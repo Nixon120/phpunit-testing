@@ -84,7 +84,7 @@ class ParticipantServiceTest extends AbstractParticipantServiceTest
             ->expects($this->once())
             ->method('getHydratedStatusRequest')
             ->with($this->isType('array'))
-            ->willReturn([1,$removedData]);
+            ->willReturn($removedData);
 
         $this->getMockParticipantStatusRepo()
             ->expects($this->once())
@@ -194,7 +194,7 @@ class ParticipantServiceTest extends AbstractParticipantServiceTest
             ->expects($this->once())
             ->method('getHydratedStatusRequest')
             ->with($this->isType('array'))
-            ->willReturn([1,$data]);
+            ->willReturn($data);
 
         $this->getMockParticipantStatusRepo()
             ->expects($this->once())

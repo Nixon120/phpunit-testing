@@ -206,17 +206,17 @@ class Participant
         $meta = $data['meta'] ?? null;
         unset($data['program'], $data['organization'], $data['address'], $data['shipping'], $data['meta'], $data['password_confirm']);
 
-        if (!empty($data['birthdate'])) {
-            $data['birthdate'] = $this->getDate($data['birthdate'])
-                ->format('Y-m-d');
-        } else {
-            $data['birthdate'] = null;
-        }
+        $data['birthdate'] = !empty($data['birthdate'])
+            ? $this->getDate($data['birthdate'])->format('Y-m-d')
+            : null;
 
         $data['active'] = isset($data['active']) ? $data['active'] : 1;
 
         $data = $this->repository->hydrateParticipantStatusRequest($data);
-        if ($this->repository->hasValidStatus($data['status']) === false) {
+        $status = $data['status'];
+        unset($data['status']);
+
+        if ($this->repository->hasValidStatus($status) === false) {
             $this->repository->setErrors(
                 [
                     'status' => [
@@ -227,9 +227,7 @@ class Participant
             return false;
         }
 
-        if (isset($data['active']) && $data['active'] != 1) {
-            $data['deactivated_at'] = (new \DateTime)->format('Y-m-d H:i:s');
-        }
+        $data['deactivated_at'] = $data['active'] != 1 ? (new \DateTime)->format('Y-m-d H:i:s') : null;
 
         $participant = new \Entities\Participant;
         $participant->exchange($data);
@@ -268,7 +266,7 @@ class Participant
         unset($participantArray['status']); //prevent insert error
         if ($this->repository->insert($participantArray)) {
             $participant = $this->repository->getParticipant($participant->getUniqueId());
-            $this->repository->saveParticipantStatus($participant, $data['status']);
+            $this->repository->saveParticipantStatus($participant, $status);
             $this->repository->logParticipantChange($participant, $agentEmail, true);
             if ($address !== null) {
                 $participant->setAddress($address);
@@ -306,15 +304,12 @@ class Participant
             $password = $data['password'];
         }
 
-        if (!empty($data['birthdate'])) {
-            $data['birthdate'] = $this->getDate($data['birthdate'])
-                ->format('Y-m-d');
-        } else {
-            $data['birthdate'] = null;
-        }
+        $data['birthdate'] = !empty($data['birthdate'])
+            ? $this->getDate($data['birthdate'])->format('Y-m-d')
+            : null;
 
         //if not updating status, use current status
-        $data['active'] = isset($data['active']) ? $data['active'] : $participant->isActive() ? 1 : 0;
+        $data['active'] = isset($data['active']) ? $data['active'] : ($participant->isActive() ? 1 : 0);
 
         $data = $this->repository->hydrateParticipantStatusRequest($data);
         if ($this->repository->hasValidStatus($data['status']) === false) {
