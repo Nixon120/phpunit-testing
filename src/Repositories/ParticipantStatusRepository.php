@@ -3,7 +3,6 @@
 namespace Repositories;
 
 use Entities\ParticipantStatus;
-use AllDigitalRewards\Services\Catalog\Client;
 use AllDigitalRewards\StatusEnum\StatusEnum;
 use Entities\Participant;
 use PDO;
@@ -14,20 +13,14 @@ class ParticipantStatusRepository extends BaseRepository
     use LoggerAwareTrait;
 
     protected $table = 'Participant';
-
-    /**
-     * @var Client
-     */
-    private $catalog;
     /**
      * @var StatusEnum
      */
     private $statusEnumService;
 
-    public function __construct(PDO $database, Client $catalog)
+    public function __construct(PDO $database)
     {
         parent::__construct($database);
-        $this->catalog = $catalog;
     }
 
     /**

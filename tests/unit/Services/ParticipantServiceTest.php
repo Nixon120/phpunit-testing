@@ -1,5 +1,7 @@
 <?php
 
+use AllDigitalRewards\StatusEnum\StatusEnum;
+
 class ParticipantServiceTest extends AbstractParticipantServiceTest
 {
     public function testValidParticipantCreate()
@@ -215,5 +217,194 @@ class ParticipantServiceTest extends AbstractParticipantServiceTest
         $row['updated_at'] = $participant->getUpdatedAt();
         $row['status'] = null;
         $this->assertSame($participant->toArray(), $row);
+    }
+
+    public function testParticipantCreateRequestActiveInputIsValidReturnsFalse()
+    {
+        $this->assertFalse(in_array(2, [0, '0', 1, '1', true, false], true));
+        $this->assertFalse(in_array('true', [0, '0', 1, '1', true, false], true));
+        $this->assertFalse(in_array('false', [0, '0', 1, '1', true, false], true));
+        $this->assertFalse(in_array('ACTIVE', [0, '0', 1, '1', true, false], true));
+    }
+
+    public function testParticipantCreateRequestActiveInputIsValidReturnsTrue()
+    {
+        $this->assertTrue(in_array(0, [0, '0', 1, '1', true, false], true));
+        $this->assertTrue(in_array('0', [0, '0', 1, '1', true, false], true));
+        $this->assertTrue(in_array(1, [0, '0', 1, '1', true, false], true));
+        $this->assertTrue(in_array('1', [0, '0', 1, '1', true, false], true));
+        $this->assertTrue(in_array(true, [0, '0', 1, '1', true, false], true));
+        $this->assertTrue(in_array(false, [0, '0', 1, '1', true, false], true));
+    }
+
+    public function testParticipantCreateRequestStatusInputIsValidReturnsFalse()
+    {
+        $this->assertFalse((new StatusEnum())->isValidStatus(11));
+        $this->assertFalse((new StatusEnum())->isValidStatus(9));
+        $this->assertFalse((new StatusEnum())->isValidStatus('NOTACTIVE'));
+        $this->assertFalse((new StatusEnum())->isValidStatus(false));
+    }
+
+    public function testParticipantCreateRequestStatusInputIsValidReturnsTrue()
+    {
+        $this->assertTrue((new StatusEnum())->isValidStatus(1));
+        $this->assertTrue((new StatusEnum())->isValidStatus(2));
+        $this->assertTrue((new StatusEnum())->isValidStatus(3));
+        $this->assertTrue((new StatusEnum())->isValidStatus(4));
+        $this->assertTrue((new StatusEnum())->isValidStatus(5));
+        $this->assertTrue((new StatusEnum())->isValidStatus('1'));
+        $this->assertTrue((new StatusEnum())->isValidStatus('2'));
+        $this->assertTrue((new StatusEnum())->isValidStatus('3'));
+        $this->assertTrue((new StatusEnum())->isValidStatus('4'));
+        $this->assertTrue((new StatusEnum())->isValidStatus('5'));
+        $this->assertTrue((new StatusEnum())->isValidStatus('ACTIVE'));
+        $this->assertTrue((new StatusEnum())->isValidStatus('INACTIVE'));
+        $this->assertTrue((new StatusEnum())->isValidStatus('HOLD'));
+        $this->assertTrue((new StatusEnum())->isValidStatus('CANCELLED'));
+        $this->assertTrue((new StatusEnum())->isValidStatus('DATADEL'));
+    }
+
+    public function testParticipantStatusRepoActiveInputIsSetTo1ReturnsActiveAndStatus1()
+    {
+        $expected = [
+          'active' => 1,
+          'status' => 1,
+        ];
+
+        $participantStatusRepo = new \Repositories\ParticipantStatusRepository($this->getMockDatabase());
+        $return = $participantStatusRepo->getHydratedStatusRequest(['active' => 1]);
+        $this->assertEquals($expected, $return);
+    }
+
+    public function testParticipantStatusRepoActiveInputIsSetTo0ReturnsActive0AndStatus3()
+    {
+        $expected = [
+          'active' => 0,
+          'status' => StatusEnum::INACTIVE,
+        ];
+
+        $participantStatusRepo = new \Repositories\ParticipantStatusRepository($this->getMockDatabase());
+        $return = $participantStatusRepo->getHydratedStatusRequest(['active' => 0]);
+        $this->assertEquals($expected, $return);
+    }
+
+    public function testParticipantStatusRepoStatusInputIsSetTo1ReturnsActive0AndStatus1()
+    {
+        $expected = [
+          'active' => 1,
+          'status' => StatusEnum::ACTIVE,
+        ];
+
+        $participantStatusRepo = new \Repositories\ParticipantStatusRepository($this->getMockDatabase());
+        $return = $participantStatusRepo->getHydratedStatusRequest(['status' => StatusEnum::ACTIVE]);
+        $this->assertEquals($expected, $return);
+    }
+
+    public function testParticipantStatusRepoStatusInputIsSetToHoldReturnsActive1AndStatus2()
+    {
+        $expected = [
+          'active' => 1,
+          'status' => StatusEnum::HOLD,
+        ];
+
+        $participantStatusRepo = new \Repositories\ParticipantStatusRepository($this->getMockDatabase());
+        $return = $participantStatusRepo->getHydratedStatusRequest(['status' => 2]);
+        $this->assertEquals($expected, $return);
+    }
+
+    public function testParticipantStatusRepoStatusInputIsSetToInactiveReturnsActive0AndStatus3()
+    {
+        $expected = [
+          'active' => 0,
+          'status' => StatusEnum::INACTIVE,
+        ];
+
+        $participantStatusRepo = new \Repositories\ParticipantStatusRepository($this->getMockDatabase());
+        $return = $participantStatusRepo->getHydratedStatusRequest(['status' => 3]);
+        $this->assertEquals($expected, $return);
+    }
+
+    public function testParticipantStatusRepoStatusInputIsSetToCancelledReturnsActive0AndStatus4()
+    {
+        $expected = [
+          'active' => 0,
+          'status' => StatusEnum::CANCELLED,
+        ];
+
+        $participantStatusRepo = new \Repositories\ParticipantStatusRepository($this->getMockDatabase());
+        $return = $participantStatusRepo->getHydratedStatusRequest(['status' => 4]);
+        $this->assertEquals($expected, $return);
+    }
+
+    public function testParticipantStatusRepoStatusInputIsSetToDataDelReturnsActive0AndStatus5()
+    {
+        $expected = [
+          'active' => 0,
+          'status' => StatusEnum::DATADEL,
+        ];
+
+        $participantStatusRepo = new \Repositories\ParticipantStatusRepository($this->getMockDatabase());
+        $return = $participantStatusRepo->getHydratedStatusRequest(['status' => 5]);
+        $this->assertEquals($expected, $return);
+    }
+
+    public function testParticipantStatusRepoStatusInputIsSetAndTakesPrecedentSettingToDataDelReturnsActive0AndStatus5()
+    {
+        $expected = [
+          'active' => 0,
+          'status' => StatusEnum::DATADEL,
+        ];
+
+        $participantStatusRepo = new \Repositories\ParticipantStatusRepository($this->getMockDatabase());
+        $return = $participantStatusRepo->getHydratedStatusRequest(['active' => 1,'status' => 5]);
+        $this->assertEquals($expected, $return);
+    }
+
+    public function testParticipantStatusRepoStatusInputIsSetAndTakesPrecedentSettingToCancelledReturnsActive0AndStatus4()
+    {
+        $expected = [
+          'active' => 0,
+          'status' => StatusEnum::CANCELLED,
+        ];
+
+        $participantStatusRepo = new \Repositories\ParticipantStatusRepository($this->getMockDatabase());
+        $return = $participantStatusRepo->getHydratedStatusRequest(['active' => 1,'status' => 4]);
+        $this->assertEquals($expected, $return);
+    }
+
+    public function testParticipantStatusRepoStatusInputIsSetAndTakesPrecedentSettingToInactiveReturnsActive0AndStatus3()
+    {
+        $expected = [
+          'active' => 0,
+          'status' => StatusEnum::INACTIVE,
+        ];
+
+        $participantStatusRepo = new \Repositories\ParticipantStatusRepository($this->getMockDatabase());
+        $return = $participantStatusRepo->getHydratedStatusRequest(['active' => 1,'status' => 3]);
+        $this->assertEquals($expected, $return);
+    }
+
+    public function testParticipantStatusRepoStatusInputIsSetAndTakesPrecedentSettingToHoldReturnsActive1AndStatus2()
+    {
+        $expected = [
+          'active' => 1,
+          'status' => StatusEnum::HOLD,
+        ];
+
+        $participantStatusRepo = new \Repositories\ParticipantStatusRepository($this->getMockDatabase());
+        $return = $participantStatusRepo->getHydratedStatusRequest(['active' => 0,'status' => 2]);
+        $this->assertEquals($expected, $return);
+    }
+
+    public function testParticipantStatusRepoStatusInputIsSetAndTakesPrecedentSettingToActiveReturnsActive1AndStatus1()
+    {
+        $expected = [
+          'active' => 1,
+          'status' => StatusEnum::ACTIVE,
+        ];
+
+        $participantStatusRepo = new \Repositories\ParticipantStatusRepository($this->getMockDatabase());
+        $return = $participantStatusRepo->getHydratedStatusRequest(['active' => 0,'status' => 1]);
+        $this->assertEquals($expected, $return);
     }
 }

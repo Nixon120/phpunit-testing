@@ -480,8 +480,7 @@ SQL;
     {
         if ($this->participantStatusRepo === null) {
             $this->participantStatusRepo = new ParticipantStatusRepository(
-                $this->getDatabase(),
-                $this->catalog
+                $this->getDatabase()
             );
         }
 
