@@ -2,6 +2,9 @@
 
 namespace Services\User;
 
+use AllDigitalRewards\UserAccessLevelEnum\UserAccessLevelEnum;
+use Entities\User;
+
 class UserModify
 {
     /**
@@ -16,7 +19,7 @@ class UserModify
 
     /**
      * @param $data
-     * @return false|\Entities\User
+     * @return false|User
      */
     public function insert($data)
     {
@@ -33,7 +36,7 @@ class UserModify
             unset($data['organization']);
         }
 
-        $user = new \Entities\User;
+        $user = new User;
         $user->exchange($data);
 
         $isUnique = $this
@@ -63,7 +66,7 @@ class UserModify
     /**
      * @param $id
      * @param $data
-     * @return false|\Entities\User
+     * @return false|User
      */
     public function update($id, $data)
     {
@@ -87,6 +90,7 @@ class UserModify
 
         $user = $this->factory->getUserRead()->getById($id);
         $oldEmail = $user->getEmailAddress();
+        $originalAccessLevel = $user->getAccessLevel();
         $user->exchange($data);
 
         $isUnique = $this
@@ -110,13 +114,16 @@ class UserModify
 
         if ($this->factory->getUserRepository()->validate($user)
             && $this->factory->getUserRepository()->update($user->getId(), $data)) {
+            if ($this->isUserAccessLevelUpdatedToPiiLimit($originalAccessLevel, $user) === true) {
+                //hit report api and delete reports with oldemail
+            }
             return $this->factory->getUserRepository()->getUserById($user->getId());
         }
 
         return false;
     }
 
-    private function hydratePassword($data, \Entities\User $user)
+    private function hydratePassword($data, User $user)
     {
         $password = $data['password'];
         unset($data['password']);
@@ -137,5 +144,15 @@ class UserModify
             ->factory
             ->getUserRepository()
             ->getErrors();
+    }
+
+    /**
+     * @param int $originalAccessLevel
+     * @param User|null $user
+     */
+    private function isUserAccessLevelUpdatedToPiiLimit(int $originalAccessLevel, ?User $user): bool
+    {
+       return $originalAccessLevel !== $user->getAccessLevel()
+           && UserAccessLevelEnum::PII_LIMIT === $user->getAccessLevel();
     }
 }
