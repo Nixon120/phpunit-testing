@@ -90,12 +90,6 @@ class ParticipantServiceTest extends AbstractParticipantServiceTest
 
         $this->getMockParticipantStatusRepo()
             ->expects($this->once())
-            ->method('hasValidStatus')
-            ->with(1)
-            ->willReturn(true);
-
-        $this->getMockParticipantStatusRepo()
-            ->expects($this->once())
             ->method('saveParticipantStatus')
             ->with($this->isType('object'), 1)
             ->willReturn(true);
@@ -197,12 +191,6 @@ class ParticipantServiceTest extends AbstractParticipantServiceTest
             ->method('getHydratedStatusRequest')
             ->with($this->isType('array'))
             ->willReturn($data);
-
-        $this->getMockParticipantStatusRepo()
-            ->expects($this->once())
-            ->method('hasValidStatus')
-            ->with(1)
-            ->willReturn(true);
 
         $this->getMockParticipantStatusRepo()
             ->expects($this->once())
