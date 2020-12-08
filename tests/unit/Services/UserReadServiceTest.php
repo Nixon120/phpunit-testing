@@ -1,5 +1,7 @@
 <?php
 
+use Entities\User;
+
 class UserReadServiceTest extends AbstractUserServiceTest
 {
     public function testUserGetById()
@@ -61,7 +63,7 @@ class UserReadServiceTest extends AbstractUserServiceTest
 
         $sthMock->expects($this->once())
             ->method('fetchAll')
-            ->with(PDO::FETCH_CLASS, \Entities\User::class)
+            ->with(PDO::FETCH_CLASS, User::class)
             ->will($this->returnValue($this->getMockUserResult()));
 
         $filters = [
@@ -79,16 +81,16 @@ class UserReadServiceTest extends AbstractUserServiceTest
     private function getMockUserResult()
     {
         return [
-            new \Entities\User($this->getMockUserResultRow()),
-            new \Entities\User($this->getMockUserResultRow()),
-            new \Entities\User($this->getMockUserResultRow()),
-            new \Entities\User($this->getMockUserResultRow()),
-            new \Entities\User($this->getMockUserResultRow()),
-            new \Entities\User($this->getMockUserResultRow()),
-            new \Entities\User($this->getMockUserResultRow()),
-            new \Entities\User($this->getMockUserResultRow()),
-            new \Entities\User($this->getMockUserResultRow()),
-            new \Entities\User($this->getMockUserResultRow())
+            new User($this->getMockUserResultRow()),
+            new User($this->getMockUserResultRow()),
+            new User($this->getMockUserResultRow()),
+            new User($this->getMockUserResultRow()),
+            new User($this->getMockUserResultRow()),
+            new User($this->getMockUserResultRow()),
+            new User($this->getMockUserResultRow()),
+            new User($this->getMockUserResultRow()),
+            new User($this->getMockUserResultRow()),
+            new User($this->getMockUserResultRow())
         ];
     }
 
