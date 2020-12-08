@@ -143,11 +143,11 @@ class ParticipantStatusRepository extends BaseRepository
             $data['status'] = (int)$data['frozen'] === 1
                 ? $this->getStatusEnumService()::HOLD
                 : $this->getStatusEnumService()::ACTIVE;
-            $data['active'] = $data['status'] === 1 ? 1 : 0;
+            $data['active'] = 1; //hold is still active
         }
         if (array_key_exists('inactive', $data) === true) {
             $data['status'] = (int)$data['inactive'] === 1
-                ? $this->getStatusEnumService()::HOLD :
+                ? $this->getStatusEnumService()::INACTIVE :
                 $this->getStatusEnumService()::ACTIVE;
             $data['active'] = $data['status'] === 1 ? 1 : 0;
         }

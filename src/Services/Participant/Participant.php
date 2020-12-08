@@ -216,17 +216,6 @@ class Participant
         $status = $data['status'];
         unset($data['status']);
 
-        if ($this->repository->hasValidStatus($status) === false) {
-            $this->repository->setErrors(
-                [
-                    'status' => [
-                        'Status::ILLEGAL_CHARACTERS' => _("The status is not valid, please refer to docs for acceptable types.")
-                    ]
-                ]
-            );
-            return false;
-        }
-
         $data['deactivated_at'] = $data['active'] != 1 ? (new \DateTime)->format('Y-m-d H:i:s') : null;
 
         $participant = new \Entities\Participant;
@@ -308,20 +297,9 @@ class Participant
             ? $this->getDate($data['birthdate'])->format('Y-m-d')
             : null;
 
-        //if not updating status, use current status
         $data['active'] = isset($data['active']) ? $data['active'] : ($participant->isActive() ? 1 : 0);
 
         $data = $this->repository->hydrateParticipantStatusRequest($data);
-        if ($this->repository->hasValidStatus($data['status']) === false) {
-            $this->repository->setErrors(
-                [
-                    'status' => [
-                        'Status::ILLEGAL_CHARACTERS' => _("The status is not valid, please refer to docs for acceptable types.")
-                    ]
-                ]
-            );
-            return false;
-        }
         $this->repository->saveParticipantStatus($participant, $data['status']);
 
         $data['deactivated_at'] = (int) $data['active'] === 1 ? null : (new \DateTime)->format('Y-m-d H:i:s');

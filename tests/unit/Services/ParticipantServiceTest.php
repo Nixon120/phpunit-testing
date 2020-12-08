@@ -288,6 +288,54 @@ class ParticipantServiceTest extends AbstractParticipantServiceTest
         $this->assertEquals($expected, $return);
     }
 
+    public function testParticipantStatusRepoFrozenInputIsSetTo1ReturnsActive1AndStatus2()
+    {
+        $expected = [
+          'active' => 1,
+          'status' => StatusEnum::HOLD,
+        ];
+
+        $participantStatusRepo = new \Repositories\ParticipantStatusRepository($this->getMockDatabase());
+        $return = $participantStatusRepo->getHydratedStatusRequest(['frozen' => 1]);
+        $this->assertEquals($expected, $return);
+    }
+
+    public function testParticipantStatusRepoFrozenInputIsSetTo0ReturnsActive1AndStatus1()
+    {
+        $expected = [
+          'active' => 1,
+          'status' => StatusEnum::ACTIVE,
+        ];
+
+        $participantStatusRepo = new \Repositories\ParticipantStatusRepository($this->getMockDatabase());
+        $return = $participantStatusRepo->getHydratedStatusRequest(['frozen' => 0]);
+        $this->assertEquals($expected, $return);
+    }
+
+    public function testParticipantStatusRepoInactiveInputIsSetTo1ReturnsActive0AndStatus3()
+    {
+        $expected = [
+          'active' => 0,
+          'status' => StatusEnum::INACTIVE,
+        ];
+
+        $participantStatusRepo = new \Repositories\ParticipantStatusRepository($this->getMockDatabase());
+        $return = $participantStatusRepo->getHydratedStatusRequest(['inactive' => 1]);
+        $this->assertEquals($expected, $return);
+    }
+
+    public function testParticipantStatusRepoInactiveInputIsSetTo0ReturnsActive1AndStatus1()
+    {
+        $expected = [
+          'active' => 1,
+          'status' => StatusEnum::ACTIVE,
+        ];
+
+        $participantStatusRepo = new \Repositories\ParticipantStatusRepository($this->getMockDatabase());
+        $return = $participantStatusRepo->getHydratedStatusRequest(['inactive' => 0]);
+        $this->assertEquals($expected, $return);
+    }
+
     public function testParticipantStatusRepoStatusInputIsSetTo1ReturnsActive0AndStatus1()
     {
         $expected = [
