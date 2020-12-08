@@ -36,11 +36,6 @@ class ApiLogin
 
     protected $cacheService;
 
-    /**
-     * @var ValidAttemptValidation
-     */
-    private $validAttemptValidation;
-
     public function __construct(
         Authenticate $auth,
         array $roles,
@@ -51,7 +46,6 @@ class ApiLogin
         $this->roles = $roles;
         $this->authRoutes = $routes;
         $this->cacheService = $cacheService;
-        $this->validAttemptValidation = new ValidAttemptValidation($this->cacheService);
     }
 
     public function __invoke(Request $request, Response $response, $args)
@@ -65,8 +59,8 @@ class ApiLogin
         $this->auth->setRequest($this->request);
 
         $post = $this->request->getParsedBody();
-
-        $validation_blocked = $this->validAttemptValidation->__invoke($this->request, $this->response);
+        $validAttemptValidation = new ValidAttemptValidation($this->cacheService);
+        $validation_blocked = $validAttemptValidation($this->request, $this->response);
         if ($validation_blocked) {
             return $validation_blocked;
         }
@@ -77,6 +71,8 @@ class ApiLogin
                 ->withJson($this->getAuthenticatedResponsePayload());
         }
 
+
+        $this->cacheInvalidAttempt();
         return $this->response->withStatus(403)
             ->withJson([
                 'message' => 'Authentication failed',
@@ -103,7 +99,6 @@ class ApiLogin
     {
 
         if (!$this->auth->validate()) {
-            $this->cacheInvalidAttempt();
             return false;
         }
 
