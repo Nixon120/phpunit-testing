@@ -46,7 +46,7 @@ class ValidAttemptValidation
         $key = 'LOCKOUT_' . $ip;
         if ($this->cacheService->cachedItemExists($key) === true) {
             $attempts = $this->cacheService->getCachedItem($key);
-            if ($attempts >= 3) {
+            if ($attempts >= 5) {
                 return true;
             }
         }
