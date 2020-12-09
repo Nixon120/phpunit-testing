@@ -3,6 +3,7 @@
 /** @deprecated */
 
 use \Controllers\Participant as Controllers;
+use Middleware\ParticipantStatusDeleteValidator;
 use Services\Authentication\Authenticate;
 
 $updateRoute = function ($request, $response, $args) {
@@ -22,7 +23,9 @@ $createRoute = function ($request, $response) {
 
 $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
     // Create
-    $app->post('', $createRoute)->add(Services\Participant\ValidationMiddleware::class);
+    $app->post('', $createRoute)
+        ->add(Services\Participant\ValidationMiddleware::class)
+        ->add(ParticipantStatusDeleteValidator::class);
 
     // List
     $app->get('', function ($request, $response) {
@@ -38,7 +41,21 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
     });
 
     // Update
-    $app->put('/{id}', $updateRoute)->add(Services\Participant\ValidationMiddleware::class);
+    $app->put('/{id}', $updateRoute)
+        ->add(Services\Participant\ValidationMiddleware::class)
+        ->add(ParticipantStatusDeleteValidator::class);
+
+    // Delete Single
+    $app->delete(
+        '/{id}',
+        function ($request, $response, $args) {
+            $participant = new Controllers\Modify($request, $response, $this->get('participant'));
+            $participantId = $args['id'];
+            /** @var Authenticate $auth */
+            $auth = $this->get('authentication');
+            return $participant->removeParticipantPii($participantId, $auth->getUser()->getEmailAddress());
+        }
+    );
 
     //@TODO: misc. routes that need to be duplicated to /participant
     $app->put('/{id}/meta', Controllers\UpdateMeta::class);
@@ -108,7 +125,7 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
             $uniqueId,
             $itemGuid
         );
-    });
+    })->add(\Middleware\ParticipantStatusValidator::class);
 
     $app->post('/{id}/transaction', function ($request, $response, $args) {
         $transaction = new Controllers\Transaction($request, $response, $this->get('participant'));
@@ -164,7 +181,9 @@ $app->group('/api/user', function () use ($app, $createRoute, $updateRoute) {
 });
 $app->group('/api/participant', function () use ($app, $createRoute, $updateRoute) {
     // Create
-    $app->post('', $createRoute)->add(Services\Participant\ValidationMiddleware::class);
+    $app->post('', $createRoute)
+        ->add(Services\Participant\ValidationMiddleware::class)
+        ->add(ParticipantStatusDeleteValidator::class);
 
     // List
     $app->get('', function ($request, $response) {
@@ -180,7 +199,9 @@ $app->group('/api/participant', function () use ($app, $createRoute, $updateRout
     });
 
     // Update
-    $app->put('/{id}', $updateRoute)->add(Services\Participant\ValidationMiddleware::class);
+    $app->put('/{id}', $updateRoute)
+        ->add(Services\Participant\ValidationMiddleware::class)
+        ->add(ParticipantStatusDeleteValidator::class);
 
     $app->put('/{id}/meta', Controllers\UpdateMeta::class);
     $app->patch('/{id}/meta', Controllers\PatchMeta::class);
@@ -228,5 +249,5 @@ $app->group('/api/participant', function () use ($app, $createRoute, $updateRout
             $uniqueId,
             $itemGuid
         );
-    });
+    })->add(\Middleware\ParticipantStatusValidator::class);
 });

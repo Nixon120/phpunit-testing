@@ -3,7 +3,6 @@
 namespace Repositories;
 
 use Entities\ParticipantStatus;
-use AllDigitalRewards\Services\Catalog\Client;
 use AllDigitalRewards\StatusEnum\StatusEnum;
 use Entities\Participant;
 use PDO;
@@ -14,20 +13,14 @@ class ParticipantStatusRepository extends BaseRepository
     use LoggerAwareTrait;
 
     protected $table = 'Participant';
-
-    /**
-     * @var Client
-     */
-    private $catalog;
     /**
      * @var StatusEnum
      */
     private $statusEnumService;
 
-    public function __construct(PDO $database, Client $catalog)
+    public function __construct(PDO $database)
     {
         parent::__construct($database);
-        $this->catalog = $catalog;
     }
 
     /**
@@ -109,17 +102,10 @@ class ParticipantStatusRepository extends BaseRepository
      */
     public function getHydratedStatusRequest($data): array
     {
-        list($status, $data) = $this->setStatusForBackwardsCompatibility($data);
-        //if `status` exists this will take precedence
-        //set active based on status passed in
-        if (array_key_exists('status', $data) === true) {
-            $status = $data['status'];
-            $data['active'] = $this->getStatusEnumService()->isActive($status) ? 1 : 0;
-        }
+        $data = $this->setStatusForBackwardsCompatibility($data);
+        unset($data['inactive'], $data['frozen']);
 
-        unset($data['status'], $data['frozen']);
-
-        return array($status, $data);
+        return $data;
     }
 
     /**
@@ -140,21 +126,32 @@ class ParticipantStatusRepository extends BaseRepository
      */
     private function setStatusForBackwardsCompatibility($data): array
     {
-        $status = $this->getStatusEnumService()::ACTIVE;
-        if (array_key_exists('frozen', $data) === true) {
-            $status = (int)$data['frozen'] === 1
-                ? $this->getStatusEnumService()::HOLD
-                : $this->getStatusEnumService()::ACTIVE;
-        }
-        if (array_key_exists('inactive', $data) === true) {
-            $status = (int)$data['inactive'] === 1
-                ? $this->getStatusEnumService()::HOLD :
-                $this->getStatusEnumService()::ACTIVE;
-        }
-        if (array_key_exists('active', $data) === true) {
-            $data['active'] = $this->getStatusEnumService()->isActive($status) ? 1 : 0;
+        //return early if status is passed in, this takes precedent
+        //and tells us they have updated their sdk
+        //validated status in middleware if present so we can be sure its valid
+        if (array_key_exists('status', $data) === true) {
+            $data['active'] = $this->getStatusEnumService()->isActive($data['status']) ? 1 : 0;
+            return $data;
         }
 
-        return array($status, $data);
+        if (array_key_exists('active', $data) === true) {
+            $data['status'] = (int)$data['active'] === 1
+                ? $this->getStatusEnumService()::ACTIVE :
+                $this->getStatusEnumService()::INACTIVE;
+        }
+        if (array_key_exists('frozen', $data) === true) {
+            $data['status'] = (int)$data['frozen'] === 1
+                ? $this->getStatusEnumService()::HOLD
+                : $this->getStatusEnumService()::ACTIVE;
+            $data['active'] = 1; //hold is still active
+        }
+        if (array_key_exists('inactive', $data) === true) {
+            $data['status'] = (int)$data['inactive'] === 1
+                ? $this->getStatusEnumService()::INACTIVE :
+                $this->getStatusEnumService()::ACTIVE;
+            $data['active'] = $data['status'] === 1 ? 1 : 0;
+        }
+
+        return $data;
     }
 }

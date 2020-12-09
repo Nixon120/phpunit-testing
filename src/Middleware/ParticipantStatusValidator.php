@@ -2,6 +2,7 @@
 
 namespace Middleware;
 
+use AllDigitalRewards\StatusEnum\StatusEnum;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Services\Participant\ServiceFactory;
@@ -53,11 +54,11 @@ class ParticipantStatusValidator
 
         $participant = $this->participantService->getService()->getSingle($args['id']);
         if (is_null($participant) === true) {
-            return $response->withJson(['message' => 'Resource does not exist'], 400);
+            return $response->withJson(['message' => _('Resource does not exist')], 400);
         }
 
-        if ($participant->isActive() == false) {
-            return $response->withJson(['message' => 'Participant not active'], 400);
+        if ((new StatusEnum())->hydrateStatus($participant->getStatus()) !== StatusEnum::ACTIVE) {
+            return $response->withJson(['message' => _('Participant not active')], 400);
         }
 
         return $next($this->request, $this->response);

@@ -1,6 +1,7 @@
 <?php
 
 use Controllers\Participant as Controllers;
+use Middleware\ParticipantStatusDeleteValidator;
 use Services\Authentication\Authenticate;
 
 /** @var Slim\App $app */
@@ -17,8 +18,8 @@ $app->group(
                 $auth = $this->get('authentication');
                 return $participant->insert($auth->getUser()->getEmailAddress());
             }
-        )
-            ->add(Services\Participant\ValidationMiddleware::class);
+        )->add(Services\Participant\ValidationMiddleware::class)
+            ->add(ParticipantStatusDeleteValidator::class);
 
         // List
         $app->get(
@@ -39,6 +40,18 @@ $app->group(
             }
         );
 
+        // Delete Single
+        $app->delete(
+            '/{id}',
+            function ($request, $response, $args) {
+                $participant = new Controllers\Modify($request, $response, $this->get('participant'));
+                $participantId = $args['id'];
+                /** @var Authenticate $auth */
+                $auth = $this->get('authentication');
+                return $participant->removeParticipantPii($participantId, $auth->getUser()->getEmailAddress());
+            }
+        );
+
         // Update
         $app->put(
             '/{id}',
@@ -49,8 +62,8 @@ $app->group(
                 $auth = $this->get('authentication');
                 return $participant->update($participantId, $auth->getUser()->getEmailAddress());
             }
-        )
-            ->add(Services\Participant\ValidationMiddleware::class);
+        )->add(Services\Participant\ValidationMiddleware::class)
+            ->add(ParticipantStatusDeleteValidator::class);
 
         $app->put('/{id}/meta', Controllers\UpdateMeta::class);
 
@@ -65,8 +78,7 @@ $app->group(
                 $auth = $this->get('authentication');
                 return $participant->generateSso($auth->getUser(), $uniqueId);
             }
-        )
-            ->add(Middleware\ParticipantStatusValidator::class);
+        )->add(Middleware\ParticipantStatusValidator::class);
 
         $app->get(
             '/{id}/sso',
@@ -150,7 +162,7 @@ $app->group(
                     $itemGuid
                 );
             }
-        );
+        )->add(Middleware\ParticipantStatusValidator::class);
 
         $app->post(
             '/{id}/transaction',

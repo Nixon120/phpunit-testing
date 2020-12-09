@@ -400,6 +400,22 @@ SQL;
         return true;
     }
 
+    /**
+     * @param int $id
+     * @return bool
+     */
+    public function setParticipantToInactive(int $id)
+    {
+        $sql = <<<SQL
+UPDATE Participant
+SET active = 0
+WHERE id = ?
+SQL;
+
+        $sth = $this->database->prepare($sql);
+        return $sth->execute([$id]);
+    }
+
     private function getMetaKey(string $keyName)
     {
         $sql = "SELECT `participant_meta_key`.`id` FROM `participant_meta_key` WHERE `keyName` = ?";
@@ -464,8 +480,7 @@ SQL;
     {
         if ($this->participantStatusRepo === null) {
             $this->participantStatusRepo = new ParticipantStatusRepository(
-                $this->getDatabase(),
-                $this->catalog
+                $this->getDatabase()
             );
         }
 
@@ -478,5 +493,54 @@ SQL;
     public function setParticipantStatusRepo(ParticipantStatusRepository $participantStatusRepo): void
     {
         $this->participantStatusRepo = $participantStatusRepo;
+    }
+
+
+    /**
+     * @param int $participantId
+     * @return bool
+     */
+    public function setParticipantTransactionEmailAddressToEmpty(int $participantId)
+    {
+        $sql = <<<SQL
+UPDATE Transaction
+SET email_address = ''
+WHERE participant_id = ?
+SQL;
+
+        $sth = $this->database->prepare($sql);
+        return $sth->execute([$participantId]);
+    }
+
+    /**
+     * @param int $participantId
+     * @return bool
+     */
+    public function setParticipantAddressPiiToEmpty(int $participantId)
+    {
+        $sql = <<<SQL
+UPDATE Address
+SET firstname = '', lastname = '', address1 = '', address2 = '', city = '', state = '', zip = ''
+WHERE participant_id = ?
+SQL;
+
+        $sth = $this->database->prepare($sql);
+        return $sth->execute([$participantId]);
+    }
+
+    /**
+     * @param int $participantId
+     * @return bool
+     */
+    public function setParticipantPiiToEmpty(int $participantId)
+    {
+        $sql = <<<SQL
+UPDATE Participant
+SET firstname = '', lastname = '', phone = '', email_address = '', birthdate = null
+WHERE id = ?
+SQL;
+
+        $sth = $this->database->prepare($sql);
+        return $sth->execute([$participantId]);
     }
 }

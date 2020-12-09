@@ -1,6 +1,7 @@
 <?php
 namespace Controllers\Participant;
 
+use AllDigitalRewards\StatusEnum\StatusEnum;
 use Controllers\AbstractModifyController;
 use Services\Authentication\Authenticate;
 use Slim\Http\Request;
@@ -59,6 +60,28 @@ class Modify extends AbstractModifyController
             );
             $output = new OutputNormalizer($participant);
             return $this->returnJson(200, $output->get());
+        }
+
+        $errors = $this->service->getErrors();
+        return $this->returnFormattedJsonError(400, $errors);
+    }
+
+    /**
+     * @param $id
+     * @param string $agentEmailAddress
+     * @return Response
+     */
+    public function removeParticipantPii($id, string $agentEmailAddress)
+    {
+        /** @var \Entities\Participant $participant */
+        $participant = $this->service->repository->getParticipant($id);
+
+        if (is_null($participant)) {
+            return $this->returnJson(404, _('Participant not valid'));
+        }
+
+        if ($this->service->removeParticipantPii($participant, $agentEmailAddress) === true) {
+            return $this->response->withStatus(204);
         }
 
         $errors = $this->service->getErrors();

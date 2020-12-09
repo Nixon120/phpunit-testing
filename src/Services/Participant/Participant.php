@@ -7,11 +7,14 @@ use AllDigitalRewards\StatusEnum\StatusEnum;
 use Controllers\Interfaces as Interfaces;
 use Controllers\Participant\InputNormalizer;
 use Entities\User;
+use Exception;
 use Repositories\ParticipantRepository;
+use Traits\LoggerAwareTrait;
 
 class Participant
 {
     use MetaValidationTrait;
+    use LoggerAwareTrait;
 
     /**
      * @var ParticipantRepository
@@ -203,28 +206,17 @@ class Participant
         $meta = $data['meta'] ?? null;
         unset($data['program'], $data['organization'], $data['address'], $data['shipping'], $data['meta'], $data['password_confirm']);
 
-        if (!empty($data['birthdate'])) {
-            $data['birthdate'] = $this->getDate($data['birthdate'])
-                ->format('Y-m-d');
-        } else {
-            $data['birthdate'] = null;
-        }
+        $data['birthdate'] = !empty($data['birthdate'])
+            ? $this->getDate($data['birthdate'])->format('Y-m-d')
+            : null;
 
-        if (isset($data['active']) && $data['active'] != 1) {
-            $data['deactivated_at'] = (new \DateTime)->format('Y-m-d H:i:s');
-        }
+        $data['active'] = isset($data['active']) ? $data['active'] : 1;
 
-        list($status, $data) = $this->repository->hydrateParticipantStatusRequest($data);
-        if ($this->repository->hasValidStatus($status) === false) {
-            $this->repository->setErrors(
-                [
-                    'status' => [
-                        'Status::ILLEGAL_CHARACTERS' => _("The status is not valid, please refer to docs for acceptable types.")
-                    ]
-                ]
-            );
-            return false;
-        }
+        $data = $this->repository->hydrateParticipantStatusRequest($data);
+        $status = $data['status'];
+        unset($data['status']);
+
+        $data['deactivated_at'] = $data['active'] != 1 ? (new \DateTime)->format('Y-m-d H:i:s') : null;
 
         $participant = new \Entities\Participant;
         $participant->exchange($data);
@@ -255,7 +247,7 @@ class Participant
             return false;
         }
 
-        if($this->hasValidMeta($meta) === false) {
+        if ($this->hasValidMeta($meta) === false) {
             return false;
         }
 
@@ -273,6 +265,7 @@ class Participant
             if (empty($meta) === false) {
                 $this->repository->saveMeta($participant->getId(), $meta);
             }
+
             return $this->repository->getParticipant($participant->getUniqueId());
         }
 
@@ -300,38 +293,20 @@ class Participant
             $password = $data['password'];
         }
 
-        if (!empty($data['birthdate'])) {
-            $data['birthdate'] = $this->getDate($data['birthdate'])
-                ->format('Y-m-d');
-        } else {
-            $data['birthdate'] = null;
-        }
+        $data['birthdate'] = !empty($data['birthdate'])
+            ? $this->getDate($data['birthdate'])->format('Y-m-d')
+            : null;
 
-        if (array_key_exists('active', $data) === true) {
-            $statusFlag = (int) $data['active'];
-            if ($statusFlag === 1) {
-                $data['deactivated_at'] = null;
-            } else {
-                $data['deactivated_at'] = (new \DateTime)->format('Y-m-d H:i:s');
-            }
-        }
+        $data['active'] = isset($data['active']) ? $data['active'] : ($participant->isActive() ? 1 : 0);
 
-        list($status, $data) = $this->repository->hydrateParticipantStatusRequest($data);
-        if ($this->repository->hasValidStatus($status) === false) {
-            $this->repository->setErrors(
-                [
-                    'status' => [
-                        'Status::ILLEGAL_CHARACTERS' => _("The status is not valid, please refer to docs for acceptable types.")
-                    ]
-                ]
-            );
-            return false;
-        }
-        $this->repository->saveParticipantStatus($participant, $status);
+        $data = $this->repository->hydrateParticipantStatusRequest($data);
+        $this->repository->saveParticipantStatus($participant, $data['status']);
+
+        $data['deactivated_at'] = (int) $data['active'] === 1 ? null : (new \DateTime)->format('Y-m-d H:i:s');
 
         $address = $data['address'] ?? null;
         $meta = $data['meta'] ?? null;
-        unset($data['program'], $data['organization'], $data['password'], $data['address'], $data['meta'], $data['password_confirm'], $data['unique_id']);
+        unset($data['status'], $data['program'], $data['organization'], $data['password'], $data['address'], $data['meta'], $data['password_confirm'], $data['unique_id']);
 
         $participant->exchange($data);
 
@@ -347,7 +322,7 @@ class Participant
             $data = $this->hydratePassword($data, $participant);
         }
 
-        if($this->hasValidMeta($meta) === false) {
+        if ($this->hasValidMeta($meta) === false) {
             return false;
         }
 
@@ -538,5 +513,37 @@ class Participant
         }
 
         return $data;
+    }
+
+    /**
+     * @param \Entities\Participant $participant
+     * @param string $agentEmailAddress
+     * @return bool
+     */
+    public function removeParticipantPii(\Entities\Participant $participant, string $agentEmailAddress)
+    {
+        try {
+            $statusName = $this->getStatusEnumService()->hydrateStatus(StatusEnum::DATADEL, true);
+            $this->repository->setParticipantTransactionEmailAddressToEmpty($participant->getId());
+            $this->repository->setParticipantAddressPiiToEmpty($participant->getId());
+            $this->repository->setParticipantPiiToEmpty($participant->getId());
+            $participant->setStatus($statusName);
+            $this->repository->saveParticipantStatus($participant, $statusName);
+            $this->repository->logParticipantChange($participant, $agentEmailAddress);
+            $this->repository->setParticipantToInactive($participant->getId());
+            return true;
+        } catch (Exception $exception) {
+            $this->repository->setErrors([$exception->getMessage()]);
+            $this->getLogger()->error(
+                'Participant PII Delete Failure',
+                [
+                    'success' => false,
+                    'action' => 'update',
+                    'uuid' => $participant->getUniqueId(),
+                    'error' => $exception->getMessage()
+                ]
+            );
+            return false;
+        }
     }
 }
