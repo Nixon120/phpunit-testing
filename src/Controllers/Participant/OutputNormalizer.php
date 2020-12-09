@@ -2,22 +2,25 @@
 
 namespace Controllers\Participant;
 
+use AllDigitalRewards\StatusEnum\StatusEnum;
 use AllDigitalRewards\UserAccessLevelEnum\UserAccessLevelEnum;
 use Controllers\AbstractOutputNormalizer;
 use Entities\Address;
 use Entities\TransactionItem;
-use Entities\TransactionProduct;
 use Entities\Participant;
 
 class OutputNormalizer extends AbstractOutputNormalizer
 {
-    private $userAccessLevel = 'ALL';
+    private $userAccessLevel = null;
 
     /**
      * @return mixed
      */
     public function getUserAccessLevel()
     {
+        if ($this->userAccessLevel === null) {
+            $this->userAccessLevel = (new UserAccessLevelEnum())->hydrateLevel(StatusEnum::ACTIVE, true);
+        }
         return $this->userAccessLevel;
     }
 
