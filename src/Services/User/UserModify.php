@@ -2,6 +2,7 @@
 
 namespace Services\User;
 
+use AllDigitalRewards\RewardStack\Services\ReportApiService;
 use AllDigitalRewards\UserAccessLevelEnum\UserAccessLevelEnum;
 use Entities\User;
 
@@ -114,9 +115,8 @@ class UserModify
 
         if ($this->factory->getUserRepository()->validate($user)
             && $this->factory->getUserRepository()->update($user->getId(), $data)) {
-            if ($this->isUserAccessLevelUpdatedToPiiLimit($originalAccessLevel, $user) === true) {
-                //hit report api and delete reports with oldemail
-            }
+            $this->deleteRecurringReportsIfUserAccessLevelUpdatedToPiiLimit($originalAccessLevel, $user, $oldEmail);
+
             return $this->factory->getUserRepository()->getUserById($user->getId());
         }
 
@@ -149,10 +149,18 @@ class UserModify
     /**
      * @param int $originalAccessLevel
      * @param User|null $user
+     * @param $oldEmail
      */
-    private function isUserAccessLevelUpdatedToPiiLimit(int $originalAccessLevel, ?User $user): bool
-    {
-       return $originalAccessLevel !== $user->getAccessLevel()
-           && UserAccessLevelEnum::PII_LIMIT === $user->getAccessLevel();
+    private function deleteRecurringReportsIfUserAccessLevelUpdatedToPiiLimit(
+        int $originalAccessLevel,
+        ?User $user,
+        $oldEmail
+    ) {
+        if (empty($oldEmail) === false
+            && $originalAccessLevel !== $user->getAccessLevel()
+            && UserAccessLevelEnum::PII_LIMIT === $user->getAccessLevel()
+        ) {
+            (new ReportApiService())->removeUserReports($oldEmail);
+        }
     }
 }
