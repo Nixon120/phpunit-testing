@@ -1,6 +1,7 @@
 <?php
 namespace Entities;
 
+use AllDigitalRewards\UserAccessLevelEnum\UserAccessLevelEnum;
 use Entities\Traits\OrganizationTrait;
 use Entities\Traits\StatusTrait;
 use Entities\Traits\TimestampTrait;
@@ -27,7 +28,7 @@ class User extends \Entities\Base
 
     public $role;
 
-    public $access_level = 2;
+    public $access_level = UserAccessLevelEnum::PII_LIMIT;
 
     public $invite_token;
 
