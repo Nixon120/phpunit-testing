@@ -10,17 +10,18 @@ class ReportApiService
 {
     use LoggerAwareTrait;
 
-    private $username;
-    private $password;
     private $token;
 
-    public function __construct()
+    public function __construct(string $token)
     {
-        $this->username = getenv('MPADMIN_USERNAME') ?: 'username';
-        $this->password = getenv('MPADMIN_PASSWORD') ?: 'password';
+        $this->token = $token;
     }
 
-    public function removeUserReports(string $userEmail)
+    /**
+     * @param string $userEmail
+     * @return bool
+     */
+    public function removeUserReports(string $userEmail): bool
     {
         $error = null;
         try {
@@ -59,8 +60,9 @@ class ReportApiService
 
     private function getClient()
     {
+        $baseUri = rtrim(getenv('REPORT_API_URL'), '/');
         return new \GuzzleHttp\Client([
-             'base_uri' => getenv('REPORT_API_URL'),
+             'base_uri' => $baseUri,
              'http_errors' => false,
              'allow_redirects' => false
          ]);

@@ -115,8 +115,11 @@ class UserModify
 
         if ($this->factory->getUserRepository()->validate($user)
             && $this->factory->getUserRepository()->update($user->getId(), $data)) {
-            $this->deleteRecurringReportsIfUserAccessLevelUpdatedToPiiLimit($originalAccessLevel, $user, $oldEmail);
-
+            $this->deleteRecurringReportsIfUserAccessLevelUpdatedToPiiLimit(
+                $originalAccessLevel,
+                $user,
+                $oldEmail
+            );
             return $this->factory->getUserRepository()->getUserById($user->getId());
         }
 
@@ -160,7 +163,8 @@ class UserModify
             && $originalAccessLevel !== $user->getAccessLevel()
             && UserAccessLevelEnum::PII_LIMIT === $user->getAccessLevel()
         ) {
-            (new ReportApiService())->removeUserReports($oldEmail);
+            $token = $this->factory->getAuthenticatedTokenString();
+            (new ReportApiService($token))->removeUserReports($oldEmail);
         }
     }
 }
