@@ -49,9 +49,9 @@ class SftpSingle
         if ($single->getUserId() != $this->factory->getAuthenticatedUser()->getId()) {
             return $this->response->withStatus(403);
         }
-
+        $outputNormalizer = new OutputNormalizer($single);
         $response = $this->response->withStatus(200)
-            ->withJson($single);
+            ->withJson($outputNormalizer->get());
 
         return $response;
     }
