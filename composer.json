@@ -71,6 +71,7 @@
     "box/spout": "^3.0",
     "google/cloud-logging": "^1.18",
     "alldigitalrewards/statusenum": "^1.0",
+    "league/iso3166": "^2.1",
     "ext-gettext": "*"
   },
   "require-dev": {

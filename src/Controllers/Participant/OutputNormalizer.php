@@ -5,7 +5,6 @@ namespace Controllers\Participant;
 use Controllers\AbstractOutputNormalizer;
 use Entities\Address;
 use Entities\TransactionItem;
-use Entities\TransactionProduct;
 use Entities\Participant;
 
 class OutputNormalizer extends AbstractOutputNormalizer
