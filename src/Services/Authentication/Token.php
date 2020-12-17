@@ -101,6 +101,7 @@ class Token
             "sub" => $user->getEmailAddress(),
             "user" => [
                 'id' => $user->getId(),
+                'role' => $user->getRole(),
                 'firstname' => $user->getFirstname(),
                 'lastname' => $user->getLastname()
             ],
