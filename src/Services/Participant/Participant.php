@@ -256,7 +256,7 @@ class Participant
         if ($this->repository->insert($participantArray)) {
             $participant = $this->repository->getParticipant($participant->getUniqueId());
             $this->repository->saveParticipantStatus($participant, $status);
-            $this->repository->logParticipantChange($participant, $agentEmail, true);
+            $this->repository->logParticipantChange($agentEmail, $status, $participant->toArray(), true);
             if ($address !== null) {
                 $participant->setAddress($address);
                 $this->repository->insertAddress($participant->getAddress());
@@ -289,6 +289,8 @@ class Participant
             $data['program_id'] = $program->getId();
             $data['organization_id'] = $program->getOrganizationId();
         }
+
+        $previousParticipantData = $participant->toArray();
         if (!empty($data['password'])) {
             $password = $data['password'];
         }
@@ -297,10 +299,16 @@ class Participant
             ? $this->getDate($data['birthdate'])->format('Y-m-d')
             : null;
 
-        $data['active'] = isset($data['active']) ? $data['active'] : ($participant->isActive() ? 1 : 0);
+        if (isset($data['active']) === false) {
+            $data['active'] = (new StatusEnum())->isActive($participant->getStatus()) ? 1 : 0;
+            if (isset($data['status']) === false) {
+                $data['status'] = (new StatusEnum())->hydrateStatus($participant->getStatus());
+            }
+        }
 
         $data = $this->repository->hydrateParticipantStatusRequest($data);
-        $this->repository->saveParticipantStatus($participant, $data['status']);
+        $status = $data['status'];
+        $this->repository->saveParticipantStatus($participant, $status);
 
         $data['deactivated_at'] = (int) $data['active'] === 1 ? null : (new \DateTime)->format('Y-m-d H:i:s');
 
@@ -330,8 +338,7 @@ class Participant
             if ($meta !== null) {
                 $this->repository->saveMeta($participant->getId(), $meta);
             }
-
-            $this->repository->logParticipantChange($participant, $agentEmailAddress);
+            $this->repository->logParticipantChange($agentEmailAddress, $status, $previousParticipantData);
 
             return $this->repository->getParticipant($participant->getUniqueId());
         }
@@ -524,12 +531,13 @@ class Participant
     {
         try {
             $statusName = $this->getStatusEnumService()->hydrateStatus(StatusEnum::DATADEL, true);
+            $previousParticipantData = $participant->toArray();
             $this->repository->setParticipantTransactionEmailAddressToEmpty($participant->getId());
             $this->repository->setParticipantAddressPiiToEmpty($participant->getId());
             $this->repository->setParticipantPiiToEmpty($participant->getId());
             $participant->setStatus($statusName);
             $this->repository->saveParticipantStatus($participant, $statusName);
-            $this->repository->logParticipantChange($participant, $agentEmailAddress);
+            $this->repository->logParticipantChange($agentEmailAddress, $statusName, $previousParticipantData);
             $this->repository->setParticipantToInactive($participant->getId());
             return true;
         } catch (Exception $exception) {
