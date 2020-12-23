@@ -44,7 +44,6 @@ abstract class AbstractOutputNormalizer implements OutputNormalizer
                 unset($item[$k]);
             }
         }
-
         return $item;
     }
 }
