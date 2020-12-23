@@ -210,7 +210,12 @@ class Participant
             ? $this->getDate($data['birthdate'])->format('Y-m-d')
             : null;
 
-        $data['active'] = isset($data['active']) ? $data['active'] : 1;
+        if (isset($data['active']) === false) {
+            $data['active'] = 1;
+            if (isset($data['status']) === false) {
+                $data['status'] = StatusEnum::ACTIVE;
+            }
+        }
 
         $data = $this->repository->hydrateParticipantStatusRequest($data);
         $status = $data['status'];
@@ -255,8 +260,10 @@ class Participant
         unset($participantArray['status']); //prevent insert error
         if ($this->repository->insert($participantArray)) {
             $participant = $this->repository->getParticipant($participant->getUniqueId());
+            $participantArray = $participant->toArray();//resetting it so Status can be reestablished
+            $participantArray['status'] = (new StatusEnum())->hydrateStatus($status, true);
             $this->repository->saveParticipantStatus($participant, $status);
-            $this->repository->logParticipantChange($agentEmail, $status, $participant->toArray(), true);
+            $this->repository->logParticipantChange($agentEmail, $status, $participantArray, true);
             if ($address !== null) {
                 $participant->setAddress($address);
                 $this->repository->insertAddress($participant->getAddress());
