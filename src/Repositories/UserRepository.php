@@ -1,6 +1,7 @@
 <?php
 namespace Repositories;
 
+use AllDigitalRewards\UserAccessLevelEnum\UserAccessLevelEnum;
 use Entities\Organization;
 use Entities\User;
 use Respect\Validation\Exceptions\NestedValidationException;
@@ -27,7 +28,7 @@ SQL;
 
         return <<<SQL
 SELECT User.id, Organization.unique_id as organization_reference, email_address,
-  firstname, lastname, User.active, User.role, User.updated_at, User.created_at 
+  firstname, lastname, User.active, User.role, User.access_level, User.updated_at, User.created_at 
 FROM User
 LEFT JOIN Organization ON Organization.id = User.organization_id
 {$where}
@@ -122,10 +123,14 @@ SQL;
         return $userAuthContainer;
     }
     
-    public function validate(\Entities\User $user)
+    public function validate(User $user)
     {
         try {
             $this->getValidator($user)->assert((object) $user->toArray());
+            if ((new UserAccessLevelEnum())->isValidLevel($user->getAccessLevel()) === false) {
+                $this->errors[] = "Access Level {$user->getAccessLevel()} is not valid";
+                return false;
+            }
             return true;
         } catch (NestedValidationException$exception) {
             $this->errors = $exception->getMessages();
@@ -136,7 +141,7 @@ SQL;
     /**
      * @return Validator
      */
-    private function getValidator(\Entities\User $user)
+    private function getValidator(User $user)
     {
         $validator = Validator::attribute('role', Validator::notEmpty()->setName('role'))
             ->attribute('email_address', Validator::notEmpty()->email()->setName('email'))

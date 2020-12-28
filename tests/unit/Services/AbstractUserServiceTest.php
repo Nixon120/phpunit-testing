@@ -102,6 +102,7 @@ abstract class AbstractUserServiceTest extends \PHPUnit\Framework\TestCase
             'firstname' => 'John',
             'lastname' => 'Smith',
             'role' => 'superadmin',
+            'access_level' => 1,
             'invite_token' => null,
             'active' => 1,
             'created_at' => '2017-12-06 01:28:09',

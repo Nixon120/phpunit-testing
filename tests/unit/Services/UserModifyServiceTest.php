@@ -43,6 +43,7 @@ class UserModifyServiceTest extends AbstractUserServiceTest
             'firstname' => 'John',
             'lastname' => 'Smith',
             'role' => 'superadmin',
+            'access_level' => 1,
             'invite_token' => null,
             'active' => 1,
             'organization' => 'testorg'
@@ -84,6 +85,7 @@ class UserModifyServiceTest extends AbstractUserServiceTest
             'email_address' => 'john+smith@alldigitalrewards.com',
             'password' => 'password',
             'role' => 'superadmin',
+            'access_level' => 1,
             'active' => 1,
             'organization' => 'testorg'
         ];

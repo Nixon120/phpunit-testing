@@ -2,6 +2,10 @@
 
 namespace Services\User;
 
+use AllDigitalRewards\RewardStack\Services\ReportApiService;
+use AllDigitalRewards\UserAccessLevelEnum\UserAccessLevelEnum;
+use Entities\User;
+
 class UserModify
 {
     /**
@@ -16,7 +20,7 @@ class UserModify
 
     /**
      * @param $data
-     * @return false|\Entities\User
+     * @return false|User
      */
     public function insert($data)
     {
@@ -33,7 +37,7 @@ class UserModify
             unset($data['organization']);
         }
 
-        $user = new \Entities\User;
+        $user = new User;
         $user->exchange($data);
 
         $isUnique = $this
@@ -63,7 +67,7 @@ class UserModify
     /**
      * @param $id
      * @param $data
-     * @return false|\Entities\User
+     * @return false|User
      */
     public function update($id, $data)
     {
@@ -87,6 +91,7 @@ class UserModify
 
         $user = $this->factory->getUserRead()->getById($id);
         $oldEmail = $user->getEmailAddress();
+        $originalAccessLevel = $user->getAccessLevel();
         $user->exchange($data);
 
         $isUnique = $this
@@ -110,13 +115,18 @@ class UserModify
 
         if ($this->factory->getUserRepository()->validate($user)
             && $this->factory->getUserRepository()->update($user->getId(), $data)) {
+            $this->deleteRecurringReportsIfUserAccessLevelUpdatedToPiiLimit(
+                $originalAccessLevel,
+                $user,
+                $oldEmail
+            );
             return $this->factory->getUserRepository()->getUserById($user->getId());
         }
 
         return false;
     }
 
-    private function hydratePassword($data, \Entities\User $user)
+    private function hydratePassword($data, User $user)
     {
         $password = $data['password'];
         unset($data['password']);
@@ -137,5 +147,24 @@ class UserModify
             ->factory
             ->getUserRepository()
             ->getErrors();
+    }
+
+    /**
+     * @param int $originalAccessLevel
+     * @param User|null $user
+     * @param $oldEmail
+     */
+    private function deleteRecurringReportsIfUserAccessLevelUpdatedToPiiLimit(
+        int $originalAccessLevel,
+        ?User $user,
+        $oldEmail
+    ) {
+        if (empty($oldEmail) === false
+            && $originalAccessLevel !== $user->getAccessLevel()
+            && UserAccessLevelEnum::PII_LIMIT === $user->getAccessLevel()
+        ) {
+            $token = $this->factory->getAuthenticatedTokenString();
+            (new ReportApiService($token))->removeUserReports($oldEmail);
+        }
     }
 }
