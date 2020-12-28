@@ -306,12 +306,7 @@ class Participant
             ? $this->getDate($data['birthdate'])->format('Y-m-d')
             : null;
 
-        if (isset($data['active']) === false) {
-            $data['active'] = (new StatusEnum())->isActive($participant->getStatus()) ? 1 : 0;
-            if (isset($data['status']) === false) {
-                $data['status'] = (new StatusEnum())->hydrateStatus($participant->getStatus());
-            }
-        }
+        $data = $this->setParticipantUpdatedStatusInput($data, $participant);
 
         $data = $this->repository->hydrateParticipantStatusRequest($data);
         $status = $data['status'];
@@ -560,5 +555,31 @@ class Participant
             );
             return false;
         }
+    }
+
+    /**
+     * @param $data
+     * @param \Entities\Participant|null $participant
+     * @return mixed
+     * @throws Exception
+     */
+    private function setParticipantUpdatedStatusInput($data, ?\Entities\Participant $participant)
+    {
+        if (isset($data['active']) === false) {
+            //use current Active if not passed in
+            $data['active'] = $participant->isActive() ? 1 : 0;
+            //use current Status if active and status not passed in
+            if (isset($data['status']) === false) {
+                $data['status'] = (new StatusEnum())->hydrateStatus($participant->getStatus());
+            }
+            return $data;
+        }
+
+        //set the status
+        if (isset($data['status']) === false) {
+            $data['status'] = ($data['active'] == 1) ? StatusEnum::ACTIVE : StatusEnum::INACTIVE;
+        }
+
+        return $data;
     }
 }
