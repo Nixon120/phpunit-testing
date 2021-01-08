@@ -135,7 +135,7 @@ class CreateValidTransactionTest extends AbstractAPITestCase
         $this->addPointsToParticipant();
         $this->createTransactionsWithUniqueId();
 
-        $uniqueIds = ['someuniqueidhere1', 'someuniqueidhere2', 'someuniqueidhere3'];
+        $uniqueIds = ['someuniqueidhere1'];
 
         foreach ($uniqueIds as $uniqueId) {
             //lets call each unique id
@@ -147,9 +147,8 @@ class CreateValidTransactionTest extends AbstractAPITestCase
                     'headers' => $this->getHeaders()
                 ]
             );
-            $responseObj = json_decode($response->getBody());
-
-            $this->assertSame($uniqueId, $responseObj[0]->unique_id);
+            $responseObj = json_decode($response->getBody(), true);
+            $this->assertSame($uniqueId, $responseObj[0]['unique_id']);
         }
     }
 
