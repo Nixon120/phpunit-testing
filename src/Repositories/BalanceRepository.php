@@ -8,6 +8,9 @@ use Respect\Validation\Validator;
 
 class BalanceRepository extends BaseRepository
 {
+    const ACCEPTABLE_CREDIT_LIMIT = '10000.00000';
+    const ACCEPTABLE_DEBIT_LIMIT = '9999999.99999';
+
     protected $table = 'Adjustment';
 
     public function getAdjustment(Participant $participant, int $id)
@@ -107,6 +110,14 @@ SQL;
             $oAdjustment = $adjustment->toArray();
             $oAdjustment['amount'] = $amountInCredit;
             $this->getValidator($adjustment)->assert((object) $oAdjustment);
+
+            if ($this->hasAcceptableAmount(
+                $amountInCredit,
+                $adjustment->getType()
+            ) === false) {
+                $this->setAcceptableAmountLimitError($adjustment);
+                return false;
+            }
             return true;
         } catch (NestedValidationException $exception) {
             $this->errors = $exception->getMessages();
@@ -136,5 +147,28 @@ SQL;
         }
 
         return $validator;
+    }
+
+    /**
+     * @param $value
+     * @param string $type
+     * @return bool
+     */
+    private function hasAcceptableAmount($value, string $type): bool
+    {
+        $limit = $type === 'debit' ? self::ACCEPTABLE_DEBIT_LIMIT : self::ACCEPTABLE_CREDIT_LIMIT;
+        $diff = bcsub($limit, $value, 5);
+        return !(floatval($diff) < 0);
+    }
+
+    /**
+     * @param Adjustment $adjustment
+     */
+    private function setAcceptableAmountLimitError(Adjustment $adjustment): void
+    {
+        $acceptableLimit = $adjustment->getType() === 'debit'
+            ? self::ACCEPTABLE_DEBIT_LIMIT
+            : self::ACCEPTABLE_CREDIT_LIMIT;
+        $this->errors[] = 'amount must be less than or equal to ' . $acceptableLimit;
     }
 }
