@@ -101,7 +101,7 @@ SQL;
         return $result;
     }
 
-    public function validate(\Entities\Adjustment $adjustment)
+    public function validate(Adjustment $adjustment): bool
     {
         try {
             //@TODO we have to get products, because products is a private parameter.. this needs
