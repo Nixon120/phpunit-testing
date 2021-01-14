@@ -2,6 +2,7 @@
 
 namespace Controllers\Participant;
 
+use AllDigitalRewards\TransactionSourceEnum\TransactionSourceEnum;
 use Entities\TransactionMeta;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -66,6 +67,9 @@ class Transaction
         if ($participant !== null) {
             $post = $this->request->getParsedBody() ?? [];
             $post['issue_points'] = false;
+            $post['meta'] = [
+                ['TRANSACTION_SOURCE' => 'CUSTOMER_SERVICE']
+            ];
             $offlineRedemptions = $this->service->participantRepository->getOfflineRedemptions(
                 $participant->getProgram()
             );

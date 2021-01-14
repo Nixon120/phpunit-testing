@@ -73,7 +73,8 @@
     "alldigitalrewards/statusenum": "^1.0",
     "alldigitalrewards/useraccesslevelenum": "^0.1.0",
     "league/iso3166": "^2.1",
-    "ext-gettext": "*"
+    "ext-gettext": "*",
+    "alldigitalrewards/transactionsourceenum": "^1.0.0"
   },
   "require-dev": {
     "phpunit/phpunit": "^7.0",
@@ -96,6 +97,10 @@
     "useraccesslevelenum": {
       "type": "vcs",
       "url": "git@bitbucket.org:alldigitalrewards/useraccesslevelenum.git"
+    },
+    "transactionsourceenum": {
+      "type": "vcs",
+      "url": "git@bitbucket.org:alldigitalrewards/transaction-source-enum.git"
     },
     "rap": {
       "type": "vcs",
