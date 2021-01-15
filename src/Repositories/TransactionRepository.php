@@ -392,8 +392,8 @@ SQL;
     {
         $sql = <<<SQL
 SELECT TransactionItem.quantity, TransactionItem.guid, TransactionItem.transaction_id, TransactionProduct.vendor_code as sku, 
- ((TransactionProduct.retail + TransactionProduct.handling + TransactionProduct.shipping) * TransactionItem.quantity) as item_usd_amount,
- ((TransactionProduct.retail + TransactionProduct.handling + TransactionProduct.shipping) * TransactionItem.quantity) * Program.point as item_point_amount
+ ((TransactionProduct.retail + TransactionProduct.handling + TransactionProduct.shipping) * TransactionItem.quantity) as total,
+ ((TransactionProduct.retail + TransactionProduct.handling + TransactionProduct.shipping) * TransactionItem.quantity) * Program.point as points
 FROM `TransactionItem`
 JOIN TransactionProduct ON TransactionProduct.reference_id = TransactionItem.reference_id
 JOIN `Transaction` ON `TransactionItem`.transaction_id = `Transaction`.id
