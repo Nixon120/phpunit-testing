@@ -383,13 +383,22 @@ SQL;
         return null;
     }
 
-
+    /**
+     * This method is used exclusively by the TransactionItemReturn
+     * @param int $id
+     * @return array|null
+     */
     public function getParticipantTransactionItemById(int $id): ?array
     {
         $sql = <<<SQL
-SELECT TransactionItem.quantity, TransactionItem.guid, TransactionItem.transaction_id, TransactionProduct.vendor_code as sku
+SELECT TransactionItem.quantity, TransactionItem.guid, TransactionItem.transaction_id, TransactionProduct.vendor_code as sku, 
+ ((TransactionProduct.retail + TransactionProduct.handling + TransactionProduct.shipping) * TransactionItem.quantity) as item_usd_amount,
+ ((TransactionProduct.retail + TransactionProduct.handling + TransactionProduct.shipping) * TransactionItem.quantity) * Program.point as item_point_amount
 FROM `TransactionItem`
 JOIN TransactionProduct ON TransactionProduct.reference_id = TransactionItem.reference_id
+JOIN `Transaction` ON `TransactionItem`.transaction_id = `Transaction`.id
+JOIN `Participant` ON `Transaction`.participant_id = `Participant`.id
+JOIN `Program` ON `Participant`.program_id = `Program`.id
 WHERE TransactionItem.id = ?
 SQL;
 
