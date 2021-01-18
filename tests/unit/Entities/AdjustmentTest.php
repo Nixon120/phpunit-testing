@@ -20,32 +20,81 @@ class AdjustmentTest extends TestCase
      */
     private $balanceRepo;
 
-    public function testCreditAmountIsValidReturnsFalse()
+    public function testCreditAmountWithProgramPoint1IsValidReturnsFalse()
     {
-        $adjustment = $this->getAdjustment('credit', '10001.00000');
+        $adjustment = $this->getAdjustment('credit', '10000000.00000', 1);
         $this->assertFalse($this->getBalanceRepo()->validate($adjustment));
-        $this->assertSame('amount must be less than or equal to 10000.00000', $this->getBalanceRepo()->getErrors()[0]);
+        $this->assertSame('amount must be less than or equal to 9999999 points', $this->getBalanceRepo()->getErrors()[0]);
     }
 
-    public function testCreditAmountIsValidReturnsTrue()
+    public function testCreditAmountWithProgramPoint1IsValidReturnsTrue()
     {
-        $adjustment = $this->getAdjustment('credit', '10000.00000');
+        $adjustment = $this->getAdjustment('credit', '9999999.00000', 1);
         $this->assertTrue($this->getBalanceRepo()->validate($adjustment));
     }
 
-    public function testDebitAmountIsValidReturnsFalse()
+    public function testCreditAmountWithProgramPoint10IsValidReturnsFalse()
     {
-        $adjustment = $this->getAdjustment('debit', '10000000.00000');
+        $adjustment = $this->getAdjustment('credit', '100000000.00000', 10);
         $this->assertFalse($this->getBalanceRepo()->validate($adjustment));
-        $this->assertSame(
-            'amount must be less than or equal to 9999999.99999',
-            $this->getBalanceRepo()->getErrors()[0]
-        );
+        $this->assertSame('amount must be less than or equal to 99999999 points', $this->getBalanceRepo()->getErrors()[0]);
     }
 
-    public function testDebitAmountIsValidReturnsTrue()
+    public function testCreditAmountWithProgramPoint10IsValidReturnsTrue()
     {
-        $adjustment = $this->getAdjustment('debit', '9999999.99999');
+        $adjustment = $this->getAdjustment('credit', '99999999.00000', 10);
+        $this->assertTrue($this->getBalanceRepo()->validate($adjustment));
+    }
+
+    public function testCreditAmountWithProgramPoint100IsValidReturnsFalse()
+    {
+        $adjustment = $this->getAdjustment('credit', '1000000000.00000', 100);
+        $this->assertFalse($this->getBalanceRepo()->validate($adjustment));
+        $this->assertSame('amount must be less than or equal to 999999999 points', $this->getBalanceRepo()->getErrors()[0]);
+    }
+
+    public function testCreditAmountWithProgramPoint100IsValidReturnsTrue()
+    {
+        $adjustment = $this->getAdjustment('credit', '999999999.00000', 100);
+        $this->assertTrue($this->getBalanceRepo()->validate($adjustment));
+    }
+
+    public function testCreditAmountWithProgramPoint1000IsValidReturnsFalse()
+    {
+        $adjustment = $this->getAdjustment('credit', '10000000000.00000');
+        $this->assertFalse($this->getBalanceRepo()->validate($adjustment));
+        $this->assertSame('amount must be less than or equal to 9999999999 points', $this->getBalanceRepo()->getErrors()[0]);
+    }
+
+    public function testCreditAmountWithProgramPoint1000IsValidReturnsTrue()
+    {
+        $adjustment = $this->getAdjustment('credit', '9999999999.00000');
+        $this->assertTrue($this->getBalanceRepo()->validate($adjustment));
+    }
+
+    public function testCreditAmountWithProgramPoint10000IsValidReturnsFalse()
+    {
+        $adjustment = $this->getAdjustment('credit', '100000000000.00000', 10000);
+        $this->assertFalse($this->getBalanceRepo()->validate($adjustment));
+        $this->assertSame('amount must be less than or equal to 99999999999 points', $this->getBalanceRepo()->getErrors()[0]);
+    }
+
+    public function testCreditAmountWithProgramPoint10000IsValidReturnsTrue()
+    {
+        $adjustment = $this->getAdjustment('credit', '99999999999.00000', 10000);
+        $this->assertTrue($this->getBalanceRepo()->validate($adjustment));
+    }
+
+    public function testCreditAmountWithProgramPoint100000IsValidReturnsFalse()
+    {
+        $adjustment = $this->getAdjustment('credit', '1000000000000.00000', 100000);
+        $this->assertFalse($this->getBalanceRepo()->validate($adjustment));
+        $this->assertSame('amount must be less than or equal to 999999999999 points', $this->getBalanceRepo()->getErrors()[0]);
+    }
+
+    public function testCreditAmountWithProgramPoint100000IsValidReturnsTrue()
+    {
+        $adjustment = $this->getAdjustment('credit', '999999999999.00000', 100000);
         $this->assertTrue($this->getBalanceRepo()->validate($adjustment));
     }
 
@@ -71,19 +120,19 @@ class AdjustmentTest extends TestCase
         return $this->mockPdo;
     }
 
-    private function getParticipantProgramEntity()
+    private function getParticipantProgramEntity(int $pointAmount): Program
     {
-        return new Program($this->getMockProgramRow());
+        return new Program($this->getMockProgramRow($pointAmount));
     }
 
-    private function getMockProgramRow(): array
+    private function getMockProgramRow(int $pointAmount): array
     {
         return [
             'id' => 1,
             'organization_id' => 1,
             'name' => 'Program Test',
             'role' => null,
-            'point' => 1000,
+            'point' => $pointAmount,
             'address1' => null, //@TODO migration to drop
             'address2' => null, //@TODO migration to drop
             'city' => null, //@TODO migration to drop
@@ -108,15 +157,16 @@ class AdjustmentTest extends TestCase
     /**
      * @param string $type
      * @param string $amount
+     * @param int $pointAmount
      * @return Adjustment
      */
-    private function getAdjustment(string $type, string $amount): Adjustment
+    private function getAdjustment(string $type, string $amount, int $pointAmount = 1000): Adjustment
     {
         $participant = new Participant();
         $participant->setId(1);
         $participant->setUniqueId('Test');
         $participant->setCredit('99999999.00000');
-        $participant->setProgram($this->getParticipantProgramEntity());
+        $participant->setProgram($this->getParticipantProgramEntity($pointAmount));
         $adjustment = new Adjustment($participant);
         $adjustment->setAmount($amount);
         $adjustment->setType($type);

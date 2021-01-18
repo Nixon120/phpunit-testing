@@ -108,8 +108,10 @@ SQL;
             $oAdjustment['amount'] = $amountInCredit;
             $this->getValidator($adjustment)->assert((object) $oAdjustment);
 
-            if ($adjustment->hasAcceptableAmount() === false) {
-                $this->setAcceptableAmountLimitError($adjustment);
+            if ($adjustment->hasAcceptableAmount($oAdjustment['amount']) === false) {
+                $this->errors[] = 'amount must be less than or equal to '
+                    . $adjustment->acceptableAmountThresholdForProgram()
+                    . ' points';
                 return false;
             }
             return true;
@@ -141,16 +143,5 @@ SQL;
         }
 
         return $validator;
-    }
-
-    /**
-     * @param Adjustment $adjustment
-     */
-    private function setAcceptableAmountLimitError(Adjustment $adjustment): void
-    {
-        $acceptableLimit = $adjustment->getType() === 'debit'
-            ? $adjustment::ACCEPTABLE_DEBIT_LIMIT
-            : $adjustment::ACCEPTABLE_CREDIT_LIMIT;
-        $this->errors[] = 'amount must be less than or equal to ' . $acceptableLimit;
     }
 }

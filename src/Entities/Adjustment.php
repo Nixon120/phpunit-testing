@@ -8,8 +8,7 @@ class Adjustment extends Base
 {
     use TimestampTrait;
     use StatusTrait;
-    const ACCEPTABLE_CREDIT_LIMIT = '10000.00000';
-    const ACCEPTABLE_DEBIT_LIMIT = '9999999.99999';
+    const ACCEPTABLE_LIMIT = '9999999.99999';
 
     public $participant_id;
 
@@ -232,21 +231,31 @@ class Adjustment extends Base
     }
 
     /**
+     * @return string
+     */
+    public function acceptableAmountThresholdForProgram(): string
+    {
+        $point = $this->getParticipant()->getProgram()->getPoint();
+        return bcmul(self::ACCEPTABLE_LIMIT, $point);
+    }
+
+    /**
+     * @param string $amount
      * @return bool
      */
-    public function hasAcceptableAmount(): bool
+    public function hasAcceptableAmount(string $amount): bool
     {
-        $limit = $this->getType() === 'debit' ? self::ACCEPTABLE_DEBIT_LIMIT : self::ACCEPTABLE_CREDIT_LIMIT;
-        $diff = bcsub($limit, $this->getUsdAmount(), 5);
+        $diff = bcsub(self::ACCEPTABLE_LIMIT, $this->getUsdAmount($amount), 5);
         return !(floatval($diff) < 0);
     }
 
     /**
+     * @param string $amount
      * @return string|null
      */
-    private function getUsdAmount(): ?string
+    private function getUsdAmount(string $amount): ?string
     {
         $point = $this->getParticipant()->getProgram()->getPoint();
-        return bcdiv($this->getAmount(), $point, 5);
+        return bcdiv($amount, $point, 5);
     }
 }
