@@ -3,6 +3,7 @@
 namespace Services\Scheduler\Tasks;
 
 use AllDigitalRewards\Services\Catalog\Entity\Product;
+use AllDigitalRewards\TransactionSourceEnum\TransactionSourceEnum;
 use Entities\OneTimeAutoRedemption;
 use Entities\Participant;
 use Entities\Program;
@@ -317,6 +318,9 @@ class OneTimeScheduledRedemption extends ScheduledTask
             ];
         }
 
+        $return['meta'] = [
+            ['TRANSACTION_SOURCE' => (new TransactionSourceEnum())::AUTO_REDEMPTION]
+        ];
         return $return;
     }
 
