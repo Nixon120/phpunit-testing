@@ -3,6 +3,7 @@
 namespace Services\Scheduler\Tasks;
 
 use AllDigitalRewards\Services\Catalog\Entity\Product;
+use AllDigitalRewards\TransactionSourceEnum\TransactionSourceEnum;
 use Entities\AutoRedemption;
 use Entities\Participant;
 use Entities\Program;
@@ -327,7 +328,9 @@ class ScheduledRedemption extends ScheduledTask
                 'zip' => $participant->getAddress()->getZip()
             ];
         }
-
+        $return['meta'] = [
+            ['TRANSACTION_SOURCE' => (new TransactionSourceEnum())::AUTO_REDEMPTION]
+        ];
         return $return;
     }
 
