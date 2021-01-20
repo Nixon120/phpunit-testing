@@ -83,6 +83,7 @@ SQL;
     public function updateParticipantCredit(Adjustment $adjustment)
     {
         $participant = $adjustment->getParticipant();
+        var_dump('updateParticipantCredit: ' . $adjustment->getAmount());
         switch ($adjustment->getType()) {
             case 'debit':
                 $participant->subtractCredit($adjustment->getAmount());
@@ -107,8 +108,7 @@ SQL;
             $oAdjustment = $adjustment->toArray();
             $oAdjustment['amount'] = $amountInCredit;
             $this->getValidator($adjustment)->assert((object) $oAdjustment);
-
-            if ($adjustment->hasAcceptableAmount($oAdjustment['amount']) === false) {
+            if ($adjustment->hasAcceptableAmount() === false) {
                 $this->errors[] = 'amount must be less than or equal to '
                     . $adjustment->acceptableAmountThresholdForProgram()
                     . ' points';
@@ -128,7 +128,6 @@ SQL;
     private function getValidator(Adjustment $adjustment)
     {
         $credit = $adjustment->getParticipant()->getCredit();
-
         $validator = Validator::attribute('participant_id', Validator::notEmpty()->numeric()->setName('Participant'))
             ->attribute('type', Validator::notEmpty()->numeric()->length(1, 1))
             ->attribute('reference', Validator::optional(Validator::notEmpty()))

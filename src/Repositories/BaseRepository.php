@@ -147,6 +147,8 @@ SQL;
 
     public function insert(array $data, $unique = false)
     {
+        var_dump('adjustmentInsert: ' . $data['amount']);
+
         $sql = $this->generateInsertSQL($data);
         $params = $this->generateInsertParameters($data);
 

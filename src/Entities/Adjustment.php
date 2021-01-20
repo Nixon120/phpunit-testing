@@ -240,22 +240,11 @@ class Adjustment extends Base
     }
 
     /**
-     * @param string $amount
      * @return bool
      */
-    public function hasAcceptableAmount(string $amount): bool
+    public function hasAcceptableAmount(): bool
     {
-        $diff = bcsub(self::ACCEPTABLE_LIMIT, $this->getUsdAmount($amount), 5);
+        $diff = bcsub(self::ACCEPTABLE_LIMIT, $this->getAmount(), 5);
         return !(floatval($diff) < 0);
-    }
-
-    /**
-     * @param string $amount
-     * @return string|null
-     */
-    private function getUsdAmount(string $amount): ?string
-    {
-        $point = $this->getParticipant()->getProgram()->getPoint();
-        return bcdiv($amount, $point, 5);
     }
 }
