@@ -4,6 +4,7 @@ namespace Services\User;
 
 use AllDigitalRewards\RewardStack\Services\ReportApiService;
 use AllDigitalRewards\UserAccessLevelEnum\UserAccessLevelEnum;
+use DateTime;
 use Entities\User;
 
 class UserModify
@@ -133,6 +134,8 @@ class UserModify
         if (!password_verify($password, $user->getPassword()) && $password !== "") {
             $user->setPassword($password);
             $data['password'] = $user->getPassword();
+            //UI is checking and forcing an update as well
+            $data['password_updated_at'] = new DateTime();
         } else {
             // We're going to ignore this on update
             $this->factory->getUserRepository()->setSkip(['password']);
