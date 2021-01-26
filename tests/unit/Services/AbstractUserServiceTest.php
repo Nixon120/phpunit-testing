@@ -104,6 +104,7 @@ abstract class AbstractUserServiceTest extends \PHPUnit\Framework\TestCase
             'role' => 'superadmin',
             'access_level' => 1,
             'invite_token' => null,
+            'password_updated_at' => null,
             'active' => 1,
             'created_at' => '2017-12-06 01:28:09',
             'updated_at' => null,

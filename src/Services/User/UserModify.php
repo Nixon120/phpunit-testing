@@ -135,18 +135,77 @@ class UserModify
     public function patch($id, $data)
     {
         $user = $this->factory->getUserRead()->getById($id);
+        $oldEmail = $user->getEmailAddress();
+        $originalAccessLevel = $user->getAccessLevel();
 
         if (!$user instanceof User) {
             $this->factory->getUserRepository()->setErrors(
                 [
-                    'Password and password confirmation did not match'
+                    'Resource does not exist'
                 ]
             );
             return false;
         }
 
-        //If confirm is present we assume its a password update from UI
-        if (!empty($data['password'])) {
+        if (empty($data['organization']) === false) {
+            $organization = $this
+                ->factory
+                ->getUserRepository()
+                ->getUserOrganization(
+                    $data['organization'],
+                    true
+                );
+
+            $data['organization_id'] = $organization->getId();
+        }
+
+        if (isset($data['active'])) {
+            $active = $data['active'] == 1 ? 1 : 0;
+            $user->setActive($active);
+        }
+
+        if (empty($data['firstname']) === false) {
+            $user->setFirstname($data['firstname']);
+        }
+
+        if (empty($data['lastname']) === false) {
+            $user->setFirstname($data['lastname']);
+        }
+
+        if (empty($data['role']) === false) {
+            $user->setRole($data['role']);
+        }
+
+        if (empty($data['access_level']) === false) {
+            if ((new UserAccessLevelEnum())->isValidLevel($data['access_level']) === false) {
+                $this->factory->getUserRepository()->setErrors(
+                    [
+                        'User access level value is invalid, please refer to documentation for acceptable values.'
+                    ]
+                );
+                return false;
+            }
+            $user->setAccessLevel($data['access_level']);
+        }
+
+        if (empty($data['email_address']) === false) {
+            $newEmail = $data['email_address'];
+            $isUnique = $this
+                ->factory
+                ->getUserRepository()
+                ->isUserEmailUnique($newEmail);
+            if ($oldEmail !== $newEmail && $isUnique === false) {
+                // unique_id has already been assigned to another Organization.
+                $this->factory->getUserRepository()->setErrors(
+                    [
+                        'The email ' . $newEmail . ' is already assigned to another user.'
+                    ]
+                );
+                return false;
+            }
+        }
+
+        if (empty($data['password']) === false) {
             $password = $data['password'];
             if (password_verify($password, $user->getPassword())) {
                 $this->factory->getUserRepository()->setErrors(
@@ -157,17 +216,28 @@ class UserModify
                 return false;
             }
             $user->setPassword($password);
-            $input['password_updated_at'] = (new DateTime())->format('Y-m-d H:i:s');
-            $input['password'] = $user->getPassword();
-            if ($this->factory->getUserRepository()->validate($user)
-                && $this->factory->getUserRepository()->update($user->getId(), $input)) {
-                return $this->factory->getUserRepository()->getUserById($user->getId());
-            }
+            $data['password_updated_at'] = (new DateTime())->format('Y-m-d H:i:s');
+            $user->setPasswordUpdatedAt($data['password_updated_at']);
+            $password = $user->getPassword();
+        }
+        unset($data['organization'], $data['password']);
 
-            return false;
+        $user->exchange($data);
+        if (empty($password) === false) {
+            $data['password'] = $password;
         }
 
-        return $this->factory->getUserRepository()->getUserById($user->getId());
+        if ($this->factory->getUserRepository()->validate($user)
+            && $this->factory->getUserRepository()->update($user->getId(), $data)) {
+            $this->deleteRecurringReportsIfUserAccessLevelUpdatedToPiiLimit(
+                $originalAccessLevel,
+                $user,
+                $oldEmail
+            );
+            return $this->factory->getUserRepository()->getUserById($user->getId());
+        }
+
+        return false;
     }
 
     private function hydratePassword($data, User $user)
@@ -177,7 +247,6 @@ class UserModify
         if (!password_verify($password, $user->getPassword()) && $password !== "") {
             $user->setPassword($password);
             $data['password'] = $user->getPassword();
-            //UI is checking and forcing an update as well
             $data['password_updated_at'] = (new DateTime())->format('Y-m-d H:i:s');
         } else {
             // We're going to ignore this on update
