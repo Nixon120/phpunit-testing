@@ -36,7 +36,7 @@ class User extends \Entities\Base
 
     private $programOwnershipIdentificationCollection = [];
 
-    private $password_updated_at;
+    public $password_updated_at;
 
     public function __construct(array $data = null)
     {
