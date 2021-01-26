@@ -56,6 +56,8 @@ class UserModify
             return false;
         }
 
+        $user->setPasswordUpdatedAt((new DateTime())->format('Y-m-d H:i:s'));
+
         if ($this->factory->getUserRepository()->validate($user)
             && $this->factory->getUserRepository()->insert($user->toArray())) {
             $userId = $this->factory->getUserRepository()->getLastInsertId();
