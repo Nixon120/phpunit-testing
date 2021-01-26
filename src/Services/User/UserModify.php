@@ -127,6 +127,49 @@ class UserModify
         return false;
     }
 
+    /**
+     * @param $id
+     * @param $data
+     * @return false|User
+     */
+    public function patch($id, $data)
+    {
+        $user = $this->factory->getUserRead()->getById($id);
+
+        if (!$user instanceof User) {
+            $this->factory->getUserRepository()->setErrors(
+                [
+                    'Password and password confirmation did not match'
+                ]
+            );
+            return false;
+        }
+
+        //If confirm is present we assume its a password update from UI
+        if (!empty($data['password'])) {
+            $password = $data['password'];
+            if (password_verify($password, $user->getPassword())) {
+                $this->factory->getUserRepository()->setErrors(
+                    [
+                        'New password must be different than current password'
+                    ]
+                );
+                return false;
+            }
+            $user->setPassword($password);
+            $input['password_updated_at'] = (new DateTime())->format('Y-m-d H:i:s');
+            $input['password'] = $user->getPassword();
+            if ($this->factory->getUserRepository()->validate($user)
+                && $this->factory->getUserRepository()->update($user->getId(), $input)) {
+                return $this->factory->getUserRepository()->getUserById($user->getId());
+            }
+
+            return false;
+        }
+
+        return $this->factory->getUserRepository()->getUserById($user->getId());
+    }
+
     private function hydratePassword($data, User $user)
     {
         $password = $data['password'];
