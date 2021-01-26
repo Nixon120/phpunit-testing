@@ -105,6 +105,7 @@ class Token
                 'role' => $user->getRole(),
                 'firstname' => $user->getFirstname(),
                 'lastname' => $user->getLastname(),
+                'password_updated_at' => $user->getPasswordUpdatedAt(),
                 'access_level' => (new UserAccessLevelEnum())->hydrateLevel($user->getAccessLevel(), true)
             ],
             "scope" => $this->getRequestedScopes()
