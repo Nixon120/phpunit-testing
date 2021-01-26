@@ -56,7 +56,9 @@ class TransactionItemReturnWebhookListener extends AbstractListener
 
         try {
             $return = $this->getTransactionItemReturn();
-            $transaction = $this->transactionService->getTransactionRepository()->getTransaction($return->getTransactionId());
+            $transaction = $this->transactionService->getTransactionRepository()->getTransaction(
+                $return->getTransactionId()
+            );
             $participant = $this->getParticipant($transaction->getParticipantId());
             $organization = $participant->getOrganization();
 
@@ -80,7 +82,7 @@ class TransactionItemReturnWebhookListener extends AbstractListener
             foreach ($webhooks as $webhook) {
                 $this->executeWebhook($webhook, $return);
             }
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             exit(1);
         }
 
