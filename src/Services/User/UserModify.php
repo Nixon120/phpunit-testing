@@ -135,7 +135,7 @@ class UserModify
             $user->setPassword($password);
             $data['password'] = $user->getPassword();
             //UI is checking and forcing an update as well
-            $data['password_updated_at'] = new DateTime();
+            $data['password_updated_at'] = (new DateTime())->format('Y-m-d H:i:s');
         } else {
             // We're going to ignore this on update
             $this->factory->getUserRepository()->setSkip(['password']);
