@@ -46,7 +46,6 @@ class ApiLogin
         $this->request = $request;
         $this->response = $response;
         $this->args = $args;
-
         $this->auth->setResponse($this->response);
         $this->auth->setRequest($this->request);
         $post = $this->request->getParsedBody();
