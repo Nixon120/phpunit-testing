@@ -49,7 +49,6 @@ class ApiLogin
 
         $this->auth->setResponse($this->response);
         $this->auth->setRequest($this->request);
-
         $post = $this->request->getParsedBody();
 
         //@TODO validation will solve if post isn't set
