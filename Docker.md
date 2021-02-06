@@ -34,6 +34,9 @@ To create a migration:
 ```bash
 ./dev exec bash
 ./vendor/bin/phinx create MigrationNameGoesHere
+
+run the migration
+./vendor/bin/phinx migrate migrate
 ```
 
 ### Tests

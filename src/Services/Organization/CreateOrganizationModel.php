@@ -2,18 +2,25 @@
 
 namespace Services\Organization;
 
+use AllDigitalRewards\IndustryProgramEnum\IndustryProgramEnum;
 use Entities\Contact;
 use Entities\Event;
+use Entities\Organization;
 
 class CreateOrganizationModel extends AbstractOrganizationModel
 {
     /**
      * @param $data
-     * @return bool|\Entities\Organization
+     * @return bool|Organization
      */
     public function insert($data)
     {
-        $this->organization = new \Entities\Organization;
+        $this->organization = new Organization;
+
+        $industryProgram = $data['industry_program'] ?? null;
+        if (empty($industryProgram) === false) {
+            $data['industry_program'] = (new IndustryProgramEnum())->hydrate($industryProgram);
+        }
 
         $this->buildEntities($data);
 
