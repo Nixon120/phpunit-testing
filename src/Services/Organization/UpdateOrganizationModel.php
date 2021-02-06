@@ -2,7 +2,6 @@
 
 namespace Services\Organization;
 
-use AllDigitalRewards\IndustryProgramEnum\IndustryProgramEnum;
 use Controllers\Interfaces as Interfaces;
 use Entities\Contact;
 use Entities\Event;
@@ -57,11 +56,6 @@ class UpdateOrganizationModel extends AbstractOrganizationModel
         $this->organization = $this->getSingle($id);
 
         unset($data['parent'], $data['unique_id']);
-
-        $industryProgram = $data['industry_program'] ?? $this->organization->getIndustryProgram();
-        if (empty($industryProgram) === false) {
-            $data['industry_program'] = (new IndustryProgramEnum())->hydrate($industryProgram);
-        }
 
         // Hydrate Entities with new data.
         $this->buildEntities($data);
