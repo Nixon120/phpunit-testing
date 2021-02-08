@@ -57,6 +57,17 @@ class UpdateOrganizationModel extends AbstractOrganizationModel
 
         unset($data['parent'], $data['unique_id']);
 
+        if (empty($data['industry_program']) === true && empty($this->organization->getIndustryProgram()) === false) {
+            //once set, cannot set back to null so throw error
+            $this->errors = [
+                'industry_program' => [
+                    'Match::DOES_NOT_MATCH' => _("The industry program is not valid, please refer to docs for acceptable types.")
+                ]
+            ];
+
+            return false;
+        }
+
         // Hydrate Entities with new data.
         $this->buildEntities($data);
         if ($this->isOrganizationParentNestedLocally()) {
