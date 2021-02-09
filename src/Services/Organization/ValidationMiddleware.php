@@ -1,12 +1,16 @@
 <?php
 namespace Services\Organization;
 
+use AllDigitalRewards\IndustryProgramEnum\IndustryProgramEnum;
+use AllDigitalRewards\StatusEnum\StatusEnum;
+use Particle\Validator\Exception\InvalidValueException;
 use Particle\Validator\Rule\Email;
 use Particle\Validator\Rule\LengthBetween;
 use Particle\Validator\Rule\NotEmpty;
 use Particle\Validator\Rule\Regex;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use ReflectionException;
 use Services\Authentication\Authenticate;
 use Slim\Http\Request;
 use Slim\Http\Response;
@@ -85,14 +89,14 @@ class ValidationMiddleware
         return $next($this->request, $this->response);
     }
 
-    private function validate()
+    private function validate(): bool
     {
         if ($this->auth->getUser() !== null) {
             $context = $this->auth->getUser()->getRole();
             $update = isset($this->input['id']);
         } else {
             $context = 'api';
-            $update = $this->request->getMethod() === 'PUT' ? true : false;
+            $update = $this->request->getMethod() === 'PUT';
         }
 
         if ($update === true) {
@@ -250,6 +254,23 @@ class ValidationMiddleware
         $this->setConfigsAdminUpdateContext();
     }
 
+    /**
+     * @param $context
+     * @throws InvalidValueException|ReflectionException
+     */
+    private function isIndustryProgramValidValueIfSet($context)
+    {
+        $context->optional('industry_program')->callback(function ($value, $values) {
+            if ((new IndustryProgramEnum())->isValid($value) === false) {
+                throw new InvalidValueException(
+                    "The industry program is not valid, please refer to docs for acceptable types.",
+                    'Match::DOES_NOT_MATCH'
+                );
+            }
+            return true;
+        });
+    }
+
     private function setApiUpdateContext()
     {
         $this->validator->context('api', function (InputValidator $context) {
@@ -274,6 +295,7 @@ class ValidationMiddleware
             $context->optional('accounts_payable_contact.state')->allowEmpty(false)->lengthBetween(1, 3);
             $context->optional('accounts_payable_contact.zip')->allowEmpty(false)->usPostalCode();
 
+            $this->isIndustryProgramValidValueIfSet($context);
             $context->optional('domains')->eachIndex(function (InputValidator $context) {
                 $context->required('index')
                     ->regex('/^[a-zA-Z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/');
@@ -311,6 +333,7 @@ class ValidationMiddleware
             $context->optional('accounts_payable_contact.state')->allowEmpty(false)->lengthBetween(1, 3);
             $context->optional('accounts_payable_contact.zip')->allowEmpty(false)->usPostalCode();
 
+            $this->isIndustryProgramValidValueIfSet($context);
             $context->optional('domains')->eachIndex(function (InputValidator $context) {
                 $context->required('index')
                     ->regex('/^[a-zA-Z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/');
@@ -347,6 +370,7 @@ class ValidationMiddleware
             $context->optional('accounts_payable_contact.state')->allowEmpty(false)->lengthBetween(1, 3);
             $context->optional('accounts_payable_contact.zip')->allowEmpty(false)->usPostalCode();
             $context->optional('url')->allowEmpty(false)->url();
+            $this->isIndustryProgramValidValueIfSet($context);
         });
     }
 
@@ -379,20 +403,19 @@ class ValidationMiddleware
             $context->optional('accounts_payable_contact.state')->allowEmpty(false)->lengthBetween(1, 3);
             $context->optional('accounts_payable_contact.zip')->allowEmpty(false)->usPostalCode();
             $context->optional('url')->allowEmpty(false)->url();
+            $this->isIndustryProgramValidValueIfSet($context);
         });
     }
 
-    private function setErrorMessages(array $errors)
+    private function setErrorMessages(array $errors): array
     {
-        $return = [
+        return [
             'message' => _('Validation Failed'),
             'errors' => $this->getFormattedErrorMessages($errors)
         ];
-
-        return $return;
     }
 
-    private function getFormattedErrorMessages(array $errorMessages)
+    private function getFormattedErrorMessages(array $errorMessages): array
     {
         $return = [];
         foreach ($errorMessages as $key => $errors) {
