@@ -89,6 +89,14 @@ class JsonView extends AbstractViewController
         return $response;
     }
 
+    public function getProgramAdjustmentsCount(string $id)
+    {
+        $adjustmentsCount = $this->service->getAdjustmentsCount($id);
+
+        return $this->response->withStatus(200)
+            ->withJson($adjustmentsCount);
+    }
+
     public function saveProductCriteria($programId)
     {
         $repository = $this->factory->getProgramRepository();

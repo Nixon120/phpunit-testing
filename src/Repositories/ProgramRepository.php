@@ -131,6 +131,20 @@ SQL;
         return $sth->fetchColumn(0);
     }
 
+    public function getProgramAdjustmentsCount(string $programId)
+    {
+        $sql = <<<SQL
+SELECT count(`adjustment`.`id`) as `adjustment_count` 
+FROM `adjustment`
+JOIN `Participant` ON `Participant`.`id` = `Adjustment`.`participant_id`
+JOIN `Program` on `Program`.`id` = `participant`.`program_id`
+WHERE `program`.`unique_id` = ?; 
+SQL;
+        $query = $this->getDatabase()->prepare($sql);
+        $query->execute([$programId]);
+        return $query->fetch();
+    }
+
     public function getCreditAdjustmentsByMeta($input)
     {
         $page = $input['page'] ?? 1;
