@@ -392,7 +392,7 @@ SQL;
     public function getParticipantTransactionItem($id, string $transactionItemIdentifier): ?array
     {
         $sql = <<<SQL
-SELECT TransactionItem.id as item_id, TransactionItem.quantity, TransactionItem.guid, TransactionItem.transaction_id, TransactionProduct.vendor_code as sku, 
+SELECT TransactionItem.id, TransactionItem.quantity, TransactionItem.guid, TransactionItem.transaction_id, TransactionProduct.vendor_code as sku, 
  ((TransactionProduct.retail + TransactionProduct.handling + TransactionProduct.shipping) * TransactionItem.quantity) as total,
  ((TransactionProduct.retail + TransactionProduct.handling + TransactionProduct.shipping) * TransactionItem.quantity) * Program.point as points,
  TransactionProduct.name as name
