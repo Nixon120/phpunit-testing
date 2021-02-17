@@ -49,7 +49,8 @@ class JsonView extends AbstractViewController
         return $this->response->withStatus(200)
             ->withJson([
                 'participant_total' => $this->service->repository->getParticiantTotal($program->id),
-                'transaction_total' => $this->service->repository->getTransactionTotal($program->id)
+                'transaction_total' => $this->service->repository->getTransactionTotal($program->id),
+                'adjustment_total' => $this->service->repository->getProgramAdjustmentsCount($program->id)
             ]);
     }
 
@@ -87,14 +88,6 @@ class JsonView extends AbstractViewController
             ->withJson($adjustments);
 
         return $response;
-    }
-
-    public function getProgramAdjustmentsCount(string $id)
-    {
-        $adjustmentsCount = $this->service->getAdjustmentsCount($id);
-
-        return $this->response->withStatus(200)
-            ->withJson($adjustmentsCount);
     }
 
     public function saveProductCriteria($programId)

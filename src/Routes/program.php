@@ -32,12 +32,6 @@ $app->group('/api/program', function () use ($app) {
         return $program->listCreditAdjustmentsByMeta($programId);
     });
 
-    $app->get('/{id}/adjustments_count', function ($request, $response, $args) {
-        $program = new Controllers\JsonView($request, $response, $this->get('program'));
-        $programId = $args['id'];
-        return $program->getProgramAdjustmentsCount($programId);
-    });
-
     $app->map(['post', 'get'], '/{id}/layout', function ($request, $response, $args) {
         $program = new Controllers\JsonView($request, $response, $this->get('program'));
         $programId = $args['id'];

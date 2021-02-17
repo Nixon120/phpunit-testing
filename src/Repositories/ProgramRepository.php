@@ -138,11 +138,11 @@ SELECT count(`adjustment`.`id`) as `adjustment_count`
 FROM `adjustment`
 JOIN `Participant` ON `Participant`.`id` = `Adjustment`.`participant_id`
 JOIN `Program` on `Program`.`id` = `participant`.`program_id`
-WHERE `program`.`unique_id` = ?; 
+WHERE `program`.`id` = ?;
 SQL;
         $query = $this->getDatabase()->prepare($sql);
         $query->execute([$programId]);
-        return $query->fetch();
+        return $query->fetch()['adjustment_count'];
     }
 
     public function getCreditAdjustmentsByMeta($input)
