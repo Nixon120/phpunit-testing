@@ -58,11 +58,6 @@ class Program
         return $this->repository->getCreditAdjustmentsByMeta($input);
     }
 
-    public function getAdjustmentsCount(string $input)
-    {
-        return $this->repository->getProgramAdjustmentsCount($input);
-    }
-
     public function get(Interfaces\InputNormalizer $input)
     {
         $filter = new FilterNormalizer($input->getInput());
