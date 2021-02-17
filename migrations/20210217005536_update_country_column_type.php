@@ -15,7 +15,7 @@ SQL;
 
         $sql = <<<SQL
 ALTER TABLE address 
-MODIFY `state` VARCHAR(3)
+MODIFY `state` VARCHAR(255)
 SQL;
         $this->execute($sql);
     }
