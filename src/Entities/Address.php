@@ -24,7 +24,7 @@ class Address extends Base
 
     public $zip;
 
-    public $country = 840;
+    public $country = '840';
 
     public $country_code = 'US';
 
