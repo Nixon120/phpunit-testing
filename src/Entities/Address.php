@@ -3,7 +3,6 @@ namespace Entities;
 
 use AllDigitalRewards\RewardStack\Services\Participant\CountryDataHydration;
 use Entities\Traits\ReferenceTrait;
-use League\ISO3166\ISO3166;
 
 class Address extends Base
 {
