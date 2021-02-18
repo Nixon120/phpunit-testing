@@ -609,7 +609,7 @@ SQL;
             ->attribute('address1', Validator::notEmpty()->stringType()->setName('Address'))
             ->attribute('city', Validator::notEmpty()->stringType()->setName('City'))
             ->attribute('state', Validator::oneOf(
-                Validator::length(2, 3)->stringType(),
+                Validator::length(2, 255)->stringType(),
                 Validator::nullType()
             )->setName('State'))
             ->attribute('zip', Validator::notEmpty()->length(1, 255)->alnum('- ')->setName('Zipcode'));
