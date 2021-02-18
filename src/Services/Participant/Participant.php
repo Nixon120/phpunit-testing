@@ -6,6 +6,7 @@ use AllDigitalRewards\RewardStack\Traits\MetaValidationTrait;
 use AllDigitalRewards\StatusEnum\StatusEnum;
 use Controllers\Interfaces as Interfaces;
 use Controllers\Participant\InputNormalizer;
+use Entities\Address;
 use Entities\User;
 use Exception;
 use Repositories\ParticipantRepository;
@@ -592,9 +593,10 @@ class Participant
      */
     private function getUpdatedParticipantCountry($address, ?\Entities\Participant $participant): string
     {
+        $currentAddress = $participant->getAddress() ?? new Address();
         $address['country'] = empty($address['country']) === false
             ? $address['country']
-            : $participant->getAddress()->getCountry();
+            : $currentAddress->getCountry();
         return $address['country'];
     }
 }
