@@ -6,6 +6,7 @@ use AllDigitalRewards\RewardStack\Traits\MetaValidationTrait;
 use AllDigitalRewards\StatusEnum\StatusEnum;
 use Controllers\Interfaces as Interfaces;
 use Controllers\Participant\InputNormalizer;
+use Entities\Address;
 use Entities\User;
 use Exception;
 use Repositories\ParticipantRepository;
@@ -315,6 +316,8 @@ class Participant
         $data['deactivated_at'] = (int) $data['active'] === 1 ? null : (new \DateTime)->format('Y-m-d H:i:s');
 
         $address = $data['address'] ?? null;
+        $address['country'] = $this->getUpdatedParticipantCountry($address, $participant);
+
         $meta = $data['meta'] ?? null;
         unset($data['status'], $data['program'], $data['organization'], $data['password'], $data['address'], $data['meta'], $data['password_confirm'], $data['unique_id']);
 
@@ -581,5 +584,19 @@ class Participant
         }
 
         return $data;
+    }
+
+    /**
+     * @param $address
+     * @param \Entities\Participant|null $participant
+     * @return string
+     */
+    private function getUpdatedParticipantCountry($address, ?\Entities\Participant $participant): string
+    {
+        $currentAddress = $participant->getAddress() ?? new Address();
+        $address['country'] = empty($address['country']) === false
+            ? $address['country']
+            : $currentAddress->getCountry();
+        return $address['country'];
     }
 }
