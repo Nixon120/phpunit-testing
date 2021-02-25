@@ -10,6 +10,12 @@ $updateRoute = function ($request, $response, $args) {
     return $user->update($userId);
 };
 
+$patchRoute = function ($request, $response, $args) {
+    $user = new Controllers\Modify($request, $response, $this->get('user'));
+    $userId = $args['id'];
+    return $user->patch($userId);
+};
+
 $createRoute = function ($request, $response) {
     $user = new Controllers\Modify($request, $response, $this->get('user'));
     return $user->insert();
@@ -124,7 +130,7 @@ $app->group('/user', function () use ($app, $createRoute, $updateRoute) {
 });
 
 
-$app->group('/api/administrators', function () use ($app, $createRoute, $updateRoute) {
+$app->group('/api/administrators', function () use ($app, $createRoute, $updateRoute, $patchRoute) {
 
     $app->get('/list', function ($request, $response) {
         $user = new Controllers\JsonView($request, $response, $this->get('user'));
@@ -132,7 +138,7 @@ $app->group('/api/administrators', function () use ($app, $createRoute, $updateR
     });
 
     $app->put('/{id}', $updateRoute);
-
+    $app->patch('/{id}', $patchRoute);
     $app->post('', $createRoute);
 
     $app->group('/import', function () {

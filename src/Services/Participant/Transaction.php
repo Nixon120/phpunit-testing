@@ -409,12 +409,12 @@ class Transaction
 
     public function getSingleItem($guid): ?array
     {
-        return $this->repository->getParticipantTransactionItem($guid);
+        return $this->repository->getParticipantTransactionItem($guid, 'guid');
     }
 
     public function getSingleItemById(int $id): ?array
     {
-        return $this->repository->getParticipantTransactionItemById($id);
+        return $this->repository->getParticipantTransactionItem($id, 'id');
     }
 
     public function updateSingleItemMeta($transactionId, $meta)

@@ -385,49 +385,27 @@ SQL;
 
     /**
      * This method is used exclusively by the TransactionItemReturn
-     * @param int $id
+     * @param $id
+     * @param string $transactionItemIdentifier
      * @return array|null
      */
-    public function getParticipantTransactionItemById(int $id): ?array
+    public function getParticipantTransactionItem($id, string $transactionItemIdentifier): ?array
     {
         $sql = <<<SQL
-SELECT TransactionItem.quantity, TransactionItem.guid, TransactionItem.transaction_id, TransactionProduct.vendor_code as sku, 
+SELECT TransactionItem.id, TransactionItem.quantity, TransactionItem.guid, TransactionItem.transaction_id, TransactionProduct.vendor_code as sku, 
  ((TransactionProduct.retail + TransactionProduct.handling + TransactionProduct.shipping) * TransactionItem.quantity) as total,
- ((TransactionProduct.retail + TransactionProduct.handling + TransactionProduct.shipping) * TransactionItem.quantity) * Program.point as points
+ ((TransactionProduct.retail + TransactionProduct.handling + TransactionProduct.shipping) * TransactionItem.quantity) * Program.point as points,
+ TransactionProduct.name as name
 FROM `TransactionItem`
 JOIN TransactionProduct ON TransactionProduct.reference_id = TransactionItem.reference_id
 JOIN `Transaction` ON `TransactionItem`.transaction_id = `Transaction`.id
 JOIN `Participant` ON `Transaction`.participant_id = `Participant`.id
 JOIN `Program` ON `Participant`.program_id = `Program`.id
-WHERE TransactionItem.id = ?
+WHERE TransactionItem.{$transactionItemIdentifier} = ?
 SQL;
 
         $sth = $this->database->prepare($sql);
         $sth->execute([$id]);
-        $sth->setFetchMode(\PDO::FETCH_ASSOC);
-        if ($item = $sth->fetch()) {
-            return $item;
-        }
-
-        return null;
-    }
-
-    public function getParticipantTransactionItem($guid): ?array
-    {
-        $sql = <<<SQL
-SELECT
-    TransactionItem.id,
-    TransactionItem.quantity,
-    TransactionItem.guid,
-    TransactionItem.transaction_id,
-    TransactionProduct.vendor_code as sku
-FROM `TransactionItem`
-JOIN TransactionProduct ON TransactionProduct.reference_id = TransactionItem.reference_id
-WHERE TransactionItem.guid = ?
-SQL;
-
-        $sth = $this->database->prepare($sql);
-        $sth->execute([$guid]);
         $sth->setFetchMode(\PDO::FETCH_ASSOC);
         if ($item = $sth->fetch()) {
             return $item;
@@ -607,8 +585,11 @@ SQL;
             ->attribute('lastname', Validator::notEmpty()->stringType()->setName('Lastname'))
             ->attribute('address1', Validator::notEmpty()->stringType()->setName('Address'))
             ->attribute('city', Validator::notEmpty()->stringType()->setName('City'))
-            ->attribute('state', Validator::notEmpty()->stringType()->setName('State'))
-            ->attribute('zip', Validator::notEmpty()->length(5, 10)->alnum('- ')->setName('Zipcode'));
+            ->attribute('state', Validator::oneOf(
+                Validator::length(2, 255)->stringType(),
+                Validator::nullType()
+            )->setName('State'))
+            ->attribute('zip', Validator::notEmpty()->length(1, 255)->alnum('- ')->setName('Zipcode'));
     }
 
     /**

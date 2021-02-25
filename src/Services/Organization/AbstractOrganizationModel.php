@@ -3,6 +3,7 @@
 namespace Services\Organization;
 
 use AllDigitalRewards\AMQP\MessagePublisher;
+use AllDigitalRewards\IndustryProgramEnum\IndustryProgramEnum;
 use Entities\Contact;
 use Entities\Event;
 use Repositories\ContactRepository;
@@ -142,6 +143,10 @@ abstract class AbstractOrganizationModel
 
         unset($data['parent']);
 
+        $industryProgram = $data['industry_program'] ?? null;
+        if (empty($industryProgram) === false) {
+            $data['industry_program'] = (new IndustryProgramEnum())->hydrate($industryProgram);
+        }
 
         $this->organization->exchange($data);
     }

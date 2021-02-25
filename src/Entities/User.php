@@ -36,6 +36,8 @@ class User extends \Entities\Base
 
     private $programOwnershipIdentificationCollection = [];
 
+    public $password_updated_at;
+
     public function __construct(array $data = null)
     {
         parent::__construct();
@@ -210,5 +212,21 @@ class User extends \Entities\Base
     public function setProgramOwnershipIdentificationCollection(array $programOwnershipIdentificationCollection)
     {
         $this->programOwnershipIdentificationCollection = $programOwnershipIdentificationCollection;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPasswordUpdatedAt()
+    {
+        return $this->password_updated_at;
+    }
+
+    /**
+     * @param mixed $password_updated_at
+     */
+    public function setPasswordUpdatedAt($password_updated_at): void
+    {
+        $this->password_updated_at = $password_updated_at;
     }
 }
