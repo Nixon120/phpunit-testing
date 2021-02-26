@@ -1,8 +1,8 @@
 <?php
 namespace Entities;
 
+use AllDigitalRewards\RewardStack\Services\Participant\CountryDataHydration;
 use Entities\Traits\ReferenceTrait;
-use League\ISO3166\ISO3166;
 
 class Address extends Base
 {
@@ -24,19 +24,15 @@ class Address extends Base
 
     public $zip;
 
-    public $country = 840;
+    public $country = '840';
 
     public $country_code = 'US';
 
     public function hydrate(array $shipping)
     {
         if (empty($shipping) === false) {
-            $countryCodeLookup = new ISO3166();
-            $country = $shipping['country'] ?? '840';
-            $data = $countryCodeLookup->numeric((string)$country);
-            if (empty($data) === false) {
-                $shipping['country_code'] = $data['alpha2'];
-            }
+            $shipping = (new CountryDataHydration())
+                ->hydrateCountryInputData($shipping);
         }
         $this->exchange($shipping);
         $this->setReferenceId(sha1(json_encode($shipping)));
