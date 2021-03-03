@@ -158,9 +158,9 @@ services:
       VENDOR_DB_PASS: nX&QZe*l89N5
       VENDOR_DB_NAME: adr_crm-dev
       REWARDSTACK_DB_HOST: mysql
-      REWARDSTACK_DB_USER: root
-      REWARDSTACK_DB_PASS: 123
-      REWARDSTACK_DB_NAME: mpadmin
+      REWARDSTACK_DB_USERNAME: root
+      REWARDSTACK_DB_PASSWORD: 123
+      REWARDSTACK_DB_DATABASE: mpadmin
       ENVIRONMENT: development
       IMAGE_URL: http://product.image
     networks:
