@@ -157,6 +157,10 @@ services:
       VENDOR_DB_USER: user_staging
       VENDOR_DB_PASS: nX&QZe*l89N5
       VENDOR_DB_NAME: adr_crm-dev
+      REWARDSTACK_MYSQL_HOST: mysql
+      REWARDSTACK_MYSQL_USER: root
+      REWARDSTACK_MYSQL_PASS: 123
+      REWARDSTACK_MYSQL_NAME: mpadmin_qa
       ENVIRONMENT: development
       IMAGE_URL: http://product.image
     networks:
