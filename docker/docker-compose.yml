@@ -160,7 +160,7 @@ services:
       REWARDSTACK_MYSQL_HOST: mysql
       REWARDSTACK_MYSQL_USER: root
       REWARDSTACK_MYSQL_PASS: 123
-      REWARDSTACK_MYSQL_NAME: mpadmin_qa
+      REWARDSTACK_MYSQL_NAME: mpadmin
       ENVIRONMENT: development
       IMAGE_URL: http://product.image
     networks:
