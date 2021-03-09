@@ -4,6 +4,7 @@ namespace Services\Organization;
 
 use Entities\Contact;
 use Entities\Event;
+use Particle\Validator\Rule\NotEmpty;
 
 class CreateOrganizationModel extends AbstractOrganizationModel
 {
@@ -13,6 +14,10 @@ class CreateOrganizationModel extends AbstractOrganizationModel
      */
     public function insert($data)
     {
+        if ($this->hasValidOrgNameAndUniqueId($data) === false) {
+            return false;
+        }
+
         $this->organization = new \Entities\Organization;
 
         $this->buildEntities($data);
@@ -44,6 +49,35 @@ class CreateOrganizationModel extends AbstractOrganizationModel
             true,
             true
         );
+    }
+
+    /**
+     * This should never happen due to validation
+     * however, it did so we add this check
+     * @param array $data
+     * @return bool
+     */
+    private function hasValidOrgNameAndUniqueId(array $data): bool
+    {
+        if (empty($data['name']) === true) {
+            $this->errors = [
+                'name' => [
+                    'NotEmpty::EMPTY_VALUE' => _("The organization name must not be empty")
+                ]
+            ];
+
+            return false;
+        }
+        if (empty($data['unique_id']) === true) {
+            $this->errors = [
+                'unique_id' => [
+                    'NotEmpty::EMPTY_VALUE' => _("The organization unique id must not be empty")
+                ]
+            ];
+
+            return false;
+        }
+        return true;
     }
 
     private function saveEntities()
