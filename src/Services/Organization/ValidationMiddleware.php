@@ -312,8 +312,8 @@ class ValidationMiddleware
             //In the API, the fields aren't present, so they're not validated against due to optional
             //This lets API update without the extended validation requirement
             //We should probably consider a new context, API context in the future.
-            $context->optional('name')->allowEmpty(false)->lengthBetween(2, 50)->string();
-            $context->optional('uniqueId')->allowEmpty(false)->lengthBetween(2, 45)->alphanumericId();
+            $context->required('name')->allowEmpty(false)->lengthBetween(2, 50)->string();
+            $context->required('unique_id')->allowEmpty(false)->lengthBetween(2, 45)->alphanumericId();
             $context->optional('company_contact.firstname')->allowEmpty(false)->lengthBetween(1, 50);
             $context->optional('company_contact.lastname')->allowEmpty(false)->lengthBetween(1, 50);
             $context->optional('company_contact.phone')->allowEmpty(false)->lengthBetween(10, 255);
@@ -348,9 +348,9 @@ class ValidationMiddleware
             //In the API, the fields aren't present, so they're not validated against due to optional
             //This lets API update without the extended validation requirement
             //We should probably consider a new context, API context in the future.
-            $context->optional('name')->allowEmpty(false)->lengthBetween(1, 50)->string();
-            $context->optional('parent')->allowEmpty(false)->lengthBetween(2, 45)->string();
-            $context->optional('unique_id')->allowEmpty(false)->lengthBetween(2, 45);
+            $context->required('name')->allowEmpty(false)->lengthBetween(1, 50)->string();
+            $context->required('parent')->allowEmpty(false)->lengthBetween(2, 45)->string();
+            $context->required('unique_id')->allowEmpty(false)->lengthBetween(2, 45);
             $context->optional('company_contact.firstname')->allowEmpty(false)->lengthBetween(1, 50);
             $context->optional('company_contact.lastname')->allowEmpty(false)->lengthBetween(1, 50);
             $context->optional('company_contact.phone')->allowEmpty(false)->lengthBetween(10, 255);
@@ -381,9 +381,9 @@ class ValidationMiddleware
             //In the API, the fields aren't present, so they're not validated against due to optional
             //This lets API update without the extended validation requirement
             //We should probably consider a new context, API context in the future.
-            $context->optional('name')->allowEmpty(false)->lengthBetween(1, 50)->string();
-            $context->optional('parent')->allowEmpty(false)->lengthBetween(2, 45)->string();
-            $context->optional('unique_id')->allowEmpty(false)->lengthBetween(2, 45);
+            $context->required('name')->allowEmpty(false)->lengthBetween(1, 50)->string();
+            $context->required('parent')->allowEmpty(false)->lengthBetween(2, 45)->string();
+            $context->required('unique_id')->allowEmpty(false)->lengthBetween(2, 45);
             $context->optional('company_contact.firstname')->allowEmpty(false)->lengthBetween(1, 50);
             $context->optional('company_contact.lastname')->allowEmpty(false)->lengthBetween(1, 50);
             $context->optional('company_contact.phone')->allowEmpty(false)->lengthBetween(10, 255);

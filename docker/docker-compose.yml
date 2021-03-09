@@ -77,7 +77,7 @@ services:
     networks:
       - adrnet
   ng-admin:
-    image: gcr.io/green-talent-129607/ng-marketplace-admin:latest
+    image: gcr.io/green-talent-129607/mpadmin-ui:latest
     expose:
       - 80
     environment:
