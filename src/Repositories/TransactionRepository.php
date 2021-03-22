@@ -301,7 +301,7 @@ SQL;
             $productContainer[$key] = strtoupper($sku);
         }
 
-        $programProductCollection = $this->getProductFromProgramCatalog($program, ['sku' => $productContainer]);
+        $programProductCollection = $this->getProductsFromProgramCatalog($program, ['sku' => $productContainer]);
         $catalogProductCollection = [];
         if (count($programProductCollection) !== count($productContainer)) {
             $missingProductCollection = array_filter(
@@ -327,7 +327,7 @@ SQL;
         );
     }
 
-    private function getProductFromProgramCatalog(string $program_id, array $skuCollection)
+    private function getProductsFromProgramCatalog(string $program_id, array $skuCollection)
     {
         $catalog = clone $this->getCatalog();
         $token = (new AuthenticationTokenFactory)->getToken();
