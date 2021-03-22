@@ -301,38 +301,30 @@ SQL;
             $productContainer[$key] = strtoupper($sku);
         }
 
-        //@TODO Confirm with Josh that no one ever makes a transaction without a program..?
-        return $this->getProductFromProgramCatalog($program, ['sku' => $productContainer]);
+        $programProductCollection = $this->getProductFromProgramCatalog($program, ['sku' => $productContainer]);
+        $catalogProductCollection = [];
+        if (count($programProductCollection) !== count($productContainer)) {
+            $missingProductCollection = array_filter(
+                $productContainer,
+                function ($sku) use ($programProductCollection) {
+                    /** @var Product[] $programProductCollection */
+                    foreach ($programProductCollection as $programProduct) {
+                        if ($programProduct->getSku() == $sku) {
+                            return false;
+                        }
+                    }
 
-//        if (count($products) !== count($productContainer)) {
-            //@TODO why would we do this? We should explode and prevent a transaction here.. why would we
-            //augment if the program catalog isn't finding it in the criteria? That defeats the purpose.
-            // Discuss with Josh
-            // If a product is not found within the program product criteria
-            // we augment it directly from the catalog.
-//            $productContainer = array_filter(
-//                $productContainer,
-//                function ($sku) use ($products) {
-//                    foreach ($products as $found_product) {
-//                        /**
-//                         * @var Product $found_product
-//                         */
-//                        if ($found_product->getSku() == $sku) {
-//                            return false;
-//                        }
-//                    }
-//
-//                    return true;
-//                }
-//            );
+                    return true;
+                }
+            );
 
-//            $products = array_merge(
-//                $products,
-//                $this->catalog->getProducts(['sku' => $productContainer])
-//            );
-//        }
+            $catalogProductCollection = $this->catalog->getProducts(['sku' => $missingProductCollection]);
+        }
 
-//        return $products;
+        return array_merge(
+            $programProductCollection,
+            $catalogProductCollection
+        );
     }
 
     private function getProductFromProgramCatalog(string $program_id, array $skuCollection)
