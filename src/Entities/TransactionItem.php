@@ -18,6 +18,10 @@ class TransactionItem extends Base implements Validateable
 
     public $reissue_date;
 
+    public $program_fee;
+
+    public $var_amount;
+
     private $returned = 0;
 
     public function setTransactionId($id)
@@ -70,6 +74,38 @@ class TransactionItem extends Base implements Validateable
     public function setReissueDate($reissue_date): void
     {
         $this->reissue_date = $reissue_date;
+    }
+
+    /**
+     * @return float
+     */
+    public function getProgramFee()
+    {
+        return $this->program_fee;
+    }
+
+    /**
+     * @param float $fee
+     */
+    public function setProgramFee($fee): void
+    {
+        $this->program_fee = $fee;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getVarAmount()
+    {
+        return $this->var_amount;
+    }
+
+    /**
+     * @param mixed $var_amount
+     */
+    public function setVarAmount($var_amount): void
+    {
+        $this->var_amount = $var_amount;
     }
 
     /**
