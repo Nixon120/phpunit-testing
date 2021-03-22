@@ -301,44 +301,41 @@ SQL;
             $productContainer[$key] = strtoupper($sku);
         }
 
-        if ($program === null) {
-            return $this->catalog->getProducts(['sku' => $productContainer]);
-        }
+        //@TODO Confirm with Josh that no one ever makes a transaction without a program..?
+        return $this->getProductFromProgramCatalog($program, ['sku' => $productContainer]);
 
-        $products = [];
-        foreach ($productContainer as $sku) {
-            $products[] = $this->getProductFromProgramCatalog($sku, $program);
-        }
-
-        if (count($products) !== count($productContainer)) {
+//        if (count($products) !== count($productContainer)) {
+            //@TODO why would we do this? We should explode and prevent a transaction here.. why would we
+            //augment if the program catalog isn't finding it in the criteria? That defeats the purpose.
+            // Discuss with Josh
             // If a product is not found within the program product criteria
             // we augment it directly from the catalog.
-            $productContainer = array_filter(
-                $productContainer,
-                function ($sku) use ($products) {
-                    foreach ($products as $found_product) {
-                        /**
-                         * @var Product $found_product
-                         */
-                        if ($found_product->getSku() == $sku) {
-                            return false;
-                        }
-                    }
+//            $productContainer = array_filter(
+//                $productContainer,
+//                function ($sku) use ($products) {
+//                    foreach ($products as $found_product) {
+//                        /**
+//                         * @var Product $found_product
+//                         */
+//                        if ($found_product->getSku() == $sku) {
+//                            return false;
+//                        }
+//                    }
+//
+//                    return true;
+//                }
+//            );
 
-                    return true;
-                }
-            );
+//            $products = array_merge(
+//                $products,
+//                $this->catalog->getProducts(['sku' => $productContainer])
+//            );
+//        }
 
-            $products = array_merge(
-                $products,
-                $this->catalog->getProducts(['sku' => $productContainer])
-            );
-        }
-
-        return $products;
+//        return $products;
     }
 
-    private function getProductFromProgramCatalog($sku, $program_id)
+    private function getProductFromProgramCatalog(string $program_id, array $skuCollection)
     {
         $catalog = clone $this->getCatalog();
         $token = (new AuthenticationTokenFactory)->getToken();
@@ -346,7 +343,7 @@ SQL;
         $catalog->setToken($token);
         $catalog->setUrl(getenv('PROGRAM_CATALOG_URL'));
 
-        return $catalog->getProduct($sku);
+        return $catalog->getProducts($skuCollection);
     }
 
     public function getParticipantTransaction(Participant $participant, int $transactionId): ?Transaction
