@@ -54,7 +54,7 @@ class Balance
         return $this->returnJson(400, ['Resource does not exist']);
     }
 
-    public function insert($organizationId, $uniqueId)
+    public function insert($organizationId, $uniqueId, $userAccessLevel)
     {
         $participant = $this->service->participantRepository->getParticipantByOrganization($organizationId, $uniqueId);
 
@@ -64,6 +64,7 @@ class Balance
 
             if ($adjustment = $this->service->createAdjustment($participant, $input)) {
                 $output = new OutputNormalizer($adjustment);
+                $output->setUserAccessLevel($userAccessLevel);
                 return $this->returnJson(201, $output->getAdjustment());
             } else {
                 return $this->returnJson(400, $this->service->repository->getErrors());

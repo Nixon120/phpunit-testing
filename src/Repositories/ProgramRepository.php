@@ -21,6 +21,7 @@ use Entities\ProgramType;
 use Entities\Sweepstake;
 use Entities\SweepstakeDraw;
 use Entities\Transaction;
+use Exception;
 use League\Flysystem\Filesystem;
 use \PDO as PDO;
 use Respect\Validation\Exceptions\NestedValidationException;
@@ -131,6 +132,20 @@ SQL;
         return $sth->fetchColumn(0);
     }
 
+    public function getProgramAdjustmentsCount(string $programId)
+    {
+        $sql = <<<SQL
+SELECT count(`adjustment`.`id`) as `adjustment_count` 
+FROM `adjustment`
+JOIN `Participant` ON `Participant`.`id` = `Adjustment`.`participant_id`
+JOIN `Program` on `Program`.`id` = `participant`.`program_id`
+WHERE `program`.`id` = ?;
+SQL;
+        $query = $this->getDatabase()->prepare($sql);
+        $query->execute([$programId]);
+        return $query->fetch()['adjustment_count'];
+    }
+
     public function getCreditAdjustmentsByMeta($input)
     {
         $page = $input['page'] ?? 1;
@@ -142,7 +157,7 @@ SQL;
         $program = $input['program'];
         $keyId = $this->getParticipantMetaKeyIdByKeyName($key);
         if(empty($keyId)) {
-            throw new \Exception('Unable to find meta key: ' . $key);
+            throw new Exception('Unable to find meta key: ' . $key);
         }
 
         $sql = <<<SQL
@@ -405,6 +420,7 @@ SQL;
      * @param int $programId
      * @param ProgramType[] $programTypes
      * @return bool
+     * @throws Exception
      */
     public function placeProgramTypes(int $programId, array $programTypes): bool
     {
@@ -416,13 +432,14 @@ WHERE program_id = ?
 SQL;
 
         $sth = $this->getDatabase()->prepare($sql);
-        $sth->execute([$programId]);
+        if ($sth->execute([$programId]) === false) {
+            throw new Exception('Delete Program Type DB Failure');
+        }
 
         foreach ($programTypes as $type) {
-            $this->insert([
-                'program_id' => $programId,
-                'program_type_id' => $type->getId()
-            ]);
+            if ($this->insert(['program_id' => $programId, 'program_type_id' => $type->getId()]) === false) {
+                throw new Exception('Insert Program Type DB Failure');
+            }
         }
         $this->table = 'Program';
 
@@ -663,9 +680,10 @@ SQL;
      */
     private function getValidator(Program $program)
     {
-        $validator = Validator::attribute('name', Validator::notEmpty()->setName('Name'))
+        $validator = Validator::attribute('name', Validator::notEmpty()::length(1, 125)->setName('Name'))
             ->attribute('point', Validator::numeric()->min(1)->setName('Point'))
-            ->attribute('unique_id', Validator::notEmpty()->alnum('_ -')->noWhitespace()->setName('Unique Id'))
+            ->attribute('unique_id', Validator::notEmpty()::length(1, 45)->alnum('_ -')
+                ->noWhitespace()->setName('Unique Id'))
             ->attribute('organization_id', Validator::notEmpty()->setName('Organization'))
             ->attribute('deposit_amount', Validator::optional(Validator::numeric()->setName('Deposit')))
             ->attribute('low_level_deposit', Validator::optional(Validator::numeric()->setName('LowLevelDeposit')))
@@ -837,7 +855,7 @@ SQL;
      * @param Program $program
      * @param array $data
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     public function saveProgramOfflineRedemption(Program $program, array $data): bool
     {
@@ -847,7 +865,7 @@ SQL;
                 $sth = $this->database->prepare($sql);
                 $sth->execute([$program->getId()]);
             } catch (\PDOException $e) {
-                throw new \Exception('could not purge offline redemptions.');
+                throw new Exception('could not purge offline redemptions.');
             }
 
             $offlineRedemption = new OfflineRedemption;
@@ -860,7 +878,7 @@ SQL;
             }
         }
 
-        throw new \Exception('failed to save offline redemption.');
+        throw new Exception('failed to save offline redemption.');
     }
 
     /**
@@ -976,7 +994,7 @@ SQL;
                 $sth = $this->database->prepare($sql);
                 $sth->execute([$row->getId()]);
             } catch (\PDOException $e) {
-                throw new \Exception('could not purge row cards.');
+                throw new Exception('could not purge row cards.');
             }
         }
 
@@ -1043,7 +1061,7 @@ SQL;
      * @param $cardName
      * @param $imageData
      * @return null|string
-     * @throws \Exception
+     * @throws Exception
      */
     private function saveProgramLayoutImage($cardName, $imageData): ?string
     {
@@ -1059,13 +1077,13 @@ SQL;
             $imageData = substr($imageData, strpos($imageData, ',') + 1);
 
             if ($this->hasValidMimeType($type) === false) {
-                throw new \Exception('invalid image type:' . $type);
+                throw new Exception('invalid image type:' . $type);
             }
 
             $imageData = base64_decode($imageData);
 
             if ($imageData === false) {
-                throw new \Exception('base64_decode failed');
+                throw new Exception('base64_decode failed');
             }
 
             return $this->saveImageFile($cardName, $imageData, $type);
@@ -1076,7 +1094,7 @@ SQL;
             $type = $this->getImageType($imageData);
             $imageData = @file_get_contents($imageData);
             if (empty($imageData) === true) {
-                throw new \Exception('Image is not valid');
+                throw new Exception('Image is not valid');
             }
 
             return $this->saveImageFile($cardName, $imageData, $type);
@@ -1087,12 +1105,12 @@ SQL;
         if ($this->hasValidMimeType($this->getImageType($imageData)) === true) {
             list($imageData, $type) = $this->getBase64EncodedExistingFile($imageData, $type);
             if (empty($imageData) === true) {
-                throw new \Exception('Image is not valid');
+                throw new Exception('Image is not valid');
             }
             return $this->saveImageFile($cardName, $imageData, $type);
         }
 
-        throw new \Exception('did not match data URI with image data');
+        throw new Exception('did not match data URI with image data');
     }
 
     /**
@@ -1131,7 +1149,7 @@ SQL;
      * @param $fileName
      * @param $type
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
     private function getBase64EncodedExistingFile($fileName, $type): array
     {
@@ -1145,7 +1163,7 @@ SQL;
                 $contents = file_get_contents('/tmp/product_file.' . $type);
                 unlink('/tmp/product_file.' . $type);
             } else {
-                throw new \Exception('CDN File Download failure for ' . $fileName);
+                throw new Exception('CDN File Download failure for ' . $fileName);
             }
         }
 

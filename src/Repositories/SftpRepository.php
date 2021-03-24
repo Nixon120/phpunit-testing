@@ -63,19 +63,23 @@ SQL;
      */
     public function update($id, $data): bool
     {
-        $sql = <<<SQL
-UPDATE Sftp SET host = ?, port = ?, file_path = ?, username = ?, password = ?,  `key` = ? WHERE id = ? AND user_id = ?
-SQL;
+        $sql = 'UPDATE Sftp SET host = ?, port = ?, file_path = ?, username = ?, password = ?';
         $args = [
             $data['host'],
             $data['port'],
             $data['file_path'],
             $data['username'],
             $data['password'],
-            $data['key'],
-            $id,
-            $data['user_id'],
         ];
+
+        if (empty($data['key']) === false) {
+            $sql .= ',  `key` = ? ';
+            array_push($args, $data['key']);
+        }
+
+        $sql .= ' WHERE id = ? AND user_id = ?';
+        array_push($args, $id);
+        array_push($args, $data['user_id']);
         $sth = $this->database->prepare($sql);
         $this->database->beginTransaction();
 

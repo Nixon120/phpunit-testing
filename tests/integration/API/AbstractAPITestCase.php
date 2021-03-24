@@ -40,7 +40,7 @@ abstract class AbstractAPITestCase extends TestCase
                 ]
             );
 
-            $json = \GuzzleHttp\json_decode($response->getBody());
+            $json = json_decode($response->getBody());
 
             if (!$json->token) {
                 throw new \Exception('Failed to get JSON WEB TOKEN');

@@ -26,6 +26,8 @@ class Organization extends Base
 
     public $rgt;
 
+    public $industry_program;
+
     public $accounts_payable_contact_reference;
 
     /**
@@ -281,5 +283,21 @@ class Organization extends Base
     public function setCompanyContact(Contact $company_contact)
     {
         $this->company_contact = $company_contact;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getIndustryProgram()
+    {
+        return $this->industry_program;
+    }
+
+    /**
+     * @param mixed $industry_program
+     */
+    public function setIndustryProgram($industry_program): void
+    {
+        $this->industry_program = $industry_program;
     }
 }

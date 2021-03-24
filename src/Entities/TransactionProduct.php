@@ -23,6 +23,10 @@ class TransactionProduct extends Base implements Validateable
 
     public $handling;
 
+    public $program_fee;
+
+    public $var_amount;
+
     public $vendor_code;
 
     public $kg;
@@ -59,6 +63,8 @@ class TransactionProduct extends Base implements Validateable
                 'retail' => $product->getPriceRetail(),
                 'handling' => $product->getPriceHandling(),
                 'shipping' => $product->getPriceShipping(),
+                'program_fee' => $product->getProgramFee() ?? 0.00,
+                'var_amount' => $product->getVarAmount() ?? 0.00,
                 'vendor_code' => $product->getSku(),
                 'name' => $product->getName(),
                 'description' => $product->getDescription(),
@@ -82,6 +88,8 @@ class TransactionProduct extends Base implements Validateable
             'retail' => $this->getRetail(),
             'handling' => $this->getHandling(),
             'shipping' => $this->getShipping(),
+            'program_fee' => $this->getProgramFee(),
+            'var_amount' => $this->getVarAmount(),
             'vendor_code' => $this->getVendorCode(),
             'kg' => $this->getKg(),
             'name' => $this->getName(),
@@ -130,6 +138,8 @@ class TransactionProduct extends Base implements Validateable
     {
         $price = bcadd($this->retail, $this->shipping, 2);
         $price = bcadd($price, $this->handling, 2);
+        $price = bcadd($price, $this->program_fee, 2);
+        $price = bcadd($price, $this->var_amount, 2);
 
         return $price;
     }
@@ -180,6 +190,38 @@ class TransactionProduct extends Base implements Validateable
     public function setHandling($handling)
     {
         $this->handling = $handling;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getProgramFee()
+    {
+        return $this->program_fee;
+    }
+
+    /**
+     * @param mixed $program_fee
+     */
+    public function setProgramFee($program_fee): void
+    {
+        $this->program_fee = $program_fee;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getVarAmount()
+    {
+        return $this->var_amount;
+    }
+
+    /**
+     * @param mixed $var_amount
+     */
+    public function setVarAmount($var_amount): void
+    {
+        $this->var_amount = $var_amount;
     }
 
     /**

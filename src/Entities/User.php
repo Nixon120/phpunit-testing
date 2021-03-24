@@ -1,6 +1,7 @@
 <?php
 namespace Entities;
 
+use AllDigitalRewards\UserAccessLevelEnum\UserAccessLevelEnum;
 use Entities\Traits\OrganizationTrait;
 use Entities\Traits\StatusTrait;
 use Entities\Traits\TimestampTrait;
@@ -27,11 +28,15 @@ class User extends \Entities\Base
 
     public $role;
 
+    public $access_level = UserAccessLevelEnum::PII_LIMIT;
+
     public $invite_token;
 
     private $organizationOwnershipIdentificationCollection = [];
 
     private $programOwnershipIdentificationCollection = [];
+
+    public $password_updated_at;
 
     public function __construct(array $data = null)
     {
@@ -149,6 +154,22 @@ class User extends \Entities\Base
     }
 
     /**
+     * @return int
+     */
+    public function getAccessLevel(): int
+    {
+        return $this->access_level;
+    }
+
+    /**
+     * @param int $access_level
+     */
+    public function setAccessLevel(int $access_level): void
+    {
+        $this->access_level = $access_level;
+    }
+
+    /**
      * @return mixed
      */
     public function getInviteToken()
@@ -191,5 +212,21 @@ class User extends \Entities\Base
     public function setProgramOwnershipIdentificationCollection(array $programOwnershipIdentificationCollection)
     {
         $this->programOwnershipIdentificationCollection = $programOwnershipIdentificationCollection;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPasswordUpdatedAt()
+    {
+        return $this->password_updated_at;
+    }
+
+    /**
+     * @param mixed $password_updated_at
+     */
+    public function setPasswordUpdatedAt($password_updated_at): void
+    {
+        $this->password_updated_at = $password_updated_at;
     }
 }

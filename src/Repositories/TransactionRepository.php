@@ -301,26 +301,15 @@ SQL;
             $productContainer[$key] = strtoupper($sku);
         }
 
-        if ($program === null) {
-            return $this->catalog->getProducts(['sku' => $productContainer]);
-        }
-
-        $products = [];
-        foreach ($productContainer as $sku) {
-            $products[] = $this->getProductFromProgramCatalog($sku, $program);
-        }
-
-        if (count($products) !== count($productContainer)) {
-            // If a product is not found within the program product criteria
-            // we augment it directly from the catalog.
-            $productContainer = array_filter(
+        $programProductCollection = $this->getProductsFromProgramCatalog($program, ['sku' => $productContainer]);
+        $catalogProductCollection = [];
+        if (count($programProductCollection) !== count($productContainer)) {
+            $missingProductCollection = array_filter(
                 $productContainer,
-                function ($sku) use ($products) {
-                    foreach ($products as $found_product) {
-                        /**
-                         * @var Product $found_product
-                         */
-                        if ($found_product->getSku() == $sku) {
+                function ($sku) use ($programProductCollection) {
+                    /** @var Product[] $programProductCollection */
+                    foreach ($programProductCollection as $programProduct) {
+                        if ($programProduct->getSku() == $sku) {
                             return false;
                         }
                     }
@@ -329,16 +318,16 @@ SQL;
                 }
             );
 
-            $products = array_merge(
-                $products,
-                $this->catalog->getProducts(['sku' => $productContainer])
-            );
+            $catalogProductCollection = $this->catalog->getProducts(['sku' => $missingProductCollection]);
         }
 
-        return $products;
+        return array_merge(
+            $programProductCollection,
+            $catalogProductCollection
+        );
     }
 
-    private function getProductFromProgramCatalog($sku, $program_id)
+    private function getProductsFromProgramCatalog(string $program_id, array $skuCollection)
     {
         $catalog = clone $this->getCatalog();
         $token = (new AuthenticationTokenFactory)->getToken();
@@ -346,7 +335,7 @@ SQL;
         $catalog->setToken($token);
         $catalog->setUrl(getenv('PROGRAM_CATALOG_URL'));
 
-        return $catalog->getProduct($sku);
+        return $catalog->getProducts($skuCollection);
     }
 
     public function getParticipantTransaction(Participant $participant, int $transactionId): ?Transaction
@@ -383,42 +372,29 @@ SQL;
         return null;
     }
 
-
-    public function getParticipantTransactionItemById(int $id): ?array
+    /**
+     * This method is used exclusively by the TransactionItemReturn
+     * @param $id
+     * @param string $transactionItemIdentifier
+     * @return array|null
+     */
+    public function getParticipantTransactionItem($id, string $transactionItemIdentifier): ?array
     {
         $sql = <<<SQL
-SELECT TransactionItem.quantity, TransactionItem.guid, TransactionItem.transaction_id, TransactionProduct.vendor_code as sku
+SELECT TransactionItem.id, TransactionItem.quantity, TransactionItem.guid, TransactionItem.transaction_id, TransactionProduct.vendor_code as sku, 
+ ((TransactionProduct.retail + TransactionProduct.handling + TransactionProduct.shipping) * TransactionItem.quantity) as total,
+ ((TransactionProduct.retail + TransactionProduct.handling + TransactionProduct.shipping) * TransactionItem.quantity) * Program.point as points,
+ TransactionProduct.name as name
 FROM `TransactionItem`
 JOIN TransactionProduct ON TransactionProduct.reference_id = TransactionItem.reference_id
-WHERE TransactionItem.id = ?
+JOIN `Transaction` ON `TransactionItem`.transaction_id = `Transaction`.id
+JOIN `Participant` ON `Transaction`.participant_id = `Participant`.id
+JOIN `Program` ON `Participant`.program_id = `Program`.id
+WHERE TransactionItem.{$transactionItemIdentifier} = ?
 SQL;
 
         $sth = $this->database->prepare($sql);
         $sth->execute([$id]);
-        $sth->setFetchMode(\PDO::FETCH_ASSOC);
-        if ($item = $sth->fetch()) {
-            return $item;
-        }
-
-        return null;
-    }
-
-    public function getParticipantTransactionItem($guid): ?array
-    {
-        $sql = <<<SQL
-SELECT
-    TransactionItem.id,
-    TransactionItem.quantity,
-    TransactionItem.guid,
-    TransactionItem.transaction_id,
-    TransactionProduct.vendor_code as sku
-FROM `TransactionItem`
-JOIN TransactionProduct ON TransactionProduct.reference_id = TransactionItem.reference_id
-WHERE TransactionItem.guid = ?
-SQL;
-
-        $sth = $this->database->prepare($sql);
-        $sth->execute([$guid]);
         $sth->setFetchMode(\PDO::FETCH_ASSOC);
         if ($item = $sth->fetch()) {
             return $item;
@@ -598,8 +574,11 @@ SQL;
             ->attribute('lastname', Validator::notEmpty()->stringType()->setName('Lastname'))
             ->attribute('address1', Validator::notEmpty()->stringType()->setName('Address'))
             ->attribute('city', Validator::notEmpty()->stringType()->setName('City'))
-            ->attribute('state', Validator::notEmpty()->stringType()->setName('State'))
-            ->attribute('zip', Validator::notEmpty()->length(5, 10)->alnum('- ')->setName('Zipcode'));
+            ->attribute('state', Validator::oneOf(
+                Validator::length(2, 255)->stringType(),
+                Validator::nullType()
+            )->setName('State'))
+            ->attribute('zip', Validator::notEmpty()->length(1, 255)->alnum('- ')->setName('Zipcode'));
     }
 
     /**

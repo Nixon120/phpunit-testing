@@ -1,6 +1,7 @@
 <?php
 
 use \Controllers\Program as Controllers;
+use Middleware\ProgramModifiedCacheClearMiddleware;
 
 $app->group('/api/program/type', function () use ($app) {
     $app->get('', Controllers\GetProgramTypeJsonCollection::class);
@@ -117,4 +118,4 @@ $app->group('/api/program', function () use ($app) {
 
         return $program->updateProgramCollectSsnSetting($programId, $rowId);
     });
-})->add(new \Middleware\ProgramModifiedCacheClearMiddleware($app->getContainer()));
+})->add(new ProgramModifiedCacheClearMiddleware($app->getContainer()));

@@ -2,6 +2,7 @@
 
 namespace Controllers\Participant;
 
+use AllDigitalRewards\TransactionSourceEnum\TransactionSourceEnum;
 use Entities\TransactionMeta;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -36,7 +37,7 @@ class Transaction
         $this->service = $factory->getTransactionService();
     }
 
-    public function addTransaction($organizationId, $uniqueId)
+    public function addTransaction($organizationId, $uniqueId, $userAccessLevel)
     {
         $participant = $this->service->participantRepository->getParticipantByOrganization($organizationId, $uniqueId);
 
@@ -47,6 +48,7 @@ class Transaction
                 if ($transaction = $this->service->insert($organizationId, $uniqueId, $post)) {
                     //@TODO: Make sure domains do not include HTTPS / HTTP on entry or here ?
                     $output = new OutputNormalizer($transaction);
+                    $output->setUserAccessLevel($userAccessLevel);
                     return $this->returnJson(201, $output->getTransaction());
                 } else {
                     return $this->returnJson(400, $this->service->repository->getErrors());
@@ -58,24 +60,33 @@ class Transaction
         return $this->returnJson(400, ['Resource does not exist']);
     }
 
-    public function customerServiceTransaction($organizationId, $uniqueId)
+    public function customerServiceTransaction($organizationId, $uniqueId, $userAccessLevel)
     {
         $participant = $this->service->participantRepository->getParticipantByOrganization($organizationId, $uniqueId);
 
         if ($participant !== null) {
             $post = $this->request->getParsedBody() ?? [];
             $post['issue_points'] = false;
-            $offlineRedemptions = $this->service->participantRepository->getOfflineRedemptions($participant->getProgram());
+            $post['meta'] = [
+                ['TRANSACTION_SOURCE' => 'CUSTOMER_SERVICE']
+            ];
+            $offlineRedemptions = $this->service->participantRepository->getOfflineRedemptions(
+                $participant->getProgram()
+            );
             $selectedProduct = $post['products'][0]['sku'];
 
             if (in_array($selectedProduct, $offlineRedemptions) === false) {
-                return $this->returnJson(404, ['Product does not match allowable offline redemption products for this program.']);
+                return $this->returnJson(
+                    404,
+                    ['Product does not match allowable offline redemption products for this program.']
+                );
             }
 
             try {
                 if ($transaction = $this->service->insert($organizationId, $uniqueId, $post)) {
                     //@TODO: Make sure domains do not include HTTPS / HTTP on entry or here ?
                     $output = new OutputNormalizer($transaction);
+                    $output->setUserAccessLevel($userAccessLevel);
                     return $this->returnJson(201, $output->getTransaction());
                 } else {
                     return $this->returnJson(400, $this->service->repository->getErrors());
@@ -88,7 +99,7 @@ class Transaction
         return $this->returnJson(400, ['Resource does not exist']);
     }
 
-    public function transactionList($organizationId, $uniqueId, $year = null)
+    public function transactionList($organizationId, $uniqueId, $userAccessLevel, $year = null)
     {
         $participant = $this->service->participantRepository->getParticipantByOrganization($organizationId, $uniqueId);
         $transactionUniqueIds = $this->request->getQueryParam('unique_id');
@@ -107,12 +118,13 @@ class Transaction
                 return $this->returnJson(200, []);
             }
             $output = new OutputNormalizer($transactions);
+            $output->setUserAccessLevel($userAccessLevel);
             return $this->returnJson(200, $output->getTransactionList());
         }
         return $this->returnJson(400, ['Resource does not exist']);
     }
 
-    public function single($organizationId, $uniqueId, $transactionId)
+    public function single($organizationId, $uniqueId, $transactionId, $userAccessLevel)
     {
         $participant = $this->service->participantRepository->getParticipantByOrganization($organizationId, $uniqueId);
 
@@ -120,18 +132,20 @@ class Transaction
             //@TODO: Make sure domains do not include HTTPS / HTTP on entry or here ?
             $transaction = $this->service->getSingle($participant, $transactionId);
             $output = new OutputNormalizer($transaction);
+            $output->setUserAccessLevel($userAccessLevel);
             return $this->returnJson(200, $output->getTransaction());
         }
         return $this->returnJson(400, ['Resource does not exist']);
     }
 
-    public function singleItem($organizationId, $uniqueId, $guid)
+    public function singleItem($organizationId, $uniqueId, $guid, $userAccessLevel)
     {
         $participant = $this->service->participantRepository->getParticipantByOrganization($organizationId, $uniqueId);
         $item = $this->service->getSingleItem($guid);
 
         if ($participant !== null && $item !== null) {
             $output = new OutputNormalizer($item);
+            $output->setUserAccessLevel($userAccessLevel);
             return $this->returnJson(200, $output->getItem());
         }
 

@@ -12,4 +12,10 @@ class OutputNormalizer extends AbstractOutputNormalizer
 
         return $this->scrubList($list, ['key']);
     }
+
+    public function get(): array {
+        $output = parent::get();
+
+        return $this->scrub((array)$output, ['key']);
+    }
 }

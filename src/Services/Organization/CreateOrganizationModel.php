@@ -15,12 +15,22 @@ class CreateOrganizationModel extends AbstractOrganizationModel
     {
         $this->organization = new \Entities\Organization;
 
+        if (!empty($data['parent']) && !$this->repository->getOrganization($data['parent'], true)) {
+            $this->errors = [
+                'parent' => [
+                    'parent::DOES_NOT_EXIST' => _("Parent organization does not exist or is not assignable.")
+                ]
+            ];
+
+            return false;
+        }
+
         $this->buildEntities($data);
 
         if (!$this->orgIdIsUnique($this->organization->getUniqueId())) {
             // unique_id has already been assigned to another Organization.
             $this->errors = [
-                'uniqueId' => [
+                'unique_id' => [
                     'Unique::NOT_UNIQUE' => _("The organization id has already been assigned to another organization.")
                 ]
             ];

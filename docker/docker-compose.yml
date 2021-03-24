@@ -14,7 +14,6 @@ services:
       - product.catalog
       - batch.facilitator
       - product.image
-      - product.program-catalog
       - email.transaction
       - avs-service
       - ssn
@@ -69,7 +68,7 @@ services:
       MONGO_HOST: mongodb://mongodb:27017
       MONGO_DB: marketplace-dev
       CATALOG_URL: http://product.catalog
-      PROGRAM_CATALOG_URL: http://product.program-catalog
+      PROGRAM_CATALOG_URL: http://product.catalog
       FILESYSTEM: local
       LOG_HOST: fluentd
       LOG_PORT: "24224"
@@ -79,7 +78,7 @@ services:
     networks:
       - adrnet
   ng-admin:
-    image: gcr.io/green-talent-129607/ng-marketplace-admin:latest
+    image: gcr.io/green-talent-129607/mpadmin-ui:latest
     expose:
       - 80
     environment:
@@ -159,6 +158,10 @@ services:
       VENDOR_DB_USER: user_staging
       VENDOR_DB_PASS: nX&QZe*l89N5
       VENDOR_DB_NAME: adr_crm-dev
+      REWARDSTACK_DB_HOST: mysql
+      REWARDSTACK_DB_USERNAME: root
+      REWARDSTACK_DB_PASSWORD: 123
+      REWARDSTACK_DB_DATABASE: mpadmin
       ENVIRONMENT: development
       IMAGE_URL: http://product.image
     networks:
@@ -209,31 +212,6 @@ services:
       ENVIRONMENT: development
       FILESYSTEM: local
       JWT_SECRET: password
-    networks:
-      - adrnet
-  product.program-catalog:
-    depends_on:
-      - mysql
-    image: gcr.io/green-talent-129607/program-catalog:latest
-    expose:
-      - 80
-    environment:
-      MYSQL_DB_HOST: mysql
-      MYSQL_DB_DATABASE: program-catalog
-      MYSQL_DB_USERNAME: root
-      MYSQL_DB_PASSWORD: 123
-      REWARDSTACK_DB_HOST: mysql
-      REWARDSTACK_DB_DATABASE: mpadmin
-      REWARDSTACK_DB_USERNAME: root
-      REWARDSTACK_DB_PASSWORD: 123
-      JWT_SECRET: password
-      ENVIRONMENT: development
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      PROGRAM_CONFIG_URL: http://admin/api/program
-      CATALOG_URL: http://product.catalog
-      LOG_HOST: fluentd
-      LOG_PORT: "24224"
     networks:
       - adrnet
   email.transaction:
@@ -373,7 +351,7 @@ services:
       - mysql
     image: gcr.io/green-talent-129607/redemption-campaign-service:latest
     ports:
-      - "88:80"
+      - "89:80"
     environment:
       JWT_SECRET: password
       ENVIRONMENT: development

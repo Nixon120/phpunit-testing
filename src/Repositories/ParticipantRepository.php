@@ -2,6 +2,7 @@
 namespace Repositories;
 
 use AllDigitalRewards\Services\Catalog\Client;
+use AllDigitalRewards\StatusEnum\StatusEnum;
 use Entities\AutoRedemption;
 use Entities\Contact;
 use Entities\Domain;
@@ -380,17 +381,31 @@ SQL;
         return $this->setParticipantMeta($metaCollection);
     }
 
-    public function logParticipantChange(Participant $participant, string $agentEmail, bool $create = false)
-    {
+    /**
+     * For Update Participant:
+     * pass previousParticipantData so we save its previous state
+     *
+     * @param string $agentEmail
+     * @param $status
+     * @param array $previousParticipantData
+     * @param bool $create
+     * @return bool
+     */
+    public function logParticipantChange(
+        string $agentEmail,
+        $status,
+        array $previousParticipantData,
+        bool $create = false
+    ): bool {
+        $statusName = (new StatusEnum())->hydrateStatus($status, true);
         $action = $create === true ? 'create' : 'update';
         $participantChangeLog = new ParticipantChangeLog();
         $participantChangeLog->setAction($action);
         $participantChangeLog->setLoggedAt((new \DateTime)->format('Y-m-d H:i:s'));
-        $participantChangeLog->setParticipantId($participant->getId());
-        $participantChangeLog->setStatus($participant->getStatus());
-        $participant = $participant->toArray();
-        unset($participant['password']);
-        $participantChangeLog->setData(json_encode($participant));
+        $participantChangeLog->setParticipantId($previousParticipantData['id']);
+        $participantChangeLog->setStatus($statusName);
+        unset($previousParticipantData['password']);
+        $participantChangeLog->setData(json_encode($previousParticipantData));
         $participantChangeLog->setUsername($agentEmail);
         $this->table = 'participant_change_log';
         if (!$this->place($participantChangeLog)) {
@@ -480,8 +495,7 @@ SQL;
     {
         if ($this->participantStatusRepo === null) {
             $this->participantStatusRepo = new ParticipantStatusRepository(
-                $this->getDatabase(),
-                $this->catalog
+                $this->getDatabase()
             );
         }
 

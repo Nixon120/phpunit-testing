@@ -3,6 +3,7 @@
 namespace Services\Program;
 
 use AllDigitalRewards\Services\Catalog\Client;
+use AllDigitalRewards\TransactionSourceEnum\TransactionSourceEnum;
 use Entities\Participant;
 use Entities\SweepstakeDraw;
 use Entities\SweepstakeEntry;
@@ -77,7 +78,10 @@ class Sweepstake
                             'quantity' => $entryCount
                         ]
                     ],
-                    'issue_points' => !empty($data['issue_points']) && $data['issue_points'] === true ? true : false
+                    'issue_points' => !empty($data['issue_points']) && $data['issue_points'] === true ? true : false,
+                    'meta' => [
+                        ['TRANSACTION_SOURCE' => (new TransactionSourceEnum())::SWEEPSTAKE]
+                    ]
                 ]
             );
 

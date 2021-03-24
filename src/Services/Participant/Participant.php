@@ -6,6 +6,7 @@ use AllDigitalRewards\RewardStack\Traits\MetaValidationTrait;
 use AllDigitalRewards\StatusEnum\StatusEnum;
 use Controllers\Interfaces as Interfaces;
 use Controllers\Participant\InputNormalizer;
+use Entities\Address;
 use Entities\User;
 use Exception;
 use Repositories\ParticipantRepository;
@@ -206,28 +207,22 @@ class Participant
         $meta = $data['meta'] ?? null;
         unset($data['program'], $data['organization'], $data['address'], $data['shipping'], $data['meta'], $data['password_confirm']);
 
-        if (!empty($data['birthdate'])) {
-            $data['birthdate'] = $this->getDate($data['birthdate'])
-                ->format('Y-m-d');
-        } else {
-            $data['birthdate'] = null;
+        $data['birthdate'] = !empty($data['birthdate'])
+            ? $this->getDate($data['birthdate'])->format('Y-m-d')
+            : null;
+
+        if (isset($data['active']) === false) {
+            $data['active'] = 1;
+            if (isset($data['status']) === false) {
+                $data['status'] = StatusEnum::ACTIVE;
+            }
         }
 
-        if (isset($data['active']) && $data['active'] != 1) {
-            $data['deactivated_at'] = (new \DateTime)->format('Y-m-d H:i:s');
-        }
+        $data = $this->repository->hydrateParticipantStatusRequest($data);
+        $status = $data['status'];
+        unset($data['status']);
 
-        list($status, $data) = $this->repository->hydrateParticipantStatusRequest($data);
-        if ($this->repository->hasValidStatus($status) === false) {
-            $this->repository->setErrors(
-                [
-                    'status' => [
-                        'Status::ILLEGAL_CHARACTERS' => _("The status is not valid, please refer to docs for acceptable types.")
-                    ]
-                ]
-            );
-            return false;
-        }
+        $data['deactivated_at'] = $data['active'] != 1 ? (new \DateTime)->format('Y-m-d H:i:s') : null;
 
         $participant = new \Entities\Participant;
         $participant->exchange($data);
@@ -266,8 +261,10 @@ class Participant
         unset($participantArray['status']); //prevent insert error
         if ($this->repository->insert($participantArray)) {
             $participant = $this->repository->getParticipant($participant->getUniqueId());
+            $participantArray = $participant->toArray();//resetting it so Status can be reestablished
+            $participantArray['status'] = (new StatusEnum())->hydrateStatus($status, true);
             $this->repository->saveParticipantStatus($participant, $status);
-            $this->repository->logParticipantChange($participant, $agentEmail, true);
+            $this->repository->logParticipantChange($agentEmail, $status, $participantArray, true);
             if ($address !== null) {
                 $participant->setAddress($address);
                 $this->repository->insertAddress($participant->getAddress());
@@ -300,42 +297,29 @@ class Participant
             $data['program_id'] = $program->getId();
             $data['organization_id'] = $program->getOrganizationId();
         }
+
+        $previousParticipantData = $participant->toArray();
         if (!empty($data['password'])) {
             $password = $data['password'];
         }
 
-        if (!empty($data['birthdate'])) {
-            $data['birthdate'] = $this->getDate($data['birthdate'])
-                ->format('Y-m-d');
-        } else {
-            $data['birthdate'] = null;
-        }
+        $data['birthdate'] = !empty($data['birthdate'])
+            ? $this->getDate($data['birthdate'])->format('Y-m-d')
+            : null;
 
-        if (array_key_exists('active', $data) === true) {
-            $statusFlag = (int) $data['active'];
-            if ($statusFlag === 1) {
-                $data['deactivated_at'] = null;
-            } else {
-                $data['deactivated_at'] = (new \DateTime)->format('Y-m-d H:i:s');
-            }
-        }
+        $data = $this->setParticipantUpdatedStatusInput($data, $participant);
 
-        list($status, $data) = $this->repository->hydrateParticipantStatusRequest($data);
-        if ($this->repository->hasValidStatus($status) === false) {
-            $this->repository->setErrors(
-                [
-                    'status' => [
-                        'Status::ILLEGAL_CHARACTERS' => _("The status is not valid, please refer to docs for acceptable types.")
-                    ]
-                ]
-            );
-            return false;
-        }
+        $data = $this->repository->hydrateParticipantStatusRequest($data);
+        $status = $data['status'];
         $this->repository->saveParticipantStatus($participant, $status);
 
+        $data['deactivated_at'] = (int) $data['active'] === 1 ? null : (new \DateTime)->format('Y-m-d H:i:s');
+
         $address = $data['address'] ?? null;
+        $address['country'] = $this->getUpdatedParticipantCountry($address, $participant);
+
         $meta = $data['meta'] ?? null;
-        unset($data['program'], $data['organization'], $data['password'], $data['address'], $data['meta'], $data['password_confirm'], $data['unique_id']);
+        unset($data['status'], $data['program'], $data['organization'], $data['password'], $data['address'], $data['meta'], $data['password_confirm'], $data['unique_id']);
 
         $participant->exchange($data);
 
@@ -359,8 +343,7 @@ class Participant
             if ($meta !== null) {
                 $this->repository->saveMeta($participant->getId(), $meta);
             }
-
-            $this->repository->logParticipantChange($participant, $agentEmailAddress);
+            $this->repository->logParticipantChange($agentEmailAddress, $status, $previousParticipantData);
 
             return $this->repository->getParticipant($participant->getUniqueId());
         }
@@ -553,12 +536,13 @@ class Participant
     {
         try {
             $statusName = $this->getStatusEnumService()->hydrateStatus(StatusEnum::DATADEL, true);
+            $previousParticipantData = $participant->toArray();
             $this->repository->setParticipantTransactionEmailAddressToEmpty($participant->getId());
             $this->repository->setParticipantAddressPiiToEmpty($participant->getId());
             $this->repository->setParticipantPiiToEmpty($participant->getId());
             $participant->setStatus($statusName);
             $this->repository->saveParticipantStatus($participant, $statusName);
-            $this->repository->logParticipantChange($participant, $agentEmailAddress);
+            $this->repository->logParticipantChange($agentEmailAddress, $statusName, $previousParticipantData);
             $this->repository->setParticipantToInactive($participant->getId());
             return true;
         } catch (Exception $exception) {
@@ -574,5 +558,45 @@ class Participant
             );
             return false;
         }
+    }
+
+    /**
+     * @param $data
+     * @param \Entities\Participant|null $participant
+     * @return mixed
+     * @throws Exception
+     */
+    private function setParticipantUpdatedStatusInput($data, ?\Entities\Participant $participant)
+    {
+        if (isset($data['active']) === false) {
+            //use current Active if not passed in
+            $data['active'] = $participant->isActive() ? 1 : 0;
+            //use current Status if active and status not passed in
+            if (isset($data['status']) === false) {
+                $data['status'] = (new StatusEnum())->hydrateStatus($participant->getStatus());
+            }
+            return $data;
+        }
+
+        //set the status
+        if (isset($data['status']) === false) {
+            $data['status'] = ($data['active'] == 1) ? StatusEnum::ACTIVE : StatusEnum::INACTIVE;
+        }
+
+        return $data;
+    }
+
+    /**
+     * @param $address
+     * @param \Entities\Participant|null $participant
+     * @return string
+     */
+    private function getUpdatedParticipantCountry($address, ?\Entities\Participant $participant): string
+    {
+        $currentAddress = $participant->getAddress() ?? new Address();
+        $address['country'] = empty($address['country']) === false
+            ? $address['country']
+            : $currentAddress->getCountry();
+        return $address['country'];
     }
 }
