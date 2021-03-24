@@ -10,6 +10,7 @@ use Services\Authentication\Authenticate;
 $app->group(
     '/api/program/{programUuid}/participant',
     function () use ($app) {
+
         /** @var Authenticate $auth */
         $auth = $app->getContainer()->get('authentication');
         // Create

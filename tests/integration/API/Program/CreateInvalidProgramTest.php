@@ -46,17 +46,17 @@ class CreateInvalidProgramTest extends AbstractAPITestCase
                 'body' => json_encode(
                     [
                         // TESTPROG1 id has already been taken.
-                        'unique_id' => 'TESTPROG1',
-                        'name' => 'Test Program 1',
+                        'unique_id' => 'alldigitalrewards',
+                        'name' => 'AllDigitalRewards',
                         'point' => 1,
-                        'organization' => 'sharecare'
+                        'organization' => 'alldigitalrewards'
                     ]
                 ),
             ]
         );
 
         $this->assertSame(
-            '["Program ID TESTPROG1 has already been assigned to another Program."]',
+            '["Program ID alldigitalrewards has already been assigned to another Program."]',
             (string)$response->getBody()
         );
 
