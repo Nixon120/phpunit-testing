@@ -17,9 +17,9 @@ class SweepstakeEntryTest extends AbstractAPITestCase
             ]
         );
 
-        $decodedResponse = json_decode((string)$response->getBody())[0];
+        $decodedResponse = json_decode((string)$response->getBody());
         $this->assertSame(400, $response->getStatusCode());
-        $this->assertSame("Participant does not have enough points for this transaction.", $decodedResponse);
+        $this->assertSame("Participant does not have enough points for this transaction.", $decodedResponse[0]);
     }
 
     public function testCreateSweepstakesEntry()
