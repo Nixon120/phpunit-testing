@@ -350,7 +350,7 @@ services:
       - mysql
     image: gcr.io/green-talent-129607/redemption-campaign-service:latest
     ports:
-      - "88:80"
+      - "89:80"
     environment:
       JWT_SECRET: password
       ENVIRONMENT: development
