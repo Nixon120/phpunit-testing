@@ -682,7 +682,8 @@ SQL;
     {
         $validator = Validator::attribute('name', Validator::notEmpty()::length(1, 125)->setName('Name'))
             ->attribute('point', Validator::numeric()->min(1)->setName('Point'))
-            ->attribute('unique_id', Validator::notEmpty()->alnum('_ -')->noWhitespace()->setName('Unique Id'))
+            ->attribute('unique_id', Validator::notEmpty()::length(1, 45)->alnum('_ -')
+                ->noWhitespace()->setName('Unique Id'))
             ->attribute('organization_id', Validator::notEmpty()->setName('Organization'))
             ->attribute('deposit_amount', Validator::optional(Validator::numeric()->setName('Deposit')))
             ->attribute('low_level_deposit', Validator::optional(Validator::numeric()->setName('LowLevelDeposit')))
