@@ -166,12 +166,9 @@ $app->group(
             }
         )->add(Middleware\ParticipantStatusValidator::class);
 
-        error_log("NOOOP -This is the message we want to see!!!!!!!!!!!!!".PHP_EOL, 3, 'php://stdout');
-
         $app->post(
             '/{id}/transaction',
             function ($request, $response, $args) use ($auth) {
-                error_log("This is the message we want to see!!!!!!!!!!!!!".PHP_EOL, 3, 'php://stdout');
                 $transaction = new Controllers\Transaction($request, $response, $this->get('participant'));
                 $uniqueId = $args['id'];
                 return $transaction->addTransaction(
