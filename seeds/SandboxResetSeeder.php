@@ -692,7 +692,7 @@ SQL
                 'password' => password_hash('password', PASSWORD_BCRYPT),
                 'firstname' => 'Test',
                 'lastname' => 'API',
-                'organization_id' => 2,
+                'organization_id' => 1,
                 'role' => 'admin',
                 'access_level' => 1,
                 'active' => 1,
