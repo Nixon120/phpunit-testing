@@ -139,12 +139,21 @@ class Transaction
         );
 
         if (count($skuContainer) !== count($this->requestedProductContainer)) {
-            throw new TransactionServiceException('One or more of the requested products are unavailable');
+            throw new TransactionServiceException('One or more of the requested products are unavailable.');
         }
+
 
         foreach ($this->requestedProductContainer as $requestedProduct) {
             foreach ($products as $product) {
                 if (strtoupper($requestedProduct->getSku()) === strtoupper($product['sku'])) {
+                    if($requestedProduct->price_ranged) {
+                        if (!$product['amount']) {
+                            throw new TransactionServiceException('No amount set for ranged product.');
+                        }
+                        if ($product['amount'] < $requestedProduct->price_ranged_min || $product['amount'] > $requestedProduct->price_ranged_max) {
+                            throw new TransactionServiceException("Price {$product['amount']} set out of range of min: {$requestedProduct->price_ranged_min} max: {$requestedProduct->price_ranged_max}.");
+                        }
+                    }
                     $amount = $product['amount'] ?? null;
                     $quantity = $product['quantity'] ?? 1;
                     $transactionProduct = new TransactionProduct($requestedProduct, $amount);
