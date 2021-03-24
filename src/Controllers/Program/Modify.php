@@ -36,9 +36,10 @@ class Modify extends AbstractModifyController
 
     public function insert()
     {
-        $post = $this->request->getParsedBody()??[];
+        $post = $this->request->getParsedBody() ?? [];
         $input = new InputNormalizer($post);
-        if ($program = $this->service->insert($input)) {
+        $program = $this->service->insert($input);
+        if ($program instanceof \Entities\Program) {
             $this->getLogger()->notice(
                 'Program Created',
                 [
@@ -74,7 +75,8 @@ class Modify extends AbstractModifyController
         $post = $this->request->getParsedBody()??[];
 
         $input = new InputNormalizer($post);
-        if ($program = $this->service->update($id, $input)) {
+        $program = $this->service->update($id, $input);
+        if ($program instanceof \Entities\Program) {
             $output = new OutputNormalizer($program);
             return $this->returnJson(200, $output->get());
         }

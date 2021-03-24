@@ -7,7 +7,10 @@ use Controllers\Interfaces as Interfaces;
 use Controllers\Program\InputNormalizer;
 use Entities\AutoRedemption;
 use Entities\Contact;
+use Entities\Domain;
 use Entities\Event;
+use Entities\Organization;
+use Exception;
 use Repositories\ContactRepository;
 use Repositories\ProgramRepository;
 
@@ -65,10 +68,14 @@ class Program
         return $programs;
     }
 
-    private function buildEntities($data)
+    private function buildEntities($data): bool
     {
         if (!empty($data['organization'])) {
             $organization = $this->repository->getProgramOrganization($data['organization'], true);
+            if (!$organization instanceof Organization) {
+                $this->repository->setErrors([_('Organization not found')]);
+                return false;
+            }
             $data['organization_id'] = $organization->getId();
         }
 
@@ -108,6 +115,10 @@ class Program
             array_shift($url);
             $domainString = implode('.', $url);
             $domain = $this->repository->getProgramDomainByDomainName($domainString);
+            if (!$domain instanceof Domain) {
+                $this->repository->setErrors([_('Domain not found for: ' . $domainString)]);
+                return false;
+            }
             $data['url'] = $subdomain;
             $data['domain_id'] = $domain->getId();
         }
@@ -123,34 +134,54 @@ class Program
             $data['programTypes'] = $collection;
         }
 
-        if(isset($data['end_date'])) {
+        if (isset($data['end_date'])) {
             $data['end_date'] = $this->calculateEndDate($data);
         }
 
         unset($data['organization'], $data['auto_redemption'], $data['contact'], $data['accounting_contact']);
         $this->program->exchange($data);
+        return true;
     }
 
-    private function saveEntities()
+    private function saveEntities(): bool
     {
         if ($this->program->hasContact()) {
             // Save the Contact
-            $this->contactRepository->place($this->program->getContact());
+            if ($this->contactRepository->place($this->program->getContact()) === false) {
+                $this->repository->setErrors([_('Contact Failed to save')]);
+                return false;
+            }
         }
 
         if ($this->program->hasAccountingContact()) {
             // Save the Contact
-            $this->contactRepository->place($this->program->getAccountingContact());
+            if ($this->contactRepository->place($this->program->getAccountingContact()) === false) {
+                $this->repository->setErrors([_('Accounting Contact Failed to save')]);
+                return false;
+            }
         }
 
-        $this->repository->insert($this->program->toArray());
+        if ($this->repository->insert($this->program->toArray()) === false) {
+            return false; //errors already set
+        }
+
         $programId = $this->repository->getLastInsertId();
+        if (empty($programId) === true) {
+            $this->repository->setErrors([_('ProgramId not found from insert')]);
+            return false;
+        }
 
         if ($this->program->getProgramTypes() !== null) {
-            $this->repository->placeProgramTypes($programId, $this->program->getProgramTypes());
+            try {
+                $this->repository->placeProgramTypes($programId, $this->program->getProgramTypes());
+            } catch (Exception $e) {
+                $this->repository->setErrors([_($e->getMessage())]);
+                return false;
+            }
         }
 
         $this->queueEvent('Program.create', $programId);
+        return true;
     }
 
     private function queueEvent($name, $id)
@@ -161,25 +192,38 @@ class Program
         $this->eventPublisher->publish(json_encode($event));
     }
 
-    private function updateEntities()
+    private function updateEntities(): bool
     {
         if ($this->program->getContact() instanceof Contact) {
             // Save the Contact
-            $this->contactRepository->place($this->program->getContact());
+            if ($this->contactRepository->place($this->program->getContact()) === false) {
+                return false;
+            }
         }
 
         if ($this->program->hasAccountingContact()) {
             // Save the Contact
-            $this->contactRepository->place($this->program->getAccountingContact());
+            if ($this->contactRepository->place($this->program->getAccountingContact()) === false) {
+                return false;
+            }
         }
 
         if ($this->program->getProgramTypes() !== null) {
-            $this->repository->placeProgramTypes($this->program->getId(), $this->program->getProgramTypes());
+            try {
+                $this->repository->placeProgramTypes($this->program->getId(), $this->program->getProgramTypes());
+            } catch (Exception $e) {
+                $this->repository->setErrors([_($e->getMessage())]);
+                return false;
+            }
         }
 
-        $this->repository->update($this->program->getId(), $this->program->toArray());
+        if ($this->repository->update($this->program->getId(), $this->program->toArray()) === false) {
+            return false;
+        }
 
         $this->queueEvent('Program.update', $this->program->getId());
+
+        return true;
     }
 
     /**
@@ -190,7 +234,9 @@ class Program
     {
         $data = $input->getInput();
         $this->program = new \Entities\Program;
-        $this->buildEntities($data);
+        if ($this->buildEntities($data) === false) {
+            return false;
+        }
 
         if (!empty($data['url']) && $this->isUrlValid($data['url']) === false) {
             $this->repository->setErrors([
@@ -209,9 +255,12 @@ class Program
             return false;
         }
 
-        $this->saveEntities();
+        $saved = $this->saveEntities();
+        if ($saved === true) {
+            return $this->repository->getProgram($this->program->getUniqueId());
+        }
 
-        return $this->repository->getProgram($this->program->getUniqueId());
+        return false;
     }
 
     /**
@@ -243,15 +292,20 @@ class Program
             $data['published'] = 0;
         }
 
-        $this->buildEntities($data);
+        if ($this->buildEntities($data) === false) {
+            return false;
+        }
 
         if (!$this->entitiesAreValid()) {
             // At least one entity failed to validate.
             return false;
         }
 
-        $this->updateEntities();
-        return $this->repository->getProgram($this->program->getUniqueId());
+        if ($this->updateEntities() === true) {
+            return $this->repository->getProgram($this->program->getUniqueId());
+        }
+
+        return false;
     }
 
     private function isUrlValid($url)
@@ -305,7 +359,7 @@ class Program
     /**
      * @param $data
      * @return bool|string|null
-     * @throws \Exception
+     * @throws Exception
      */
     private function calculateEndDate($data)
     {
