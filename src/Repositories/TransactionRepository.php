@@ -301,26 +301,15 @@ SQL;
             $productContainer[$key] = strtoupper($sku);
         }
 
-        if ($program === null) {
-            return $this->catalog->getProducts(['sku' => $productContainer]);
-        }
-
-        $products = [];
-        foreach ($productContainer as $sku) {
-            $products[] = $this->getProductFromProgramCatalog($sku, $program);
-        }
-
-        if (count($products) !== count($productContainer)) {
-            // If a product is not found within the program product criteria
-            // we augment it directly from the catalog.
-            $productContainer = array_filter(
+        $programProductCollection = $this->getProductsFromProgramCatalog($program, ['sku' => $productContainer]);
+        $catalogProductCollection = [];
+        if (count($programProductCollection) !== count($productContainer)) {
+            $missingProductCollection = array_filter(
                 $productContainer,
-                function ($sku) use ($products) {
-                    foreach ($products as $found_product) {
-                        /**
-                         * @var Product $found_product
-                         */
-                        if ($found_product->getSku() == $sku) {
+                function ($sku) use ($programProductCollection) {
+                    /** @var Product[] $programProductCollection */
+                    foreach ($programProductCollection as $programProduct) {
+                        if ($programProduct->getSku() == $sku) {
                             return false;
                         }
                     }
@@ -329,16 +318,16 @@ SQL;
                 }
             );
 
-            $products = array_merge(
-                $products,
-                $this->catalog->getProducts(['sku' => $productContainer])
-            );
+            $catalogProductCollection = $this->catalog->getProducts(['sku' => $missingProductCollection]);
         }
 
-        return $products;
+        return array_merge(
+            $programProductCollection,
+            $catalogProductCollection
+        );
     }
 
-    private function getProductFromProgramCatalog($sku, $program_id)
+    private function getProductsFromProgramCatalog(string $program_id, array $skuCollection)
     {
         $catalog = clone $this->getCatalog();
         $token = (new AuthenticationTokenFactory)->getToken();
@@ -346,7 +335,7 @@ SQL;
         $catalog->setToken($token);
         $catalog->setUrl(getenv('PROGRAM_CATALOG_URL'));
 
-        return $catalog->getProduct($sku);
+        return $catalog->getProducts($skuCollection);
     }
 
     public function getParticipantTransaction(Participant $participant, int $transactionId): ?Transaction

@@ -1,5 +1,7 @@
 <?php
-
+/**
+ * @var \Slim\App $app
+ */
 use \Controllers\Organization as OrgControllers;
 use \Controllers\Webhook as WebhookControllers;
 
@@ -59,22 +61,122 @@ $app->group(
         $this->post('', $createRoute);
 
         $this->put('/{id}', $updateRoute);
+    }
+)->add(Services\Organization\ValidationMiddleware::class);
 
+$app->group(
+    '/api/organization/{id}/webhooks',
+    function () {
+        $this->get(
+            '',
+            function ($request, $response, $args) {
+                // List Webhooks
+                // ROUTE: /organization/{id}/webhooks
+
+                $controller = new WebhookControllers\JsonView(
+                    $request,
+                    $response,
+                    $this->get('renderer'),
+                    $this->get('organization')
+                );
+
+                $organizationId = $args['id'];
+
+                return $controller->renderList($organizationId);
+            }
+        );
+
+        $this->post(
+            '',
+            function ($request, $response, $args) {
+                // ROUTE: /organization/{id}/webhooks
+                $controller = new WebhookControllers\JsonView(
+                    $request,
+                    $response,
+                    $this->get('renderer'),
+                    $this->get('organization')
+                );
+                $organizationId = $args['id'];
+
+                return $controller->insertWebhook($organizationId);
+            }
+        );
 
         $this->group(
-            '/{id}',
+            '/{webhook_id}',
             function () {
-                // ROUTE GROUP: /organization/{id}
+                $this->get(
+                    '',
+                    function (
+                        \Psr\Http\Message\RequestInterface $request,
+                        \Psr\Http\Message\ResponseInterface $response,
+                        $args
+                    ) {
+                        $controller = new WebhookControllers\JsonView(
+                            $request,
+                            $response,
+                            $this->get('renderer'),
+                            $this->get('organization')
+                        );
+
+                        $organizationId = $args['id'];
+                        $webhookId = $args['webhook_id'];
+
+                        return $controller->viewWebhook($organizationId, $webhookId);
+                    }
+                );
+
+                $this->delete(
+                    '',
+                    function (
+                        \Psr\Http\Message\RequestInterface $request,
+                        \Psr\Http\Message\ResponseInterface $response,
+                        $args
+                    ) {
+                        $controller = new WebhookControllers\JsonView(
+                            $request,
+                            $response,
+                            $this->get('renderer'),
+                            $this->get('organization')
+                        );
+
+                        $organizationId = $args['id'];
+                        $webhookId = $args['webhook_id'];
+
+                        return $controller->deleteWebhook($organizationId, $webhookId);
+                    }
+                );
+
+                $this->put(
+                    '',
+                    function (
+                        \Psr\Http\Message\RequestInterface $request,
+                        \Psr\Http\Message\ResponseInterface $response,
+                        $args
+                    ) {
+                        $controller = new WebhookControllers\JsonView(
+                            $request,
+                            $response,
+                            $this->get('renderer'),
+                            $this->get('organization')
+                        );
+
+                        $webhookId = $args['webhook_id'];
+
+                        return $controller->modifyWebhook($webhookId);
+                    }
+                );
 
                 $this->group(
-                    '/webhooks',
+                    '/logs',
                     function () {
                         $this->get(
                             '',
-                            function ($request, $response, $args) {
-                                // List Webhooks
-                                // ROUTE: /organization/{id}/webhooks
-
+                            function (
+                                \Psr\Http\Message\RequestInterface $request,
+                                \Psr\Http\Message\ResponseInterface $response,
+                                $args
+                            ) {
                                 $controller = new WebhookControllers\JsonView(
                                     $request,
                                     $response,
@@ -83,156 +185,48 @@ $app->group(
                                 );
 
                                 $organizationId = $args['id'];
+                                $webhookId = $args['webhook_id'];
 
-                                return $controller->renderList($organizationId);
+                                return $controller->listWebhookLogs($organizationId, $webhookId);
+                            }
+                        );
+
+                        $this->get(
+                            '/{webhook_log_id}',
+                            function (
+                                \Psr\Http\Message\RequestInterface $request,
+                                \Psr\Http\Message\ResponseInterface $response,
+                                $args
+                            ) {
+                                $controller = new WebhookControllers\JsonView(
+                                    $request,
+                                    $response,
+                                    $this->get('renderer'),
+                                    $this->get('organization')
+                                );
+
+                                return $controller->viewWebhookLog(
+                                    $args['id'],
+                                    $args['webhook_id'],
+                                    $args['webhook_log_id']
+                                );
                             }
                         );
 
                         $this->post(
-                            '',
+                            '/{webhook_log_id}/replay',
                             function ($request, $response, $args) {
-                                // ROUTE: /organization/{id}/webhooks
                                 $controller = new WebhookControllers\JsonView(
                                     $request,
                                     $response,
                                     $this->get('renderer'),
                                     $this->get('organization')
                                 );
-                                $organizationId = $args['id'];
 
-                                return $controller->insertWebhook($organizationId);
-                            }
-                        );
-
-                        $this->group(
-                            '/{webhook_id}',
-                            function () {
-                                $this->get(
-                                    '',
-                                    function (
-                                        \Psr\Http\Message\RequestInterface $request,
-                                        \Psr\Http\Message\ResponseInterface $response,
-                                        $args
-                                    ) {
-                                        $controller = new WebhookControllers\JsonView(
-                                            $request,
-                                            $response,
-                                            $this->get('renderer'),
-                                            $this->get('organization')
-                                        );
-
-                                        $organizationId = $args['id'];
-                                        $webhookId = $args['webhook_id'];
-
-                                        return $controller->viewWebhook($organizationId, $webhookId);
-                                    }
-                                );
-
-                                $this->delete(
-                                    '',
-                                    function (
-                                        \Psr\Http\Message\RequestInterface $request,
-                                        \Psr\Http\Message\ResponseInterface $response,
-                                        $args
-                                    ) {
-                                        $controller = new WebhookControllers\JsonView(
-                                            $request,
-                                            $response,
-                                            $this->get('renderer'),
-                                            $this->get('organization')
-                                        );
-
-                                        $organizationId = $args['id'];
-                                        $webhookId = $args['webhook_id'];
-
-                                        return $controller->deleteWebhook($organizationId, $webhookId);
-                                    }
-                                );
-
-                                $this->put(
-                                    '',
-                                    function (
-                                        \Psr\Http\Message\RequestInterface $request,
-                                        \Psr\Http\Message\ResponseInterface $response,
-                                        $args
-                                    ) {
-                                        $controller = new WebhookControllers\JsonView(
-                                            $request,
-                                            $response,
-                                            $this->get('renderer'),
-                                            $this->get('organization')
-                                        );
-
-                                        $webhookId = $args['webhook_id'];
-
-                                        return $controller->modifyWebhook($webhookId);
-                                    }
-                                );
-
-                                $this->group(
-                                    '/logs',
-                                    function () {
-                                        $this->get(
-                                            '',
-                                            function (
-                                                \Psr\Http\Message\RequestInterface $request,
-                                                \Psr\Http\Message\ResponseInterface $response,
-                                                $args
-                                            ) {
-                                                $controller = new WebhookControllers\JsonView(
-                                                    $request,
-                                                    $response,
-                                                    $this->get('renderer'),
-                                                    $this->get('organization')
-                                                );
-
-                                                $organizationId = $args['id'];
-                                                $webhookId = $args['webhook_id'];
-
-                                                return $controller->listWebhookLogs($organizationId, $webhookId);
-                                            }
-                                        );
-
-                                        $this->get(
-                                            '/{webhook_log_id}',
-                                            function (
-                                                \Psr\Http\Message\RequestInterface $request,
-                                                \Psr\Http\Message\ResponseInterface $response,
-                                                $args
-                                            ) {
-                                                $controller = new WebhookControllers\JsonView(
-                                                    $request,
-                                                    $response,
-                                                    $this->get('renderer'),
-                                                    $this->get('organization')
-                                                );
-
-                                                return $controller->viewWebhookLog(
-                                                    $args['id'],
-                                                    $args['webhook_id'],
-                                                    $args['webhook_log_id']
-                                                );
-                                            }
-                                        );
-
-                                        $this->post(
-                                            '/{webhook_log_id}/replay',
-                                            function ($request, $response, $args) {
-                                                $controller = new WebhookControllers\JsonView(
-                                                    $request,
-                                                    $response,
-                                                    $this->get('renderer'),
-                                                    $this->get('organization')
-                                                );
-
-                                                return $controller->replayWebhookLog(
-                                                    $args['id'],
-                                                    $args['webhook_id'],
-                                                    $args['webhook_log_id']
-                                                );
-                                            }
-                                        );
-                                    }
+                                return $controller->replayWebhookLog(
+                                    $args['id'],
+                                    $args['webhook_id'],
+                                    $args['webhook_log_id']
                                 );
                             }
                         );
@@ -241,7 +235,7 @@ $app->group(
             }
         );
     }
-)->add(Services\Organization\ValidationMiddleware::class);
+);
 
 $app->group(
     '/organization',
