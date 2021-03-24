@@ -680,7 +680,7 @@ SQL;
      */
     private function getValidator(Program $program)
     {
-        $validator = Validator::attribute('name', Validator::notEmpty()->setName('Name'))
+        $validator = Validator::attribute('name', Validator::notEmpty()::length(1, 125)->setName('Name'))
             ->attribute('point', Validator::numeric()->min(1)->setName('Point'))
             ->attribute('unique_id', Validator::notEmpty()->alnum('_ -')->noWhitespace()->setName('Unique Id'))
             ->attribute('organization_id', Validator::notEmpty()->setName('Organization'))

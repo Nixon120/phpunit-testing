@@ -4,7 +4,7 @@ namespace IntegrationTests\API\Program;
 
 use IntegrationTests\API\AbstractAPITestCase;
 
-class CreateValidProgramTest extends AbstractAPITestCase
+class CreateInvalidProgramTest extends AbstractAPITestCase
 {
     public function testCreateInvalidValidProgramNameLength()
     {
@@ -48,7 +48,7 @@ class CreateValidProgramTest extends AbstractAPITestCase
                         // TESTPROG1 id has already been taken.
                         'unique_id' => 'TESTPROG1',
                         'name' => 'Test Program 1',
-                        'point' => 0,
+                        'point' => 1,
                         'organization' => 'sharecare'
                     ]
                 ),
