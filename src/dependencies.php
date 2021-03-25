@@ -6,13 +6,6 @@ use Psr\Container\ContainerInterface;
  * Base Dependencies
  */
 
-$container['logger'] = function (ContainerInterface $c) {
-    $settings = $c->get('settings')['logger'];
-    $logger = new Monolog\Logger($settings['name']);
-    $logger->pushHandler(new Monolog\Handler\StreamHandler($settings['path'], $settings['level']));
-    return $logger;
-};
-
 $container['cacheService'] = function ($container) {
     $cacheFactory = new \Factories\CacheFactory();
     $cache = $cacheFactory();
