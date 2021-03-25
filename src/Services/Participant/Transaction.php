@@ -6,7 +6,6 @@ use AllDigitalRewards\AMQP\MessagePublisher;
 use AllDigitalRewards\RewardStack\Traits\MetaValidationTrait;
 use AllDigitalRewards\Services\Catalog\Entity\Product;
 use AllDigitalRewards\Services\Catalog\Entity\InventoryHoldRequest;
-use AllDigitalRewards\Services\Catalog\Entity\Product;
 use Entities\Adjustment;
 use Entities\Event;
 use Entities\TransactionItem;
