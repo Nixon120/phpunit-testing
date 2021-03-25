@@ -159,7 +159,7 @@ class Transaction
                         }
                         if ($amount < $minRange || $amount > $maxRange) {
                             $exception = <<<EXCEPTION
-                            Price $amount set out of range of min: $minRange max: $maxRange for sku: $sku
+                            Price {$amount} set out of range of min: {$minRange} max: {$maxRange} for sku: $sku
                             EXCEPTION;
                             unset($sku);
                             throw new TransactionServiceException($exception);
