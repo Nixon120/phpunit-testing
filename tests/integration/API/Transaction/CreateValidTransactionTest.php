@@ -6,21 +6,6 @@ use IntegrationTests\API\AbstractAPITestCase;
 
 class CreateValidTransactionTest extends AbstractAPITestCase
 {
-    private function addPointsToParticipant()
-    {
-        $this->getApiClient()->request(
-            'POST',
-            'api/user/TESTPARTICIPANT1/adjustment',
-            [
-                'headers' => $this->getHeaders(),
-                'body' => json_encode([
-                    'type' => 'credit',
-                    'amount' => '10000'
-                ])
-            ]
-        );
-    }
-
     public function testCreateValidAutoPointIssuanceTransaction()
     {
         $response = $this->getApiClient()->request(
@@ -28,24 +13,26 @@ class CreateValidTransactionTest extends AbstractAPITestCase
             'api/user/TESTPARTICIPANT1/transaction',
             [
                 'headers' => $this->getHeaders(),
-                'body' => json_encode([
-                    'issue_points' => true,
-                    'shipping' => [
-                        'firstname' => 'Test Firstname',
-                        'lastname' => 'Test Lastname',
-                        'address1' => '123 Anywhere Street',
-                        'city' => 'Denver',
-                        'state' => 'CO',
-                        'zip' => '80202'
-                    ],
-                    'products' => [
-                        [
-                            'sku' => 'HRA01',
-                            'quantity' => 1,
-                            'amount' => 10
+                'body' => json_encode(
+                    [
+                        'issue_points' => true,
+                        'shipping' => [
+                            'firstname' => 'Test Firstname',
+                            'lastname' => 'Test Lastname',
+                            'address1' => '123 Anywhere Street',
+                            'city' => 'Denver',
+                            'state' => 'CO',
+                            'zip' => '80202'
                         ],
-                    ],
-                ]),
+                        'products' => [
+                            [
+                                'sku' => 'HRA01',
+                                'quantity' => 1,
+                                'amount' => 10
+                            ],
+                        ],
+                    ]
+                ),
             ]
         );
 
@@ -57,40 +44,44 @@ class CreateValidTransactionTest extends AbstractAPITestCase
     {
         $this->getApiClient()->request(
             'POST',
-            'api/user',
+            'api/program/alldigitalrewards/participant',
             [
                 'headers' => $this->getHeaders(),
-                'body' => json_encode([
-                    'program' => 'sharecare',
-                    'firstname' => 'john',
-                    'lastname' => 'smith',
-                    'unique_id' => '123ABCTEST',
-                    'email_address' => '123abctest@alldigitalrewards.com'
-                ])
+                'body' => json_encode(
+                    [
+                        'program' => 'alldigitalrewards',
+                        'firstname' => 'john',
+                        'lastname' => 'smith',
+                        'unique_id' => '123ABCTEST',
+                        'email_address' => '123abctest@alldigitalrewards.com'
+                    ]
+                )
             ]
         );
         $response = $this->getApiClient()->request(
             'POST',
-            'api/user/123ABCTEST/transaction',
+            '/api/program/alldigitalrewards/participant/123ABCTEST/transaction',
             [
                 'headers' => $this->getHeaders(),
-                'body' => json_encode([
-                    'shipping' => [
-                        'firstname' => 'Test Firstname',
-                        'lastname' => 'Test Lastname',
-                        'address1' => '123 Anywhere Street',
-                        'city' => 'Denver',
-                        'state' => 'CO',
-                        'zip' => '80202'
-                    ],
-                    'products' => [
-                        [
-                            'sku' => 'HRA01',
-                            'quantity' => 1,
-                            'amount' => 10
+                'body' => json_encode(
+                    [
+                        'shipping' => [
+                            'firstname' => 'Test Firstname',
+                            'lastname' => 'Test Lastname',
+                            'address1' => '123 Anywhere Street',
+                            'city' => 'Denver',
+                            'state' => 'CO',
+                            'zip' => '80202'
                         ],
-                    ],
-                ]),
+                        'products' => [
+                            [
+                                'sku' => 'HRA01',
+                                'quantity' => 1,
+                                'amount' => 10
+                            ],
+                        ],
+                    ]
+                ),
             ]
         );
 
@@ -100,29 +91,31 @@ class CreateValidTransactionTest extends AbstractAPITestCase
 
     public function testCreateValidTransaction()
     {
-        $this->addPointsToParticipant();
         $response = $this->getApiClient()->request(
             'POST',
-            'api/user/TESTPARTICIPANT1/transaction',
+            '/api/program/alldigitalrewards/participant/TESTPARTICIPANT1/transaction',
             [
                 'headers' => $this->getHeaders(),
-                'body' => json_encode([
-                    'shipping' => [
-                        'firstname' => 'Test Firstname',
-                        'lastname' => 'Test Lastname',
-                        'address1' => '123 Anywhere Street',
-                        'city' => 'Denver',
-                        'state' => 'CO',
-                        'zip' => '80202'
-                    ],
-                    'products' => [
-                        [
-                            'sku' => 'HRA01',
-                            'quantity' => 1,
-                            'amount' => 10
+                'body' => json_encode(
+                    [
+                        'issue_points' => true,
+                        'shipping' => [
+                            'firstname' => 'Test Firstname',
+                            'lastname' => 'Test Lastname',
+                            'address1' => '123 Anywhere Street',
+                            'city' => 'Denver',
+                            'state' => 'CO',
+                            'zip' => '80202'
                         ],
-                    ],
-                ]),
+                        'products' => [
+                            [
+                                "sku" => "VVISA01",
+                                "quantity" => 1,
+                                "amount" => 20.00
+                            ],
+                        ],
+                    ]
+                ),
             ]
         );
 
@@ -132,14 +125,13 @@ class CreateValidTransactionTest extends AbstractAPITestCase
 
     public function testFetchTransactionByOneUniqueIdReturnsOneInArray()
     {
-        $this->addPointsToParticipant();
         $this->createTransactionsWithUniqueId();
 
         $uniqueIds = ['someuniqueidhere1', 'someuniqueidhere2', 'someuniqueidhere3'];
 
         foreach ($uniqueIds as $uniqueId) {
             //lets call each unique id
-            $uri = 'api/user/TESTPARTICIPANT1/transaction?unique_id[]=' . $uniqueId;
+            $uri = 'api/program/alldigitalrewards/participant/TESTPARTICIPANT1/transaction?unique_id[]=' . $uniqueId;
             $response = $this->getApiClient()->request(
                 'GET',
                 $uri,
@@ -159,7 +151,7 @@ class CreateValidTransactionTest extends AbstractAPITestCase
 
         foreach ($uniqueIds as $uniqueId) {
             //lets call each unique id
-            $uri = 'api/user/TESTPARTICIPANT1/transaction?unique_id[]=' . $uniqueId;
+            $uri = 'api/program/alldigitalrewards/participant/TESTPARTICIPANT1/transaction?unique_id[]=' . $uniqueId;
             $response = $this->getApiClient()->request(
                 'GET',
                 $uri,
@@ -179,29 +171,31 @@ class CreateValidTransactionTest extends AbstractAPITestCase
      */
     public function testResponseHasArrayOfProducts()
     {
-        $this->addPointsToParticipant();
         $response = $this->getApiClient()->request(
             'POST',
-            'api/user/TESTPARTICIPANT1/transaction',
+            'api/program/alldigitalrewards/participant/TESTPARTICIPANT1/transaction',
             [
                 'headers' => $this->getHeaders(),
-                'body' => json_encode([
-                    'shipping' => [
-                        'firstname' => 'Test Firstname',
-                        'lastname' => 'Test Lastname',
-                        'address1' => '123 Anywhere Street',
-                        'city' => 'Denver',
-                        'state' => 'CO',
-                        'zip' => '80202'
-                    ],
-                    'products' => [
-                        [
-                            'sku' => 'HRA01',
-                            'quantity' => 1,
-                            'amount' => 10
+                'body' => json_encode(
+                    [
+                        'issue_points' => true,
+                        'shipping' => [
+                            'firstname' => 'Test Firstname',
+                            'lastname' => 'Test Lastname',
+                            'address1' => '123 Anywhere Street',
+                            'city' => 'Denver',
+                            'state' => 'CO',
+                            'zip' => '80202'
                         ],
-                    ],
-                ]),
+                        'products' => [
+                            [
+                                'sku' => 'HRA01',
+                                'quantity' => 1,
+                                'amount' => 10
+                            ],
+                        ],
+                    ]
+                ),
             ]
         );
 
@@ -218,27 +212,30 @@ class CreateValidTransactionTest extends AbstractAPITestCase
         foreach ($uniqueIds as $uniqueId) {
             $response = $this->getApiClient()->request(
                 'POST',
-                'api/user/TESTPARTICIPANT1/transaction',
+                'api/program/alldigitalrewards/participant/TESTPARTICIPANT1/transaction',
                 [
                     'headers' => $this->getHeaders(),
-                    'body' => json_encode([
-                        'unique_id' => "$uniqueId",
-                        'shipping' => [
-                            'firstname' => 'Test Firstname',
-                            'lastname' => 'Test Lastname',
-                            'address1' => '123 Anywhere Street',
-                            'city' => 'Denver',
-                            'state' => 'CO',
-                            'zip' => '80202'
-                        ],
-                        'products' => [
-                            [
-                                'sku' => 'HRA01',
-                                'quantity' => 1,
-                                'amount' => 10
+                    'body' => json_encode(
+                        [
+                            'issue_points' => true,
+                            'unique_id' => "$uniqueId",
+                            'shipping' => [
+                                'firstname' => 'Test Firstname',
+                                'lastname' => 'Test Lastname',
+                                'address1' => '123 Anywhere Street',
+                                'city' => 'Denver',
+                                'state' => 'CO',
+                                'zip' => '80202'
                             ],
-                        ],
-                    ]),
+                            'products' => [
+                                [
+                                    'sku' => 'HRA01',
+                                    'quantity' => 1,
+                                    'amount' => 10
+                                ],
+                            ],
+                        ]
+                    ),
                 ]
             );
         }
