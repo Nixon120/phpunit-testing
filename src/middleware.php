@@ -1,5 +1,6 @@
 <?php
 
+use Factories\LoggerFactory;
 use \Psr\Container\ContainerInterface;
 
 // So what we've done here is, if we're instantiating a new object that will be used in $app->add($object),
@@ -42,7 +43,7 @@ $container["JwtAuthentication"] = function (ContainerInterface $container) use (
         "secure" => false,
         "rules" => [$pathExemptions],
         "secret" => getenv("JWT_SECRET"),
-        "logger" => $container["logger"],
+        "logger" => LoggerFactory::getInstance(),
         "attribute" => false,
         "relaxed" => ["localhost"],
         "error" => function (\Slim\Http\Request $request, \Slim\Http\Response $response, $arguments) use ($container) {
@@ -102,7 +103,7 @@ $container["JwtAuthentication"] = function (ContainerInterface $container) use (
 
 $container["Cors"] = function ($container) {
     return new \Tuupola\Middleware\Cors([
-        "logger" => $container["logger"],
+        "logger" => LoggerFactory::getInstance(),
         "origin" => ["*"],
         "methods" => ["GET", "POST", "PUT", "PATCH", "DELETE"],
         "headers.allow" => [
