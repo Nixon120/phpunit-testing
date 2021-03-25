@@ -5,6 +5,7 @@ namespace Services\Participant;
 use AllDigitalRewards\AMQP\MessagePublisher;
 use AllDigitalRewards\RewardStack\Traits\MetaValidationTrait;
 use AllDigitalRewards\Services\Catalog\Entity\InventoryHoldRequest;
+use AllDigitalRewards\Services\Catalog\Entity\Product;
 use Entities\Adjustment;
 use Entities\Event;
 use Entities\TransactionItem;
@@ -144,6 +145,10 @@ class Transaction
 
         foreach ($this->requestedProductContainer as $requestedProduct) {
             foreach ($products as $product) {
+                if (!$requestedProduct instanceof Product) {
+                    throw new TransactionServiceException('One of the requested products is not available.');
+                }
+
                 if (strtoupper($requestedProduct->getSku()) === strtoupper($product['sku'])) {
                     $amount = $product['amount'] ?? null;
                     $quantity = $product['quantity'] ?? 1;
