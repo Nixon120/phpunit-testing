@@ -22,7 +22,8 @@ class LoggerFactory
                 \Monolog\Logger::INFO
             ));
 
-            if(getenv('ENVIRONMENT') !== 'development') {
+            $environment = getenv('ENVIRONMENT');
+            if($environment !== false && $environment !== 'development') {
                 $logging = new LoggingClient(
                     [
                         'projectId' => 'green-talent-129607',

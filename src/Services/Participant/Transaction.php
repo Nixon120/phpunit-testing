@@ -4,6 +4,7 @@ namespace Services\Participant;
 
 use AllDigitalRewards\AMQP\MessagePublisher;
 use AllDigitalRewards\RewardStack\Traits\MetaValidationTrait;
+use AllDigitalRewards\Services\Catalog\Entity\Product;
 use AllDigitalRewards\Services\Catalog\Entity\InventoryHoldRequest;
 use AllDigitalRewards\Services\Catalog\Entity\Product;
 use Entities\Adjustment;
@@ -140,7 +141,7 @@ class Transaction
         );
 
         if (count($skuContainer) !== count($this->requestedProductContainer)) {
-            throw new TransactionServiceException('One or more of the requested products are unavailable');
+            throw new TransactionServiceException('One or more of the requested products are unavailable.');
         }
 
         foreach ($this->requestedProductContainer as $requestedProduct) {
@@ -150,6 +151,25 @@ class Transaction
                 }
 
                 if (strtoupper($requestedProduct->getSku()) === strtoupper($product['sku'])) {
+                    if($requestedProduct->isPriceRanged()) {
+                        $sku = $product['sku'];
+                        $amount = $product['amount'] ?? null;
+                        if ($amount === null) {
+                            throw new TransactionServiceException("No amount set for ranged product sku: {$sku}.");
+                        }
+                        $maxRange = $requestedProduct->getPriceRangedMax() ?? null;
+                        $minRange = $requestedProduct->getPriceRangedMin() ?? null;
+                        if ($maxRange === null || $minRange === null) {
+                            throw new TransactionServiceException("Incorrect range set for ranged product sku: {$sku}.");
+                        }
+                        if ($amount < $minRange || $amount > $maxRange) {
+                            $exception = <<<EXCEPTION
+                            Price {$amount} set out of range of min: {$minRange} max: {$maxRange} for sku: $sku
+                            EXCEPTION;
+                            unset($sku);
+                            throw new TransactionServiceException($exception);
+                        }
+                    }
                     $amount = $product['amount'] ?? null;
                     $quantity = $product['quantity'] ?? 1;
                     $transactionProduct = new TransactionProduct($requestedProduct, $amount);

@@ -1,5 +1,8 @@
 #!/usr/bin/env php
 <?php
+
+use Factories\LoggerFactory;
+
 require __DIR__ . "/../cli-bootstrap.php";
 
 // Establish JWT Auth Token for Product Catalog access...
@@ -27,7 +30,7 @@ $output = $scheduler->run();
 /**
  * @var \Psr\Log\LoggerInterface $logger
  */
-$logger = $container->get('logger');
+$logger = LoggerFactory::getInstance();
 foreach ($output as $taskOutput) {
     $logger->info(
         $taskOutput['output'],
