@@ -146,12 +146,18 @@ class Transaction
         foreach ($this->requestedProductContainer as $requestedProduct) {
             foreach ($products as $product) {
                 if (strtoupper($requestedProduct->getSku()) === strtoupper($product['sku'])) {
-                    if($requestedProduct->price_ranged) {
-                        if (!$product['amount']) {
+                    if($requestedProduct->isPriceRanged()) {
+                        $amount = $product['amount'] ?? null;
+                        $sku = $product['sku'];
+                        if ($amount === null) {
                             throw new TransactionServiceException('No amount set for ranged product.');
                         }
-                        if ($product['amount'] < $requestedProduct->price_ranged_min || $product['amount'] > $requestedProduct->price_ranged_max) {
-                            throw new TransactionServiceException("Price {$product['amount']} set out of range of min: {$requestedProduct->price_ranged_min} max: {$requestedProduct->price_ranged_max}.");
+                        if ($amount < $requestedProduct->price_ranged_min || $amount > $requestedProduct->price_ranged_max) {
+                            $exception = <<<EXCEPTION
+                            Price $amount set out of range of min: $requestedProduct->price_ranged_min max: $requestedProduct->price_ranged_max for sku: $sku
+                            EXCEPTION;
+                            unset($sku);
+                            throw new TransactionServiceException($exception);
                         }
                     }
                     $amount = $product['amount'] ?? null;
