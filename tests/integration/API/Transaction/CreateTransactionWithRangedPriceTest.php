@@ -1,13 +1,14 @@
 <?php
 
+
 namespace IntegrationTests\API\Transaction;
 
 use IntegrationTests\API\AbstractAPITestCase;
 
-class CreateTransactionWithFeeTest extends AbstractAPITestCase
+class CreateTransactionWithRangedPriceTest extends AbstractAPITestCase
 {
-    //trigger transaction with product not in catalog program config
-    public function testCreateTransactionWithProgramFee()
+    //trigger transaction with product within normal variables 
+    public function testCreateTransactionWithRangedPrice()
     {
         $response = $this->getApiClient()->request(
             'POST',
@@ -27,20 +28,21 @@ class CreateTransactionWithFeeTest extends AbstractAPITestCase
                         ],
                         'products' => [
                             [
-                                'sku' => 'CHADTEST',
-                                'quantity' => 1,
+                            'sku' => 'VVISA01',
+                            'quantity' => 1,
+                            'amount' => 5 
                             ],
                         ],
                     ]
                 ),
             ]
         );
-
         // Response MUST be status code 201
         $this->assertSame(201, $response->getStatusCode());
     }
 
-    public function testCreateTransactionWithVendorFee()
+    //trigger transaction with product with MIN value less than set MIN value 
+    public function testCreateTransactionWithRangedPriceBadMin()
     {
         $response = $this->getApiClient()->request(
             'POST',
@@ -60,20 +62,22 @@ class CreateTransactionWithFeeTest extends AbstractAPITestCase
                         ],
                         'products' => [
                             [
-                                'sku' => 'PS0000889498-24',
-                                'quantity' => 1,
+                            'sku' => 'VVISA01',
+                            'quantity' => 1,
+                            'amount' => 2 
                             ],
                         ],
                     ]
                 ),
+
             ]
         );
-
-        // Response MUST be status code 201
-        $this->assertSame(201, $response->getStatusCode());
+        // Response MUST be status code 400 
+        $this->assertSame(400, $response->getStatusCode());
     }
 
-    public function testCreateTransactionWithVendorAndProgramFee()
+    //trigger transaction with product with MAX value more than set MAX value 
+    public function testCreateTransactionWithRangedPriceBadMax()
     {
         $response = $this->getApiClient()->request(
             'POST',
@@ -93,20 +97,22 @@ class CreateTransactionWithFeeTest extends AbstractAPITestCase
                         ],
                         'products' => [
                             [
-                                'sku' => 'PS0000889497-24',
-                                'quantity' => 1,
+                            'sku' => 'VVISA01',
+                            'quantity' => 1,
+                            'amount' => 550 
                             ],
                         ],
                     ]
                 ),
+
             ]
         );
-
-        // Response MUST be status code 201
-        $this->assertSame(201, $response->getStatusCode());
+        // Response MUST be status code 400 
+        $this->assertSame(400, $response->getStatusCode());
     }
 
-    public function testCreateTransactionWithVendorAndProgramFeeAndWithoutFee()
+    //trigger transaction with product with no AMOUNT  
+    public function testCreateTransactionWithRangedPriceBadAmount()
     {
         $response = $this->getApiClient()->request(
             'POST',
@@ -126,29 +132,16 @@ class CreateTransactionWithFeeTest extends AbstractAPITestCase
                         ],
                         'products' => [
                             [
-                                'sku' => 'PS0000889497-24',
-                                'quantity' => 1,
+                            'sku' => 'VVISA01',
+                            'quantity' => 1
                             ],
-                            [
-                                'sku' => 'PS0000889498-24',
-                                'quantity' => 1,
-                            ],
-                            [
-                                'sku' => 'CHADTEST',
-                                'quantity' => 1,
-                            ],
-                            [
-                                'sku' => 'ICVUSD-D-V-00-20',
-                                'quantity' => 1,
-                                'amount' => 5,
-                            ]
                         ],
                     ]
                 ),
+
             ]
         );
-
-        // Response MUST be status code 201
-        $this->assertSame(201, $response->getStatusCode());
+        // Response MUST be status code 400 
+        $this->assertSame(400, $response->getStatusCode());
     }
 }
