@@ -139,7 +139,8 @@ class CreateTransactionWithFeeTest extends AbstractAPITestCase
                             ],
                             [
                                 'sku' => 'ICVUSD-D-V-00-20',
-                                'quantity' => 1
+                                'quantity' => 1,
+                                'amount' => 5,
                             ]
                         ],
                     ]

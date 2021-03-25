@@ -4,6 +4,7 @@ namespace Services\Participant;
 
 use AllDigitalRewards\AMQP\MessagePublisher;
 use AllDigitalRewards\RewardStack\Traits\MetaValidationTrait;
+use AllDigitalRewards\Services\Catalog\Entity\Product;
 use AllDigitalRewards\Services\Catalog\Entity\InventoryHoldRequest;
 use Entities\Adjustment;
 use Entities\Event;
@@ -142,19 +143,23 @@ class Transaction
             throw new TransactionServiceException('One or more of the requested products are unavailable.');
         }
 
-
         foreach ($this->requestedProductContainer as $requestedProduct) {
             foreach ($products as $product) {
                 if (strtoupper($requestedProduct->getSku()) === strtoupper($product['sku'])) {
                     if($requestedProduct->isPriceRanged()) {
-                        $amount = $product['amount'] ?? null;
                         $sku = $product['sku'];
+                        $amount = $product['amount'] ?? null;
                         if ($amount === null) {
-                            throw new TransactionServiceException('No amount set for ranged product.');
+                            throw new TransactionServiceException("No amount set for ranged product sku: {$sku}.");
                         }
-                        if ($amount < $requestedProduct->price_ranged_min || $amount > $requestedProduct->price_ranged_max) {
+                        $maxRange = $requestedProduct->getPriceRangedMax() ?? null;
+                        $minRange = $requestedProduct->getPriceRangedMin() ?? null;
+                        if ($maxRange === null || $minRange === null) {
+                            throw new TransactionServiceException("Incorrect range set for ranged product sku: {$sku}.");
+                        }
+                        if ($amount < $minRange || $amount > $maxRange) {
                             $exception = <<<EXCEPTION
-                            Price $amount set out of range of min: $requestedProduct->price_ranged_min max: $requestedProduct->price_ranged_max for sku: $sku
+                            Price $amount set out of range of min: $minRange max: $maxRange for sku: $sku
                             EXCEPTION;
                             unset($sku);
                             throw new TransactionServiceException($exception);
