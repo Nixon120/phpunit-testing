@@ -10,15 +10,15 @@ class UpdateProgramTest extends AbstractAPITestCase
     {
         $response = $this->getApiClient()->request(
             'PUT',
-            'api/program/sharecare',
+            'api/program/alldigitalrewards',
             [
                 'headers' => $this->getHeaders(),
                 'body' => json_encode([
-                    'name' => 'End Test 2',
-                    'unique_id' => 'ed-test-2',
+                    'name'=> 'alldigitalrewards',
+                    'unique_id' => 'alldigitalrewards',
                     'start_date' => '2020-03-03 01:01:01',
-                    'end_date' => '2025-03-03 01:01:01',
-                    'timezone' => 'America/Chicago'
+                    'timezone' => 'America/Chicago',
+                    'end_date' => '2025-03-03 01:01:01'
                 ]),
             ]
         );
@@ -34,10 +34,11 @@ class UpdateProgramTest extends AbstractAPITestCase
     {
         $response = $this->getApiClient()->request(
             'PUT',
-            'api/program/sharecare',
+            'api/program/alldigitalrewards',
             [
                 'headers' => $this->getHeaders(),
                 'body' => json_encode([
+                    'name' => null,
                     'unique_id' => 'NotARealProgramEver',
                     'start_date' => '2020-03-03 01:01:01',
                     'end_date' => '2025-03-03 01:01:01',
@@ -57,11 +58,12 @@ class UpdateProgramTest extends AbstractAPITestCase
     {
         $response = $this->getApiClient()->request(
             'PUT',
-            'api/program/sharecare',
+            'api/program/alldigitalrewards',
             [
                 'headers' => $this->getHeaders(),
                 'body' => json_encode([
-                    'unique_id' => 'ed-test-2',
+                    'name' => 'test name',
+                    'unique_id' => 'alldigitalrewards',
                     'start_date' => '2020-03-03 01:01',
                     'end_date' => '2025-03-03 01:01:01',
                     'timezone' => 'America/Chicago'

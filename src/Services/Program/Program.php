@@ -347,9 +347,13 @@ class Program
 
     private function updateEntities(): bool
     {
-        if ($this->program->getContact() instanceof Contact) {
+        if ($this->program->hasContact() instanceof Contact) {
             // Save the Contact
             if ($this->contactRepository->place($this->program->getContact()) === false) {
+                //var_dump($this->contactRepository);
+                $this->repository->setErrors([
+                    _('The contact is missing or invalid.')
+                ]);
                 return false;
             }
         }
@@ -436,35 +440,35 @@ class Program
 
         if (!empty($data['url']) && $this->isUrlValid($data['url']) === false) {
             $this->repository->setErrors([
-                _('The marketplace URL provided is invalid. Please ensure the URL is a proper subdomain')
+                _('The marketplace URL provided is invalid. Please ensure the URL is a proper subdomain.')
             ]);
             return false;
         }
 
         if (!$this->isValidJson($data)) {
             $this->repository->setErrors([
-                _('Invalid JSON')
+                _('Invalid JSON.')
             ]);
             return false;
         }
 
         if (!$this->isValidDateFormat($data['start_date'])) {
             $this->repository->setErrors([
-                _('Invalid Start Date')
+                _('Invalid Start Date.')
             ]);
             return false;
         }
 
         if (!$this->isValidDateFormat($data['end_date'])) {
             $this->repository->setErrors([
-                _('Invalid End Date')
+                _('Invalid End Date.')
             ]);
             return false;
         }
 
         if (!array_key_exists($data['timezone'], $this->timeZones['America'])) {
             $this->repository->setErrors([
-                _('Invalid Timezone')
+                _('Invalid Timezone.')
             ]);
             return false;
         }
@@ -486,7 +490,6 @@ class Program
             return $this->repository->getProgram($this->program->getUniqueId());
         }
 
-        return false;
     }
 
     private function isUrlValid($url)
