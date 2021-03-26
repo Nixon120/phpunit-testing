@@ -38,8 +38,8 @@ class Program
     /**
      * @var timeZones
      */
-    private $timeZones = array ( 
-        'America' => array (
+    private $timeZones = [ 
+        'America' => [ 
             'America/Adak' => 'Adak -10:00',
             'America/Atka' => 'Atka -10:00',
             'America/Anchorage' => 'Anchorage -9:00',
@@ -169,8 +169,8 @@ class Program
             'America/Noronha' => 'Noronha -2:00',
             'America/Scoresbysund' => 'Scoresbysund -1:00',
             'America/Danmarkshavn' => 'Danmarkshavn +0:00',
-        )
-    );
+        ] 
+    ];
     public function __construct(
         ProgramRepository $repository,
         ContactRepository $contactRepository,
@@ -204,20 +204,12 @@ class Program
     }
 
     public function isValidJson($json) {
-        if (!@json_decode(json_encode($json))) {
-            return false;
-        } else {
-            return true;
-        }
+        return @json_decode(json_encode($json));
     }
 
     public function isValidDateFormat($jsonDate) {
         $tempDate = \DateTime::createFromFormat("Y-m-d H:i:s", $jsonDate);
-        if (!$tempDate) {
-            return false;
-        } else {
-            return true;
-        }
+        return $tempDate;
     }
 
     private function buildEntities($data): bool
@@ -346,7 +338,7 @@ class Program
 
     private function updateEntities(): bool
     {
-        if ($this->program->hasContact() instanceof Contact) {
+        if ($this->program->hasContact()) {
             // Save the Contact
             if ($this->contactRepository->place($this->program->getContact()) === false) {
                 $this->repository->setErrors([
