@@ -1,5 +1,4 @@
 <?php
-
 namespace Services\Program;
 
 use AllDigitalRewards\AMQP\MessagePublisher;
@@ -214,7 +213,12 @@ class Program
 
     public function isValidDateFormat($jsonDate) {
         $tempDate = \DateTime::createFromFormat("Y-m-d H:i:s", $jsonDate);
-        return $tempDate !== false && !array_sum($tempDate::getLastErrors());
+        if (!$tempDate) {
+            return false;
+        } else {
+            return true;
+        }
+        //if ($tempDate->date !== false && !array_sum($tempDate::getLastErrors())) {
     }
 
     private function buildEntities($data): bool
