@@ -218,7 +218,6 @@ class Program
         } else {
             return true;
         }
-        //if ($tempDate->date !== false && !array_sum($tempDate::getLastErrors())) {
     }
 
     private function buildEntities($data): bool
@@ -350,7 +349,6 @@ class Program
         if ($this->program->hasContact() instanceof Contact) {
             // Save the Contact
             if ($this->contactRepository->place($this->program->getContact()) === false) {
-                //var_dump($this->contactRepository);
                 $this->repository->setErrors([
                     _('The contact is missing or invalid.')
                 ]);

@@ -34,7 +34,6 @@ class Modify extends AbstractModifyController
         $this->service = $factory->getService();
     }
 
-
     public function insert()
     {
         $post = $this->request->getParsedBody() ?? [];
@@ -73,7 +72,6 @@ class Modify extends AbstractModifyController
 
     public function update($id)
     {
-
         $post = $this->request->getParsedBody()??[];
         $input = new InputNormalizer($post);
 

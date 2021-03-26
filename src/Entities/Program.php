@@ -112,7 +112,6 @@ class Program extends Base
      */
     private $actions;
 
-
     public function __construct(array $data = null)
     {
         parent::__construct();
