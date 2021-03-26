@@ -74,6 +74,7 @@ services:
       LOG_PORT: "24224"
       GOOGLE_CDN_BUCKET: "adrcdn_qa"
       ENABLE_CRON: "1"
+      IP_WHITELIST: "207.192.244.170"
     networks:
       - adrnet
   ng-admin:
