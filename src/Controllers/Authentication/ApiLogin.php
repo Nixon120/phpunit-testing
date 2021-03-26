@@ -50,7 +50,6 @@ class ApiLogin
 
     public function __invoke(Request $request, Response $response, $args)
     {
-
         $this->request = $request;
         $this->response = $response;
         $this->args = $args;

@@ -3,6 +3,7 @@
 namespace Services;
 
 use Cache\Adapter\Common\Exception\CacheException;
+use DateTime;
 use Psr\Cache\CacheItemPoolInterface;
 use Cache\Adapter\Common\CacheItem;
 
@@ -37,7 +38,9 @@ class CacheService
     {
         $cachedItem = new CacheItem($key);
         $cachedItem->set($item);
-
+        if (strpos($key, 'LOCKOUT_') !== false) {
+            $cachedItem->expiresAt(new DateTime('+15 minutes'));
+        }
         $this->getCache()->save($cachedItem);
     }
 
