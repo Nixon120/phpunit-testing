@@ -204,7 +204,7 @@ class Program
     }
 
     public function isValidJson($json) {
-        return @json_decode(json_encode($json));
+        return json_decode(json_encode($json));
     }
 
     public function isValidDateFormat($jsonDate) {
