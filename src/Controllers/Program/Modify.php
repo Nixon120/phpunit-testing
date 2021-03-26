@@ -34,18 +34,6 @@ class Modify extends AbstractModifyController
         $this->service = $factory->getService();
     }
 
-    public function isValidJson($json) {
-        if (!@json_decode(json_encode($json))) {
-            return false;
-        } else {
-            return true;
-        }
-    }
-
-    public function isValidDateFormat($jsonDate) {
-        $tempDate = \DateTime::createFromFormat("Y-m-d H:i:s", $jsonDate);
-        return $tempDate !== false && !array_sum($tempDate::getLastErrors());
-    }
 
     public function insert()
     {
@@ -85,23 +73,9 @@ class Modify extends AbstractModifyController
 
     public function update($id)
     {
+
         $post = $this->request->getParsedBody()??[];
-        if (!$this->isValidJson($post)) {
-            throw new \Exception('Invalid JSON.');
-        }
-
-        if (!$this->isValidDateFormat($post['start_date'])) {
-            throw new \Exception('Invalid Start Date.');
-        }
-
-        if (!$this->isValidDateFormat($post['end_date'])) {
-            throw new \Exception('Invalid End Date.');
-        }
-        
         $input = new InputNormalizer($post);
-        if (!array_key_exists($post['timezone'], $program->timeZones['America'])) {
-            throw new \Exception('Invalid Timezone.');
-        }
 
         $program = $this->service->update($id, $input);
         if ($program instanceof \Entities\Program) {
