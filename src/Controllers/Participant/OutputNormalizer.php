@@ -140,7 +140,13 @@ class OutputNormalizer extends AbstractOutputNormalizer
         ]);
 
         foreach ($return as $k => $v) {
+            $type = 'debit';
+            if($return[$k]['type'] === 1) {
+                $type = 'credit';
+            }
+
             $return[$k]['amount'] = bcmul($return[$k]['amount'], $participant->getProgram()->getPoint(), 2);
+            $return[$k]['type'] = $type;
         }
 
         return $return;
