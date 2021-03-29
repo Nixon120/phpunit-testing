@@ -437,6 +437,19 @@ class Program extends Base
     }
 
     /**
+     * @return boolean
+     */
+    public function isValidTimezoneId($timezoneId = null) 
+    {
+        try {
+            $tempZone = new \DateTimeZone($timezoneId);
+        } catch (\Exception $e) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * @param string $timezone
      */
     public function setTimezone(string $timezone): void
