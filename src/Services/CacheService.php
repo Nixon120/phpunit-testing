@@ -33,11 +33,13 @@ class CacheService
             ->hasItem($key);
     }
 
-    public function cacheItem($item, string $key)
+    public function cacheItem($item, string $key, $dateTime = null)
     {
         $cachedItem = new CacheItem($key);
         $cachedItem->set($item);
-
+        if (isset($dateTime) === true) {
+            $cachedItem->expiresAt($dateTime);
+        }
         $this->getCache()->save($cachedItem);
     }
 
