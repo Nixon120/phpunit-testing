@@ -2,6 +2,7 @@
 
 namespace Controllers\Authentication;
 
+use DateTime;
 use Services\Authentication\Authenticate;
 use Services\Authentication\AuthAttemptValidation;
 use Slim\Http\Request;
@@ -115,7 +116,6 @@ class ApiLogin
         }
 
         $attempts++;
-
-        $this->cacheService->cacheItem($attempts, $key);
+        $this->cacheService->cacheItem($attempts, $key, (new DateTime('+15 minutes')));
     }
 }
