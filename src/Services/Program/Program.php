@@ -306,21 +306,22 @@ class Program
             return false;
         }
 
-        if (!$this->isValidDateFormat($data['start_date'])) {
+        
+        if (!empty($data['start_date']) && $this->isValidDateFormat($data['start_date']) === false) {
             $this->repository->setErrors([
                 _('Invalid Start Date.')
             ]);
             return false;
         }
 
-        if (!$this->isValidDateFormat($data['end_date'])) {
+        if (!empty($data['end_date']) && $this->isValidDateFormat($data['end_date']) === false) {
             $this->repository->setErrors([
                 _('Invalid End Date.')
             ]);
             return false;
         }
 
-        if (!$this->program->isValidTimezoneId($data['timezone'])) {
+        if (!empty($data['timezone']) && $this->program->isValidTimezoneId($data['timezone']) === false) {
             $this->repository->setErrors([
                 _('Invalid Timezone.')
             ]);
