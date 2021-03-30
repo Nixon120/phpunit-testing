@@ -206,7 +206,7 @@ class Program
             // Save the Contact
             if ($this->contactRepository->place($this->program->getContact()) === false) {
                 $this->repository->setErrors([
-                    _('The contact is missing or invalid.')
+                    _('The provided contact was invalid.')
                 ]);
                 return false;
             }
