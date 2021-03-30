@@ -1,5 +1,4 @@
 <?php
-
 namespace Services\Program;
 
 use AllDigitalRewards\AMQP\MessagePublisher;
@@ -66,6 +65,15 @@ class Program
         $filter = new FilterNormalizer($input->getInput());
         $programs = $this->repository->getCollection($filter, $input->getPage(), $input->getLimit());
         return $programs;
+    }
+
+    public function isValidJson($json) {
+        return json_decode(json_encode($json));
+    }
+
+    public function isValidDateFormat($jsonDate) {
+        $tempDate = \DateTime::createFromFormat("Y-m-d H:i:s", $jsonDate);
+        return $tempDate;
     }
 
     private function buildEntities($data): bool
@@ -197,6 +205,9 @@ class Program
         if ($this->program->hasContact()) {
             // Save the Contact
             if ($this->contactRepository->place($this->program->getContact()) === false) {
+                $this->repository->setErrors([
+                    _('The provided contact was invalid.')
+                ]);
                 return false;
             }
         }
@@ -283,7 +294,36 @@ class Program
 
         if (!empty($data['url']) && $this->isUrlValid($data['url']) === false) {
             $this->repository->setErrors([
-                _('The marketplace URL provided is invalid. Please ensure the URL is a proper subdomain')
+                _('The marketplace URL provided is invalid. Please ensure the URL is a proper subdomain.')
+            ]);
+            return false;
+        }
+
+        if (!$this->isValidJson($data)) {
+            $this->repository->setErrors([
+                _('Invalid JSON.')
+            ]);
+            return false;
+        }
+
+        
+        if (!empty($data['start_date']) && $this->isValidDateFormat($data['start_date']) === false) {
+            $this->repository->setErrors([
+                _('Invalid Start Date.')
+            ]);
+            return false;
+        }
+
+        if (!empty($data['end_date']) && $this->isValidDateFormat($data['end_date']) === false) {
+            $this->repository->setErrors([
+                _('Invalid End Date.')
+            ]);
+            return false;
+        }
+
+        if (!empty($data['timezone']) && $this->program->isValidTimezoneId($data['timezone']) === false) {
+            $this->repository->setErrors([
+                _('Invalid Timezone.')
             ]);
             return false;
         }
@@ -305,7 +345,6 @@ class Program
             return $this->repository->getProgram($this->program->getUniqueId());
         }
 
-        return false;
     }
 
     private function isUrlValid($url)

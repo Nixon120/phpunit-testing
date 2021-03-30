@@ -73,8 +73,8 @@ class Modify extends AbstractModifyController
     public function update($id)
     {
         $post = $this->request->getParsedBody()??[];
-
         $input = new InputNormalizer($post);
+
         $program = $this->service->update($id, $input);
         if ($program instanceof \Entities\Program) {
             $output = new OutputNormalizer($program);
