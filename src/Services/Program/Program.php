@@ -288,8 +288,10 @@ class Program
             return false;
         }
 
-        if ($data['active'] == 0) {
-            $data['published'] = 0;
+        if (isset($data['active'])) {
+            if ($data['active'] == 0) {
+                $data['published'] = 0;
+            }
         }
 
         if ($this->buildEntities($data) === false) {
