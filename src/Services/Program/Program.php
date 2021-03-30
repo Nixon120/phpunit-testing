@@ -194,7 +194,7 @@ class Program
 
     private function updateEntities(): bool
     {
-        if ($this->program->getContact() instanceof Contact) {
+        if ($this->program->hasContact()) {
             // Save the Contact
             if ($this->contactRepository->place($this->program->getContact()) === false) {
                 return false;
